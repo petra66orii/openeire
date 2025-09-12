@@ -30,8 +30,8 @@ const AuthForm: React.FC = () => {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null); // Clear previous errors
-    setLoading(true); // Set loading state
+    setError(null);
+    setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords don't match!");
@@ -39,29 +39,35 @@ const AuthForm: React.FC = () => {
       return;
     }
 
-    // Call the registerUser API function
     try {
-      // The backend expects 'username' where we have 'email' for simplicity in this form
       await registerUser({
-        username: formData.email, // Using email as username for now as per serializer
+        username: formData.email,
         email: formData.email,
         password: formData.password,
       });
       console.log("Registration successful!");
-      // Redirect to the verification pending page
-      navigate("/verify-pending"); // <-- We'll create this route next
+      navigate("/verify-pending");
     } catch (err: any) {
       console.error("Registration error:", err);
-      // Display specific error messages from the backend
-      if (err.email) {
-        setError(err.email[0]); // e.g., "user with this email already exists."
-      } else if (err.username) {
-        setError(err.username[0]); // Fallback for username errors
-      } else {
-        setError("Registration failed. Please try again.");
+
+      if (err && typeof err === "object" && !Array.isArray(err)) {
+        const errorKeys = Object.keys(err);
+
+        if (errorKeys.length > 0) {
+          const firstKey = errorKeys[0];
+          const messages = err[firstKey];
+
+          if (Array.isArray(messages) && messages.length > 0) {
+            setError(messages[0]);
+            return; // Exit after setting the specific error
+          }
+        }
       }
+
+      // Fallback for any other type of error
+      setError("Registration failed. Please try again.");
     } finally {
-      setLoading(false); // Always stop loading
+      setLoading(false);
     }
   };
 
