@@ -40,3 +40,19 @@ export const registerUser = async (data: RegisterData): Promise<RegisterResponse
     throw error;
   }
 };
+
+interface VerifyEmailResponse {
+  message: string;
+}
+
+export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
+  try {
+    const response = await api.post<VerifyEmailResponse>('auth/verify-email/confirm/', { token });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
