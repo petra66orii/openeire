@@ -23,6 +23,16 @@ interface RegisterResponse {
   // We won't get the password back, but other user details might be here
 }
 
+interface LoginData {
+  username: string;
+  password: string;
+}
+
+interface LoginResponse {
+  access: string;
+  refresh: string;
+}
+
 export const registerUser = async (data: RegisterData): Promise<RegisterResponse> => {
   try {
     const response = await api.post<RegisterResponse>('auth/register/', {
@@ -48,6 +58,18 @@ interface VerifyEmailResponse {
 export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
   try {
     const response = await api.post<VerifyEmailResponse>('auth/verify-email/confirm/', { token });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
+export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
+  try {
+    const response = await api.post<LoginResponse>('auth/login/', data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
