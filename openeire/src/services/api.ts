@@ -78,3 +78,23 @@ export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
     throw error;
   }
 };
+
+export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
+  try {
+    const response = await api.post('auth/password/reset/', { email });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
+export const confirmPasswordReset = async (password: string, confirm_password: string, token: string): Promise<{ message: string }> => {
+  try {
+    const response = await api.post('auth/password/reset/confirm/', { password, confirm_password, token });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
