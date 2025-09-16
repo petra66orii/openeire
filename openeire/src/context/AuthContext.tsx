@@ -1,4 +1,10 @@
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 import { loginUser } from "../services/api";
 
 interface AuthState {
@@ -11,9 +17,15 @@ interface AuthState {
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(
-    localStorage.getItem("accessToken")
-  );
+  const [accessToken, setAccessToken] = useState<string | null>(null); // Initial state set to null
+
+  // Use useEffect to load tokens from localStorage once on component mount
+  useEffect(() => {
+    const storedAccessToken = localStorage.getItem("accessToken");
+    if (storedAccessToken) {
+      setAccessToken(storedAccessToken);
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   const login = async (username: string, password: string) => {
     const response = await loginUser({ username, password });
