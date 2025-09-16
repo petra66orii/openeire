@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -67,6 +68,14 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
             />
+          </div>
+          <div className="text-sm text-right">
+            <Link
+              to="/request-password-reset"
+              className="font-medium text-green-600 hover:text-green-500"
+            >
+              Forgot your password?
+            </Link>
           </div>
           <div>
             <button
