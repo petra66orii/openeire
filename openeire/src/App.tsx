@@ -6,9 +6,9 @@ import LogoutPage from "./pages/LogoutPage";
 import RequestPasswordResetPage from "./pages/RequestPasswordResetPage";
 import ConfirmPasswordResetPage from "./pages/ConfirmPasswordResetPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ProfilePage from "./pages/ProfilePage";
 
 const HomePage = () => <div>Home Page</div>;
-const ProfilePage = () => <div>Welcome to your profile!</div>;
 
 function App() {
   return (
