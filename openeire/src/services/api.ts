@@ -2,14 +2,23 @@ import axios from 'axios';
 
 // Create an Axios instance for our API
 const api = axios.create({
-  // This is the base URL for our Django backend
-  // Make sure your Django dev server is running (e.g., on http://127.0.0.1:8000)
   baseURL: 'http://127.0.0.1:8000/api/',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+export interface UserProfile {
+  username: string;
+  email: string;
+  default_phone_number: string | null;
+  default_street_address1: string | null;
+  default_street_address2: string | null;
+  default_town: string | null;
+  default_county: string | null;
+  default_postcode: string | null;
+  default_country: string | null;
+}
 interface RegisterData {
   username: string;
   email: string;
@@ -32,6 +41,20 @@ interface LoginResponse {
   access: string;
   refresh: string;
 }
+
+// Axios Interceptor: This function will run before every request
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export const registerUser = async (data: RegisterData): Promise<RegisterResponse> => {
   try {
@@ -92,6 +115,16 @@ export const requestPasswordReset = async (email: string): Promise<{ message: st
 export const confirmPasswordReset = async (password: string, confirm_password: string, token: string): Promise<{ message: string }> => {
   try {
     const response = await api.post('auth/password/reset/confirm/', { password, confirm_password, token });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
+export const getProfile = async (): Promise<UserProfile> => {
+  try {
+    const response = await api.get<UserProfile>('profile/');
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
