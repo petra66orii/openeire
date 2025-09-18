@@ -56,6 +56,8 @@ api.interceptors.request.use(
   }
 );
 
+export type UserProfileUpdateData = Partial<UserProfile>;
+
 export const registerUser = async (data: RegisterData): Promise<RegisterResponse> => {
   try {
     const response = await api.post<RegisterResponse>('auth/register/', {
@@ -125,6 +127,17 @@ export const confirmPasswordReset = async (password: string, confirm_password: s
 export const getProfile = async (): Promise<UserProfile> => {
   try {
     const response = await api.get<UserProfile>('profile/');
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
+export const updateProfile = async (profileData: UserProfileUpdateData): Promise<UserProfile> => {
+  try {
+    // We use a PUT request to the same profile endpoint
+    const response = await api.put<UserProfile>('profile/', profileData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
