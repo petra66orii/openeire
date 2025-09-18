@@ -6,13 +6,17 @@ interface ProductCardProps {
   product: GalleryItem;
 }
 
+// Define the backend base URL
+const BACKEND_BASE_URL = "http://127.0.0.1:8000";
+
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // Determine the correct link and image source based on product type
   const detailUrl = `/gallery/${product.product_type}/${product.id}`;
-  const imageUrl =
-    product.preview_image ||
-    product.thumbnail_image ||
-    "https://via.placeholder.com/400x300";
+  // Conditionally create the full URL for the image
+  let rawImageUrl = product.preview_image || product.thumbnail_image;
+  const imageUrl = rawImageUrl
+    ? `${BACKEND_BASE_URL}${rawImageUrl}`
+    : "https://via.placeholder.com/400x300";
   const displayPrice = product.price || product.price_hd;
 
   return (
