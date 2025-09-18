@@ -7,6 +7,7 @@ import RequestPasswordResetPage from "./pages/RequestPasswordResetPage";
 import ConfirmPasswordResetPage from "./pages/ConfirmPasswordResetPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
+import GalleryPage from "./pages/GalleryPage";
 
 const HomePage = () => <div>Home Page</div>;
 
@@ -30,6 +31,8 @@ function App() {
         path="/verify-email/confirm/:token"
         element={<VerificationStatusPage />}
       />
+      <Route path="/gallery/:type" element={<GalleryPage />} />
+      <Route path="/gallery" element={<GalleryPage />} />
 
       {/* Protected Routes */}
       <Route
