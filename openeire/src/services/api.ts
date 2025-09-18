@@ -42,6 +42,23 @@ interface LoginResponse {
   refresh: string;
 }
 
+export interface GalleryItem {
+  id: number;
+  title: string;
+  preview_image?: string; // For Photos and Physical Products
+  thumbnail_image?: string; // For Videos
+  price: string; // From physical products
+  price_hd?: string; // From digital products
+  product_type: 'photo' | 'video' | 'physical';
+}
+
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 // Axios Interceptor: This function will run before every request
 api.interceptors.request.use(
   (config) => {
@@ -141,6 +158,23 @@ export const updateProfile = async (profileData: UserProfileUpdateData): Promise
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
+
+export const getGalleryProducts = async (
+  type: 'digital' | 'physical' | 'all'
+): Promise<PaginatedResponse<GalleryItem>> => {
+  try {
+    const response = await api.get<PaginatedResponse<GalleryItem>>('gallery/', {
+      params: { type: type === 'all' ? undefined : type },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
