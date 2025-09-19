@@ -8,6 +8,7 @@ import ConfirmPasswordResetPage from "./pages/ConfirmPasswordResetPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
 import GalleryPage from "./pages/GalleryPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
 const HomePage = () => <div>Home Page</div>;
 
@@ -33,6 +34,7 @@ function App() {
       />
       <Route path="/gallery/:type" element={<GalleryPage />} />
       <Route path="/gallery" element={<GalleryPage />} />
+      <Route path="/gallery/:type/:id" element={<ProductDetailPage />} />
 
       {/* Protected Routes */}
       <Route
