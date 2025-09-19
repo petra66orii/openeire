@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import RegisterPage from "./pages/RegisterPage";
 import VerificationStatusPage from "./pages/VerificationStatusPage";
 import LoginPage from "./pages/LoginPage";
@@ -14,38 +15,43 @@ const HomePage = () => <div>Home Page</div>;
 
 function App() {
   return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/logout" element={<LogoutPage />} />
-      <Route
-        path="/request-password-reset"
-        element={<RequestPasswordResetPage />}
-      />
-      <Route
-        path="/password-reset/confirm/:token"
-        element={<ConfirmPasswordResetPage />}
-      />
-      <Route
-        path="/verify-email/confirm/:token"
-        element={<VerificationStatusPage />}
-      />
-      <Route path="/gallery/:type" element={<GalleryPage />} />
-      <Route path="/gallery" element={<GalleryPage />} />
-      <Route path="/gallery/:type/:id" element={<ProductDetailPage />} />
+    <>
+      <Navbar />
+      <main className="flex-grow">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/logout" element={<LogoutPage />} />
+          <Route
+            path="/request-password-reset"
+            element={<RequestPasswordResetPage />}
+          />
+          <Route
+            path="/password-reset/confirm/:token"
+            element={<ConfirmPasswordResetPage />}
+          />
+          <Route
+            path="/verify-email/confirm/:token"
+            element={<VerificationStatusPage />}
+          />
+          <Route path="/gallery/:type" element={<GalleryPage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/gallery/:type/:id" element={<ProductDetailPage />} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+          {/* Protected Routes */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+    </>
   );
 }
 
