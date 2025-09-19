@@ -178,3 +178,62 @@ export const getGalleryProducts = async (
     throw error;
   }
 };
+
+export interface PhotoDetail extends GalleryItem {
+  description: string;
+  collection: string;
+  high_res_file: string;
+  price_4k: string;
+  tags: string | null;
+  created_at: string;
+}
+
+export interface VideoDetail extends GalleryItem {
+  description: string;
+  collection: string;
+  video_file: string;
+  price_4k: string;
+  tags: string | null;
+  created_at: string;
+}
+
+export interface ProductDetail extends GalleryItem {
+  photo: PhotoDetail; // The full photo details are nested
+  material: string;
+  size: string;
+  sku: string | null;
+}
+
+// A union type for any possible detail item
+export type ProductDetailItem = PhotoDetail | VideoDetail | ProductDetail;
+
+export const getProductDetail = async (
+  type: string,
+  id: string
+): Promise<ProductDetailItem> => {
+  let url = '';
+  // Determine the correct endpoint based on the product type
+  switch (type) {
+    case 'photo':
+      url = `photos/${id}/`;
+      break;
+    case 'video':
+      url = `videos/${id}/`;
+      break;
+    case 'physical':
+      url = `products/${id}/`;
+      break;
+    default:
+      throw new Error('Invalid product type');
+  }
+
+  try {
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
