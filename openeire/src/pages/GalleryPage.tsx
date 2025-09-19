@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { getGalleryProducts, GalleryItem } from "../services/api";
 import ProductCard from "../components/ProductCard";
+import CollectionFilter from "../components/CollectionFilter";
 
 const GalleryPage: React.FC = () => {
   const { type = "all" } = useParams<{
@@ -9,6 +10,7 @@ const GalleryPage: React.FC = () => {
   }>();
   const [products, setProducts] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [collection, setCollection] = useState("all");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -16,7 +18,7 @@ const GalleryPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await getGalleryProducts(type);
+        const response = await getGalleryProducts(type, collection);
         setProducts(response.results);
       } catch (err) {
         setError("Failed to load products. Please try again later.");
@@ -26,7 +28,7 @@ const GalleryPage: React.FC = () => {
     };
 
     fetchProducts();
-  }, [type]); // Refetch whenever the 'type' in the URL changes
+  }, [type, collection]); // <-- Refetch when type OR collection changes
 
   const title =
     type === "digital"
@@ -37,25 +39,34 @@ const GalleryPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-8">
-      <h1 className="text-3xl lg:text-4xl font-bold mb-8 text-gray-800 border-b pb-4">
+      <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-center text-gray-800">
         {title}
       </h1>
+      <CollectionFilter
+        activeCollection={collection}
+        onSelectCollection={setCollection}
+      />
+      <div className="container mx-auto p-4 lg:p-8">
+        <h1 className="text-3xl lg:text-4xl font-bold mb-8 text-gray-800 border-b pb-4">
+          {title}
+        </h1>
 
-      {loading && (
-        <p className="text-center text-gray-500">Loading products...</p>
-      )}
-      {error && <p className="text-center text-red-500">{error}</p>}
+        {loading && (
+          <p className="text-center text-gray-500">Loading products...</p>
+        )}
+        {error && <p className="text-center text-red-500">{error}</p>}
 
-      {!loading && !error && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard
-              key={`${product.product_type}-${product.id}`}
-              product={product}
-            />
-          ))}
-        </div>
-      )}
+        {!loading && !error && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <ProductCard
+                key={`${product.product_type}-${product.id}`}
+                product={product}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
