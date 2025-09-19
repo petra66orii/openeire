@@ -143,7 +143,7 @@ export const confirmPasswordReset = async (password: string, confirm_password: s
 
 export const getProfile = async (): Promise<UserProfile> => {
   try {
-    const response = await api.get<UserProfile>('profile/');
+    const response = await api.get<UserProfile>('auth/profile/');
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
@@ -154,7 +154,7 @@ export const getProfile = async (): Promise<UserProfile> => {
 export const updateProfile = async (profileData: UserProfileUpdateData): Promise<UserProfile> => {
   try {
     // We use a PUT request to the same profile endpoint
-    const response = await api.put<UserProfile>('profile/', profileData);
+    const response = await api.put<UserProfile>('auth/profile/', profileData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
@@ -164,11 +164,15 @@ export const updateProfile = async (profileData: UserProfileUpdateData): Promise
 
 
 export const getGalleryProducts = async (
-  type: 'digital' | 'physical' | 'all'
+  type: 'digital' | 'physical' | 'all',
+  collection?: string // <-- Add optional collection parameter
 ): Promise<PaginatedResponse<GalleryItem>> => {
   try {
     const response = await api.get<PaginatedResponse<GalleryItem>>('gallery/', {
-      params: { type: type === 'all' ? undefined : type },
+      params: { 
+        type: type === 'all' ? undefined : type,
+        collection: collection === 'all' ? undefined : collection, // <-- Add collection to params
+      },
     });
     return response.data;
   } catch (error) {
@@ -178,7 +182,6 @@ export const getGalleryProducts = async (
     throw error;
   }
 };
-
 export interface PhotoDetail extends GalleryItem {
   description: string;
   collection: string;
