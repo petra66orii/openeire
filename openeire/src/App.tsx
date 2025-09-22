@@ -10,6 +10,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
 import GalleryPage from "./pages/GalleryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const HomePage = () => <div>Home Page</div>;
 
@@ -17,6 +19,18 @@ function App() {
   return (
     <>
       <Navbar />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        aria-label={undefined}
+      />
       <main className="flex-grow">
         <Routes>
           {/* Public Routes */}
