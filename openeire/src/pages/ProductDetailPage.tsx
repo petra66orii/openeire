@@ -4,6 +4,7 @@ import { getProductDetail, ProductDetailItem } from "../services/api";
 import ReviewForm from "../components/ReviewForm";
 import ProductReviewList from "../components/ProductReviewList";
 import StarRating from "../components/StarRating";
+import AddToCartForm from "../components/AddToCartForm";
 
 const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
@@ -79,15 +80,7 @@ const ProductDetailPage: React.FC = () => {
           )}
 
           <div className="pt-4 border-t">
-            {/* We will replace this with a real AddToCartForm later */}
-            <div className="p-4 bg-gray-100 rounded-lg">
-              <h2 className="text-2xl font-bold text-gray-800">
-                Purchase Options
-              </h2>
-              <p className="mt-2 text-gray-500">
-                Add to cart form will go here.
-              </p>
-            </div>
+            <AddToCartForm product={product} />
           </div>
           <div className="mt-12">
             <ReviewForm
