@@ -42,6 +42,14 @@ interface LoginResponse {
   refresh: string;
 }
 
+export interface ProductReview {
+  id: number;
+  user: string; // The username of the reviewer
+  rating: number;
+  comment: string | null;
+  created_at: string;
+}
+
 export interface GalleryItem {
   id: number;
   title: string;
@@ -232,6 +240,43 @@ export const getProductDetail = async (
 
   try {
     const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
+
+export interface ReviewSubmitData {
+  rating: number;
+  comment?: string; // Optional as per requirement
+}
+
+export const submitProductReview = async (
+  productType: string,
+  productId: string,
+  reviewData: ReviewSubmitData
+): Promise<any> => {
+  try {
+    const response = await api.post(`${productType}/${productId}/reviews/`, reviewData);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
+export const getProductReviews = async (
+  productType: string,
+  productId: string
+): Promise<ProductReview[]> => {
+  try {
+    const response = await api.get<ProductReview[]>(`${productType}/${productId}/reviews/`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
