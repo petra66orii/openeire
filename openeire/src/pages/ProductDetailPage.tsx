@@ -1,8 +1,9 @@
-// src/pages/ProductDetailPage.tsx
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getProductDetail, ProductDetailItem } from "../services/api";
+import ReviewForm from "../components/ReviewForm";
+import ProductReviewList from "../components/ProductReviewList";
+import StarRating from "../components/StarRating";
 
 const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
@@ -11,25 +12,27 @@ const ProductDetailPage: React.FC = () => {
   const [product, setProduct] = useState<ProductDetailItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+
+  // Function to fetch product details
+  const fetchProductDetail = useCallback(async () => {
+    if (!type || !id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getProductDetail(type, id);
+      setProduct(data);
+      setReviewRefreshKey((prev) => prev + 1); // Also trigger review list refresh
+    } catch (err) {
+      setError("Failed to load product details.");
+    } finally {
+      setLoading(false);
+    }
+  }, [type, id]);
 
   useEffect(() => {
-    if (!type || !id) return;
-
-    const fetchProductDetail = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await getProductDetail(type, id);
-        setProduct(data);
-      } catch (err) {
-        setError("Failed to load product details.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProductDetail();
-  }, [type, id]);
+  }, [fetchProductDetail]);
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
   if (error)
@@ -85,6 +88,18 @@ const ProductDetailPage: React.FC = () => {
                 Add to cart form will go here.
               </p>
             </div>
+          </div>
+          <div className="mt-12">
+            <ReviewForm
+              productType={product.product_type}
+              productId={String(product.id)}
+              onReviewSubmitted={fetchProductDetail} // Re-fetch product details and reviews
+            />
+            <ProductReviewList
+              productType={product.product_type}
+              productId={String(product.id)}
+              refreshKey={reviewRefreshKey}
+            />
           </div>
         </div>
       </div>
