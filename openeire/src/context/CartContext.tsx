@@ -24,6 +24,7 @@ interface CartContextType {
   removeFromCart: (itemId: string) => void; // New
   itemCount: number;
   cartTotal: number; // New
+  clearCart: () => void;
 }
 
 // --- Create the Context ---
@@ -87,6 +88,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // A derived value to easily get the total number of items for the navbar icon
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  const clearCart = () => setCartItems([]);
+
   const cartTotal = cartItems.reduce((total, item) => {
     const price = parseFloat(
       item.product.price || item.product.price_hd || "0"
@@ -103,6 +106,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         removeFromCart,
         itemCount,
         cartTotal,
+        clearCart,
       }}
     >
       {children}
