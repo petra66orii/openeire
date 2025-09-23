@@ -13,6 +13,8 @@ import ProductDetailPage from "./pages/ProductDetailPage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ShoppingBagPage from "./pages/ShoppingBagPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 
 const HomePage = () => <div>Home Page</div>;
 
@@ -55,6 +57,8 @@ function App() {
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/gallery/:type/:id" element={<ProductDetailPage />} />
           <Route path="/bag" element={<ShoppingBagPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
 
           {/* Protected Routes */}
           <Route
