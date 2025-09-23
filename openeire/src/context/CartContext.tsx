@@ -20,7 +20,10 @@ export interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: GalleryItem, quantity: number) => void;
+  updateQuantity: (itemId: string, newQuantity: number) => void; // New
+  removeFromCart: (itemId: string) => void; // New
   itemCount: number;
+  cartTotal: number; // New
 }
 
 // --- Create the Context ---
@@ -64,11 +67,44 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const updateQuantity = (itemId: string, newQuantity: number) => {
+    setCartItems(
+      (prevItems) =>
+        prevItems
+          .map((item) =>
+            item.id === itemId
+              ? { ...item, quantity: Math.max(0, newQuantity) }
+              : item
+          )
+          .filter((item) => item.quantity > 0) // Remove item if quantity is 0
+    );
+  };
+
+  const removeFromCart = (itemId: string) => {
+    setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+  };
+
   // A derived value to easily get the total number of items for the navbar icon
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
+  const cartTotal = cartItems.reduce((total, item) => {
+    const price = parseFloat(
+      item.product.price || item.product.price_hd || "0"
+    );
+    return total + price * item.quantity;
+  }, 0);
+
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, itemCount }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        itemCount,
+        cartTotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
