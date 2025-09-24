@@ -2,9 +2,14 @@ import React from "react";
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
 
-const OrderSummary: React.FC = () => {
+interface OrderSummaryProps {
+  isCheckoutPage?: boolean; // <-- Add this optional prop
+}
+
+const OrderSummary: React.FC<OrderSummaryProps> = ({
+  isCheckoutPage = false,
+}) => {
   const { cartTotal } = useCart();
-  // We'll add real shipping cost logic later
   const shippingCost = cartTotal > 50 ? 0 : 5.99;
   const grandTotal = cartTotal + shippingCost;
 
@@ -25,12 +30,16 @@ const OrderSummary: React.FC = () => {
         <span>Total</span>
         <span>€{grandTotal.toFixed(2)}</span>
       </div>
-      <Link
-        to="/checkout"
-        className="block w-full text-center bg-green-600 text-white py-3 rounded-md hover:bg-green-700"
-      >
-        Proceed to Checkout
-      </Link>
+
+      {/* Conditionally render the button */}
+      {!isCheckoutPage && (
+        <Link
+          to="/checkout"
+          className="block w-full text-center bg-green-600 text-white py-3 rounded-md hover:bg-green-700"
+        >
+          Proceed to Checkout
+        </Link>
+      )}
     </div>
   );
 };

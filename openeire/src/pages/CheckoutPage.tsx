@@ -4,21 +4,32 @@
 import React, { useState, useEffect } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { useCart } from "../context/CartContext";
+import { useCart, CartItem } from "../context/CartContext";
 import CheckoutForm from "../components/CheckoutForm";
-import { api } from "../services/api"; // We'll add createPaymentIntent to api.ts
+import { api } from "../services/api";
+import OrderSummary from "../components/OrderSummary";
 
 // --- We need to add a createPaymentIntent function to api.ts ---
 const createPaymentIntent = async (
-  cart: any
+  cart: CartItem[]
 ): Promise<{ clientSecret: string }> => {
+  // --- Start of new logic ---
+  // Create a simplified version of the cart to send to the backend
+  const simplifiedCart = cart.map((item) => ({
+    product_id: item.product.id,
+    product_type: item.product.product_type,
+    quantity: item.quantity,
+    // Add other selected options here if you have them, e.g., quality: '4k'
+  }));
+  // --- End of new logic ---
+
+  // Send the simplified cart instead of the full cart
   const response = await api.post<{ clientSecret: string }>(
     "checkout/create-payment-intent/",
-    { cart }
+    { cart: simplifiedCart }
   );
   return response.data;
 };
-// ---
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -44,11 +55,22 @@ const CheckoutPage: React.FC = () => {
   return (
     <div className="container mx-auto p-4 lg:p-8">
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-      {clientSecret && (
-        <Elements options={options} stripe={stripePromise}>
-          <CheckoutForm />
-        </Elements>
-      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Payment Form */}
+        <div className="lg:col-span-2">
+          {clientSecret && (
+            <Elements options={options} stripe={stripePromise}>
+              <CheckoutForm />
+            </Elements>
+          )}
+        </div>
+
+        {/* Right Column: Order Summary */}
+        <div className="lg:col-span-1">
+          <OrderSummary isCheckoutPage={true} />
+        </div>
+      </div>
     </div>
   );
 };
