@@ -10,6 +10,8 @@ export const api = axios.create({
 
 export interface UserProfile {
   username: string;
+  first_name: string | null;
+  last_name: string | null;
   email: string;
   default_phone_number: string | null;
   default_street_address1: string | null;
