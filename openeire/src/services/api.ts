@@ -69,6 +69,21 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
+export interface BlogPostListItem {
+  id: number;
+  title: string;
+  slug: string;
+  author: string;
+  featured_image: string | null;
+  excerpt: string;
+  created_at: string;
+}
+
+export interface BlogPostDetail extends BlogPostListItem {
+  content: string;
+  updated_at: string;
+}
+
 // Axios Interceptor: This function will run before every request
 api.interceptors.request.use(
   (config) => {
@@ -288,6 +303,26 @@ export const getProductReviews = async (
     if (axios.isAxiosError(error) && error.response) {
       throw error.response.data;
     }
+    throw error;
+  }
+};
+
+export const getBlogPosts = async (): Promise<PaginatedResponse<BlogPostListItem>> => {
+  try {
+    const response = await api.get<PaginatedResponse<BlogPostListItem>>('blog/posts/');
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
+export const getBlogPostDetail = async (slug: string): Promise<BlogPostDetail> => {
+  try {
+    const response = await api.get<BlogPostDetail>(`blog/posts/${slug}/`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
     throw error;
   }
 };
