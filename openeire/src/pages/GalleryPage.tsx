@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getGalleryProducts, GalleryItem } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import CollectionFilter from "../components/CollectionFilter";
+import SearchBar from "../components/SearchBar";
 
 const GalleryPage: React.FC = () => {
   const { type = "all" } = useParams<{
@@ -10,6 +11,7 @@ const GalleryPage: React.FC = () => {
   }>();
   const [products, setProducts] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const [collection, setCollection] = useState("all");
   const [error, setError] = useState<string | null>(null);
 
@@ -37,11 +39,18 @@ const GalleryPage: React.FC = () => {
       ? "Physical Art Prints"
       : "All Products";
 
+  const handleSearch = (query: string) => {
+    setSearchTerm(query);
+  };
+
   return (
     <div className="container mx-auto p-4 lg:p-8">
       <h1 className="text-3xl lg:text-4xl font-bold mb-4 text-center text-gray-800">
         {title}
       </h1>
+
+      <SearchBar onSearch={handleSearch} />
+
       <CollectionFilter
         activeCollection={collection}
         onSelectCollection={setCollection}
