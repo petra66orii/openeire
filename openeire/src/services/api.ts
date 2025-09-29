@@ -176,7 +176,8 @@ export const updateProfile = async (profileData: UserProfileUpdateData): Promise
 export const getGalleryProducts = async (
   type: 'digital' | 'physical' | 'all',
   collection?: string,
-  search?: string
+  search?: string,
+  sort?: string
 ): Promise<PaginatedResponse<GalleryItem>> => {
   try {
     const response = await api.get<PaginatedResponse<GalleryItem>>('gallery/', {
@@ -184,6 +185,7 @@ export const getGalleryProducts = async (
         type: type === 'all' ? undefined : type,
         collection: collection === 'all' ? undefined : collection,
         search: search ? search : undefined,
+        sort: sort ? sort : undefined,
       },
     });
     return response.data;
