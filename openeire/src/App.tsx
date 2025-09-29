@@ -15,6 +15,8 @@ import "react-toastify/dist/ReactToastify.css";
 import ShoppingBagPage from "./pages/ShoppingBagPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
+import BlogListPage from "./pages/BlogListPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
 
 const HomePage = () => <div>Home Page</div>;
 
@@ -59,6 +61,8 @@ function App() {
           <Route path="/bag" element={<ShoppingBagPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
+          <Route path="/blog" element={<BlogListPage />} />
+          <Route path="/blog/:slug" element={<BlogDetailPage />} />
 
           {/* Protected Routes */}
           <Route

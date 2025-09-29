@@ -41,6 +41,15 @@ const Navbar: React.FC = () => {
               >
                 Art Prints
               </NavLink>
+              <NavLink
+                to="/blog"
+                className="hover:text-gray-300"
+                style={({ isActive }) =>
+                  isActive ? activeLinkStyle : undefined
+                }
+              >
+                Blog
+              </NavLink>
             </div>
           </div>
 
