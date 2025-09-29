@@ -175,13 +175,15 @@ export const updateProfile = async (profileData: UserProfileUpdateData): Promise
 
 export const getGalleryProducts = async (
   type: 'digital' | 'physical' | 'all',
-  collection?: string // <-- Add optional collection parameter
+  collection?: string,
+  search?: string
 ): Promise<PaginatedResponse<GalleryItem>> => {
   try {
     const response = await api.get<PaginatedResponse<GalleryItem>>('gallery/', {
       params: { 
         type: type === 'all' ? undefined : type,
-        collection: collection === 'all' ? undefined : collection, // <-- Add collection to params
+        collection: collection === 'all' ? undefined : collection,
+        search: search ? search : undefined,
       },
     });
     return response.data;
