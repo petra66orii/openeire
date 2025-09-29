@@ -4,6 +4,7 @@ import { getGalleryProducts, GalleryItem } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import CollectionFilter from "../components/CollectionFilter";
 import SearchBar from "../components/SearchBar";
+import SortDropdown from "../components/SortDropdown";
 
 const GalleryPage: React.FC = () => {
   const { type = "all" } = useParams<{
@@ -14,13 +15,19 @@ const GalleryPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [collection, setCollection] = useState("all");
   const [error, setError] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState("date_desc");
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await getGalleryProducts(type, collection);
+        const response = await getGalleryProducts(
+          type,
+          collection,
+          searchTerm,
+          sortOrder
+        );
         setProducts(response.results);
       } catch (err) {
         setError("Failed to load products. Please try again later.");
@@ -30,7 +37,7 @@ const GalleryPage: React.FC = () => {
     };
 
     fetchProducts();
-  }, [type, collection]); // <-- Refetch when type OR collection changes
+  }, [type, collection, searchTerm, sortOrder]); // <-- Refetch when type OR collection changes
 
   const title =
     type === "digital"
@@ -55,6 +62,9 @@ const GalleryPage: React.FC = () => {
         activeCollection={collection}
         onSelectCollection={setCollection}
       />
+      <div className="mt-4 md:mt-0">
+        <SortDropdown onSortChange={setSortOrder} />
+      </div>
       <div className="container mx-auto p-4 lg:p-8">
         <h1 className="text-3xl lg:text-4xl font-bold mb-8 text-gray-800 border-b pb-4">
           {title}
