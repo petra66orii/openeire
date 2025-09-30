@@ -146,6 +146,16 @@ export const getTestimonials = async (): Promise<Testimonial[]> => {
   }
 };
 
+export const newsletterSignup = async (email: string): Promise<{ email: string }> => {
+  try {
+    const response = await api.post('home/newsletter-signup/', { email });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
 export const getComments = async (postSlug: string): Promise<Comment[]> => {
   try {
     const response = await api.get<Comment[]>(`blog/posts/${postSlug}/comments/`);
