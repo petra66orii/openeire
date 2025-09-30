@@ -18,6 +18,7 @@ import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import BlogListPage from "./pages/BlogListPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
 import HomePage from "./pages/HomePage";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -74,6 +75,7 @@ function App() {
           />
         </Routes>
       </main>
+      <Footer />
     </>
   );
 }
