@@ -129,6 +129,23 @@ export interface Comment {
   created_at: string;
 }
 
+export interface Testimonial {
+  id: number;
+  name: string;
+  text: string;
+  rating: number;
+}
+
+export const getTestimonials = async (): Promise<Testimonial[]> => {
+  try {
+    const response = await api.get<Testimonial[]>('home/testimonials/');
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
 export const getComments = async (postSlug: string): Promise<Comment[]> => {
   try {
     const response = await api.get<Comment[]>(`blog/posts/${postSlug}/comments/`);
