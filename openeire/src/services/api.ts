@@ -122,6 +122,33 @@ interface VerifyEmailResponse {
   message: string;
 }
 
+export interface Comment {
+  id: number;
+  user: string; // Username
+  content: string;
+  created_at: string;
+}
+
+export const getComments = async (postSlug: string): Promise<Comment[]> => {
+  try {
+    const response = await api.get<Comment[]>(`blog/posts/${postSlug}/comments/`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
+export const postComment = async (postSlug: string, content: string): Promise<Comment> => {
+  try {
+    const response = await api.post<Comment>(`blog/posts/${postSlug}/comments/`, { content });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
+
 export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
   try {
     const response = await api.post<VerifyEmailResponse>('auth/verify-email/confirm/', { token });
