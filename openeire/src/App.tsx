@@ -17,8 +17,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import BlogListPage from "./pages/BlogListPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
-
-const HomePage = () => <div>Home Page</div>;
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
