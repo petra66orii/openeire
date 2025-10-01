@@ -1,1 +1,38 @@
 @import "tailwindcss";
+
+/* Fonts */
+.font-sans {
+  font-family: 'Montserrat', sans-serif;
+}
+.font-serif {
+  font-family: 'Merriweather', serif;
+}
+
+/* Colors */
+.bg-primary {
+  background-color: #16a34a;
+}
+.text-primary {
+  color: #16a34a;
+}
+.text-accent {
+  color: #FFC400;
+}
+.bg-dark {
+  background-color: #1a1a1a;
+}
+
+/* Primary Button Style */
+.btn-primary {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background-color: #16a34a;
+  color: white;
+  font-weight: bold;
+  border-radius: 9999px; /* pill shape */
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+.btn-primary:hover {
+  background-color: #15803d; /* A slightly darker green */
+}
