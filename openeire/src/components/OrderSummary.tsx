@@ -35,7 +35,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       {!isCheckoutPage && (
         <Link
           to="/checkout"
-          className="block w-full text-center bg-green-600 text-white py-3 rounded-md hover:bg-green-700"
+          className="block w-full text-center bg-primary text-white py-3 rounded-md hover:bg-primary/90"
         >
           Proceed to Checkout
         </Link>

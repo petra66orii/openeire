@@ -54,7 +54,7 @@ const ProfilePage: React.FC = () => {
           {!isEditing && profile && (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 text-sm text-white bg-green-600 rounded-md hover:bg-green-700"
+              className="px-4 py-2 text-sm text-white bg-primary rounded-md hover:bg-primary/90"
             >
               Edit Profile
             </button>

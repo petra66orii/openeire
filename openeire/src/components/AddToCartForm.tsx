@@ -40,7 +40,7 @@ const AddToCartForm: React.FC<AddToCartFormProps> = ({ product }) => {
 
       <button
         type="submit"
-        className="w-full mt-4 px-4 py-3 text-lg font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700"
+        className="w-full mt-4 px-4 py-3 text-lg font-medium text-white bg-primary border border-transparent rounded-md shadow-sm hover:bg-primary/90"
       >
         Add to Bag
       </button>

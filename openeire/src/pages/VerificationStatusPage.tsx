@@ -45,7 +45,7 @@ const VerificationStatusPage: React.FC = () => {
             <p className="text-gray-600">{message}</p>
             <Link
               to="/login"
-              className="inline-block px-4 py-2 mt-4 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+              className="inline-block px-4 py-2 mt-4 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90"
             >
               Go to Login
             </Link>

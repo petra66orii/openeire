@@ -98,7 +98,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
       <button
         type="submit"
         disabled={loading || rating === 0}
-        className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? "Submitting..." : "Submit Review"}
       </button>

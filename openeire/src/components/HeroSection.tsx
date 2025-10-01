@@ -22,7 +22,7 @@ const HeroSection: React.FC = () => {
 
       {/* Content */}
       <div className="relative z-20 p-4">
-        <h1 className="text-4xl md:text-6xl font-extrabold mb-4">
+        <h1 className="text-4xl md:text-6xl font-extrabold mb-4 canary:text-accent">
           Capturing the World from Above
         </h1>
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
@@ -31,7 +31,7 @@ const HeroSection: React.FC = () => {
         </p>
         <Link
           to="/gallery"
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300"
+          className="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300"
         >
           Explore Gallery
         </Link>

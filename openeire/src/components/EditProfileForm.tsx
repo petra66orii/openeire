@@ -84,7 +84,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700"
+          className="px-4 py-2 text-white bg-primary rounded-md hover:bg-primary/90"
         >
           Save Changes
         </button>

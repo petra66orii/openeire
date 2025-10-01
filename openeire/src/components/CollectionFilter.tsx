@@ -20,7 +20,7 @@ const CollectionFilter: React.FC<CollectionFilterProps> = ({
           onClick={() => onSelectCollection(collection.toLowerCase())}
           className={`px-4 py-2 text-sm sm:text-base font-semibold rounded-full transition-colors duration-200 ${
             activeCollection.toLowerCase() === collection.toLowerCase()
-              ? "bg-green-600 text-white"
+              ? "bg-primary text-white"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >

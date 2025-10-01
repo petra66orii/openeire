@@ -95,7 +95,7 @@ const Navbar: React.FC = () => {
                   </NavLink>
                   <Link
                     to="/logout"
-                    className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium"
+                    className="bg-primary hover:bg-primary/90 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Logout
                   </Link>
@@ -113,7 +113,7 @@ const Navbar: React.FC = () => {
                   </NavLink>
                   <Link
                     to="/register"
-                    className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium"
+                    className="bg-primary hover:bg-primary/90 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Register
                   </Link>

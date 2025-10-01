@@ -73,7 +73,7 @@ const ConfirmPasswordResetPage: React.FC = () => {
           <div>
             <button
               type="submit"
-              className="w-full px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700"
+              className="w-full px-4 py-2 text-white bg-primary rounded-md hover:bg-primary/90"
             >
               Reset Password
             </button>

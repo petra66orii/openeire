@@ -142,7 +142,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
       <button
         disabled={isLoading || !stripe || !elements}
-        className="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700 disabled:opacity-50"
+        className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 disabled:opacity-50"
       >
         <span>{isLoading ? "Processing..." : "Pay now"}</span>
       </button>
