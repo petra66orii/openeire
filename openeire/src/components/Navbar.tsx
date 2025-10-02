@@ -2,6 +2,7 @@ import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import logoImage from "../assets/full-logo-white.png";
 
 const Navbar: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -20,7 +21,11 @@ const Navbar: React.FC = () => {
           {/* Left Side: Logo and Main Links */}
           <div className="flex items-center space-x-8">
             <Link to="/" className="text-xl font-bold">
-              OpenEire Studios
+              <img
+                src={logoImage}
+                alt="OpenEire Studios Logo"
+                className="h-16"
+              />
             </Link>
             <div className="hidden md:flex items-center space-x-4">
               <NavLink
