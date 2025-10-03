@@ -9,13 +9,19 @@ const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const BagItem: React.FC<BagItemProps> = ({ item }) => {
   const { updateQuantity, removeFromCart } = useCart();
-  const imageUrl = item.product.preview_image || item.product.thumbnail_image;
+  const rawImageUrl =
+    item.product.preview_image || item.product.thumbnail_image;
+  const imageUrl = rawImageUrl?.startsWith("http")
+    ? rawImageUrl
+    : rawImageUrl
+    ? `${BACKEND_BASE_URL}${rawImageUrl}`
+    : "https://via.placeholder.com/80x80?text=No+Image";
   const price = parseFloat(item.product.price || item.product.price_hd || "0");
 
   return (
     <div className="flex items-center py-4 border-b">
       <img
-        src={`${BACKEND_BASE_URL}${imageUrl}`}
+        src={imageUrl}
         alt={item.product.title}
         className="w-20 h-20 object-cover rounded-md"
       />
