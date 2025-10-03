@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { newsletterSignup } from "../services/api";
 import { toast } from "react-toastify";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
+import logoImage from "../assets/full-logo-white.png";
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +30,11 @@ const Footer: React.FC = () => {
           {/* About Section */}
           <div>
             <h3 className="text-lg font-bold text-white mb-4">
-              OpenEire Studios
+              <img
+                src={logoImage}
+                alt="OpenEire Studios Logo"
+                className="h-18 mb-2"
+              />
             </h3>
             <p className="text-sm">
               Capturing the world from above. Premium aerial stock footage and
