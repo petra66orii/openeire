@@ -99,6 +99,37 @@ api.interceptors.request.use(
   }
 );
 
+export interface OrderHistoryItem {
+  id: number;
+  quantity: number;
+  item_total: string;
+  details: any;
+  product: GalleryItem;
+}
+
+export interface OrderHistory {
+  order_number: string;
+  date: string;
+  order_total: string;
+  total_price: string;
+  street_address1: string;
+  town: string;
+  country: string;
+  items: OrderHistoryItem[];
+}
+
+export const getOrderHistory = async (): Promise<OrderHistory[]> => {
+  try {
+    const response = await api.get('checkout/order-history/');
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
 export type UserProfileUpdateData = Partial<UserProfile>;
 
 export const registerUser = async (data: RegisterData): Promise<RegisterResponse> => {
