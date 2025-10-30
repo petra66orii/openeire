@@ -64,13 +64,25 @@ const ProductDetailPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Image/Video Column */}
         <div>
-          <img
-            src={imageUrl}
-            alt={product.title}
-            className="w-full h-auto rounded-lg shadow-lg"
-          />
+          {product.product_type === "video" &&
+          "video_file" in product &&
+          product.video_file ? (
+            <video
+              src={`${product.video_file}`}
+              controls
+              playsInline
+              className="w-full h-auto rounded-lg shadow-lg"
+            >
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <img
+              src={imageUrl}
+              alt={product.title}
+              className="w-full h-auto rounded-lg shadow-lg"
+            />
+          )}
         </div>
-
         {/* Details Column */}
         <div className="space-y-4">
           <h1 className="text-4xl font-bold text-gray-800">{product.title}</h1>
