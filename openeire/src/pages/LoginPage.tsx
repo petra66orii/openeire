@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { resendVerificationEmail } from "../services/api";
+import { toast } from "react-toastify";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -20,6 +22,19 @@ const LoginPage: React.FC = () => {
       setError(
         err.detail || "Failed to log in. Please check your credentials."
       );
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      toast.error("Please enter your email address first.");
+      return;
+    }
+    try {
+      const response = await resendVerificationEmail(email);
+      toast.success(response.message);
+    } catch (err: any) {
+      toast.error(err.detail || err.email?.[0] || "Failed to resend email.");
     }
   };
 
@@ -86,6 +101,15 @@ const LoginPage: React.FC = () => {
             </button>
           </div>
         </form>
+        <div className="text-center text-sm text-gray-500 border-t pt-4">
+          <p>Haven't received your verification email?</p>
+          <button
+            onClick={handleResendVerification}
+            className="font-medium text-primary hover:text-primary/80"
+          >
+            Resend Verification Email
+          </button>
+        </div>
       </div>
     </div>
   );
