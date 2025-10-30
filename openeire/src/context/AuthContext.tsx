@@ -17,7 +17,9 @@ interface AuthState {
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null); // Initial state set to null
+  const [accessToken, setAccessToken] = useState<string | null>(() =>
+    localStorage.getItem("accessToken")
+  );
 
   // Use useEffect to load tokens from localStorage once on component mount
   useEffect(() => {
