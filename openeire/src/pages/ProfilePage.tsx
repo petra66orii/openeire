@@ -6,6 +6,7 @@ import {
   UserProfileUpdateData,
 } from "../services/api";
 import EditProfileForm from "../components/EditProfileForm";
+import OrderHistoryList from "../components/OrderHistoryList";
 
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -107,6 +108,7 @@ const ProfilePage: React.FC = () => {
           <p>No profile data found.</p>
         )}
       </div>
+      {!isEditing && <OrderHistoryList />}
     </div>
   );
 };
