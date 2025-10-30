@@ -23,6 +23,8 @@ export interface UserProfile {
 }
 interface RegisterData {
   username: string;
+  first_name?: string;
+  last_name?: string; 
   email: string;
   password: string;
 }
@@ -31,7 +33,6 @@ interface RegisterResponse {
   id: number;
   username: string;
   email: string;
-  // We won't get the password back, but other user details might be here
 }
 
 interface LoginData {
@@ -241,6 +242,15 @@ export const updateProfile = async (profileData: UserProfileUpdateData): Promise
   }
 };
 
+export const resendVerificationEmail = async (email: string): Promise<{ message: string }> => {
+  try {
+    const response = await api.post('auth/resend-verification/', { email });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    throw error;
+  }
+};
 
 export const getGalleryProducts = async (
   type: 'digital' | 'physical' | 'all',
