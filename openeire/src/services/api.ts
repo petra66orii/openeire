@@ -21,6 +21,21 @@ export interface UserProfile {
   default_postcode: string | null;
   default_country: string | null;
 }
+
+export interface UserProfileUpdateData {
+  username?: string;
+  email?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  default_phone_number?: string | null;
+  default_street_address1?: string | null;
+  default_street_address2?: string | null;
+  default_town?: string | null;
+  default_county?: string | null;
+  default_postcode?: string | null;
+  default_country?: string | null;
+}
+
 interface RegisterData {
   username: string;
   first_name?: string;
@@ -130,8 +145,6 @@ export const getOrderHistory = async (): Promise<OrderHistory[]> => {
   }
 };
 
-export type UserProfileUpdateData = Partial<UserProfile>;
-
 export const registerUser = async (data: RegisterData): Promise<RegisterResponse> => {
   try {
     const response = await api.post<RegisterResponse>('auth/register/', {
@@ -167,6 +180,23 @@ export interface Testimonial {
   text: string;
   rating: number;
 }
+
+export interface ChangePasswordData {
+  old_password: string;
+  new_password: string;
+}
+
+export const changePassword = async (data: ChangePasswordData): Promise<{ message: string }> => {
+  try {
+    const response = await api.put('auth/password/change/', data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
 
 export const getTestimonials = async (): Promise<Testimonial[]> => {
   try {
@@ -262,13 +292,16 @@ export const getProfile = async (): Promise<UserProfile> => {
   }
 };
 
-export const updateProfile = async (profileData: UserProfileUpdateData): Promise<UserProfile> => {
+export const updateProfile = async (
+  profileData: UserProfileUpdateData
+): Promise<UserProfile> => {
   try {
-    // We use a PUT request to the same profile endpoint
     const response = await api.put<UserProfile>('auth/profile/', profileData);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };

@@ -14,7 +14,14 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] = useState<UserProfileUpdateData>({
+    default_phone_number: initialData.default_phone_number ?? undefined,
+    default_street_address1: initialData.default_street_address1 ?? undefined,
+    default_street_address2: initialData.default_street_address2 ?? undefined,
+    default_town: initialData.default_town ?? undefined,
+    default_county: initialData.default_county ?? undefined,
+    default_postcode: initialData.default_postcode ?? undefined,
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
