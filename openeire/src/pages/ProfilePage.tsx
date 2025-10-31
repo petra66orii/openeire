@@ -95,9 +95,13 @@ const ProfilePage: React.FC = () => {
                   {profile.default_street_address1 || ""}
                   {profile.default_street_address2 &&
                     `, ${profile.default_street_address2}`}
-                  <br />
-                  {profile.default_town || ""}, {profile.default_county || ""},{" "}
-                  {profile.default_postcode || ""}
+                  {[
+                    profile.default_town,
+                    profile.default_county,
+                    profile.default_postcode,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
                   <br />
                   {profile.default_country || "Address not provided"}
                 </p>
