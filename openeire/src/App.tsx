@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import RegisterPage from "./pages/RegisterPage";
 import VerificationStatusPage from "./pages/VerificationStatusPage";
+import VerificationPendingPage from "./pages/VerificationPendingPage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
 import RequestPasswordResetPage from "./pages/RequestPasswordResetPage";
@@ -51,6 +52,7 @@ function App() {
             path="/password-reset/confirm/:token"
             element={<ConfirmPasswordResetPage />}
           />
+          <Route path="/verify-pending" element={<VerificationPendingPage />} />
           <Route
             path="/verify-email/confirm/:token"
             element={<VerificationStatusPage />}
