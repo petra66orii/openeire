@@ -1,10 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Create an Axios instance for our API
 export const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/',
+  baseURL: "http://127.0.0.1:8000/api/",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -39,7 +39,7 @@ export interface UserProfileUpdateData {
 interface RegisterData {
   username: string;
   first_name?: string;
-  last_name?: string; 
+  last_name?: string;
   email: string;
   password: string;
 }
@@ -75,7 +75,7 @@ export interface GalleryItem {
   thumbnail_image?: string; // For Videos
   price: string; // From physical products
   price_hd?: string; // From digital products
-  product_type: 'photo' | 'video' | 'physical';
+  product_type: "photo" | "video" | "physical";
 }
 
 export interface PaginatedResponse<T> {
@@ -103,7 +103,7 @@ export interface BlogPostDetail extends BlogPostListItem {
 // Axios Interceptor: This function will run before every request
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -135,7 +135,7 @@ export interface OrderHistory {
 
 export const getOrderHistory = async (): Promise<OrderHistory[]> => {
   try {
-    const response = await api.get('checkout/order-history/');
+    const response = await api.get("checkout/order-history/");
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -145,9 +145,11 @@ export const getOrderHistory = async (): Promise<OrderHistory[]> => {
   }
 };
 
-export const registerUser = async (data: RegisterData): Promise<RegisterResponse> => {
+export const registerUser = async (
+  data: RegisterData
+): Promise<RegisterResponse> => {
   try {
-    const response = await api.post<RegisterResponse>('auth/register/', {
+    const response = await api.post<RegisterResponse>("auth/register/", {
       username: data.username,
       email: data.email,
       password: data.password,
@@ -186,9 +188,11 @@ export interface ChangePasswordData {
   new_password: string;
 }
 
-export const changePassword = async (data: ChangePasswordData): Promise<{ message: string }> => {
+export const changePassword = async (
+  data: ChangePasswordData
+): Promise<{ message: string }> => {
   try {
-    const response = await api.put('auth/password/change/', data);
+    const response = await api.put("auth/password/change/", data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -200,47 +204,70 @@ export const changePassword = async (data: ChangePasswordData): Promise<{ messag
 
 export const getTestimonials = async (): Promise<Testimonial[]> => {
   try {
-    const response = await api.get<Testimonial[]>('home/testimonials/');
+    const response = await api.get<Testimonial[]>("home/testimonials/");
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
 
-export const newsletterSignup = async (email: string): Promise<{ email: string }> => {
+export const newsletterSignup = async (
+  email: string
+): Promise<{ email: string }> => {
   try {
-    const response = await api.post('home/newsletter-signup/', { email });
+    const response = await api.post("home/newsletter-signup/", { email });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
 
 export const getComments = async (postSlug: string): Promise<Comment[]> => {
   try {
-    const response = await api.get<Comment[]>(`blog/posts/${postSlug}/comments/`);
+    const response = await api.get<Comment[]>(
+      `blog/posts/${postSlug}/comments/`
+    );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
 
-export const postComment = async (postSlug: string, content: string): Promise<Comment> => {
+export const postComment = async (
+  postSlug: string,
+  content: string
+): Promise<Comment> => {
   try {
-    const response = await api.post<Comment>(`blog/posts/${postSlug}/comments/`, { content });
+    const response = await api.post<Comment>(
+      `blog/posts/${postSlug}/comments/`,
+      { content }
+    );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
 
-export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> => {
+export const verifyEmail = async (
+  token: string
+): Promise<VerifyEmailResponse> => {
   try {
-    const response = await api.post<VerifyEmailResponse>('auth/verify-email/confirm/', { token });
+    const response = await api.post<VerifyEmailResponse>(
+      "auth/verify-email/confirm/",
+      { token }
+    );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -252,7 +279,7 @@ export const verifyEmail = async (token: string): Promise<VerifyEmailResponse> =
 
 export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
   try {
-    const response = await api.post<LoginResponse>('auth/login/', data);
+    const response = await api.post<LoginResponse>("auth/login/", data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -262,32 +289,48 @@ export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
   }
 };
 
-export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
+export const requestPasswordReset = async (
+  email: string
+): Promise<{ message: string }> => {
   try {
-    const response = await api.post('auth/password/reset/', { email });
+    const response = await api.post("auth/password/reset/", { email });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
 
-export const confirmPasswordReset = async (password: string, confirm_password: string, token: string): Promise<{ message: string }> => {
+export const confirmPasswordReset = async (
+  password: string,
+  confirm_password: string,
+  token: string
+): Promise<{ message: string }> => {
   try {
-    const response = await api.post('auth/password/reset/confirm/', { password, confirm_password, token });
+    const response = await api.post("auth/password/reset/confirm/", {
+      password,
+      confirm_password,
+      token,
+    });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
 
 export const getProfile = async (): Promise<UserProfile> => {
   try {
-    const response = await api.get<UserProfile>('auth/profile/');
+    const response = await api.get<UserProfile>("auth/profile/");
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
@@ -296,7 +339,7 @@ export const updateProfile = async (
   profileData: UserProfileUpdateData
 ): Promise<UserProfile> => {
   try {
-    const response = await api.put<UserProfile>('auth/profile/', profileData);
+    const response = await api.put<UserProfile>("auth/profile/", profileData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -306,27 +349,31 @@ export const updateProfile = async (
   }
 };
 
-export const resendVerificationEmail = async (email: string): Promise<{ message: string }> => {
+export const resendVerificationEmail = async (
+  email: string
+): Promise<{ message: string }> => {
   try {
-    const response = await api.post('auth/resend-verification/', { email });
+    const response = await api.post("auth/resend-verification/", { email });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
 
 export const getGalleryProducts = async (
-  type: 'digital' | 'physical' | 'all',
+  type: "digital" | "physical" | "all",
   collection?: string,
   search?: string,
   sort?: string
 ): Promise<PaginatedResponse<GalleryItem>> => {
   try {
-    const response = await api.get<PaginatedResponse<GalleryItem>>('gallery/', {
-      params: { 
-        type: type === 'all' ? undefined : type,
-        collection: collection === 'all' ? undefined : collection,
+    const response = await api.get<PaginatedResponse<GalleryItem>>("gallery/", {
+      params: {
+        type: type === "all" ? undefined : type,
+        collection: collection === "all" ? undefined : collection,
         search: search ? search : undefined,
         sort: sort ? sort : undefined,
       },
@@ -371,20 +418,20 @@ export const getProductDetail = async (
   type: string,
   id: string
 ): Promise<ProductDetailItem> => {
-  let url = '';
+  let url = "";
   // Determine the correct endpoint based on the product type
   switch (type) {
-    case 'photo':
+    case "photo":
       url = `photos/${id}/`;
       break;
-    case 'video':
+    case "video":
       url = `videos/${id}/`;
       break;
-    case 'physical':
+    case "physical":
       url = `products/${id}/`;
       break;
     default:
-      throw new Error('Invalid product type');
+      throw new Error("Invalid product type");
   }
 
   try {
@@ -398,7 +445,6 @@ export const getProductDetail = async (
   }
 };
 
-
 export interface ReviewSubmitData {
   rating: number;
   comment?: string; // Optional as per requirement
@@ -410,7 +456,10 @@ export const submitProductReview = async (
   reviewData: ReviewSubmitData
 ): Promise<any> => {
   try {
-    const response = await api.post(`${productType}/${productId}/reviews/`, reviewData);
+    const response = await api.post(
+      `${productType}/${productId}/reviews/`,
+      reviewData
+    );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -425,7 +474,9 @@ export const getProductReviews = async (
   productId: string
 ): Promise<ProductReview[]> => {
   try {
-    const response = await api.get<ProductReview[]>(`${productType}/${productId}/reviews/`);
+    const response = await api.get<ProductReview[]>(
+      `${productType}/${productId}/reviews/`
+    );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -435,17 +486,25 @@ export const getProductReviews = async (
   }
 };
 
-export const getBlogPosts = async (): Promise<PaginatedResponse<BlogPostListItem>> => {
+export const getBlogPosts = async (): Promise<
+  PaginatedResponse<BlogPostListItem>
+> => {
   try {
-    const response = await api.get<PaginatedResponse<BlogPostListItem>>('blog/posts/');
+    const response = await api.get<PaginatedResponse<BlogPostListItem>>(
+      "blog/posts/"
+    );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
 
-export const getBlogPostDetail = async (slug: string): Promise<BlogPostDetail> => {
+export const getBlogPostDetail = async (
+  slug: string
+): Promise<BlogPostDetail> => {
   try {
     const response = await api.get<BlogPostDetail>(`blog/posts/${slug}/`);
     return response.data;
