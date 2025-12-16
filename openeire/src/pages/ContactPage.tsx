@@ -55,16 +55,16 @@ const ContactPage = () => {
 
         <div className="bg-white shadow overflow-hidden sm:rounded-lg max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2">
           {/* Contact Information Side */}
-          <div className="bg-indigo-700 p-8 text-white">
+          <div className="bg-green-700 p-8 text-black">
             <h3 className="text-xl font-semibold mb-4">Contact Information</h3>
-            <p className="mb-6 text-indigo-100">
+            <p className="mb-6 text-green-100">
               Fill out the form or reach us directly using the details below.
             </p>
 
             <div className="space-y-4">
               <div className="flex items-start">
                 <svg
-                  className="h-6 w-6 mr-3 text-indigo-300"
+                  className="h-6 w-6 mr-3 text-green-300"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -80,7 +80,7 @@ const ContactPage = () => {
               </div>
               <div className="flex items-start">
                 <svg
-                  className="h-6 w-6 mr-3 text-indigo-300"
+                  className="h-6 w-6 mr-3 text-green-300"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -96,7 +96,7 @@ const ContactPage = () => {
               </div>
               <div className="flex items-start">
                 <svg
-                  className="h-6 w-6 mr-3 text-indigo-300"
+                  className="h-6 w-6 mr-3 text-green-300"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -147,7 +147,7 @@ const ContactPage = () => {
                 </p>
                 <button
                   onClick={() => setStatus("idle")}
-                  className="mt-6 text-indigo-600 hover:text-indigo-500 font-medium"
+                  className="mt-6 text-green-600 hover:text-green-500 font-medium"
                 >
                   Send another message
                 </button>
@@ -238,9 +238,9 @@ const ContactPage = () => {
                     disabled={status === "submitting"}
                     className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
                       status === "submitting"
-                        ? "bg-indigo-400 cursor-not-allowed"
-                        : "bg-indigo-600 hover:bg-indigo-700"
-                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                        ? "bg-green-400 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
+                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
                   >
                     {status === "submitting" ? "Sending..." : "Send Message"}
                   </button>

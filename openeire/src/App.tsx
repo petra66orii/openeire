@@ -19,6 +19,7 @@ import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import BlogListPage from "./pages/BlogListPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
 import HomePage from "./pages/HomePage";
+import ContactPage from "./pages/ContactPage";
 import Footer from "./components/Footer";
 
 function App() {
@@ -65,6 +66,7 @@ function App() {
           <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
           <Route path="/blog" element={<BlogListPage />} />
           <Route path="/blog/:slug" element={<BlogDetailPage />} />
+          <Route path="/contact" element={<ContactPage />} />
 
           {/* Protected Routes */}
           <Route

@@ -55,6 +55,15 @@ const Navbar: React.FC = () => {
               >
                 Blog
               </NavLink>
+              <NavLink
+                to="/contact"
+                className="hover:text-gray-300"
+                style={({ isActive }) =>
+                  isActive ? activeLinkStyle : undefined
+                }
+              >
+                Contact
+              </NavLink>
             </div>
           </div>
 
