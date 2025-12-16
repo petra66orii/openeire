@@ -450,7 +450,28 @@ export const getBlogPostDetail = async (slug: string): Promise<BlogPostDetail> =
     const response = await api.get<BlogPostDetail>(`blog/posts/${slug}/`);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) { throw error.response.data; }
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
+export interface ContactData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+export const sendContactMessage = async (contactData: ContactData) => {
+  try {
+    const response = await api.post("home/contact/", contactData);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };
