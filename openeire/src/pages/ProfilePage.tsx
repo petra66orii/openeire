@@ -8,8 +8,10 @@ import {
 } from "../services/api";
 import EditProfileForm from "../components/EditProfileForm";
 import OrderHistoryList from "../components/OrderHistoryList";
-import UpdateAccountForm from "../components/UpdateAccountForm"; // You're already importing this
-import ChangePasswordForm from "../components/ChangePasswordForm"; // And this
+import UpdateAccountForm from "../components/UpdateAccountForm";
+import ChangePasswordForm from "../components/ChangePasswordForm";
+import ChangeEmailForm from "../components/ChangeEmailForm";
+import DeleteAccount from "../components/DeleteAccount";
 
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -128,9 +130,13 @@ const ProfilePage: React.FC = () => {
                 </h2>
                 <UpdateAccountForm profile={profile} />
                 <ChangePasswordForm />
+                <ChangeEmailForm />
               </div>
-
+              <h2 className="text-2xl font-bold text-gray-800 mt-10 mb-4">
+                Order History
+              </h2>
               <OrderHistoryList />
+              <DeleteAccount />
             </div>
           )
         ) : (
