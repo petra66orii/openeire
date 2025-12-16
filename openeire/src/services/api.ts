@@ -8,6 +8,14 @@ export const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export interface UserProfile {
   username: string;
   first_name: string | null;
@@ -541,6 +549,13 @@ interface ChangeEmailData {
 }
 
 export const changeEmail = async (data: ChangeEmailData) => {
-  const response = await axios.post('/api/auth/email/change', data);
+  const response = await api.post('auth/email/change', data);
+  return response.data;
+};
+
+export const deleteAccount = async (password: string) => {
+  const response = await api.delete('auth/delete/', {
+    data: { password }
+  });
   return response.data;
 };
