@@ -534,3 +534,13 @@ export const sendContactMessage = async (contactData: ContactData) => {
     throw error;
   }
 };
+
+interface ChangeEmailData {
+  new_email: string;
+  password: string;
+}
+
+export const changeEmail = async (data: ChangeEmailData) => {
+  const response = await axios.post('/api/auth/email/change', data);
+  return response.data;
+};
