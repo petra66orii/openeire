@@ -21,6 +21,7 @@ import BlogDetailPage from "./pages/BlogDetailPage";
 import HomePage from "./pages/HomePage";
 import ContactPage from "./pages/ContactPage";
 import Footer from "./components/Footer";
+import BackToTop from "./components/BackToTop";
 
 function App() {
   return (
@@ -78,6 +79,7 @@ function App() {
             }
           />
         </Routes>
+        <BackToTop />
       </main>
       <Footer />
     </>
