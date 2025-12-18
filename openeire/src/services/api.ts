@@ -347,7 +347,7 @@ export const updateProfile = async (
   profileData: UserProfileUpdateData
 ): Promise<UserProfile> => {
   try {
-    const response = await api.put<UserProfile>("auth/profile/", profileData);
+    const response = await api.patch<UserProfile>("auth/profile/", profileData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -355,6 +355,16 @@ export const updateProfile = async (
     }
     throw error;
   }
+};
+
+export interface Country {
+  code: string;
+  name: string;
+}
+
+export const getCountries = async (): Promise<Country[]> => {
+  const response = await api.get('auth/countries/'); 
+  return response.data;
 };
 
 export const resendVerificationEmail = async (
