@@ -1,4 +1,5 @@
 import AuthForm from "../components/AuthForm";
+import SocialLogin from "../components/SocialLogin";
 
 const RegisterPage = () => {
   return (
@@ -8,6 +9,7 @@ const RegisterPage = () => {
           Create Your Account
         </h1>
         <AuthForm />
+        <SocialLogin />
       </div>
     </div>
   );

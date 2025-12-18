@@ -12,6 +12,7 @@ interface AuthState {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  setAuthData: (data: { access: string; refresh: string }) => void;
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -21,19 +22,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.getItem("accessToken")
   );
 
-  // Use useEffect to load tokens from localStorage once on component mount
   useEffect(() => {
     const storedAccessToken = localStorage.getItem("accessToken");
     if (storedAccessToken) {
       setAccessToken(storedAccessToken);
     }
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   const login = async (username: string, password: string) => {
     const response = await loginUser({ username, password });
     localStorage.setItem("accessToken", response.access);
     localStorage.setItem("refreshToken", response.refresh);
     setAccessToken(response.access);
+  };
+
+  const setAuthData = (data: { access: string; refresh: string }) => {
+    localStorage.setItem("accessToken", data.access);
+    localStorage.setItem("refreshToken", data.refresh);
+    setAccessToken(data.access);
   };
 
   const logout = () => {
@@ -46,7 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, login, logout, isAuthenticated }}
+      value={{ accessToken, login, logout, isAuthenticated, setAuthData }}
     >
       {children}
     </AuthContext.Provider>

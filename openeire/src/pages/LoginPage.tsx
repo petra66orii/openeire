@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { resendVerificationEmail } from "../services/api";
 import { toast } from "react-toastify";
+import SocialLogin from "../components/SocialLogin";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -101,6 +102,7 @@ const LoginPage: React.FC = () => {
             </button>
           </div>
         </form>
+        <SocialLogin />
         <div className="text-center text-sm text-gray-500 border-t pt-4">
           <p>Haven't received your verification email?</p>
           <button
