@@ -10,6 +10,7 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [remember, setRemember] = useState(true);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -17,7 +18,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     try {
-      await login(email, password);
+      await login(email, password, remember);
       navigate("/profile"); // Redirect to a profile page after login
     } catch (err: any) {
       setError(
@@ -100,6 +101,25 @@ const LoginPage: React.FC = () => {
             >
               Log In
             </button>
+            <div className="flex items-center justify-between my-4">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  Remember me
+                </label>
+              </div>
+              {/* Your existing Forgot Password link can go here or remain separate */}
+            </div>
           </div>
         </form>
         <SocialLogin />
