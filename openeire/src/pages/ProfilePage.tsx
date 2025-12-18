@@ -1,147 +1,126 @@
-// src/pages/ProfilePage.tsx
 import React, { useState, useEffect } from "react";
-import {
-  getProfile,
-  updateProfile,
-  UserProfile,
-  UserProfileUpdateData,
-} from "../services/api";
+import { getProfile, UserProfile } from "../services/api";
 import EditProfileForm from "../components/EditProfileForm";
 import OrderHistoryList from "../components/OrderHistoryList";
-import UpdateAccountForm from "../components/UpdateAccountForm";
-import ChangePasswordForm from "../components/ChangePasswordForm";
-import ChangeEmailForm from "../components/ChangeEmailForm";
-import DeleteAccount from "../components/DeleteAccount";
+import SecuritySettings from "../components/SecuritySettings";
+import { useAuth } from "../context/AuthContext";
+
+type Tab = "profile" | "security" | "orders";
 
 const ProfilePage: React.FC = () => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState<boolean>(false); // This controls the shipping form
+  const { user, refreshUser } = useAuth(); // Use context data directly!
+  const [activeTab, setActiveTab] = useState<Tab>("profile");
+  const [loading, setLoading] = useState(true);
 
+  // We rely on AuthContext for user data, but we might want to ensure it's fresh
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const profileData = await getProfile();
-        setProfile(profileData);
-      } catch (err) {
-        setError("Failed to fetch profile. Please try logging in again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
-
-  const handleProfileUpdate = async (data: UserProfileUpdateData) => {
-    try {
-      const updatedProfile = await updateProfile(data);
-      setProfile(updatedProfile);
-      setIsEditing(false); // Exit edit mode on success
-    } catch (err) {
-      setError("Failed to update profile. Please try again.");
+    if (!user) {
+      refreshUser().finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
-  };
+  }, [user, refreshUser]);
 
   if (loading) {
-    return <div className="text-center mt-10">Loading profile...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div className="text-center mt-10 text-red-500">{error}</div>;
-  }
+  if (!user) return null;
 
   return (
-    <div className="container mx-auto p-4 mt-10">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <div className="flex justify-between items-center mb-6 border-b pb-4">
-          <h1 className="text-3xl font-bold">Your Profile</h1>
-          {!isEditing && profile && (
+    <div className="container mx-auto px-4 py-10 max-w-6xl">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">My Account</h1>
+
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* SIDEBAR NAVIGATION */}
+        <aside className="w-full md:w-1/4">
+          <nav className="flex flex-col space-y-2 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
             <button
-              onClick={() => setIsEditing(true)}
-              className="px-4 py-2 text-sm text-white bg-primary rounded-md hover:bg-primary/90"
+              onClick={() => setActiveTab("profile")}
+              className={`text-left px-4 py-3 rounded-md transition-colors font-medium flex items-center ${
+                activeTab === "profile"
+                  ? "bg-green-50 text-green-700 border-l-4 border-green-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`}
             >
-              {/* 1. Renamed button for clarity */}
-              Edit Shipping Info
+              <svg
+                className="w-5 h-5 mr-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+              Profile & Shipping
             </button>
+
+            <button
+              onClick={() => setActiveTab("security")}
+              className={`text-left px-4 py-3 rounded-md transition-colors font-medium flex items-center ${
+                activeTab === "security"
+                  ? "bg-green-50 text-green-700 border-l-4 border-green-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`}
+            >
+              <svg
+                className="w-5 h-5 mr-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+              Security
+            </button>
+
+            <button
+              onClick={() => setActiveTab("orders")}
+              className={`text-left px-4 py-3 rounded-md transition-colors font-medium flex items-center ${
+                activeTab === "orders"
+                  ? "bg-green-50 text-green-700 border-l-4 border-green-600"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              }`}
+            >
+              <svg
+                className="w-5 h-5 mr-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+              Order History
+            </button>
+          </nav>
+        </aside>
+
+        {/* MAIN CONTENT AREA */}
+        <main className="w-full md:w-3/4 bg-white p-8 rounded-lg shadow-sm border border-gray-100 min-h-[500px]">
+          {activeTab === "profile" && (
+            <EditProfileForm initialData={user as UserProfile} />
           )}
-        </div>
-
-        {profile ? (
-          isEditing ? (
-            <EditProfileForm
-              initialData={profile}
-              onSubmit={handleProfileUpdate}
-              onCancel={() => setIsEditing(false)}
-            />
-          ) : (
-            // This 'div' now wraps all non-editing content
-            <div>
-              <div className="space-y-4">
-                {/* --- Your existing profile display --- */}
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-500">
-                    Username
-                  </h2>
-                  <p className="text-lg">{profile.username}</p>
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-500">Name</h2>
-                  <p className="text-lg">
-                    {profile.first_name} {profile.last_name}
-                  </p>
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-500">Email</h2>
-                  <p className="text-lg">{profile.email}</p>
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-500">
-                    Phone Number
-                  </h2>
-                  <p className="text-lg">
-                    {profile.default_phone_number || "Not provided"}
-                  </p>
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-500">
-                    Address
-                  </h2>
-                  <p className="text-lg">
-                    {profile.default_street_address1 || ""}
-                    {profile.default_street_address2 &&
-                      `, ${profile.default_street_address2}`}
-                    {[
-                      profile.default_town,
-                      profile.default_county,
-                      profile.default_postcode,
-                    ]
-                      .filter(Boolean)
-                      .join(", ")}
-                    <br />
-                    {profile.default_country || "Address not provided"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-8 border-t mt-8 pt-8">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  Account Settings
-                </h2>
-                <UpdateAccountForm profile={profile} />
-                <ChangePasswordForm />
-                <ChangeEmailForm />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-800 mt-10 mb-4">
-                Order History
-              </h2>
-              <OrderHistoryList />
-              <DeleteAccount />
-            </div>
-          )
-        ) : (
-          <p>No profile data found.</p>
-        )}
+          {activeTab === "security" && <SecuritySettings />}
+          {activeTab === "orders" && <OrderHistoryList />}
+        </main>
       </div>
     </div>
   );
