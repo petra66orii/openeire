@@ -404,6 +404,17 @@ export const getGalleryProducts = async (
     throw error;
   }
 };
+
+export interface ProductVariant {
+  id: number;
+  material: string;        // e.g. "matte"
+  material_display: string; // e.g. "Fine Art Print (Matte)"
+  size: string;            // e.g. "A4"
+  size_display: string;    // e.g. "A4 (210x297mm)"
+  price: string;           // e.g. "25.00"
+  sku: string | null;
+}
+
 export interface PhotoDetail extends GalleryItem {
   description: string;
   collection: string;
@@ -411,6 +422,7 @@ export interface PhotoDetail extends GalleryItem {
   price_4k: string;
   tags: string | null;
   created_at: string;
+  variants: ProductVariant[]; 
 }
 
 export interface VideoDetail extends GalleryItem {
@@ -423,10 +435,12 @@ export interface VideoDetail extends GalleryItem {
 }
 
 export interface ProductDetail extends GalleryItem {
-  photo: PhotoDetail; // The full photo details are nested
+  photo: PhotoDetail; 
   material: string;
   size: string;
   sku: string | null;
+  material_display?: string; 
+  size_display?: string;
 }
 
 // A union type for any possible detail item
@@ -437,7 +451,6 @@ export const getProductDetail = async (
   id: string
 ): Promise<ProductDetailItem> => {
   let url = "";
-  // Determine the correct endpoint based on the product type
   switch (type) {
     case "photo":
       url = `photos/${id}/`;
@@ -446,7 +459,7 @@ export const getProductDetail = async (
       url = `videos/${id}/`;
       break;
     case "physical":
-      url = `products/${id}/`;
+      url = `products/${id}/`; 
       break;
     default:
       throw new Error("Invalid product type");
