@@ -1,6 +1,5 @@
 /// <reference types="vite/client" />
 
-// src/pages/CheckoutPage.tsx
 import React, { useState, useEffect } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
