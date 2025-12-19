@@ -8,17 +8,32 @@ import React, {
 } from "react";
 import { GalleryItem } from "../services/api";
 
+// 1. Define what "Options" look like
+export interface CartOptions {
+  material?: string; // e.g. "canvas"
+  size?: string; // e.g. "A4"
+  license?: string; // e.g. "hd" or "4k"
+  [key: string]: any; // Allow flexibility
+}
+
 export interface CartItem {
-  id: string;
+  cartId: string; // Unique Key (e.g. "photo-5-license:hd")
+  productId: string | number; // The actual Database ID
   product: GalleryItem;
   quantity: number;
+  options?: CartOptions; // 👈 Store the choices here
 }
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: GalleryItem, quantity: number) => void;
-  updateQuantity: (itemId: string, newQuantity: number) => void;
-  removeFromCart: (itemId: string) => void;
+  // Updated addToCart to accept options
+  addToCart: (
+    product: GalleryItem,
+    quantity: number,
+    options?: CartOptions
+  ) => void;
+  updateQuantity: (cartId: string, newQuantity: number) => void;
+  removeFromCart: (cartId: string) => void;
   itemCount: number;
   cartTotal: number;
   clearCart: () => void;
@@ -41,27 +56,48 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = useCallback((product: GalleryItem, quantity: number) => {
-    const newItemId = `${product.product_type}-${product.id}`;
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === newItemId);
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === newItemId
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        return [...prevItems, { id: newItemId, product, quantity }];
-      }
-    });
-  }, []);
+  const addToCart = useCallback(
+    (product: GalleryItem, quantity: number, options?: CartOptions) => {
+      // Create a unique string based on options to differentiate variants
+      // e.g. "physical-105-{}" or "photo-20-{license:hd}"
+      const optionsString = options ? JSON.stringify(options) : "";
+      const uniqueCartId = `${product.product_type}-${product.id}-${optionsString}`;
 
-  const updateQuantity = useCallback((itemId: string, newQuantity: number) => {
+      setCartItems((prevItems) => {
+        // Check if this EXACT variation is already in the cart
+        const existingItem = prevItems.find(
+          (item) => item.cartId === uniqueCartId
+        );
+
+        if (existingItem) {
+          return prevItems.map((item) =>
+            item.cartId === uniqueCartId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
+        } else {
+          return [
+            ...prevItems,
+            {
+              cartId: uniqueCartId,
+              productId: product.id,
+              product,
+              quantity,
+              options,
+            },
+          ];
+        }
+      });
+    },
+    []
+  );
+
+  // Updated to use cartId instead of simple id
+  const updateQuantity = useCallback((cartId: string, newQuantity: number) => {
     setCartItems((prevItems) =>
       prevItems
         .map((item) =>
-          item.id === itemId
+          item.cartId === cartId
             ? { ...item, quantity: Math.max(0, newQuantity) }
             : item
         )
@@ -69,8 +105,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   }, []);
 
-  const removeFromCart = useCallback((itemId: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+  const removeFromCart = useCallback((cartId: string) => {
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.cartId !== cartId)
+    );
   }, []);
 
   const clearCart = useCallback(() => {
@@ -80,9 +118,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   const cartTotal = cartItems.reduce((total, item) => {
-    const price = parseFloat(
-      item.product.price || item.product.price_hd || "0"
-    );
+    // Handle dynamic prices (some items might have 'price' directly, others 'price_hd')
+    let price = 0;
+    if (item.product.price) {
+      price = parseFloat(item.product.price);
+    } else if (item.product.price_hd) {
+      price = parseFloat(item.product.price_hd);
+    }
+
     return total + price * item.quantity;
   }, 0);
 
