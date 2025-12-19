@@ -55,8 +55,12 @@ const ProductDetailPage: React.FC = () => {
 
   // --- VARIANT LOGIC (Physical) ---
   const variants = useMemo(() => {
-    if (product && "variants" in product && Array.isArray(product.variants)) {
+    if (!product) return [];
+    if ("variants" in product && Array.isArray(product.variants)) {
       return product.variants;
+    }
+    if ("photo" in product && product.photo && "variants" in product.photo) {
+      return product.photo.variants;
     }
     return [];
   }, [product]);
@@ -133,6 +137,14 @@ const ProductDetailPage: React.FC = () => {
       } (${digitalLicense.toUpperCase()} Digital License)`,
     };
   }
+
+  const reviewProductId =
+    product.product_type === "physical" && "photo" in product
+      ? String(product.photo.id)
+      : String(product.id);
+
+  const reviewProductType =
+    product.product_type === "physical" ? "photo" : product.product_type;
 
   // Image Helper
   let imageUrl = "";
@@ -317,13 +329,13 @@ const ProductDetailPage: React.FC = () => {
           <div className="mt-12 pt-10 border-t">
             <h3 className="text-2xl font-bold mb-6">Reviews</h3>
             <ReviewForm
-              productType={product.product_type}
-              productId={String(product.id)}
+              productType={reviewProductType}
+              productId={reviewProductId}
               onReviewSubmitted={fetchProductDetail}
             />
             <ProductReviewList
-              productType={product.product_type}
-              productId={String(product.id)}
+              productType={reviewProductType}
+              productId={reviewProductId}
               refreshKey={reviewRefreshKey}
             />
           </div>
