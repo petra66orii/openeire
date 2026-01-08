@@ -84,6 +84,7 @@ export interface GalleryItem {
   price: string; // From physical products
   price_hd?: string; // From digital products
   product_type: "photo" | "video" | "physical";
+  starting_price?: string | number;
 }
 
 export interface PaginatedResponse<T> {

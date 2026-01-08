@@ -35,8 +35,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <h3 className="text-lg font-semibold text-gray-800 truncate">
           {product.title}
         </h3>
-        <p className="mt-1 text-md font-medium text-gray-600">
-          €{displayPrice}
+        <p className="text-gray-600 font-medium mt-1">
+          {product.starting_price
+            ? `From €${product.starting_price}`
+            : "Price unavailable"}
         </p>
       </div>
     </Link>
