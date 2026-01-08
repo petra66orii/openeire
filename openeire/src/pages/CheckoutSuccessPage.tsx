@@ -20,10 +20,17 @@ const CheckoutSuccessPage: React.FC = () => {
         shortly.
       </p>
       <Link
-        to="/gallery"
+        to="/gallery/digital"
         className="text-green-600 hover:underline mt-4 inline-block"
       >
-        Continue Shopping
+        Shop More Stock Footage
+      </Link>
+      <br />
+      <Link
+        to="/gallery/physical"
+        className="text-green-600 hover:underline mt-4 inline-block"
+      >
+        Shop More Physical Products
       </Link>
     </div>
   );
