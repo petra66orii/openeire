@@ -8,14 +8,38 @@ export const api = axios.create({
   },
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// --- UNIFIED INTERCEPTOR ---
+// This handles BOTH User Authentication and Gallery Access
+api.interceptors.request.use(
+  (config) => {
+    // 1. Handle User Auth (Login)
+    const token = localStorage.getItem('access');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
+    // 2. Handle Gallery Guest Pass (The new feature)
+    const gallerySession = localStorage.getItem('gallery_access');
+    if (gallerySession) {
+      try {
+        const { code } = JSON.parse(gallerySession);
+        if (code) {
+          // This header tells the backend: "I have the password for the vault"
+          config.headers['X-Gallery-Access-Token'] = code;
+        }
+      } catch (e) {
+        console.error("Error parsing gallery access token", e);
+      }
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// --- TYPES ---
 export interface UserProfile {
   username: string;
   first_name: string | null;
@@ -70,7 +94,7 @@ interface LoginResponse {
 
 export interface ProductReview {
   id: number;
-  user: string; // The username of the reviewer
+  user: string;
   rating: number;
   comment: string | null;
   created_at: string;
@@ -79,10 +103,10 @@ export interface ProductReview {
 export interface GalleryItem {
   id: number;
   title: string;
-  preview_image?: string; // For Photos and Physical Products
-  thumbnail_image?: string; // For Videos
-  price: string; // From physical products
-  price_hd?: string; // From digital products
+  preview_image?: string;
+  thumbnail_image?: string;
+  price: string;
+  price_hd?: string;
   product_type: "photo" | "video" | "physical";
   starting_price?: string | number;
 }
@@ -109,20 +133,6 @@ export interface BlogPostDetail extends BlogPostListItem {
   updated_at: string;
 }
 
-// Axios Interceptor: This function will run before every request
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
 export interface OrderHistoryItem {
   id: number;
   quantity: number;
@@ -142,6 +152,92 @@ export interface OrderHistory {
   items: OrderHistoryItem[];
 }
 
+interface ChangeEmailData {
+  new_email: string;
+  password: string;
+}
+
+interface VerifyEmailResponse {
+  message: string;
+}
+
+export interface Comment {
+  id: number;
+  user: string;
+  content: string;
+  created_at: string;
+}
+
+export interface Testimonial {
+  id: number;
+  name: string;
+  text: string;
+  rating: number;
+}
+
+export interface ChangePasswordData {
+  old_password: string;
+  new_password: string;
+}
+
+export interface Country {
+  code: string;
+  name: string;
+}
+
+export interface ProductVariant {
+  id: number;
+  material: string;
+  material_display: string;
+  size: string;
+  size_display: string;
+  price: string;
+  sku: string | null;
+}
+
+export interface PhotoDetail extends GalleryItem {
+  description: string;
+  collection: string;
+  high_res_file: string;
+  price_4k: string;
+  tags: string | null;
+  created_at: string;
+  variants: ProductVariant[]; 
+}
+
+export interface VideoDetail extends GalleryItem {
+  description: string;
+  collection: string;
+  video_file: string;
+  price_4k: string;
+  tags: string | null;
+  created_at: string;
+}
+
+export interface ProductDetail extends GalleryItem {
+  photo: PhotoDetail; 
+  material: string;
+  size: string;
+  sku: string | null;
+  material_display?: string; 
+  size_display?: string;
+}
+
+export type ProductDetailItem = PhotoDetail | VideoDetail | ProductDetail;
+
+export interface ReviewSubmitData {
+  rating: number;
+  comment?: string; // Optional as per requirement
+}
+
+export interface ContactData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+// API METHODS
 export const getOrderHistory = async (): Promise<OrderHistory[]> => {
   try {
     const response = await api.get("checkout/order-history/");
@@ -173,29 +269,6 @@ export const registerUser = async (
     throw error;
   }
 };
-
-interface VerifyEmailResponse {
-  message: string;
-}
-
-export interface Comment {
-  id: number;
-  user: string; // Username
-  content: string;
-  created_at: string;
-}
-
-export interface Testimonial {
-  id: number;
-  name: string;
-  text: string;
-  rating: number;
-}
-
-export interface ChangePasswordData {
-  old_password: string;
-  new_password: string;
-}
 
 export const changePassword = async (
   data: ChangePasswordData
@@ -358,11 +431,6 @@ export const updateProfile = async (
   }
 };
 
-export interface Country {
-  code: string;
-  name: string;
-}
-
 export const getCountries = async (): Promise<Country[]> => {
   const response = await api.get('auth/countries/'); 
   return response.data;
@@ -406,47 +474,6 @@ export const getGalleryProducts = async (
   }
 };
 
-export interface ProductVariant {
-  id: number;
-  material: string;        // e.g. "matte"
-  material_display: string; // e.g. "Fine Art Print (Matte)"
-  size: string;            // e.g. "A4"
-  size_display: string;    // e.g. "A4 (210x297mm)"
-  price: string;           // e.g. "25.00"
-  sku: string | null;
-}
-
-export interface PhotoDetail extends GalleryItem {
-  description: string;
-  collection: string;
-  high_res_file: string;
-  price_4k: string;
-  tags: string | null;
-  created_at: string;
-  variants: ProductVariant[]; 
-}
-
-export interface VideoDetail extends GalleryItem {
-  description: string;
-  collection: string;
-  video_file: string;
-  price_4k: string;
-  tags: string | null;
-  created_at: string;
-}
-
-export interface ProductDetail extends GalleryItem {
-  photo: PhotoDetail; 
-  material: string;
-  size: string;
-  sku: string | null;
-  material_display?: string; 
-  size_display?: string;
-}
-
-// A union type for any possible detail item
-export type ProductDetailItem = PhotoDetail | VideoDetail | ProductDetail;
-
 export const getProductDetail = async (
   type: string,
   id: string
@@ -454,13 +481,13 @@ export const getProductDetail = async (
   let url = "";
   switch (type) {
     case "photo":
-      url = `photos/${id}/`;
+      url = `photos/${id}/`; // Uses DigitalPhotoDetailView (Protected)
       break;
     case "video":
-      url = `videos/${id}/`;
+      url = `videos/${id}/`; // Uses VideoDetailView (Protected)
       break;
     case "physical":
-      url = `products/${id}/`; 
+      url = `products/${id}/`; // Uses PhysicalPhotoDetailView (Public)
       break;
     default:
       throw new Error("Invalid product type");
@@ -476,11 +503,6 @@ export const getProductDetail = async (
     throw error;
   }
 };
-
-export interface ReviewSubmitData {
-  rating: number;
-  comment?: string; // Optional as per requirement
-}
 
 export const submitProductReview = async (
   productType: string,
@@ -548,13 +570,6 @@ export const getBlogPostDetail = async (
   }
 };
 
-export interface ContactData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
 export const sendContactMessage = async (contactData: ContactData) => {
   try {
     const response = await api.post("home/contact/", contactData);
@@ -567,11 +582,6 @@ export const sendContactMessage = async (contactData: ContactData) => {
   }
 };
 
-interface ChangeEmailData {
-  new_email: string;
-  password: string;
-}
-
 export const changeEmail = async (data: ChangeEmailData) => {
   const response = await api.post('auth/email/change', data);
   return response.data;
@@ -581,5 +591,15 @@ export const deleteAccount = async (password: string) => {
   const response = await api.delete('auth/delete/', {
     data: { password }
   });
+  return response.data;
+};
+
+export const requestGalleryAccess = async (email: string) => {
+  const response = await api.post("gallery-request/", { email });
+  return response.data;
+};
+
+export const verifyGalleryAccess = async (access_code: string) => {
+  const response = await api.post("gallery-verify/", { access_code });
   return response.data;
 };
