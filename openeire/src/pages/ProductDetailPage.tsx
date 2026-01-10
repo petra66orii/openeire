@@ -104,6 +104,13 @@ const ProductDetailPage: React.FC = () => {
     setPurchaseMode(mode);
   };
 
+  const formatDuration = (seconds?: number) => {
+    if (!seconds) return "N/A";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
   // --- VARIANT LOGIC (Physical) ---
   const variants = useMemo(() => {
     if (!product) return [];
@@ -391,7 +398,44 @@ const ProductDetailPage: React.FC = () => {
               <AddToCartForm product={activeProductForCart} />
             </div>
           </div>
+          {isVideo && (
+            <div className="mt-8 mb-8 animate-fadeIn">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 font-sans">
+                Technical Specifications
+              </h3>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                {/* Resolution */}
+                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                  <span className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+                    Resolution
+                  </span>
+                  <span className="font-bold text-gray-800 text-sm">
+                    {(product as any).resolution || "N/A"}
+                  </span>
+                </div>
 
+                {/* Frame Rate */}
+                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                  <span className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+                    Frame Rate
+                  </span>
+                  <span className="font-bold text-gray-800 text-sm">
+                    {(product as any).frame_rate || "N/A"}
+                  </span>
+                </div>
+
+                {/* Duration */}
+                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                  <span className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+                    Duration
+                  </span>
+                  <span className="font-bold text-gray-800 text-sm">
+                    {formatDuration((product as any).duration)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Reviews Section */}
           <div className="mt-12 pt-10 border-t">
             <h3 className="text-2xl font-bold mb-6 font-sans">Reviews</h3>
