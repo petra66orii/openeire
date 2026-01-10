@@ -9,12 +9,9 @@ const Breadcrumbs = () => {
   // 1. Don't show breadcrumbs on the Homepage
   if (location.pathname === "/") return null;
 
-  // --- LOGIC FOR THE FIX ---
-  // Check if we were redirected here from another page
   const state = location.state as { from?: { pathname: string } } | null;
   const isGatePage = location.pathname === "/gallery-gate";
 
-  // If we are at the Gate AND have a history, use the history path instead!
   const pathSource =
     isGatePage && state?.from ? state.from.pathname : location.pathname;
 
@@ -74,8 +71,6 @@ const Breadcrumbs = () => {
             const to = `/${pathnames.slice(0, index + 1).join("/")}`;
             const isLast = index === pathnames.length - 1;
 
-            // CHECK CONTEXT FIRST: Do we have a custom title for this specific path?
-            // If yes, use "Roys Peak". If no, check the nameMap.
             let displayName = titles[to] || nameMap[value] || value;
 
             // Fallback for IDs if no title is set yet
@@ -112,7 +107,6 @@ const Breadcrumbs = () => {
           })}
 
           {/* FINAL CRUMB FOR GATE PAGE */}
-          {/* If we are borrowing the path from the previous page, we manually add the current page at the end */}
           {isGatePage && state?.from && (
             <>
               <li>

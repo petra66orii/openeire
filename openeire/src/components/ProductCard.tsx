@@ -14,20 +14,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
   // 1. SMART ROUTING LOGIC
   let detailUrl = "";
 
-  // VIDEO: Always goes to video route
   if (product.product_type === "video") {
     detailUrl = `/gallery/video/${product.id}`;
-  }
-  // CONTEXT OVERRIDE: If we are explicitly in the Digital Gallery, force the Photo URL
-  else if (contextType === "digital") {
+  } else if (contextType === "digital") {
     detailUrl = `/gallery/photo/${product.id}`;
-  }
-  // CONTEXT OVERRIDE: If we are explicitly in the Physical Gallery, force the Physical URL
-  else if (contextType === "physical") {
+  } else if (contextType === "physical") {
     detailUrl = `/gallery/physical/${product.id}`;
-  }
-  // DEFAULT: Fallback to the product's own type
-  else if (product.product_type === "physical") {
+  } else if (product.product_type === "physical") {
     detailUrl = `/gallery/physical/${product.id}`;
   } else {
     detailUrl = `/gallery/photo/${product.id}`;
@@ -40,7 +33,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
     : "https://via.placeholder.com/400x300";
 
   // 3. PRICE LOGIC
-  // If we are in Digital Mode, show the Digital Price, otherwise default to Physical/Starting
   const showDigitalPrice =
     contextType === "digital" ||
     (!contextType && product.product_type !== "physical");
