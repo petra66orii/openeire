@@ -1,18 +1,47 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { getProductDetail, ProductDetailItem } from "../services/api";
 import ReviewForm from "../components/ReviewForm";
 import ProductReviewList from "../components/ProductReviewList";
 import AddToCartForm from "../components/AddToCartForm";
+import { toast } from "react-toastify";
+import { useBreadcrumb } from "../context/BreadcrumbContext";
 
 type PurchaseMode = "physical" | "digital";
 
 const ProductDetailPage: React.FC = () => {
-  const { type, id } = useParams<{ type: string; id: string }>();
-  const [product, setProduct] = useState<ProductDetailItem | null>(null);
+  // 1. Get Params, Location, and Navigation
+  const { type: paramType, id } = useParams<{ type?: string; id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { setBreadcrumbTitle } = useBreadcrumb();
 
-  // 1. New State: distinct mode for buying
-  const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>("physical");
+  // 2. Intelligent Type Detection
+  const type = useMemo(() => {
+    if (paramType) return paramType;
+    if (location.pathname.includes("/physical/")) return "physical";
+    if (location.pathname.includes("/photo/")) return "photo";
+    if (location.pathname.includes("/video/")) return "video";
+    return null;
+  }, [paramType, location.pathname]);
+
+  // 3. Check Authentication for Digital Access
+  const isDigitalAuthorized = useMemo(() => {
+    const session = localStorage.getItem("gallery_access");
+    if (!session) return false;
+    try {
+      const parsed = JSON.parse(session);
+      return !!parsed.code;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const [product, setProduct] = useState<ProductDetailItem | null>(null);
+  const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>(() => {
+    if (type === "photo" || type === "video") return "digital";
+    return "physical"; // Default to physical only if URL is physical
+  });
 
   // Physical Selection State
   const [selectedMaterial, setSelectedMaterial] = useState<string>("");
@@ -27,6 +56,7 @@ const ProductDetailPage: React.FC = () => {
 
   const fetchProductDetail = useCallback(async () => {
     if (!type || !id) return;
+
     setLoading(true);
     setError(null);
     try {
@@ -34,24 +64,45 @@ const ProductDetailPage: React.FC = () => {
       setProduct(data);
       setReviewRefreshKey((prev) => prev + 1);
 
-      // Smart Default: If it's a video, or a photo with NO physical variants, default to digital
-      if (data.product_type === "video") {
+      setBreadcrumbTitle(location.pathname, data.title);
+
+      const hasPhysical = "variants" in data && data.variants.length > 0;
+      const isVideo = data.product_type === "video";
+
+      if (isVideo) {
         setPurchaseMode("digital");
-      } else if ("variants" in data && data.variants.length === 0) {
+      } else if (type === "physical") {
+        if (hasPhysical) {
+          setPurchaseMode("physical");
+        } else {
+          setPurchaseMode("digital"); // Fallback if no prints exist
+        }
+      } else if (type === "photo" || type === "video" || type === "digital") {
         setPurchaseMode("digital");
       } else {
-        setPurchaseMode("physical"); // Default to print if available
+        if (hasPhysical) setPurchaseMode("physical");
+        else setPurchaseMode("digital");
       }
     } catch (err) {
       setError("Failed to load product details.");
     } finally {
       setLoading(false);
     }
-  }, [type, id]);
+  }, [type, id, location.pathname, setBreadcrumbTitle]);
 
   useEffect(() => {
     fetchProductDetail();
   }, [fetchProductDetail]);
+
+  // --- INTERCEPTOR FOR DIGITAL MODE ---
+  const handleModeSwitch = (mode: PurchaseMode) => {
+    if (mode === "digital" && !isDigitalAuthorized) {
+      toast.info("Digital downloads require a private gallery access code.");
+      navigate("/gallery-gate", { state: { from: location } });
+      return;
+    }
+    setPurchaseMode(mode);
+  };
 
   // --- VARIANT LOGIC (Physical) ---
   const variants = useMemo(() => {
@@ -60,14 +111,14 @@ const ProductDetailPage: React.FC = () => {
       return product.variants;
     }
     if ("photo" in product && product.photo && "variants" in product.photo) {
-      return product.photo.variants;
+      return (product.photo as any).variants;
     }
     return [];
   }, [product]);
 
   const uniqueMaterials = useMemo(() => {
     const map = new Map();
-    variants.forEach((v) => {
+    variants.forEach((v: any) => {
       if (!map.has(v.material)) {
         map.set(v.material, v.material_display);
       }
@@ -77,17 +128,16 @@ const ProductDetailPage: React.FC = () => {
 
   const availableSizes = useMemo(() => {
     return variants
-      .filter((v) => v.material === selectedMaterial)
-      .map((v) => ({ code: v.size, label: v.size_display }));
+      .filter((v: any) => v.material === selectedMaterial)
+      .map((v: any) => ({ code: v.size, label: v.size_display }));
   }, [variants, selectedMaterial]);
 
   const activePhysicalVariant = useMemo(() => {
     return variants.find(
-      (v) => v.material === selectedMaterial && v.size === selectedSize
+      (v: any) => v.material === selectedMaterial && v.size === selectedSize
     );
   }, [variants, selectedMaterial, selectedSize]);
 
-  // Set Physical Defaults
   useEffect(() => {
     if (variants.length > 0 && !selectedMaterial) {
       setSelectedMaterial(variants[0].material);
@@ -96,8 +146,13 @@ const ProductDetailPage: React.FC = () => {
   }, [variants, selectedMaterial]);
 
   // --- CART & PRICING LOGIC ---
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+      </div>
+    );
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
   if (error)
     return <div className="text-center mt-10 text-red-500">{error}</div>;
   if (!product)
@@ -114,13 +169,13 @@ const ProductDetailPage: React.FC = () => {
     displayPrice = activePhysicalVariant.price;
     activeProductForCart = {
       ...product,
-      id: activePhysicalVariant.id, // Use Variant ID
+      id: activePhysicalVariant.id,
       title: `${product.title} (${activePhysicalVariant.material_display} - ${activePhysicalVariant.size_display})`,
       price: activePhysicalVariant.price,
       product_type: "physical",
       preview_image:
-        "photo" in product
-          ? product.photo.preview_image
+        "photo" in product && (product as any).photo
+          ? (product as any).photo.preview_image
           : product.preview_image,
     };
   } else {
@@ -140,16 +195,15 @@ const ProductDetailPage: React.FC = () => {
 
   const reviewProductId =
     product.product_type === "physical" && "photo" in product
-      ? String(product.photo.id)
+      ? String((product as any).photo.id)
       : String(product.id);
 
   const reviewProductType =
     product.product_type === "physical" ? "photo" : product.product_type;
 
-  // Image Helper
   let imageUrl = "";
   if (product.product_type === "physical" && "photo" in product) {
-    imageUrl = product.photo.preview_image || "";
+    imageUrl = (product as any).photo.preview_image || "";
   } else if ("preview_image" in product) {
     imageUrl = product.preview_image || "";
   } else if ("thumbnail_image" in product) {
@@ -158,20 +212,15 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-8">
-      <div className="mb-8">
-        <Link to="/gallery/physical" className="text-green-600 hover:underline">
-          &larr; Back to Gallery
-        </Link>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* LEFT: Media */}
-        <div>
+        <div className="bg-gray-100 rounded-lg overflow-hidden shadow-md">
           {isVideo && "video_file" in product ? (
             <video
-              src={product.video_file}
+              src={(product as any).video_file}
               controls
-              className="w-full rounded-lg shadow-lg"
+              className="w-full"
+              poster={product.thumbnail_image}
             >
               Your browser does not support video.
             </video>
@@ -179,7 +228,7 @@ const ProductDetailPage: React.FC = () => {
             <img
               src={imageUrl}
               alt={product.title}
-              className="w-full rounded-lg shadow-lg"
+              className="w-full h-auto object-cover"
             />
           )}
         </div>
@@ -187,22 +236,22 @@ const ProductDetailPage: React.FC = () => {
         {/* RIGHT: Details & Selectors */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2 font-sans">
               {product.title}
             </h1>
             {"description" in product && (
-              <p className="text-gray-600 leading-relaxed">
-                {product.description}
+              <p className="text-gray-600 leading-relaxed font-serif">
+                {(product as any).description}
               </p>
             )}
           </div>
 
           <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 space-y-6">
-            {/* 1. FORMAT TOGGLE (Only if both Physical AND Digital exist) */}
+            {/* 1. FORMAT TOGGLE (Protected) */}
             {!isVideo && hasVariants && (
               <div className="flex p-1 bg-gray-200 rounded-lg mb-6">
                 <button
-                  onClick={() => setPurchaseMode("physical")}
+                  onClick={() => handleModeSwitch("physical")}
                   className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${
                     purchaseMode === "physical"
                       ? "bg-white text-green-700 shadow"
@@ -211,15 +260,33 @@ const ProductDetailPage: React.FC = () => {
                 >
                   Physical Print
                 </button>
+
+                {/* LOCKED DIGITAL BUTTON */}
                 <button
-                  onClick={() => setPurchaseMode("digital")}
-                  className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${
+                  onClick={() => handleModeSwitch("digital")}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2 ${
                     purchaseMode === "digital"
                       ? "bg-white text-green-700 shadow"
                       : "text-gray-600 hover:text-gray-800"
                   }`}
                 >
                   Digital Download
+                  {!isDigitalAuthorized && (
+                    // Lock Icon
+                    <svg
+                      className="w-4 h-4 text-gray-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  )}
                 </button>
               </div>
             )}
@@ -236,11 +303,11 @@ const ProductDetailPage: React.FC = () => {
                     onChange={(e) => {
                       setSelectedMaterial(e.target.value);
                       const firstSize = variants.find(
-                        (v) => v.material === e.target.value
+                        (v: any) => v.material === e.target.value
                       )?.size;
                       if (firstSize) setSelectedSize(firstSize);
                     }}
-                    className="w-full border-gray-300 rounded-md shadow-sm p-2 bg-white"
+                    className="w-full border-gray-300 rounded-md shadow-sm p-3 bg-white"
                   >
                     {uniqueMaterials.map(([code, label]) => (
                       <option key={code} value={code}>
@@ -256,9 +323,9 @@ const ProductDetailPage: React.FC = () => {
                   <select
                     value={selectedSize}
                     onChange={(e) => setSelectedSize(e.target.value)}
-                    className="w-full border-gray-300 rounded-md shadow-sm p-2 bg-white"
+                    className="w-full border-gray-300 rounded-md shadow-sm p-3 bg-white"
                   >
-                    {availableSizes.map((s) => (
+                    {availableSizes.map((s: any) => (
                       <option key={s.code} value={s.code}>
                         {s.label}
                       </option>
@@ -278,10 +345,10 @@ const ProductDetailPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <button
                       onClick={() => setDigitalLicense("hd")}
-                      className={`border rounded-md p-3 text-center ${
+                      className={`border rounded-md p-3 text-center transition-all ${
                         digitalLicense === "hd"
                           ? "border-green-500 bg-green-50 ring-1 ring-green-500"
-                          : "border-gray-300 bg-white"
+                          : "border-gray-300 bg-white hover:border-green-300"
                       }`}
                     >
                       <div className="font-bold text-gray-800">
@@ -293,10 +360,10 @@ const ProductDetailPage: React.FC = () => {
                     </button>
                     <button
                       onClick={() => setDigitalLicense("4k")}
-                      className={`border rounded-md p-3 text-center ${
+                      className={`border rounded-md p-3 text-center transition-all ${
                         digitalLicense === "4k"
                           ? "border-green-500 bg-green-50 ring-1 ring-green-500"
-                          : "border-gray-300 bg-white"
+                          : "border-gray-300 bg-white hover:border-green-300"
                       }`}
                     >
                       <div className="font-bold text-gray-800">
@@ -327,7 +394,7 @@ const ProductDetailPage: React.FC = () => {
 
           {/* Reviews Section */}
           <div className="mt-12 pt-10 border-t">
-            <h3 className="text-2xl font-bold mb-6">Reviews</h3>
+            <h3 className="text-2xl font-bold mb-6 font-sans">Reviews</h3>
             <ReviewForm
               productType={reviewProductType}
               productId={reviewProductId}
