@@ -212,6 +212,9 @@ export interface VideoDetail extends GalleryItem {
   price_4k: string;
   tags: string | null;
   created_at: string;
+  duration?: number;
+  resolution?: string;
+  frame_rate?: string;
 }
 
 export interface ProductDetail extends GalleryItem {
