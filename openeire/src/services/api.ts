@@ -203,6 +203,7 @@ export interface PhotoDetail extends GalleryItem {
   tags: string | null;
   created_at: string;
   variants: ProductVariant[]; 
+  related_products: GalleryItem[];
 }
 
 export interface VideoDetail extends GalleryItem {
@@ -215,6 +216,7 @@ export interface VideoDetail extends GalleryItem {
   duration?: number;
   resolution?: string;
   frame_rate?: string;
+  related_products: GalleryItem[];
 }
 
 export interface ProductDetail extends GalleryItem {
