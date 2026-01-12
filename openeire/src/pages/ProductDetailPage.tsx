@@ -6,6 +6,7 @@ import ProductReviewList from "../components/ProductReviewList";
 import AddToCartForm from "../components/AddToCartForm";
 import { toast } from "react-toastify";
 import { useBreadcrumb } from "../context/BreadcrumbContext";
+import RelatedProducts from "../components/RelatedProducts";
 
 type PurchaseMode = "physical" | "digital";
 
@@ -451,6 +452,12 @@ const ProductDetailPage: React.FC = () => {
             />
           </div>
         </div>
+        {product && "related_products" in product && (
+          <RelatedProducts
+            products={(product as any).related_products}
+            contextType={purchaseMode === "physical" ? "physical" : "digital"}
+          />
+        )}
       </div>
     </div>
   );
