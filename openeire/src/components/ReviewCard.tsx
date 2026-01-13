@@ -34,6 +34,22 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
           {review.comment}
         </p>
       )}
+      {review.admin_reply && (
+        <div className="mt-4 ml-4 p-4 bg-gray-50 border-l-4 border-green-600 rounded-r-lg">
+          <div className="flex items-center gap-2 mb-1">
+            {/* Optional: Small Badge or Icon */}
+            <span className="bg-green-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+              Official Response
+            </span>
+            <span className="text-xs text-gray-500 font-semibold">
+              OpenEire Studios
+            </span>
+          </div>
+          <p className="text-gray-800 text-sm font-sans italic">
+            "{review.admin_reply}"
+          </p>
+        </div>
+      )}
     </div>
   );
 };
