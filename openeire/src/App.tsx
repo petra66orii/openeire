@@ -26,6 +26,7 @@ import GalleryGatePage from "./pages/GalleryGatePage";
 import GalleryGuard from "./components/GalleryGuard";
 import Breadcrumbs from "./components/Breadcrumbs";
 import { BreadcrumbProvider } from "./context/BreadcrumbContext";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
         />
         <Breadcrumbs />
         <main className="flex-grow">
+          <Toaster position="bottom-center" toastOptions={{ duration: 3000 }} />
           <Routes>
             {/* ================= PUBLIC ROUTES ================= */}
             <Route path="/" element={<HomePage />} />
