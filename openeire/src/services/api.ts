@@ -98,6 +98,7 @@ export interface ProductReview {
   rating: number;
   comment: string | null;
   created_at: string;
+  admin_reply?: string | null;
 }
 
 export interface GalleryItem {
