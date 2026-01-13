@@ -609,3 +609,8 @@ export const verifyGalleryAccess = async (access_code: string) => {
   const response = await api.post("gallery-verify/", { access_code });
   return response.data;
 };
+
+export const getShoppingBagRecommendations = async (): Promise<GalleryItem[]> => {
+  const response = await api.get('/products/recommendations/');
+  return response.data;
+};
