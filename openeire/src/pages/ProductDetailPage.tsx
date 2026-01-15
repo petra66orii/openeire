@@ -192,12 +192,15 @@ const ProductDetailPage: React.FC = () => {
       digitalLicense === "hd"
         ? (product as any).price_hd
         : (product as any).price_4k;
+
+    const strictType = product.product_type === "video" ? "video" : "photo";
     activeProductForCart = {
       ...product,
       price: displayPrice,
       title: `${
         product.title
       } (${digitalLicense.toUpperCase()} Digital License)`,
+      product_type: strictType,
     };
   }
 

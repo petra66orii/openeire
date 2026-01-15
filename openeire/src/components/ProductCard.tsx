@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { GalleryItem } from "../services/api";
-import { useCart } from "../context/CartContext"; // 1. Import Cart Context
-import QuickAddModal from "./QuickAddModal"; // 2. Import the Modal
+import { useCart } from "../context/CartContext";
+import QuickAddModal from "./QuickAddModal";
 import toast from "react-hot-toast";
 
 interface ProductCardProps {
@@ -15,7 +15,7 @@ const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
   const { addToCart } = useCart();
-  const [showQuickView, setShowQuickView] = useState(false); // 4. State for Modal
+  const [showQuickView, setShowQuickView] = useState(false);
 
   // --- SMART ROUTING LOGIC (Preserved) ---
   let detailUrl = "";
@@ -31,13 +31,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
     detailUrl = `/gallery/photo/${product.id}`;
   }
 
-  // --- IMAGE LOGIC (Preserved) ---
+  // --- IMAGE LOGIC ---
   const rawImageUrl = product.preview_image || product.thumbnail_image;
   const imageUrl = rawImageUrl
     ? `${BACKEND_BASE_URL}${rawImageUrl}`
     : "https://via.placeholder.com/400x300";
 
-  // --- PRICE LOGIC (Preserved) ---
+  // --- PRICE LOGIC ---
   const showDigitalPrice =
     contextType === "digital" ||
     (!contextType && product.product_type !== "physical");
@@ -54,8 +54,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
     e.stopPropagation();
 
     if (isVideo) {
-      // 👇 FIX 2: Use addToCart for Videos
-      // We pass the specific HD price
       const productToAdd = {
         ...product,
         price: product.price_hd || "0.00", // Use HD price
@@ -68,7 +66,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
 
       addToCart(productToAdd, 1, options);
       toast.success("HD Video added to bag!");
-    } else {
+    }
+    // 2. DIGITAL PHOTOS (Context is 'digital' or 'all' but type is photo)
+    else if (contextType === "digital") {
+      // Instant add for Digital Photo (Default to HD License)
+      const productToAdd = {
+        ...product,
+        price: product.price_hd || product.price, // Fallback
+      };
+
+      // Force type: 'photo' so backend treats it as digital
+      addToCart(productToAdd, 1, {
+        license: "hd",
+        type: "photo",
+      });
+      toast.success("Digital Photo (HD) added to bag!");
+    }
+    // 3. PHYSICAL PRINTS (Default behavior)
+    else {
+      // Open Modal for Prints (to pick Size/Material)
       setShowQuickView(true);
     }
   };
@@ -98,7 +114,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
             </span>
           </div>
 
-          {/* 👇 NEW: QUICK ADD BUTTON (Visible on Hover) 👇 */}
           <button
             onClick={handleQuickAdd}
             className="absolute bottom-3 right-3 bg-white text-gray-900 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-green-600 hover:text-white z-20"
@@ -137,7 +152,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
         </div>
       </Link>
 
-      {/* 👇 RENDER MODAL OUTSIDE THE LINK 👇 */}
       {showQuickView && (
         <QuickAddModal
           productId={product.id}
