@@ -1,16 +1,37 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
 
 interface OrderSummaryProps {
-  isCheckoutPage?: boolean; // <-- Add this optional prop
+  isCheckoutPage?: boolean;
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   isCheckoutPage = false,
 }) => {
-  const { cartTotal } = useCart();
-  const shippingCost = cartTotal > 50 ? 0 : 5.99;
+  // 1. Get 'cart' from context so we can inspect items
+  const { cartItems: cart, cartTotal } = useCart();
+
+  // 2. Detect if there are any physical items
+  const hasPhysicalItems = useMemo(() => {
+    return cart.some((item) => {
+      return (
+        item.options?.type === "physical" ||
+        item.product?.product_type === "physical"
+      );
+    });
+  }, [cart]);
+
+  // 3. Calculate Shipping Logic
+  // Logic:
+  // - If NO physical items (all digital) -> €0.00
+  // - If Physical items exist -> Check threshold
+  let shippingCost = 0;
+
+  if (hasPhysicalItems) {
+    shippingCost = cartTotal > 50 ? 0 : 5.99;
+  }
+
   const grandTotal = cartTotal + shippingCost;
 
   return (
@@ -22,7 +43,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       </div>
       <div className="flex justify-between">
         <span>Shipping</span>
-        <span>
+        <span
+          className={shippingCost === 0 ? "text-green-600 font-medium" : ""}
+        >
           {shippingCost === 0 ? "Free" : `€${shippingCost.toFixed(2)}`}
         </span>
       </div>
@@ -31,7 +54,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <span>€{grandTotal.toFixed(2)}</span>
       </div>
 
-      {/* Conditionally render the button */}
       {!isCheckoutPage && (
         <Link
           to="/checkout"
