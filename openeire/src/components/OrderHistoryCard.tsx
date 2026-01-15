@@ -1,5 +1,6 @@
 import React from "react";
 import { OrderHistory } from "../services/api";
+import DownloadButton from "./DownloadButton";
 
 interface OrderHistoryCardProps {
   order: OrderHistory;
@@ -59,6 +60,17 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                 <p className="text-sm text-gray-500">
                   Type: {item.product.product_type}
                 </p>
+                {/* Only show for Digital Items */}
+                {(item.product.product_type === "photo" ||
+                  item.product.product_type === "video") && (
+                  <DownloadButton
+                    productType={item.product.product_type}
+                    productId={item.product.id}
+                    fileName={`${item.product.title}.${
+                      item.product.product_type === "video" ? "mp4" : "jpg"
+                    }`}
+                  />
+                )}
               </div>
               <div className="text-right">
                 <p className="font-semibold text-gray-800">
