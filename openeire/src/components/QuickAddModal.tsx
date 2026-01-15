@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { useCart } from "../context/CartContext";
-import toast from "react-hot-toast";
+import React, { useState, useEffect, useMemo } from "react";
 import { getProductDetail, PhotoDetail } from "../services/api";
+import AddToCartForm from "./AddToCartForm";
 
 interface QuickAddModalProps {
   productId: number;
@@ -12,7 +11,6 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
   productId,
   onClose,
 }) => {
-  const { addToCart } = useCart();
   const [product, setProduct] = useState<PhotoDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,8 +23,6 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 👇 FIX 2: Use the existing generic function with type "physical"
-        // We cast it 'as PhotoDetail' because we know this modal is for Prints
         const data = (await getProductDetail(
           "physical",
           productId.toString()
@@ -59,51 +55,25 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
     if (variant) setPrice(variant.price);
   }, [selectedMaterial, selectedSize, product]);
 
-  // 3. Add to Cart Action
-  const handleAddToCart = () => {
-    if (!product) return;
+  // 3. Synthesize the Product Object for the Form
+  const activeProductForForm = useMemo(() => {
+    if (!product) return null;
 
     const variant = product.variants.find(
       (v) => v.material === selectedMaterial && v.size === selectedSize
     );
 
-    if (variant) {
-      // Construct a "Product" object that has the specific Variant Price
-      // This ensures the Cart Context calculates the total correctly.
-      const productToAdd = {
-        ...product,
-        price: variant.price, // OVERWRITE with specific variant price
-      };
+    if (!variant) return null;
 
-      const options = {
-        material: selectedMaterial,
-        size: selectedSize,
-        variantId: variant.id,
-        details: `${variant.material_display} - ${variant.size_display}`,
-        type: "physical",
-      };
-
-      // Call the Context function
-      addToCart(productToAdd, 1, options);
-
-      onClose();
-
-      toast.success(`${product.title} added to bag!`, {
-        style: {
-          border: "1px solid #166534",
-          padding: "16px",
-          color: "#166534",
-          background: "#F0FDF4",
-        },
-        iconTheme: {
-          primary: "#166534",
-          secondary: "#FFFAEE",
-        },
-      });
-    } else {
-      toast.error("Please select a valid size.");
-    }
-  };
+    return {
+      ...product,
+      id: variant.id,
+      price: variant.price,
+      title: `${product.title} (${variant.material_display} - ${variant.size_display})`,
+      product_type: "physical" as const,
+      preview_image: product.preview_image,
+    };
+  }, [product, selectedMaterial, selectedSize]);
 
   // Helper lists
   const uniqueMaterials = product
@@ -180,10 +150,7 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
                     <button
                       key={mat}
                       onClick={() => {
-                        // 1. Set the new material
                         setSelectedMaterial(mat);
-
-                        // 2. 👇 FIX: Find the first valid size for this new material and auto-select it
                         const firstValidVariant = product?.variants.find(
                           (v) => v.material === mat
                         );
@@ -229,9 +196,9 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
                 </select>
               </div>
 
-              {/* Price & Action */}
-              <div className="pt-4 mt-2 border-t flex items-center justify-between">
-                <div>
+              {/* Price & Add To Cart Form */}
+              <div className="pt-4 mt-2 border-t">
+                <div className="flex items-end justify-between mb-3">
                   <span className="block text-xs text-gray-500">
                     Total Price
                   </span>
@@ -239,12 +206,14 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
                     €{price}
                   </span>
                 </div>
-                <button
-                  onClick={handleAddToCart}
-                  className="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors shadow-lg shadow-gray-200"
-                >
-                  Add to Cart
-                </button>
+
+                {activeProductForForm ? (
+                  <AddToCartForm product={activeProductForForm} />
+                ) : (
+                  <div className="text-center text-red-500 text-sm">
+                    Unavailable
+                  </div>
+                )}
               </div>
             </div>
           </div>
