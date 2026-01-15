@@ -13,7 +13,7 @@ export const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // 1. Handle User Auth (Login)
-    const token = localStorage.getItem('access');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -613,4 +613,27 @@ export const verifyGalleryAccess = async (access_code: string) => {
 export const getShoppingBagRecommendations = async (): Promise<GalleryItem[]> => {
   const response = await api.get('/products/recommendations/');
   return response.data;
+};
+
+export const downloadProduct = async (
+  type: "photo" | "video", 
+  id: number, 
+  filename: string
+) => {
+  const response = await api.get(`/products/download/${type}/${id}/`, {
+    responseType: 'blob', // IMPORTANT: Tells Axios this is a file, not JSON
+  });
+
+  // Convert Blob to downloadable URL
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  
+  // Clean up
+  link.parentNode?.removeChild(link);
+  window.URL.revokeObjectURL(url);
+  return true;
 };
