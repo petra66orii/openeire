@@ -140,6 +140,15 @@ export interface LikeResponse {
 export interface BlogPostDetail extends BlogPostListItem {
   content: string;
   updated_at: string;
+  has_liked: boolean;
+  related_posts: RelatedPost[];
+}
+
+export interface RelatedPost {
+  title: string;
+  slug: string;
+  featured_image: string | null;
+  created_at: string;
 }
 
 export interface OrderHistoryItem {
