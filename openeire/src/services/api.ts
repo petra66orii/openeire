@@ -127,6 +127,14 @@ export interface BlogPostListItem {
   featured_image: string | null;
   excerpt: string;
   created_at: string;
+  tags: string[]; 
+  likes_count: number;
+  has_liked?: boolean;
+}
+
+export interface LikeResponse {
+    liked: boolean;
+    likes_count: number;
 }
 
 export interface BlogPostDetail extends BlogPostListItem {
@@ -316,10 +324,56 @@ export const newsletterSignup = async (
   }
 };
 
+export const getBlogPosts = async (
+  tag?: string
+): Promise<PaginatedResponse<BlogPostListItem>> => {
+  try {
+    // If a tag is provided, append it to the URL query params
+    const url = tag ? `blog/?tag=${tag}` : `blog/`;
+    
+    const response = await api.get<PaginatedResponse<BlogPostListItem>>(url);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
+// 2. Fetch Single Blog Post
+export const getBlogPostDetail = async (
+  slug: string
+): Promise<BlogPostDetail> => {
+  try {
+    // Updated path to match backend: /blog/<slug>/
+    const response = await api.get<BlogPostDetail>(`blog/${slug}/`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
+export const toggleBlogLike = async (slug: string): Promise<LikeResponse> => {
+  try {
+    const response = await api.post<LikeResponse>(`blog/${slug}/like/`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
+// 4. Get Comments
 export const getComments = async (postSlug: string): Promise<Comment[]> => {
   try {
     const response = await api.get<Comment[]>(
-      `blog/posts/${postSlug}/comments/`
+      `blog/${postSlug}/comments/`
     );
     return response.data;
   } catch (error) {
@@ -330,13 +384,14 @@ export const getComments = async (postSlug: string): Promise<Comment[]> => {
   }
 };
 
+// 5. Post Comment
 export const postComment = async (
   postSlug: string,
   content: string
 ): Promise<Comment> => {
   try {
     const response = await api.post<Comment>(
-      `blog/posts/${postSlug}/comments/`,
+      `blog/${postSlug}/comments/`,
       { content }
     );
     return response.data;
@@ -537,36 +592,6 @@ export const getProductReviews = async (
     const response = await api.get<ProductReview[]>(
       `${productType}/${productId}/reviews/`
     );
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw error.response.data;
-    }
-    throw error;
-  }
-};
-
-export const getBlogPosts = async (): Promise<
-  PaginatedResponse<BlogPostListItem>
-> => {
-  try {
-    const response = await api.get<PaginatedResponse<BlogPostListItem>>(
-      "blog/posts/"
-    );
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw error.response.data;
-    }
-    throw error;
-  }
-};
-
-export const getBlogPostDetail = async (
-  slug: string
-): Promise<BlogPostDetail> => {
-  try {
-    const response = await api.get<BlogPostDetail>(`blog/posts/${slug}/`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
