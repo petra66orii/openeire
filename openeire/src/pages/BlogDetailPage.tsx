@@ -13,6 +13,7 @@ import CommentForm from "../components/CommentForm";
 import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import SocialShareButtons from "../components/SocialShareButtons";
+import SEOHead from "../components/SEOHead";
 
 const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
@@ -87,6 +88,15 @@ const BlogDetailPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-8">
+      <SEOHead
+        title={post.title}
+        description={post.excerpt || "Read this article on OpenEire Studios."}
+        image={
+          post.featured_image
+            ? `${BACKEND_BASE_URL}${post.featured_image}`
+            : undefined
+        }
+      />
       <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-8 border border-gray-100">
         {/* Breadcrumb */}
         <Link

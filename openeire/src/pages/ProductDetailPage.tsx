@@ -7,6 +7,7 @@ import AddToCartForm from "../components/AddToCartForm";
 import { toast } from "react-toastify";
 import { useBreadcrumb } from "../context/BreadcrumbContext";
 import RelatedProducts from "../components/RelatedProducts";
+import SEOHead from "../components/SEOHead";
 
 type PurchaseMode = "physical" | "digital";
 
@@ -142,7 +143,7 @@ const ProductDetailPage: React.FC = () => {
 
   const activePhysicalVariant = useMemo(() => {
     return variants.find(
-      (v: any) => v.material === selectedMaterial && v.size === selectedSize
+      (v: any) => v.material === selectedMaterial && v.size === selectedSize,
     );
   }, [variants, selectedMaterial, selectedSize]);
 
@@ -223,6 +224,11 @@ const ProductDetailPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 lg:p-8">
+      <SEOHead
+        title={product.title}
+        description={`Buy ${product.title} - Available as High-Res Download or Fine Art Print.`}
+        image={product.preview_image}
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* LEFT: Media */}
         <div className="bg-gray-100 rounded-lg overflow-hidden shadow-md">
@@ -314,7 +320,7 @@ const ProductDetailPage: React.FC = () => {
                     onChange={(e) => {
                       setSelectedMaterial(e.target.value);
                       const firstSize = variants.find(
-                        (v: any) => v.material === e.target.value
+                        (v: any) => v.material === e.target.value,
                       )?.size;
                       if (firstSize) setSelectedSize(firstSize);
                     }}
