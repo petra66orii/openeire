@@ -6,12 +6,13 @@ import {
   getComments,
   Comment,
   postComment,
-  toggleBlogLike, // 👈 New Import
+  toggleBlogLike,
 } from "../services/api";
 import CommentList from "../components/CommentList";
 import CommentForm from "../components/CommentForm";
-import { toast } from "react-toastify"; // Using toastify as per your code (or react-hot-toast if you switched)
-import { useAuth } from "../context/AuthContext"; // Assuming you have an AuthContext
+import { toast } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+import SocialShareButtons from "../components/SocialShareButtons";
 
 const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
@@ -167,6 +168,20 @@ const BlogDetailPage: React.FC = () => {
             </svg>
             {likeCount} Likes
           </button>
+          <div className="mt-6 flex flex-col items-center">
+            <p className="text-gray-500 text-xs uppercase font-bold mb-2">
+              Share this post
+            </p>
+            <SocialShareButtons
+              url={window.location.href}
+              title={post.title}
+              image={
+                post.featured_image
+                  ? `${BACKEND_BASE_URL}${post.featured_image}`
+                  : undefined
+              }
+            />
+          </div>
         </div>
 
         {/* RELATED POSTS SECTION */}
