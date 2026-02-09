@@ -3,16 +3,16 @@ import { getProfile, UserProfile } from "../services/api";
 import EditProfileForm from "../components/EditProfileForm";
 import OrderHistoryList from "../components/OrderHistoryList";
 import SecuritySettings from "../components/SecuritySettings";
+import LikedPostsList from "../components/LikedPostsList";
 import { useAuth } from "../context/AuthContext";
 
-type Tab = "profile" | "security" | "orders";
+type Tab = "profile" | "security" | "orders" | "likes";
 
 const ProfilePage: React.FC = () => {
-  const { user, refreshUser } = useAuth(); // Use context data directly!
+  const { user, refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [loading, setLoading] = useState(true);
 
-  // We rely on AuthContext for user data, but we might want to ensure it's fresh
   useEffect(() => {
     if (!user) {
       refreshUser().finally(() => setLoading(false));
@@ -31,6 +31,13 @@ const ProfilePage: React.FC = () => {
 
   if (!user) return null;
 
+  const getTabClass = (tabName: Tab) =>
+    `text-left px-4 py-3 rounded-md transition-colors font-medium flex items-center ${
+      activeTab === tabName
+        ? "bg-green-50 text-green-700 border-l-4 border-green-600"
+        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+    }`;
+
   return (
     <div className="container mx-auto px-4 py-10 max-w-6xl">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">My Account</h1>
@@ -41,11 +48,7 @@ const ProfilePage: React.FC = () => {
           <nav className="flex flex-col space-y-2 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
             <button
               onClick={() => setActiveTab("profile")}
-              className={`text-left px-4 py-3 rounded-md transition-colors font-medium flex items-center ${
-                activeTab === "profile"
-                  ? "bg-green-50 text-green-700 border-l-4 border-green-600"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
+              className={getTabClass("profile")}
             >
               <svg
                 className="w-5 h-5 mr-3"
@@ -65,11 +68,7 @@ const ProfilePage: React.FC = () => {
 
             <button
               onClick={() => setActiveTab("security")}
-              className={`text-left px-4 py-3 rounded-md transition-colors font-medium flex items-center ${
-                activeTab === "security"
-                  ? "bg-green-50 text-green-700 border-l-4 border-green-600"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
+              className={getTabClass("security")}
             >
               <svg
                 className="w-5 h-5 mr-3"
@@ -89,11 +88,7 @@ const ProfilePage: React.FC = () => {
 
             <button
               onClick={() => setActiveTab("orders")}
-              className={`text-left px-4 py-3 rounded-md transition-colors font-medium flex items-center ${
-                activeTab === "orders"
-                  ? "bg-green-50 text-green-700 border-l-4 border-green-600"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
+              className={getTabClass("orders")}
             >
               <svg
                 className="w-5 h-5 mr-3"
@@ -110,6 +105,25 @@ const ProfilePage: React.FC = () => {
               </svg>
               Order History
             </button>
+            <button
+              onClick={() => setActiveTab("likes")}
+              className={getTabClass("likes")}
+            >
+              <svg
+                className="w-5 h-5 mr-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+              My Likes
+            </button>
           </nav>
         </aside>
 
@@ -120,6 +134,7 @@ const ProfilePage: React.FC = () => {
           )}
           {activeTab === "security" && <SecuritySettings />}
           {activeTab === "orders" && <OrderHistoryList />}
+          {activeTab === "likes" && <LikedPostsList />}
         </main>
       </div>
     </div>

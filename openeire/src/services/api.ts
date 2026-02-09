@@ -671,3 +671,17 @@ export const downloadProduct = async (
   window.URL.revokeObjectURL(url);
   return true;
 };
+
+
+// Get Liked Posts (Profile)
+export const getLikedBlogPosts = async (): Promise<PaginatedResponse<BlogPostListItem>> => {
+  try {
+    const response = await api.get<PaginatedResponse<BlogPostListItem>>('blog/liked/');
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
