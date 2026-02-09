@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { newsletterSignup } from "../services/api";
 import { toast } from "react-toastify";
-import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import logoImage from "../assets/full-logo-white.png";
 
 const Footer: React.FC = () => {
@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
     setLoading(true);
     try {
       await newsletterSignup(email);
-      toast.success("Thank you for subscribing to our newsletter!");
+      toast.success("Welcome to the community! 🇮🇪");
       setEmail("");
     } catch (err: any) {
       toast.error(err.email?.[0] || "Failed to subscribe. Please try again.");
@@ -24,93 +24,143 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-black text-gray-300 pt-12 pb-8">
+    <footer className="bg-brand-900 text-brand-100 pt-20 pb-10 border-t border-brand-800">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* About Section */}
-          <div>
-            <h3 className="text-lg font-bold text-white mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          {/* 1. BRAND COLUMN */}
+          <div className="md:col-span-1">
+            <Link to="/" className="inline-block mb-6">
               <img
                 src={logoImage}
-                alt="OpenEire Studios Logo"
-                className="h-18 mb-2"
+                alt="OpenEire Studios"
+                className="h-12 w-auto opacity-90 hover:opacity-100 transition-opacity"
               />
-            </h3>
-            <p className="text-sm">
-              Capturing the world from above. Premium aerial stock footage and
-              art prints with proud Irish roots and a global perspective.
+            </Link>
+            <p className="text-sm leading-relaxed text-brand-100/80 mb-6">
+              Capturing the raw beauty of Ireland and beyond. Premium aerial
+              stock footage and fine art prints for creators and collectors.
             </p>
+            <div className="flex space-x-4">
+              <SocialLink href="#" icon={<FaInstagram />} />
+              <SocialLink href="#" icon={<FaFacebook />} />
+              <SocialLink href="#" icon={<FaYoutube />} />
+              <SocialLink href="#" icon={<FaTwitter />} />
+            </div>
           </div>
-          {/* Quick Links */}
+
+          {/* 2. EXPLORE LINKS */}
           <div>
-            <h3 className="text-lg font-bold text-white mb-4">Explore</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/gallery/digital" className="hover:text-white">
-                  Stock Footage
-                </Link>
-              </li>
-              <li>
-                <Link to="/gallery/physical" className="hover:text-white">
-                  Art Prints
-                </Link>
-              </li>
-              <li>
-                <Link to="/blog" className="hover:text-white">
-                  Blog
-                </Link>
-              </li>
+            <h3 className="text-white font-serif font-bold text-lg mb-6">
+              Explore
+            </h3>
+            <ul className="space-y-3 text-sm">
+              <FooterLink to="/gallery/digital">Stock Footage</FooterLink>
+              <FooterLink to="/gallery/physical">Art Prints</FooterLink>
+              <FooterLink to="/blog">Journal</FooterLink>
+              <FooterLink to="/about">Our Story</FooterLink>
             </ul>
           </div>
-          {/* Newsletter */}
+
+          {/* 3. SUPPORT LINKS */}
           <div>
-            <h3 className="text-lg font-bold text-white mb-4">
-              Join Our Newsletter
+            <h3 className="text-white font-serif font-bold text-lg mb-6">
+              Support
             </h3>
-            <p className="text-sm mb-4">
-              Get updates on new collections and exclusive offers.
+            <ul className="space-y-3 text-sm">
+              <FooterLink to="/contact">Contact Us</FooterLink>
+              <FooterLink to="/profile">My Account</FooterLink>
+              <FooterLink to="/shipping">Shipping & Returns</FooterLink>
+              <FooterLink to="/licensing">Licensing Info</FooterLink>
+            </ul>
+          </div>
+
+          {/* 4. NEWSLETTER */}
+          <div>
+            <h3 className="text-white font-serif font-bold text-lg mb-4">
+              Stay Connected
+            </h3>
+            <p className="text-sm text-brand-100/80 mb-4">
+              Join our community for exclusive discounts and new location drops.
             </p>
-            <form onSubmit={handleSubmit}>
-              <div className="flex">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Your email address"
-                  required
-                  className="w-full px-3 py-2 text-gray-800 rounded-l-md focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-primary text-white px-4 py-2 rounded-r-md hover:bg-primary/90 disabled:opacity-50"
-                >
-                  {loading ? "..." : "Sign Up"}
-                </button>
-              </div>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@example.com"
+                required
+                className="w-full px-4 py-3 bg-brand-800 border border-paper rounded-lg text-white placeholder-paper/50 focus:outline-none focus:ring-1 focus:ring-accent transition-all"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-accent hover:bg-accent-hover text-brand-900 font-bold py-3 px-4 rounded-lg transition-colors shadow-lg shadow-black/20"
+              >
+                {loading ? "Subscribing..." : "Subscribe"}
+              </button>
             </form>
           </div>
         </div>
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+
+        {/* BOTTOM BAR */}
+        <div className="border-t border-brand-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/60">
           <p>
-            &copy; {new Date().getFullYear()} OpenEire Studios. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} OpenEire Studios.
+            <span className="hidden md:inline"> • </span>
+            <span className="block md:inline mt-1 md:mt-0">
+              Designed with ☘️ by
+              <a
+                href="https://missbott.online"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-100 hover:text-accent font-medium transition-colors duration-300"
+              >
+                {" "}
+                Miss Bott
+              </a>
+            </span>
           </p>
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white">
-              <FaFacebook size={20} />
-            </a>
-            <a href="#" className="hover:text-white">
-              <FaInstagram size={20} />
-            </a>
-            <a href="#" className="hover:text-white">
-              <FaYoutube size={20} />
-            </a>
+          <div className="flex gap-6 mt-4 md:mt-0">
+            <Link to="/privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </Link>
           </div>
         </div>
       </div>
     </footer>
   );
 };
+
+// Helper Components for clean code
+const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({
+  to,
+  children,
+}) => (
+  <li>
+    <Link
+      to={to}
+      className="text-brand-100/80 hover:text-accent transition-colors duration-200 block hover:translate-x-1 transform"
+    >
+      {children}
+    </Link>
+  </li>
+);
+
+const SocialLink: React.FC<{ href: string; icon: React.ReactNode }> = ({
+  href,
+  icon,
+}) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="h-10 w-10 rounded-full bg-brand-800 flex items-center justify-center text-white hover:bg-accent hover:text-brand-900 transition-all duration-300"
+  >
+    {icon}
+  </a>
+);
 
 export default Footer;

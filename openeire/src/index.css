@@ -1,49 +1,56 @@
 @import "tailwindcss";
 
-/* Fonts */
-.font-sans {
-  font-family: 'Montserrat', sans-serif;
-}
-.font-serif {
-  font-family: 'Merriweather', serif;
+@theme {
+  /* 1. BRAND COLORS (Irish Palette) */
+  /* Using your specific green (#16a34a) as the base, but adding depth */
+  --color-brand-50: #f0fdf4;
+  --color-brand-100: #dcfce7;
+  --color-brand-500: #16a34a; /* Your Primary Green */
+  --color-brand-700: #15803d; /* Deep Irish Green for hover/depth */
+  --color-brand-900: #064e3b; /* Dark Forest for backgrounds */
+  
+  --color-accent: #FFC400;    /* Your Gold/Orange */
+  --color-accent-hover: #e6b000;
+  
+  --color-dark: #1a1a1a;      /* Your Soft Black */
+  --color-paper: #fafaf9;     /* Warm off-white (Stone-50) */
+
+  /* 2. FONTS */
+  --font-sans: 'Montserrat', sans-serif;
+  --font-serif: 'Merriweather', serif;
+
+  /* 3. ANIMATIONS (For the effects) */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
-/* Colors */
-.bg-primary {
-  background-color: #16a34a;
-}
-.text-primary {
-  color: #16a34a;
-}
-.text-accent {
-  color: #FFC400;
-}
-.bg-dark {
-  background-color: #1a1a1a;
-}
-
-/* Primary Button Style */
-.btn-primary {
-  display: inline-block;
-  padding: 0.75rem 2rem;
-  background-color: #16a34a;
-  color: white;
-  font-weight: bold;
-  border-radius: 9999px; /* pill shape */
-  text-decoration: none;
-  transition: background-color 0.3s;
-}
-.btn-primary:hover {
-  background-color: #15803d; /* A slightly darker green */
+/* 4. UTILITIES */
+@layer utilities {
+  /* Glassmorphism utility we can use anywhere */
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  /* Text gradient for headers */
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-accent to-white;
+  }
 }
 
-/* Utility to hide scrollbars for Chrome, Safari and Opera */
-.scrollbar-hide::-webkit-scrollbar {
-    display: none;
+/* Base Styles */
+body {
+  @apply bg-paper text-dark font-sans antialiased;
 }
 
-/* Utility to hide scrollbars for IE, Edge and Firefox */
-.scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-serif;
 }
