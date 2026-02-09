@@ -2,33 +2,31 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { getGalleryProducts, GalleryItem } from "../services/api";
 import ProductCard from "../components/ProductCard";
-import CollectionFilter from "../components/CollectionFilter";
-import SearchBar from "../components/SearchBar";
-import SortDropdown from "../components/SortDropdown";
+import VisualCategoryHero from "../components/VisualCategoryHero";
+import MinimalToolbar from "../components/MinimalToolbar";
+import Masonry from "react-masonry-css";
 
-// Define the allowed type for cleaner usage
 type GalleryType = "digital" | "physical" | "all";
+
+// Define Breakpoints for columns
+const breakpointColumnsObj = {
+  default: 4, // 4 columns on big screens
+  1100: 3,
+  700: 2,
+  500: 1, // 1 column on mobile
+};
 
 const GalleryPage: React.FC = () => {
   const { type: paramType } = useParams<{ type?: string }>();
   const location = useLocation();
 
+  // 1. Determine Type (Same logic as before)
   const type: GalleryType = useMemo(() => {
-    // 1. Check if the URL param is exactly one of the allowed types
-    if (
-      paramType === "digital" ||
-      paramType === "physical" ||
-      paramType === "all"
-    ) {
-      return paramType;
-    }
-    // 2. Fallback: Check the path
+    if (paramType === "digital" || paramType === "physical") return paramType;
     if (location.pathname.includes("/digital")) return "digital";
     if (location.pathname.includes("/photo")) return "digital";
     if (location.pathname.includes("/video")) return "digital";
     if (location.pathname.includes("/physical")) return "physical";
-
-    // 3. Default
     return "all";
   }, [paramType, location.pathname]);
 
@@ -48,11 +46,21 @@ const GalleryPage: React.FC = () => {
           type,
           collection,
           searchTerm,
-          sortOrder
+          sortOrder,
         );
-        setProducts(response.results);
+
+        // 🛡️ FIX: Handle both Paginated (response.results) and Non-Paginated (response is Array) formats
+        if (Array.isArray(response)) {
+          setProducts(response);
+        } else if (response && response.results) {
+          setProducts(response.results);
+        } else {
+          // Fallback for empty or unexpected structure
+          setProducts([]);
+        }
       } catch (err) {
-        setError("Failed to load products. Please try again later.");
+        console.error("Gallery Error:", err);
+        setError("Failed to load products.");
       } finally {
         setLoading(false);
       }
@@ -61,83 +69,55 @@ const GalleryPage: React.FC = () => {
     fetchProducts();
   }, [type, collection, searchTerm, sortOrder]);
 
-  const title =
-    type === "digital"
-      ? "Digital Stock Footage"
-      : type === "physical"
-      ? "Physical Art Prints"
-      : "All Products";
-
-  const handleSearch = (query: string) => {
-    setSearchTerm(query);
-  };
-
   return (
-    <div className="container mx-auto p-4 lg:p-8 min-h-screen">
-      {/* Header Section */}
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl lg:text-4xl font-bold mb-6 text-gray-800 font-sans">
-          {title}
-        </h1>
+    // 🌑 DARK MODE BACKGROUND for that Cinema/Voyage feel
+    <div className="bg-black min-h-screen pb-20">
+      {/* 1. 3D SWIPER HERO (Controls Collection State) */}
+      <VisualCategoryHero
+        activeCollection={collection}
+        onSelectCollection={setCollection}
+      />
 
-        {/* Controls Grid */}
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-center max-w-4xl mx-auto">
-          <div className="w-full md:w-1/3">
-            <SearchBar onSearch={handleSearch} />
+      {/* 2. MINIMAL TOOLBAR (Search & Sort) */}
+      <MinimalToolbar onSearch={setSearchTerm} onSortChange={setSortOrder} />
+
+      <div className="container mx-auto px-4 lg:px-8">
+        {/* Loading */}
+        {loading && (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
           </div>
-          <div className="w-full md:w-auto overflow-x-auto">
-            <CollectionFilter
-              activeCollection={collection}
-              onSelectCollection={setCollection}
-            />
-          </div>
-          <div className="w-full md:w-auto">
-            <SortDropdown onSortChange={setSortOrder} />
-          </div>
-        </div>
-      </div>
+        )}
 
-      {/* Loading & Error States */}
-      {loading && (
-        <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
-        </div>
-      )}
-
-      {error && (
-        <div className="text-center py-20 text-red-500 bg-red-50 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      {/* Product Grid */}
-      {!loading && !error && products.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fadeIn">
-          {products.map((product) => (
-            <ProductCard
-              key={`${product.product_type}-${product.id}`}
-              product={product}
-              contextType={type}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!loading && !error && products.length === 0 && (
-        <div className="text-center py-20 text-gray-500">
-          <p className="text-xl">No products found.</p>
-          <button
-            onClick={() => {
-              setCollection("all");
-              setSearchTerm("");
-            }}
-            className="mt-4 text-green-600 hover:underline"
+        {/* Masonry Grid */}
+        {!loading && !error && products.length > 0 && (
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="my-masonry-grid flex w-auto -ml-8"
+            columnClassName="my-masonry-grid_column pl-8 bg-clip-padding"
           >
-            Clear Filters
-          </button>
-        </div>
-      )}
+            {products.map((product, index) => (
+              <div
+                key={product.id}
+                className="mb-8"
+                style={{
+                  animation: `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`,
+                  opacity: 0,
+                }}
+              >
+                <ProductCard product={product} contextType={type} />
+              </div>
+            ))}
+          </Masonry>
+        )}
+
+        {/* Empty State */}
+        {!loading && products.length === 0 && (
+          <div className="text-center text-gray-500 py-20">
+            No results found.
+          </div>
+        )}
+      </div>
     </div>
   );
 };

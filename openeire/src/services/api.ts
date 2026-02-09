@@ -110,6 +110,8 @@ export interface GalleryItem {
   price_hd?: string;
   product_type: "photo" | "video" | "physical";
   starting_price?: string | number;
+  file?: string;
+  location?: string;
 }
 
 export interface PaginatedResponse<T> {
