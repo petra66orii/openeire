@@ -27,7 +27,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
       await downloadProduct(
         productType as "photo" | "video",
         productId,
-        fileName
+        fileName,
       );
       toast.success("Download started!", { id: toastId });
     } catch (error) {
@@ -47,7 +47,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
         ${
           downloading
             ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-            : "bg-indigo-600 text-white hover:bg-indigo-700 border border-transparent"
+            : "bg-brand-500 text-white hover:bg-brand-700 border border-transparent"
         }
       `}
     >

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { getProfile, UserProfile } from "../services/api";
+import { UserProfile } from "../services/api";
 import EditProfileForm from "../components/EditProfileForm";
 import OrderHistoryList from "../components/OrderHistoryList";
 import SecuritySettings from "../components/SecuritySettings";
 import LikedPostsList from "../components/LikedPostsList";
 import { useAuth } from "../context/AuthContext";
+import { FaUser, FaShieldAlt, FaHistory, FaHeart } from "react-icons/fa";
 
 type Tab = "profile" | "security" | "orders" | "likes";
 
@@ -23,8 +24,8 @@ const ProfilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+      <div className="bg-black min-h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
       </div>
     );
   }
@@ -32,110 +33,74 @@ const ProfilePage: React.FC = () => {
   if (!user) return null;
 
   const getTabClass = (tabName: Tab) =>
-    `text-left px-4 py-3 rounded-md transition-colors font-medium flex items-center ${
+    `text-left px-6 py-4 rounded-xl transition-all font-medium flex items-center gap-4 ${
       activeTab === tabName
-        ? "bg-green-50 text-green-700 border-l-4 border-green-600"
-        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+        ? "bg-brand-500 text-paper shadow-lg font-bold transform scale-[1.02]"
+        : "text-gray-400 hover:bg-white/10 hover:text-white"
     }`;
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-6xl">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">My Account</h1>
+    <div className="bg-black min-h-screen text-white pt-24 pb-20">
+      <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
+        {/* Header */}
+        <div className="mb-12 border-b border-white/10 pb-6">
+          <h1 className="text-4xl font-serif font-bold text-white mb-2">
+            My Account
+          </h1>
+          <p className="text-gray-400">
+            Manage your profile, orders, and preferences.
+          </p>
+        </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* SIDEBAR NAVIGATION */}
-        <aside className="w-full md:w-1/4">
-          <nav className="flex flex-col space-y-2 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-            <button
-              onClick={() => setActiveTab("profile")}
-              className={getTabClass("profile")}
-            >
-              <svg
-                className="w-5 h-5 mr-3"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* SIDEBAR NAVIGATION */}
+          <aside className="w-full lg:w-1/4">
+            <nav className="flex flex-col space-y-2 bg-gray-900 p-4 rounded-2xl border border-white/10">
+              <button
+                onClick={() => setActiveTab("profile")}
+                className={getTabClass("profile")}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              Profile & Shipping
-            </button>
+                <FaUser /> Profile & Shipping
+              </button>
 
-            <button
-              onClick={() => setActiveTab("security")}
-              className={getTabClass("security")}
-            >
-              <svg
-                className="w-5 h-5 mr-3"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              <button
+                onClick={() => setActiveTab("orders")}
+                className={getTabClass("orders")}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-              Security
-            </button>
+                <FaHistory /> Order History
+              </button>
 
-            <button
-              onClick={() => setActiveTab("orders")}
-              className={getTabClass("orders")}
-            >
-              <svg
-                className="w-5 h-5 mr-3"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              <button
+                onClick={() => setActiveTab("likes")}
+                className={getTabClass("likes")}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                />
-              </svg>
-              Order History
-            </button>
-            <button
-              onClick={() => setActiveTab("likes")}
-              className={getTabClass("likes")}
-            >
-              <svg
-                className="w-5 h-5 mr-3"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-              My Likes
-            </button>
-          </nav>
-        </aside>
+                <FaHeart /> Saved Items
+              </button>
 
-        {/* MAIN CONTENT AREA */}
-        <main className="w-full md:w-3/4 bg-white p-8 rounded-lg shadow-sm border border-gray-100 min-h-[500px]">
-          {activeTab === "profile" && (
-            <EditProfileForm initialData={user as UserProfile} />
-          )}
-          {activeTab === "security" && <SecuritySettings />}
-          {activeTab === "orders" && <OrderHistoryList />}
-          {activeTab === "likes" && <LikedPostsList />}
-        </main>
+              <button
+                onClick={() => setActiveTab("security")}
+                className={getTabClass("security")}
+              >
+                <FaShieldAlt /> Security
+              </button>
+            </nav>
+          </aside>
+
+          {/* MAIN CONTENT AREA */}
+          <main className="w-full lg:w-3/4 bg-gray-900 p-8 md:p-10 rounded-3xl border border-white/10 min-h-[600px] shadow-2xl relative overflow-hidden">
+            {/* Decorative Blur */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-brand-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+            <div className="relative z-10">
+              {activeTab === "profile" && (
+                <EditProfileForm initialData={user as UserProfile} />
+              )}
+              {activeTab === "security" && <SecuritySettings />}
+              {activeTab === "orders" && <OrderHistoryList />}
+              {activeTab === "likes" && <LikedPostsList />}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

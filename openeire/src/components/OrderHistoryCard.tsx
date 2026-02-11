@@ -1,6 +1,7 @@
 import React from "react";
 import { OrderHistory } from "../services/api";
 import DownloadButton from "./DownloadButton";
+import { Link } from "react-router-dom";
 
 interface OrderHistoryCardProps {
   order: OrderHistory;
@@ -10,73 +11,84 @@ const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
   const orderDate = new Date(order.date).toLocaleDateString("en-IE", {
-    day: "2-digit",
+    day: "numeric",
     month: "long",
     year: "numeric",
   });
 
   return (
-    <div className="mb-6 rounded-lg border border-gray-200 bg-white shadow-sm">
-      {/* Card Header */}
-      <div className="flex flex-col gap-2 rounded-t-lg bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-x-4 gap-y-2">
+    <div className="bg-black border border-white/10 rounded-xl overflow-hidden shadow-sm hover:border-white/20 transition-colors">
+      {/* HEADER */}
+      <div className="bg-white/5 p-4 flex flex-wrap gap-6 justify-between items-center border-b border-white/5">
+        <div className="flex gap-8">
           <div>
-            <p className="text-xs font-medium text-gray-500">Order Number</p>
-            <p className="font-semibold text-gray-800">{order.order_number}</p>
+            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+              Order #
+            </p>
+            <p className="text-white font-mono">{order.order_number}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500">Date Placed</p>
-            <p className="font-semibold text-gray-800">{orderDate}</p>
+            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+              Date
+            </p>
+            <p className="text-white">{orderDate}</p>
           </div>
         </div>
         <div>
-          <p className="text-xs font-medium text-gray-500">Total Price</p>
-          <p className="font-semibold text-gray-800">€{order.total_price}</p>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold text-right">
+            Total
+          </p>
+          <p className="text-accent font-bold text-lg">€{order.total_price}</p>
         </div>
       </div>
 
-      {/* Card Body - List of Items */}
-      <div className="divide-y divide-gray-200 p-4">
+      {/* ITEMS LIST */}
+      <div className="p-4 divide-y divide-white/5">
         {order.items.map((item) => {
           const rawImageUrl =
             item.product.preview_image || item.product.thumbnail_image;
           const imageUrl = rawImageUrl?.startsWith("http")
             ? rawImageUrl
-            : rawImageUrl
-            ? `${BACKEND_BASE_URL}${rawImageUrl}`
-            : "https://placehold.co/80x80/e2e8f0/94a3b8?text=No+Image";
+            : `${BACKEND_BASE_URL}${rawImageUrl}`;
 
           return (
-            <div key={item.id} className="flex gap-4 py-4">
-              <img
-                src={imageUrl}
-                alt={item.product.title}
-                className="h-16 w-16 rounded object-cover"
-              />
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800">
+            <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
+              <Link
+                to={`/gallery/${item.product.product_type === "video" ? "video" : "photo"}/${item.product.id}`}
+                className="block flex-shrink-0 w-16 h-16 bg-gray-800 rounded overflow-hidden border border-white/10"
+              >
+                <img
+                  src={imageUrl}
+                  alt={item.product.title}
+                  className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity"
+                />
+              </Link>
+
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-white truncate">
                   {item.product.title}
+                </h4>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
+                  {item.product.product_type === "physical"
+                    ? "Fine Art Print"
+                    : "Digital License"}
                 </p>
-                <p className="text-sm text-gray-500">
-                  Type: {item.product.product_type}
-                </p>
-                {/* Only show for Digital Items */}
+
                 {(item.product.product_type === "photo" ||
                   item.product.product_type === "video") && (
-                  <DownloadButton
-                    productType={item.product.product_type}
-                    productId={item.product.id}
-                    fileName={`${item.product.title}.${
-                      item.product.product_type === "video" ? "mp4" : "jpg"
-                    }`}
-                  />
+                  <div className="mt-2">
+                    <DownloadButton
+                      productType={item.product.product_type}
+                      productId={item.product.id}
+                      fileName={`${item.product.title}.${item.product.product_type === "video" ? "mp4" : "jpg"}`}
+                    />
+                  </div>
                 )}
               </div>
+
               <div className="text-right">
-                <p className="font-semibold text-gray-800">
-                  €{item.item_total}
-                </p>
-                <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                <p className="text-white font-bold">€{item.item_total}</p>
+                <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
               </div>
             </div>
           );

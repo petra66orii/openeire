@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { changeEmail } from "../services/api";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
+import { FaCheckCircle } from "react-icons/fa";
 
 const ChangeEmailForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -23,14 +24,11 @@ const ChangeEmailForm: React.FC = () => {
     try {
       await changeEmail(formData);
       setStatus("success");
-      toast.success("Verification email sent to your new address!");
-      // Clear sensitive data
+      toast.success("Verification email sent!");
       setFormData({ new_email: "", password: "" });
     } catch (err: any) {
       console.error(err);
       setStatus("idle");
-
-      // Handle backend errors (e.g., "Incorrect password" or "Email already in use")
       const errorMessage =
         err.response?.data?.error ||
         err.response?.data?.detail ||
@@ -39,19 +37,26 @@ const ChangeEmailForm: React.FC = () => {
     }
   };
 
+  // Reusable Input Styles
+  const inputClass =
+    "w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all";
+  const labelClass =
+    "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2";
+
   if (status === "success") {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <h3 className="text-lg font-medium text-green-800 mb-2">
-          Check Your Inbox
-        </h3>
-        <p className="text-green-700">
+      <div className="bg-green-900/20 border border-green-500/30 rounded-2xl p-8 text-center animate-fade-in-up">
+        <div className="flex justify-center mb-4">
+          <FaCheckCircle className="text-4xl text-green-500" />
+        </div>
+        <h3 className="text-xl font-bold text-white mb-2">Check Your Inbox</h3>
+        <p className="text-green-200/80 mb-6">
           We have sent a confirmation link to your new email address. Please
           click it to finalize the change.
         </p>
         <button
           onClick={() => setStatus("idle")}
-          className="mt-4 text-sm text-green-600 hover:text-green-800 font-medium underline"
+          className="text-sm text-green-400 hover:text-green-300 font-bold uppercase tracking-wider underline transition-colors"
         >
           Update another email
         </button>
@@ -60,17 +65,14 @@ const ChangeEmailForm: React.FC = () => {
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-6 max-w-xl">
-      <h3 className="text-lg leading-6 font-medium text-gray-900 border-b pb-3 mb-4">
+    <div className="bg-gray-900 border border-white/10 rounded-2xl p-8 max-w-xl">
+      <h3 className="text-xl font-bold text-white border-b border-white/10 pb-4 mb-6">
         Change Email Address
       </h3>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label
-            htmlFor="new_email"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="new_email" className={labelClass}>
             New Email Address
           </label>
           <input
@@ -80,19 +82,16 @@ const ChangeEmailForm: React.FC = () => {
             required
             value={formData.new_email}
             onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+            className={inputClass}
             placeholder="you@example.com"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="password" className={labelClass}>
             Current Password{" "}
-            <span className="text-xs text-gray-500 font-normal">
-              (Required to confirm)
+            <span className="text-[10px] text-gray-600 normal-case ml-1">
+              (Required)
             </span>
           </label>
           <input
@@ -102,7 +101,7 @@ const ChangeEmailForm: React.FC = () => {
             required
             value={formData.password}
             onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+            className={inputClass}
           />
         </div>
 
@@ -110,12 +109,7 @@ const ChangeEmailForm: React.FC = () => {
           <button
             type="submit"
             disabled={status === "loading"}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
-              ${
-                status === "loading"
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              }`}
+            className="w-full py-3 px-4 bg-brand-500 text-paper font-bold rounded-lg hover:bg-brand-700 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
             {status === "loading" ? "Verifying..." : "Update Email"}
           </button>
