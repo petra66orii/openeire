@@ -1,114 +1,100 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import {
+  FaCheckCircle,
+  FaDownload,
+  FaHome,
+  FaArrowRight,
+} from "react-icons/fa";
 
 const CheckoutSuccessPage: React.FC = () => {
   const { clearCart } = useCart();
 
   useEffect(() => {
-    // Clear the cart as soon as the success page mounts
     clearCart();
   }, [clearCart]);
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-lg w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl text-center">
-        {/* 1. Success Icon Animation */}
-        <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-green-100 mb-6">
-          <svg
-            className="h-12 w-12 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 pt-20">
+      <div className="max-w-2xl w-full bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 md:p-12 text-center animate-fade-in-up">
+        {/* 1. Success Animation */}
+        <div className="mb-8 relative inline-block">
+          <div className="absolute inset-0 bg-accent/20 rounded-full blur-xl animate-pulse"></div>
+          <FaCheckCircle className="relative text-7xl text-accent mx-auto" />
         </div>
 
         {/* 2. Main Heading */}
-        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          Payment Successful!
-        </h2>
-
-        <p className="mt-2 text-lg text-gray-500">
-          Thank you for your order. A confirmation email has been sent to your
-          inbox.
+        <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
+          Payment Successful
+        </h1>
+        <p className="text-gray-400 text-lg mb-8 max-w-md mx-auto leading-relaxed">
+          Thank you for your order. A receipt has been sent to your email
+          address.
         </p>
 
-        {/* 3. "What's Next" - Digital Instructions */}
-        <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 mt-8 text-left shadow-sm">
-          <div className="flex items-start">
-            <div className="flex-shrink-0 mt-1">
-              <svg
-                className="h-6 w-6 text-blue-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div className="ml-4">
-              <h3 className="text-lg font-bold text-blue-900">
-                Bought a Digital Item?
-              </h3>
-              <div className="mt-2 text-sm text-blue-800 space-y-2">
-                <p>Your files are ready for instant download.</p>
-                <ol className="list-decimal pl-5 space-y-1">
-                  <li>
-                    Go to your <strong>Profile</strong>.
-                  </li>
-                  <li>
-                    Select <strong>Order History</strong>.
-                  </li>
-                  <li>
-                    Click the{" "}
-                    <strong className="text-green-700">Download Button</strong>{" "}
-                    next to your item.
-                  </li>
-                </ol>
+        {/* 3. Next Steps (Cards) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 text-left">
+          {/* Digital Downloads Card */}
+          <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:bg-white/10 transition-colors group">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-accent/10 rounded-lg text-accent">
+                <FaDownload />
               </div>
-              <div className="mt-4">
-                <Link
-                  to="/profile"
-                  className="text-sm font-bold text-blue-700 hover:text-blue-900 underline flex items-center"
+              <h3 className="font-bold text-white">Digital Assets?</h3>
+            </div>
+            <p className="text-sm text-gray-400 mb-4">
+              Your high-resolution files are ready for instant download in your
+              profile.
+            </p>
+            <Link
+              to="/profile"
+              className="text-accent text-sm font-bold uppercase tracking-wider flex items-center gap-2 hover:gap-3 transition-all"
+            >
+              Go to Downloads <FaArrowRight />
+            </Link>
+          </div>
+
+          {/* Physical Prints Card */}
+          <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:bg-white/10 transition-colors group">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  Go to Order History now &rarr;
-                </Link>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                  />
+                </svg>
               </div>
+              <h3 className="font-bold text-white">Physical Prints?</h3>
             </div>
+            <p className="text-sm text-gray-400 mb-4">
+              Your fine art prints are being processed. You will receive a
+              shipping tracking number shortly.
+            </p>
           </div>
         </div>
 
-        {/* 4. Action Buttons */}
-        <div className="mt-8 flex flex-col space-y-3">
+        {/* 4. Primary Actions */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
           <Link
-            to="/gallery/digital"
-            className="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-700 hover:bg-green-800 transition-all duration-200"
+            to="/gallery"
+            className="w-full md:w-auto px-8 py-4 bg-brand-500 text-paper font-bold rounded-xl hover:bg-brand-700 transition-all transform active:scale-95 shadow-lg"
           >
-            Browse More Stock Footage
-          </Link>
-          <Link
-            to="/gallery/digital"
-            className="w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-700 hover:bg-green-800 transition-all duration-200"
-          >
-            Browse More Art Prints
+            Continue Shopping
           </Link>
           <Link
             to="/"
-            className="w-full flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200"
+            className="w-full md:w-auto px-8 py-4 border border-white/20 text-white font-bold rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2"
           >
-            Back to Home
+            <FaHome className="mb-1" /> Return Home
           </Link>
         </div>
       </div>
