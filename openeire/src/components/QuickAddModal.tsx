@@ -183,7 +183,7 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
                           }}
                           className={`w-full relative px-5 py-4 text-sm rounded-lg border text-left transition-all duration-200 flex items-center justify-between group ${
                             isActive
-                              ? "border-accent bg-accent/10 text-white shadow-md ring-1 ring-accent/50"
+                              ? "border-brand-500 bg-brand-500/10 text-white shadow-md ring-1 ring-brand-500/50"
                               : "border-white/10 bg-white/5 text-gray-400 hover:border-white/30 hover:bg-white/10"
                           }`}
                         >
@@ -191,7 +191,7 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
                             {label}
                           </span>
                           {isActive && (
-                            <FaCheck className="text-accent text-sm shrink-0 ml-2" />
+                            <FaCheck className="text-brand-500 text-sm shrink-0 ml-2" />
                           )}
                         </button>
                       );
@@ -267,7 +267,7 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
 
                 <button
                   onClick={handleAddToCart}
-                  className="px-10 py-4 bg-accent hover:bg-white text-brand-900 font-bold rounded-xl transition-all transform active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-3 text-lg whitespace-nowrap min-w-[200px]"
+                  className="px-10 py-4 bg-brand-700 hover:bg-brand-900 text-paper font-bold rounded-xl transition-all transform active:scale-[0.98] shadow-lg hover:shadow-xl flex items-center justify-center gap-3 text-lg whitespace-nowrap min-w-[200px]"
                 >
                   <FaShoppingBag />
                   <span>Add to Bag</span>

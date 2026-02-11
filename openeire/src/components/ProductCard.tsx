@@ -129,7 +129,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       };
     return {
       label: "Digital Photo",
-      color: "bg-brand-100 text-brand-800",
+      color: "bg-brand-100 text-brand-900",
       icon: <FaExpand className="text-[8px] mr-1" />,
     };
   };

@@ -128,7 +128,7 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
               <h3 className="text-2xl font-serif font-bold text-white tracking-wide">
                 {cat.label}
               </h3>
-              <div className="h-0.5 w-0 bg-accent mx-auto mt-2 transition-all duration-500 group-[.swiper-slide-active]:w-12"></div>
+              <div className="h-0.5 w-0 bg-brand-500 mx-auto mt-2 transition-all duration-500 group-[.swiper-slide-active]:w-12"></div>
             </div>
           </SwiperSlide>
         ))}

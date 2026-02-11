@@ -94,7 +94,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
-          className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all resize-none text-sm"
+          className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-gray-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all resize-none text-sm"
           placeholder="What did you think of the quality, lighting, or print?"
         ></textarea>
       </div>
@@ -102,7 +102,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
       <button
         type="submit"
         disabled={loading || rating === 0}
-        className="px-8 py-3 bg-accent hover:bg-white text-black font-bold rounded-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+        className="px-8 py-3 bg-brand-500 hover:bg-brand-700 text-paper font-bold rounded-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
       >
         {loading ? "Submitting..." : "Submit Review"}
       </button>

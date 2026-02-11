@@ -419,7 +419,7 @@ const ProductDetailPage: React.FC = () => {
 
                 <button
                   onClick={handleAddToCart}
-                  className="w-full py-4 bg-accent text-brand-900 font-bold text-lg rounded-xl hover:bg-white transition-all transform active:scale-[0.98] shadow-[0_0_20px_rgba(255,196,0,0.2)] flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-brand-700 text-paper font-bold text-lg rounded-xl hover:bg-brand-900 transition-all transform active:scale-[0.98] shadow-[0_0_20px_rgba(0,196,0,0.2)] flex items-center justify-center gap-2"
                 >
                   {purchaseMode === "physical" ? "Add to Cart" : "Download Now"}
                 </button>
