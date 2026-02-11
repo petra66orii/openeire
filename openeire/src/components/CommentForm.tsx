@@ -22,37 +22,37 @@ const CommentForm: React.FC<CommentFormProps> = ({ onSubmit }) => {
 
   if (!isAuthenticated) {
     return (
-      <p className="text-center p-4 border-t mt-8">
-        Please{" "}
-        <Link
-          to="/login"
-          className="text-green-600 font-semibold hover:underline"
-        >
-          log in
-        </Link>{" "}
-        to leave a comment.
-      </p>
+      <div className="text-center p-6 border border-dashed border-white/10 rounded-xl bg-white/5">
+        <p className="text-gray-400">
+          Please{" "}
+          <Link to="/login" className="text-accent hover:underline font-bold">
+            log in
+          </Link>{" "}
+          to leave a comment.
+        </p>
+      </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 border-t pt-8">
-      <h3 className="text-xl font-semibold mb-4">Leave a Comment</h3>
+    <form onSubmit={handleSubmit} className="relative">
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        rows={4}
-        className="w-full p-2 border border-gray-300 rounded-md"
-        placeholder="Write your comment here..."
+        rows={3}
+        className="w-full bg-black border border-white/20 rounded-xl p-4 text-white placeholder-gray-600 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all resize-none"
+        placeholder="Share your thoughts..."
         required
       />
-      <button
-        type="submit"
-        disabled={loading}
-        className="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50"
-      >
-        {loading ? "Submitting..." : "Post Comment"}
-      </button>
+      <div className="flex justify-end mt-3">
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-6 py-2 bg-accent text-black font-bold rounded-lg hover:bg-white transition-colors disabled:opacity-50 text-sm"
+        >
+          {loading ? "Posting..." : "Post Comment"}
+        </button>
+      </div>
     </form>
   );
 };

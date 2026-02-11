@@ -15,7 +15,7 @@ import {
 interface SocialShareButtonsProps {
   url: string;
   title: string;
-  image?: string; // Needed for Pinterest
+  image?: string;
 }
 
 const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
@@ -23,49 +23,39 @@ const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
   title,
   image,
 }) => {
-  const iconSize = 40;
-  const iconRadius = 10; // Rounded corners
+  const size = 32;
+  const radius = 8;
 
   return (
-    <div className="flex gap-3 mt-6">
-      {/* Facebook */}
+    <div className="flex gap-2">
       <FacebookShareButton
         url={url}
         className="hover:opacity-80 transition-opacity"
       >
-        <FacebookIcon size={iconSize} borderRadius={iconRadius} />
+        <FacebookIcon size={size} borderRadius={radius} />
       </FacebookShareButton>
-
-      {/* Twitter / X */}
       <TwitterShareButton
         url={url}
         title={title}
         className="hover:opacity-80 transition-opacity"
       >
-        {/* Note: React-share might still call it TwitterIcon, but it works for X */}
-        <TwitterIcon size={iconSize} borderRadius={iconRadius} />
+        <TwitterIcon size={size} borderRadius={radius} />
       </TwitterShareButton>
-
-      {/* WhatsApp (Great for mobile) */}
       <WhatsappShareButton
         url={url}
         title={title}
         separator=":: "
         className="hover:opacity-80 transition-opacity"
       >
-        <WhatsappIcon size={iconSize} borderRadius={iconRadius} />
+        <WhatsappIcon size={size} borderRadius={radius} />
       </WhatsappShareButton>
-
-      {/* LinkedIn */}
       <LinkedinShareButton
         url={url}
         title={title}
         className="hover:opacity-80 transition-opacity"
       >
-        <LinkedinIcon size={iconSize} borderRadius={iconRadius} />
+        <LinkedinIcon size={size} borderRadius={radius} />
       </LinkedinShareButton>
-
-      {/* Pinterest (Only shows if we have an image) */}
       {image && (
         <PinterestShareButton
           url={url}
@@ -73,7 +63,7 @@ const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
           description={title}
           className="hover:opacity-80 transition-opacity"
         >
-          <PinterestIcon size={iconSize} borderRadius={iconRadius} />
+          <PinterestIcon size={size} borderRadius={radius} />
         </PinterestShareButton>
       )}
     </div>

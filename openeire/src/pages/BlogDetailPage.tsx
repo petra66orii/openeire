@@ -14,18 +14,23 @@ import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import SocialShareButtons from "../components/SocialShareButtons";
 import SEOHead from "../components/SEOHead";
+import {
+  FaArrowLeft,
+  FaHeart,
+  FaRegHeart,
+  FaCalendar,
+  FaUser,
+} from "react-icons/fa";
 
 const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const BlogDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { user } = useAuth(); // To check if user is logged in
+  const { user } = useAuth();
 
   const [post, setPost] = useState<BlogPostDetail | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Like State
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
 
@@ -36,16 +41,11 @@ const BlogDetailPage: React.FC = () => {
         .then(([postData, commentsData]) => {
           setPost(postData);
           setComments(commentsData);
-          // Initialize Like State
           setLiked(postData.has_liked ?? false);
           setLikeCount(postData.likes_count);
         })
-        .catch((error) => {
-          console.error("Failed to fetch post or comments:", error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+        .catch((error) => console.error("Failed to fetch post", error))
+        .finally(() => setLoading(false));
     }
   }, [slug]);
 
@@ -55,20 +55,14 @@ const BlogDetailPage: React.FC = () => {
       toast.error("Please login to like this post.");
       return;
     }
-
     try {
-      // Optimistic UI update (optional, but feels faster)
       setLiked(!liked);
       setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
-
       const data = await toggleBlogLike(slug);
-
-      // Sync with actual server response to be safe
       setLiked(data.liked);
       setLikeCount(data.likes_count);
     } catch (err) {
       toast.error("Failed to like post.");
-      // Revert if failed
       setLiked(!liked);
     }
   };
@@ -77,58 +71,64 @@ const BlogDetailPage: React.FC = () => {
     if (!slug) return;
     try {
       await postComment(slug, content);
-      toast.success("Comment submitted! It will appear after approval.");
+      toast.success("Comment submitted for approval.");
     } catch (error: any) {
       toast.error(error?.detail || "Failed to post comment.");
     }
   };
 
-  if (loading) return <div className="text-center p-8">Loading post...</div>;
-  if (!post) return <div className="text-center p-8">Post not found.</div>;
+  if (loading)
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent"></div>
+      </div>
+    );
+  if (!post)
+    return (
+      <div className="bg-black min-h-screen text-white flex items-center justify-center">
+        Post not found.
+      </div>
+    );
 
   return (
-    <div className="container mx-auto p-4 lg:p-8">
+    <div className="bg-black min-h-screen text-white pt-24 pb-20">
       <SEOHead
         title={post.title}
-        description={post.excerpt || "Read this article on OpenEire Studios."}
+        description={post.excerpt}
         image={
           post.featured_image
             ? `${BACKEND_BASE_URL}${post.featured_image}`
             : undefined
         }
       />
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-8 border border-gray-100">
-        {/* Breadcrumb */}
+
+      {/* HERO SECTION */}
+      <div className="container mx-auto px-4 lg:px-8 max-w-4xl">
         <Link
           to="/blog"
-          className="text-green-600 hover:underline mb-6 inline-flex items-center text-sm font-medium"
+          className="inline-flex items-center text-gray-500 hover:text-accent transition-colors mb-8 text-sm font-bold uppercase tracking-widest"
         >
-          &larr; Back to Blog
+          <FaArrowLeft className="mr-2" /> Back to Journal
         </Link>
 
-        {/* Title */}
-        <h1 className="text-3xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
+        <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 leading-tight text-white">
           {post.title}
         </h1>
 
-        {/* Meta Row: Date, Author, Tags */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between text-gray-500 text-sm mb-6 pb-6 border-b">
-          <div className="flex items-center space-x-2 mb-4 md:mb-0">
-            <span>
-              By{" "}
-              <span className="font-semibold text-gray-700">{post.author}</span>
-            </span>
-            <span>•</span>
-            <span>{new Date(post.created_at).toLocaleDateString()}</span>
+        <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400 mb-8 font-mono border-b border-white/10 pb-8">
+          <div className="flex items-center gap-2">
+            <FaUser className="text-accent" /> {post.author}
           </div>
-
-          {/* Tags */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <FaCalendar className="text-accent" />{" "}
+            {new Date(post.created_at).toLocaleDateString()}
+          </div>
+          <div className="flex gap-2">
             {post.tags.map((tag) => (
               <Link
                 key={tag}
                 to={`/blog?tag=${tag}`}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs transition-colors"
+                className="text-accent hover:underline"
               >
                 #{tag}
               </Link>
@@ -136,51 +136,38 @@ const BlogDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Featured Image */}
         {post.featured_image && (
-          <img
-            src={`${BACKEND_BASE_URL}${post.featured_image}`}
-            alt={post.title}
-            className="w-full h-auto rounded-xl mb-8 object-cover max-h-[500px]"
-          />
+          <div className="rounded-2xl overflow-hidden border border-white/10 mb-12 shadow-2xl">
+            <img
+              src={`${BACKEND_BASE_URL}${post.featured_image}`}
+              alt={post.title}
+              className="w-full h-auto"
+            />
+          </div>
         )}
 
-        {/* Content */}
-        <div
-          className="prose prose-lg max-w-none prose-green text-gray-800"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        {/* CONTENT (Use prose-invert for dark mode) */}
+        <article className="prose prose-invert prose-lg max-w-none text-gray-300 leading-loose prose-a:text-accent prose-headings:font-serif prose-headings:text-white prose-blockquote:border-l-accent prose-img:rounded-xl">
+          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+        </article>
 
-        {/* Like Section */}
-        <div className="mt-12 py-8 border-y flex flex-col items-center justify-center bg-gray-50 rounded-lg">
-          <p className="text-gray-500 mb-3 text-sm uppercase tracking-wide font-bold">
-            Did you enjoy this article?
-          </p>
+        {/* ACTIONS */}
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col items-center">
           <button
             onClick={handleLike}
-            className={`flex items-center gap-2 px-6 py-3 rounded-full text-lg font-bold transition-all transform hover:scale-105 shadow-sm ${
+            className={`flex items-center gap-3 px-8 py-4 rounded-full text-lg font-bold transition-all transform active:scale-95 mb-8 ${
               liked
-                ? "bg-red-50 text-red-600 border border-red-200"
-                : "bg-white text-gray-600 border border-gray-300 hover:border-red-300 hover:text-red-500"
+                ? "bg-red-500/20 text-red-500 border border-red-500/50"
+                : "bg-white/5 text-gray-400 border border-white/10 hover:border-white/30 hover:text-white"
             }`}
           >
-            <svg
-              className={`w-6 h-6 ${liked ? "fill-current" : "stroke-current fill-none"}`}
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-            {likeCount} Likes
+            {liked ? <FaHeart /> : <FaRegHeart />}
+            <span>{likeCount} Likes</span>
           </button>
-          <div className="mt-6 flex flex-col items-center">
-            <p className="text-gray-500 text-xs uppercase font-bold mb-2">
-              Share this post
+
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">
+              Share this story
             </p>
             <SocialShareButtons
               url={window.location.href}
@@ -194,40 +181,33 @@ const BlogDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* RELATED POSTS SECTION */}
+        {/* RELATED POSTS */}
         {post.related_posts && post.related_posts.length > 0 && (
-          <div className="mt-12 pt-10 border-t border-gray-200">
-            <h3 className="text-2xl font-bold mb-6 text-gray-900">
-              You Might Also Like
+          <div className="mt-20 pt-10 border-t border-white/10">
+            <h3 className="text-2xl font-serif font-bold text-white mb-8">
+              Read Next
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {post.related_posts.map((related) => (
                 <Link
                   key={related.slug}
                   to={`/blog/${related.slug}`}
-                  className="group block bg-gray-50 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                  className="group block bg-gray-900 border border-white/10 rounded-xl overflow-hidden hover:border-accent/50 transition-all"
                 >
-                  {/* Thumbnail */}
-                  <div className="aspect-w-16 aspect-h-9 overflow-hidden h-40 bg-gray-200">
+                  <div className="h-40 overflow-hidden relative">
                     <img
                       src={
                         related.featured_image
                           ? `${BACKEND_BASE_URL}${related.featured_image}`
-                          : "https://via.placeholder.com/400x300?text=OpenEire"
+                          : "https://via.placeholder.com/400"
                       }
-                      alt={related.title}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
                     />
                   </div>
-
-                  {/* Title & Date */}
                   <div className="p-4">
-                    <h4 className="font-bold text-gray-800 group-hover:text-green-700 transition-colors line-clamp-2 mb-2">
+                    <h4 className="font-bold text-white text-lg leading-tight group-hover:text-accent transition-colors">
                       {related.title}
                     </h4>
-                    <span className="text-xs text-gray-500 block">
-                      {new Date(related.created_at).toLocaleDateString()}
-                    </span>
                   </div>
                 </Link>
               ))}
@@ -235,9 +215,11 @@ const BlogDetailPage: React.FC = () => {
           </div>
         )}
 
-        {/* Comments Section */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Comments</h2>
+        {/* COMMENTS */}
+        <div className="mt-20 bg-gray-900/50 border border-white/5 rounded-2xl p-8">
+          <h3 className="text-2xl font-serif font-bold text-white mb-8">
+            Discussion
+          </h3>
           <CommentList comments={comments} />
           <div className="mt-8">
             <CommentForm onSubmit={handleCommentSubmit} />
