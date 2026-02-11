@@ -48,9 +48,9 @@ const AboutPage: React.FC = () => {
               </p>
               <p>
                 At OpenEire Studios, we believe that photography should
-                transport you. Whether it's the mist rolling over a New Zealand
-                peak or the golden hour striking an Irish castle, our mission is
-                to freeze those fleeting moments in time.
+                transport you. From Galway Bay, New Zealand to Galway in
+                Ireland, our mission is to freeze those fleeting moments in
+                time.
               </p>
               <p>
                 We specialize in <strong>High-Fidelity 4K Stock Footage</strong>{" "}

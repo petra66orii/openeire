@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { registerUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
-// Define the shape of our form data with TypeScript
 interface FormData {
   first_name: string;
   last_name: string;
@@ -22,24 +22,18 @@ const AuthForm: React.FC = () => {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
     setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords don't match!");
+      toast.error("Passwords don't match!");
       setLoading(false);
       return;
     }
@@ -52,44 +46,34 @@ const AuthForm: React.FC = () => {
         email: formData.email,
         password: formData.password,
       });
-      console.log("Registration successful!");
+      toast.success("Registration successful! Please check your email.");
       navigate("/verify-pending");
     } catch (err: any) {
       console.error("Registration error:", err);
+      let errorMsg = "Registration failed. Please check your details.";
 
       if (err && typeof err === "object" && !Array.isArray(err)) {
         const errorKeys = Object.keys(err);
-        if (errorKeys.length > 0) {
-          const firstKey = errorKeys[0];
-          const messages = err[firstKey];
-          if (Array.isArray(messages) && messages.length > 0) {
-            // Display the first error message for that field
-            setError(`${messages[0]}`);
-            setLoading(false); // Make sure to stop loading
-            return; // Exit after setting the specific error
-          }
+        if (errorKeys.length > 0 && Array.isArray(err[errorKeys[0]])) {
+          errorMsg = `${errorKeys[0]}: ${err[errorKeys[0]][0]}`;
         }
       }
-      // Fallback for non-field errors or other unexpected issues
-      setError("Registration failed. Please check your details and try again.");
+      toast.error(errorMsg);
+    } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      {error && (
-        <div className="p-3 text-sm text-red-700 bg-red-100 rounded-md">
-          {error}
-        </div>
-      )}
+  const inputClass =
+    "w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all placeholder-gray-600";
+  const labelClass =
+    "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2";
 
-      <div className="flex flex-col sm:flex-row sm:space-x-4">
-        <div className="w-full sm:w-1/2">
-          <label
-            htmlFor="first_name"
-            className="block text-sm font-medium text-gray-700"
-          >
+  return (
+    <form className="space-y-5" onSubmit={handleSubmit}>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="w-full">
+          <label htmlFor="first_name" className={labelClass}>
             First Name
           </label>
           <input
@@ -99,14 +83,12 @@ const AuthForm: React.FC = () => {
             required
             value={formData.first_name}
             onChange={handleChange}
-            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
+            className={inputClass}
+            placeholder="Jane"
           />
         </div>
-        <div className="w-full sm:w-1/2 mt-4 sm:mt-0">
-          <label
-            htmlFor="last_name"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div className="w-full">
+          <label htmlFor="last_name" className={labelClass}>
             Last Name
           </label>
           <input
@@ -116,15 +98,14 @@ const AuthForm: React.FC = () => {
             required
             value={formData.last_name}
             onChange={handleChange}
-            className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
+            className={inputClass}
+            placeholder="Doe"
           />
         </div>
       </div>
+
       <div>
-        <label
-          htmlFor="username"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="username" className={labelClass}>
           Username
         </label>
         <input
@@ -134,14 +115,13 @@ const AuthForm: React.FC = () => {
           required
           value={formData.username}
           onChange={handleChange}
-          className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
+          className={inputClass}
+          placeholder="janedoe"
         />
       </div>
+
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="email" className={labelClass}>
           Email Address
         </label>
         <input
@@ -151,15 +131,13 @@ const AuthForm: React.FC = () => {
           required
           value={formData.email}
           onChange={handleChange}
-          className="w-full px-3 py-2 mt-1 border rounded-md shadow-sm"
+          className={inputClass}
+          placeholder="jane@example.com"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="password" className={labelClass}>
           Password
         </label>
         <input
@@ -169,15 +147,13 @@ const AuthForm: React.FC = () => {
           required
           value={formData.password}
           onChange={handleChange}
-          className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
+          className={inputClass}
+          placeholder="••••••••"
         />
       </div>
 
       <div>
-        <label
-          htmlFor="confirmPassword"
-          className="block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="confirmPassword" className={labelClass}>
           Confirm Password
         </label>
         <input
@@ -187,15 +163,18 @@ const AuthForm: React.FC = () => {
           required
           value={formData.confirmPassword}
           onChange={handleChange}
-          className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
+          className={inputClass}
+          placeholder="••••••••"
         />
       </div>
 
-      <div className="pt-2">
-        <button type="submit" className="w-full btn-primary" disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </div>
+      <button
+        type="submit"
+        className="w-full py-3 bg-brand-500 text-paper font-bold rounded-lg hover:bg-brand-700 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={loading}
+      >
+        {loading ? "Creating Account..." : "Create Account"}
+      </button>
     </form>
   );
 };

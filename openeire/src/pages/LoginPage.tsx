@@ -1,29 +1,32 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { resendVerificationEmail } from "../services/api";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import SocialLogin from "../components/SocialLogin";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [remember, setRemember] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setLoading(true);
     try {
       await login(email, password, remember);
-      navigate("/profile"); // Redirect to a profile page after login
+      toast.success("Welcome back.");
+      navigate("/profile");
     } catch (err: any) {
-      setError(
-        err.detail || "Failed to log in. Please check your credentials."
+      toast.error(
+        err.detail || "Failed to log in. Please check your credentials.",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -32,102 +35,114 @@ const LoginPage: React.FC = () => {
       toast.error("Please enter your email address first.");
       return;
     }
+    const toastId = toast.loading("Sending email...");
     try {
       const response = await resendVerificationEmail(email);
-      toast.success(response.message);
+      toast.success(response.message, { id: toastId });
     } catch (err: any) {
-      toast.error(err.detail || err.email?.[0] || "Failed to resend email.");
+      toast.error(err.detail || "Failed to resend email.", { id: toastId });
     }
   };
 
+  // Styles
+  const inputClass =
+    "w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all";
+  const labelClass =
+    "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2";
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center text-gray-900">
-          Log In to Your Account
-        </h1>
+    <div className="min-h-screen bg-black flex flex-col justify-center items-center p-4 pt-20">
+      <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 animate-fade-in-up">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-serif font-bold text-white mb-2">
+            Welcome Back
+          </h1>
+          <p className="text-gray-400 text-sm">
+            Sign in to access your gallery and orders.
+          </p>
+        </div>
+
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="p-3 text-sm text-red-700 bg-red-100 rounded-md">
-              {error}
-            </div>
-          )}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className={labelClass}>
               Email Address
             </label>
             <input
               id="email"
-              name="email"
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
+              className={inputClass}
+              placeholder="you@example.com"
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label
+                htmlFor="password"
+                className="block text-xs font-bold text-gray-500 uppercase tracking-widest"
+              >
+                Password
+              </label>
+              <Link
+                to="/request-password-reset"
+                className="text-xs text-brand-500 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="password"
-              name="password"
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm"
+              className={inputClass}
+              placeholder="••••••••"
             />
           </div>
-          <div className="text-sm text-right">
-            <Link
-              to="/request-password-reset"
-              className="font-medium text-green-600 hover:text-green-500"
+
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="h-4 w-4 text-brand-500 bg-black border-white/20 rounded focus:ring-brand-500 cursor-pointer"
+            />
+            <label
+              htmlFor="remember-me"
+              className="ml-2 block text-sm text-gray-400 cursor-pointer"
             >
-              Forgot your password?
-            </Link>
+              Remember me
+            </label>
           </div>
-          <div>
-            <button
-              type="submit"
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90"
-            >
-              Log In
-            </button>
-            <div className="flex items-center justify-between my-4">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  Remember me
-                </label>
-              </div>
-              {/* Your existing Forgot Password link can go here or remain separate */}
-            </div>
-          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 bg-brand-500 text-paper font-bold rounded-lg hover:bg-brand-700 transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          >
+            {loading ? "Signing in..." : "Log In"}
+          </button>
         </form>
+
         <SocialLogin />
-        <div className="text-center text-sm text-gray-500 border-t pt-4">
-          <p>Haven't received your verification email?</p>
+
+        <div className="text-center text-sm text-gray-500 mt-8 pt-6 border-t border-white/10">
+          <p className="mb-2">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-white font-bold hover:text-brand-500 transition-colors"
+            >
+              Sign up
+            </Link>
+          </p>
           <button
             onClick={handleResendVerification}
-            className="font-medium text-primary hover:text-primary/80"
+            className="text-xs text-gray-600 hover:text-gray-400 underline"
           >
             Resend Verification Email
           </button>
