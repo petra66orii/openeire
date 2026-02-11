@@ -25,6 +25,7 @@ import BackToTop from "./components/BackToTop";
 import GalleryGatePage from "./pages/GalleryGatePage";
 import GalleryGuard from "./components/GalleryGuard";
 import Breadcrumbs from "./components/Breadcrumbs";
+import AboutPage from "./pages/AboutPage";
 import { BreadcrumbProvider } from "./context/BreadcrumbContext";
 import { Toaster } from "react-hot-toast";
 
@@ -72,6 +73,7 @@ function App() {
             />
 
             <Route path="/gallery-gate" element={<GalleryGatePage />} />
+            <Route path="/about" element={<AboutPage />} />
 
             {/* 🟢 PUBLIC GALLERY (Physical Products & General View) */}
             {/* Allows access to the main gallery page and physical items without a code */}
