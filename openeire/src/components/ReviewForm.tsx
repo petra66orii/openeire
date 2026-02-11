@@ -1,15 +1,14 @@
-// src/components/ReviewForm.tsx
-
 import React, { useState } from "react";
 import { submitProductReview } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import StarRating from "./StarRating";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 interface ReviewFormProps {
   productType: string;
   productId: string;
-  onReviewSubmitted: () => void; // Callback to refresh reviews on the page
+  onReviewSubmitted: () => void;
 }
 
 const ReviewForm: React.FC<ReviewFormProps> = ({
@@ -25,7 +24,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) {
-      toast.error("Please select a star rating.");
+      toast.error("Please tap a star to rate.");
       return;
     }
 
@@ -33,15 +32,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
     try {
       await submitProductReview(productType, productId, { rating, comment });
       toast.success("Review submitted! It will appear after approval.");
-      setRating(0); // Reset form
-      setComment(""); // Reset form
-      onReviewSubmitted(); // Trigger parent to refresh reviews
+      setRating(0);
+      setComment("");
+      onReviewSubmitted();
     } catch (error: any) {
-      // Handle backend validation errors or other network issues
-      const errorMessage =
-        error?.detail ||
-        error?.non_field_errors?.[0] ||
-        "Failed to submit review.";
+      const errorMessage = error?.detail || "Failed to submit review.";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -50,55 +45,64 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
 
   if (!isAuthenticated) {
     return (
-      <p className="text-center text-gray-500">
-        Please log in to leave a review.
-      </p>
+      <div className="text-center p-8 bg-white/5 rounded-xl border border-white/10 border-dashed">
+        <p className="text-gray-400 mb-4 font-sans">
+          Please log in to share your thoughts on this piece.
+        </p>
+        <Link
+          to="/login"
+          className="inline-block px-6 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-bold rounded-full transition-all"
+        >
+          Log In
+        </Link>
+      </div>
     );
   }
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-6 bg-white rounded-lg shadow-md space-y-4"
+      className="p-6 md:p-8 bg-white/5 rounded-2xl border border-white/5 mb-8"
     >
-      <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+      <h3 className="text-xl font-serif font-bold text-white mb-6">
         Leave a Review
       </h3>
 
-      <div>
-        <label
-          htmlFor="rating"
-          className="block text-gray-700 text-sm font-bold mb-2"
-        >
-          Your Rating <span className="text-red-500">*</span>
+      {/* Rating Input */}
+      <div className="mb-6">
+        <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2 font-bold">
+          Your Rating <span className="text-accent">*</span>
         </label>
-        <StarRating rating={rating} onRatingChange={setRating} />
-        {rating === 0 && (
-          <p className="text-red-500 text-xs mt-1">Rating is required.</p>
-        )}
+        <div className="flex items-center gap-4">
+          <StarRating rating={rating} onRatingChange={setRating} />
+          {rating > 0 && (
+            <span className="text-accent text-sm font-bold">{rating} / 5</span>
+          )}
+        </div>
       </div>
 
-      <div>
+      {/* Comment Input */}
+      <div className="mb-6">
         <label
           htmlFor="comment"
-          className="block text-gray-700 text-sm font-bold mb-2"
+          className="block text-xs uppercase tracking-widest text-gray-500 mb-2 font-bold"
         >
-          Your Comment (optional)
+          Your Experience (Optional)
         </label>
         <textarea
           id="comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          placeholder="What did you think of this product?"
+          className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all resize-none text-sm"
+          placeholder="What did you think of the quality, lighting, or print?"
         ></textarea>
       </div>
 
       <button
         type="submit"
         disabled={loading || rating === 0}
-        className="bg-primary hover:bg-primary/90 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-8 py-3 bg-accent hover:bg-white text-black font-bold rounded-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
       >
         {loading ? "Submitting..." : "Submit Review"}
       </button>

@@ -106,6 +106,7 @@ export interface GalleryItem {
   title: string;
   preview_image?: string;
   thumbnail_image?: string;
+  collection: string;
   price: string;
   price_hd?: string;
   product_type: "photo" | "video" | "physical";
