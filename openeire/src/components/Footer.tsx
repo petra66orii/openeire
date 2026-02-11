@@ -68,9 +68,13 @@ const Footer: React.FC = () => {
             </h3>
             <ul className="space-y-3 text-sm">
               <FooterLink to="/contact">Contact Us</FooterLink>
-              <FooterLink to="/profile">My Account</FooterLink>
+              <FooterLink to="/licensing">
+                Licensing Agreement (EULA)
+              </FooterLink>
+              <FooterLink to="/terms">Terms & Conditions</FooterLink>
+              <FooterLink to="/privacy">Privacy Policy</FooterLink>
               <FooterLink to="/shipping">Shipping & Returns</FooterLink>
-              <FooterLink to="/licensing">Licensing Info</FooterLink>
+              <FooterLink to="/cookie-policy">Cookie Policy</FooterLink>
             </ul>
           </div>
 
@@ -120,14 +124,6 @@ const Footer: React.FC = () => {
               </a>
             </span>
           </p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <Link to="/privacy" className="hover:text-white transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="hover:text-white transition-colors">
-              Terms of Service
-            </Link>
-          </div>
         </div>
       </div>
     </footer>
