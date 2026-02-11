@@ -36,6 +36,8 @@ const GalleryPage: React.FC = () => {
   const [collection, setCollection] = useState("all");
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState("date_desc");
+  const [isGridHovered, setIsGridHovered] = useState(false);
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -76,12 +78,17 @@ const GalleryPage: React.FC = () => {
       <VisualCategoryHero
         activeCollection={collection}
         onSelectCollection={setCollection}
+        isPaused={isGridHovered || isAnyModalOpen}
       />
 
       {/* 2. MINIMAL TOOLBAR (Search & Sort) */}
       <MinimalToolbar onSearch={setSearchTerm} onSortChange={setSortOrder} />
 
-      <div className="container mx-auto px-4 lg:px-8">
+      <div
+        className="container mx-auto px-4 lg:px-8 relative z-10"
+        onMouseEnter={() => setIsGridHovered(true)}
+        onMouseLeave={() => setIsGridHovered(false)}
+      >
         {/* Loading */}
         {loading && (
           <div className="flex justify-center py-20">
@@ -105,7 +112,12 @@ const GalleryPage: React.FC = () => {
                   opacity: 0,
                 }}
               >
-                <ProductCard product={product} contextType={type} />
+                <ProductCard
+                  product={product}
+                  contextType={type}
+                  onModalOpen={() => setIsAnyModalOpen(true)}
+                  onModalClose={() => setIsAnyModalOpen(false)}
+                />
               </div>
             ))}
           </Masonry>

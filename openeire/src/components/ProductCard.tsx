@@ -9,22 +9,27 @@ import { FaPlay, FaShoppingCart, FaExpand, FaImage } from "react-icons/fa";
 interface ProductCardProps {
   product: GalleryItem;
   contextType?: "digital" | "physical" | "all";
+  onModalOpen?: () => void;
+  onModalClose?: () => void;
 }
 
-// ⚠️ CHANGE THIS if your Django backend runs on a different port/URL
 const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  contextType,
+  onModalOpen,
+  onModalClose,
+}) => {
   const { addToCart } = useCart();
   const [showQuickView, setShowQuickView] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // --- 1. DETERMINE PRODUCT TYPE & PATHS ---
+  // --- 1. DETERMINE TYPE ---
   const isVideo = product.product_type === "video";
 
-  // Decide if we are showing the Digital Price (license) or Physical Price (print)
-  // Logic: If we are in "Digital" mode OR it's a video, show license price. Otherwise, physical.
   const showDigitalPrice =
     contextType === "digital" ||
     product.product_type === "video" ||
@@ -34,13 +39,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
     ? product.price_hd || product.price || "0.00"
     : product.starting_price || product.price || "0.00";
 
-  // Construct the Detail URL based on type
   let detailUrl = "";
   if (isVideo) detailUrl = `/gallery/video/${product.id}`;
   else if (showDigitalPrice) detailUrl = `/gallery/photo/${product.id}`;
   else detailUrl = `/gallery/physical/${product.id}`;
 
-  // --- 2. IMAGE & VIDEO SOURCE ---
+  // --- 2. CONSTRUCT URLS ---
   const rawImageUrl = product.preview_image || product.thumbnail_image;
   const imageUrl = rawImageUrl
     ? rawImageUrl.startsWith("http")
@@ -48,61 +52,68 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
       : `${BACKEND_BASE_URL}${rawImageUrl}`
     : "https://via.placeholder.com/400x300?text=No+Preview";
 
-  // ideally, your API should return a small 'preview_file' for hover.
-  // For now, we use the main file (be careful with file size!)
-  const videoUrl = product.file
-    ? product.file.startsWith("http")
-      ? product.file
-      : `${BACKEND_BASE_URL}${product.file}`
+  const rawVideoFile = (product as any).video_file || product.file;
+  const videoUrl = rawVideoFile
+    ? rawVideoFile.startsWith("http")
+      ? rawVideoFile
+      : `${BACKEND_BASE_URL}${rawVideoFile}`
     : null;
 
-  // --- 3. EVENT HANDLERS ---
-
-  // Play video on hover
+  // --- 3. VIDEO HOVER LOGIC (DEBUG VERSION) ---
   useEffect(() => {
-    if (isVideo && videoRef.current) {
-      if (isHovered) {
-        const playPromise = videoRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            // Auto-play was prevented or video not loaded; silently fail to just show image
-            console.warn("Video hover preview blocked:", error);
-          });
-        }
-      } else {
-        videoRef.current.pause();
-        videoRef.current.currentTime = 0; // Reset to start
-      }
+    if (!isVideo || !videoRef.current || !videoUrl) {
+      // Optional: Log this only once to check if we are missing URLs
+      console.log("No video URL found for:", product.title);
+      return;
     }
-  }, [isHovered, isVideo]);
+
+    if (isHovered) {
+      console.log(`🎬 Hover detected on ${product.title}. Attempting play...`);
+      console.log(`🔗 Video URL: ${videoUrl}`);
+
+      const playPromise = videoRef.current.play();
+
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log("✅ Video started playing!");
+            setIsVideoPlaying(true);
+          })
+          .catch((error) => {
+            console.error("❌ Video play blocked/failed:", error);
+            setIsVideoPlaying(false);
+          });
+      }
+    } else {
+      // Mouse leave
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsVideoPlaying(false);
+    }
+  }, [isHovered, isVideo, videoUrl, product.title]);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
-    e.preventDefault(); // Don't open the product page
+    e.preventDefault();
     e.stopPropagation();
 
-    // A. ADD VIDEO (Default to HD)
     if (isVideo) {
       addToCart({ ...product, price: product.price_hd || product.price }, 1, {
         license: "hd",
         type: "digital",
       });
       toast.success("HD Video added to cart");
-    }
-    // B. ADD DIGITAL PHOTO (Default to Standard/HD)
-    else if (showDigitalPrice) {
+    } else if (showDigitalPrice) {
       addToCart({ ...product, price: product.price }, 1, {
         license: "standard",
         type: "digital",
       });
       toast.success("Digital Photo added to cart");
-    }
-    // C. PHYSICAL PRINT (Open Modal)
-    else {
+    } else {
+      // Open Modal
       setShowQuickView(true);
+      if (onModalOpen) onModalOpen();
     }
   };
-
-  // --- 4. BADGE LOGIC ---
   const getBadge = () => {
     if (isVideo)
       return {
@@ -127,41 +138,42 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
   return (
     <>
       <div
-        className="group relative bg-dark rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-brand-800"
+        className="group relative bg-black rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-white/10"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <Link
           to={detailUrl}
-          className="block relative aspect-[4/3] overflow-hidden bg-brand-500"
+          className="block relative aspect-[4/3] overflow-hidden bg-gray-900"
         >
-          {/* A. MAIN IMAGE */}
+          {/* A. IMAGE LAYER */}
           <img
             src={imageUrl}
             alt={product.title}
             loading="lazy"
-            className={`w-full h-full object-cover transition-opacity duration-700 ${
-              isHovered && isVideo ? "opacity-0" : "opacity-100"
-            } group-hover:scale-105`}
+            className={`absolute inset-0 z-10 w-full h-full object-cover transition-opacity duration-500 ${
+              isVideoPlaying ? "opacity-0" : "opacity-100"
+            }`}
           />
 
-          {/* B. VIDEO PREVIEW LAYER (Only renders if video) */}
+          {/* B. VIDEO LAYER */}
           {isVideo && videoUrl && (
             <video
               ref={videoRef}
+              src={videoUrl}
               muted
               loop
               playsInline
-              preload="none"
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-                isHovered ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <source src={videoUrl} type="video/mp4" />
-            </video>
+              // 'auto' loads enough to start playing. 'metadata' might be too slow for immediate hover.
+              preload="auto"
+              className="absolute inset-0 z-0 w-full h-full object-cover"
+              onError={(e) =>
+                console.error("❌ Video Element Error:", e.currentTarget.error)
+              }
+            />
           )}
 
-          {/* C. BADGE (Top Right) */}
+          {/* C. BADGE */}
           <div className="absolute top-3 right-3 z-20">
             <span
               className={`flex items-center px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-md backdrop-blur-md ${badge.color}`}
@@ -170,19 +182,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
             </span>
           </div>
 
-          {/* D. CENTER PLAY ICON (For videos not hovering) */}
+          {/* D. CENTER ICON (Play) */}
           {isVideo && (
             <div
-              className={`absolute inset-0 flex items-center justify-center z-10 pointer-events-none transition-opacity duration-300 ${isHovered ? "opacity-0" : "opacity-100"}`}
+              className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none transition-opacity duration-300 ${isHovered ? "opacity-0" : "opacity-100"}`}
             >
-              <div className="w-12 h-12 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white border border-white/30 shadow-lg">
+              <div className="w-12 h-12 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white border border-white/20 shadow-lg">
                 <FaPlay className="ml-1 text-sm" />
               </div>
             </div>
           )}
 
-          {/* E. QUICK ADD SLIDE-UP BAR */}
-          <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-gradient-to-t from-brand-900/90 via-brand-900/60 to-transparent flex justify-between items-end z-20">
+          {/* E. QUICK ADD BAR */}
+          <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-gradient-to-t from-black via-black/80 to-transparent flex justify-between items-end z-20">
             <div className="text-white">
               <p className="text-[10px] opacity-80 uppercase tracking-wider font-bold">
                 Price
@@ -191,11 +203,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
                 €{displayPrice}
               </span>
             </div>
-
             <button
               onClick={handleQuickAdd}
               className="bg-white text-brand-900 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent hover:scale-110 transition-all shadow-lg"
-              title={showDigitalPrice ? "Add to Cart" : "Select Options"}
             >
               {showDigitalPrice ? (
                 <FaShoppingCart className="text-sm" />
@@ -206,20 +216,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
           </div>
         </Link>
 
-        {/* F. DETAILS SECTION */}
+        {/* F. DETAILS */}
         <div className="p-5">
           <Link to={detailUrl}>
-            <h3 className="text-brand-500 font-bold font-serif text-lg leading-tight mb-1 truncate hover:text-accent transition-colors">
+            <h3 className="text-white font-bold font-serif text-lg leading-tight mb-1 truncate hover:text-accent transition-colors">
               {product.title}
             </h3>
           </Link>
           <div className="flex justify-between items-center mt-2">
-            <p className="text-gray-400 text-xs uppercase tracking-wider font-bold">
-              {product.location || "Ireland"}
+            <p className="text-gray-500 text-xs uppercase tracking-wider font-bold">
+              {product.collection}
             </p>
-            {/* Optional: Show aspect ratio or resolution if digital */}
             {showDigitalPrice && (
-              <span className="text-[10px] text-brand-300 bg-brand-50 px-2 py-0.5 rounded border border-brand-100">
+              <span className="text-[10px] text-gray-400 bg-white/10 px-2 py-0.5 rounded border border-white/10">
                 4K Available
               </span>
             )}
@@ -227,11 +236,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, contextType }) => {
         </div>
       </div>
 
-      {/* MODAL (Only for Physical Products) */}
       {showQuickView && (
         <QuickAddModal
           productId={product.id}
-          onClose={() => setShowQuickView(false)}
+          onClose={() => {
+            setShowQuickView(false);
+            if (onModalClose) onModalClose();
+          }}
         />
       )}
     </>
