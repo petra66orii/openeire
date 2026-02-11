@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
+import { FaLock } from "react-icons/fa";
 
 interface OrderSummaryProps {
   isCheckoutPage?: boolean;
@@ -9,10 +10,8 @@ interface OrderSummaryProps {
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   isCheckoutPage = false,
 }) => {
-  // 1. Get 'cart' from context so we can inspect items
   const { cartItems: cart, cartTotal } = useCart();
 
-  // 2. Detect if there are any physical items
   const hasPhysicalItems = useMemo(() => {
     return cart.some((item) => {
       return (
@@ -22,12 +21,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     });
   }, [cart]);
 
-  // 3. Calculate Shipping Logic
-  // Logic:
-  // - If NO physical items (all digital) -> €0.00
-  // - If Physical items exist -> Check threshold
   let shippingCost = 0;
-
   if (hasPhysicalItems) {
     shippingCost = cartTotal > 50 ? 0 : 5.99;
   }
@@ -35,32 +29,59 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const grandTotal = cartTotal + shippingCost;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
-      <h2 className="text-xl font-semibold border-b pb-4">Order Summary</h2>
-      <div className="flex justify-between">
-        <span>Subtotal</span>
-        <span>€{cartTotal.toFixed(2)}</span>
+    <div className="bg-gray-900 border border-white/10 p-8 rounded-2xl shadow-xl">
+      <h2 className="text-xl font-serif font-bold text-white mb-6">Summary</h2>
+
+      <div className="space-y-4 mb-6">
+        <div className="flex justify-between text-sm text-gray-400">
+          <span>Subtotal</span>
+          <span className="text-white font-medium">
+            €{cartTotal.toFixed(2)}
+          </span>
+        </div>
+        <div className="flex justify-between text-sm text-gray-400">
+          <span>Shipping</span>
+          <span
+            className={
+              shippingCost === 0
+                ? "text-accent font-bold"
+                : "text-white font-medium"
+            }
+          >
+            {shippingCost === 0 ? "Free" : `€${shippingCost.toFixed(2)}`}
+          </span>
+        </div>
+        {/* Optional: Tax line */}
+        <div className="flex justify-between text-sm text-gray-400">
+          <span>Tax</span>
+          <span className="text-white font-medium">Calculated at Checkout</span>
+        </div>
       </div>
-      <div className="flex justify-between">
-        <span>Shipping</span>
-        <span
-          className={shippingCost === 0 ? "text-green-600 font-medium" : ""}
-        >
-          {shippingCost === 0 ? "Free" : `€${shippingCost.toFixed(2)}`}
-        </span>
-      </div>
-      <div className="flex justify-between font-bold text-lg border-t pt-4">
-        <span>Total</span>
-        <span>€{grandTotal.toFixed(2)}</span>
+
+      <div className="border-t border-white/10 pt-6 mb-8">
+        <div className="flex justify-between items-end">
+          <span className="text-sm font-bold uppercase tracking-widest text-gray-400">
+            Total
+          </span>
+          <span className="text-3xl font-serif font-bold text-white">
+            €{grandTotal.toFixed(2)}
+          </span>
+        </div>
       </div>
 
       {!isCheckoutPage && (
         <Link
           to="/checkout"
-          className="block w-full text-center bg-primary text-white py-3 rounded-md hover:bg-primary/90"
+          className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
         >
-          Proceed to Checkout
+          Checkout
         </Link>
+      )}
+
+      {isCheckoutPage && (
+        <div className="flex items-center justify-center gap-2 text-gray-500 text-xs mt-4">
+          <FaLock /> Encrypted Connection
+        </div>
       )}
     </div>
   );

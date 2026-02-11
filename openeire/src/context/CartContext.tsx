@@ -21,7 +21,7 @@ export interface CartItem {
   productId: string | number; // The actual Database ID
   product: GalleryItem;
   quantity: number;
-  options?: CartOptions; // 👈 Store the choices here
+  options?: CartOptions;
 }
 
 interface CartContextType {
@@ -30,7 +30,7 @@ interface CartContextType {
   addToCart: (
     product: GalleryItem,
     quantity: number,
-    options?: CartOptions
+    options?: CartOptions,
   ) => void;
   updateQuantity: (cartId: string, newQuantity: number) => void;
   removeFromCart: (cartId: string) => void;
@@ -66,14 +66,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setCartItems((prevItems) => {
         // Check if this EXACT variation is already in the cart
         const existingItem = prevItems.find(
-          (item) => item.cartId === uniqueCartId
+          (item) => item.cartId === uniqueCartId,
         );
 
         if (existingItem) {
           return prevItems.map((item) =>
             item.cartId === uniqueCartId
               ? { ...item, quantity: item.quantity + quantity }
-              : item
+              : item,
           );
         } else {
           return [
@@ -89,7 +89,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
       });
     },
-    []
+    [],
   );
 
   // Updated to use cartId instead of simple id
@@ -99,15 +99,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         .map((item) =>
           item.cartId === cartId
             ? { ...item, quantity: Math.max(0, newQuantity) }
-            : item
+            : item,
         )
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   }, []);
 
   const removeFromCart = useCallback((cartId: string) => {
     setCartItems((prevItems) =>
-      prevItems.filter((item) => item.cartId !== cartId)
+      prevItems.filter((item) => item.cartId !== cartId),
     );
   }, []);
 
