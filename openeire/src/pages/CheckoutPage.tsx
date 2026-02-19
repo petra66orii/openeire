@@ -15,56 +15,77 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 const CheckoutPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState("");
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
-  const [shippingDetails, setShippingDetails] = useState({});
+
+  // Lifted States
+  const [shippingDetails, setShippingDetails] = useState<any>({});
+  const [shippingMethod, setShippingMethod] = useState("budget");
+  const [calculatedShippingCost, setCalculatedShippingCost] = useState(0);
   const [saveInfo, setSaveInfo] = useState(true);
+  const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
+
   const { cartItems } = useCart();
   const { isAuthenticated } = useAuth();
 
+  // 1. Fetch Profile on Mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      getProfile()
+        .then((profile) => setProfileData(profile))
+        .catch((e) => console.error("Profile fetch error", e));
+    }
+  }, [isAuthenticated]);
+
+  // 2. Dynamic Payment Intent Fetcher
   useEffect(() => {
     const initializeCheckout = async () => {
       if (cartItems.length === 0) return;
 
-      if (isAuthenticated) {
-        try {
-          const profile = await getProfile();
-          setProfileData(profile);
-        } catch (e) {
-          console.error("Profile fetch error", e);
-        }
-      }
+      setIsUpdatingIntent(true);
 
       try {
         const simplifiedCart = cartItems.map((item) => ({
           product_id: item.product.id,
           product_type: item.product.product_type,
           quantity: item.quantity,
+          options: item.options, // Ensure options (licenses) are passed
         }));
 
-        const response = await api.post<{ clientSecret: string }>(
-          "checkout/create-payment-intent/",
-          {
-            cart: simplifiedCart,
-            shipping_details: profileData, // Send profile if we have it
-            save_info: saveInfo,
+        const response = await api.post("checkout/create-payment-intent/", {
+          cart: simplifiedCart,
+          // Pass the currently selected country to calculate exact rates
+          shipping_details: {
+            address: { country: shippingDetails.country || "IE" },
           },
-        );
+          shipping_method: shippingMethod,
+          save_info: saveInfo,
+        });
+
         setClientSecret(response.data.clientSecret);
+        setCalculatedShippingCost(response.data.shippingCost || 0);
       } catch (error) {
         console.error("Error creating payment intent:", error);
+      } finally {
+        setIsUpdatingIntent(false);
       }
     };
 
-    initializeCheckout();
-  }, [cartItems, isAuthenticated]);
+    // Delay slightly to prevent spamming the API while typing address
+    const timeoutId = setTimeout(() => {
+      initializeCheckout();
+    }, 500);
 
-  // 🎨 STRIPE DARK THEME CONFIGURATION
+    return () => clearTimeout(timeoutId);
+
+    // Refetch if cart, country, or speed changes
+  }, [cartItems, shippingDetails.country, shippingMethod]);
+
   const options: StripeElementsOptions = {
     clientSecret,
     appearance: {
       theme: "night",
       variables: {
         colorPrimary: "#16a34a",
-        colorBackground: "#000000", // Input Background
+        colorBackground: "#000000",
         colorText: "#ffffff",
         colorDanger: "#ef4444",
         fontFamily: "Inter, system-ui, sans-serif",
@@ -85,7 +106,6 @@ const CheckoutPage: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20">
       <div className="container mx-auto px-4 lg:px-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-12 border-b border-white/10 pb-6">
           <h1 className="text-3xl md:text-4xl font-serif font-bold">
             Secure Checkout
@@ -97,7 +117,6 @@ const CheckoutPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          {/* LEFT: CHECKOUT FORM */}
           <div className="lg:col-span-8">
             {clientSecret ? (
               <Elements options={options} stripe={stripePromise}>
@@ -105,6 +124,9 @@ const CheckoutPage: React.FC = () => {
                   initialData={profileData}
                   onShippingChange={setShippingDetails}
                   onSaveInfoChange={setSaveInfo}
+                  shippingMethod={shippingMethod}
+                  onShippingMethodChange={setShippingMethod}
+                  isUpdatingIntent={isUpdatingIntent}
                 />
               </Elements>
             ) : (
@@ -115,10 +137,13 @@ const CheckoutPage: React.FC = () => {
             )}
           </div>
 
-          {/* RIGHT: SUMMARY (Sticky) */}
           <div className="lg:col-span-4">
             <div className="sticky top-32 space-y-6">
-              <OrderSummary isCheckoutPage={true} />
+              {/* Pass the dynamic shipping cost to your summary component! */}
+              <OrderSummary
+                isCheckoutPage={true}
+                shippingCost={calculatedShippingCost}
+              />
 
               <div className="bg-gray-900 border border-white/10 p-6 rounded-xl">
                 <div className="flex items-start gap-4">

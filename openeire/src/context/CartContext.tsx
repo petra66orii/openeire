@@ -37,6 +37,7 @@ interface CartContextType {
   itemCount: number;
   cartTotal: number;
   clearCart: () => void;
+  hasPhysicalItems?: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -129,6 +130,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return total + price * item.quantity;
   }, 0);
 
+  const hasPhysicalItems = cartItems.some(
+    (item) => item.product.product_type === "physical",
+  );
+
   return (
     <CartContext.Provider
       value={{
@@ -139,6 +144,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         itemCount,
         cartTotal,
         clearCart,
+        hasPhysicalItems,
       }}
     >
       {children}

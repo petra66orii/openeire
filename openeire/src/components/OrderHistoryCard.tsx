@@ -20,7 +20,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
     <div className="bg-black border border-white/10 rounded-xl overflow-hidden shadow-sm hover:border-white/20 transition-colors">
       {/* HEADER */}
       <div className="bg-white/5 p-4 flex flex-wrap gap-6 justify-between items-center border-b border-white/5">
-        <div className="flex gap-8">
+        <div className="flex flex-wrap gap-8">
           <div>
             <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
               Order #
@@ -33,12 +33,32 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
             </p>
             <p className="text-white">{orderDate}</p>
           </div>
+
+          {/* 👇 NEW: SHIPPING DETAILS DISPLAY 👇 */}
+          {Number(order.delivery_cost) > 0 && (
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                Shipping (
+                {order.shipping_method
+                  ? order.shipping_method.charAt(0).toUpperCase() +
+                    order.shipping_method.slice(1)
+                  : "Standard"}
+                )
+              </p>
+              <p className="text-white">
+                €{Number(order.delivery_cost).toFixed(2)}
+              </p>
+            </div>
+          )}
         </div>
+
         <div>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold text-right">
             Total
           </p>
-          <p className="text-accent font-bold text-lg">€{order.total_price}</p>
+          <p className="text-accent font-bold text-lg">
+            €{Number(order.total_price).toFixed(2)}
+          </p>
         </div>
       </div>
 
@@ -87,7 +107,9 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
               </div>
 
               <div className="text-right">
-                <p className="text-white font-bold">€{item.item_total}</p>
+                <p className="text-white font-bold">
+                  €{Number(item.item_total).toFixed(2)}
+                </p>
                 <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
               </div>
             </div>

@@ -5,21 +5,30 @@ import {
   PaymentElement,
 } from "@stripe/react-stripe-js";
 import { UserProfile, getCountries, Country } from "../services/api";
-import { FaTruck, FaCreditCard } from "react-icons/fa";
+import { useCart } from "../context/CartContext";
+import { FaTruck, FaCreditCard, FaBoxOpen } from "react-icons/fa";
 
 interface CheckoutFormProps {
   initialData?: UserProfile | null;
   onShippingChange: (details: any) => void;
   onSaveInfoChange: (save: boolean) => void;
+  shippingMethod: string;
+  onShippingMethodChange: (method: string) => void;
+  isUpdatingIntent?: boolean; // New prop to indicate if intent is being updated
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({
   initialData,
   onShippingChange,
   onSaveInfoChange,
+  shippingMethod,
+  onShippingMethodChange,
+  isUpdatingIntent,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const { hasPhysicalItems } = useCart();
+
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -37,7 +46,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     postal_code: "",
   });
 
-  // 1. Fetch Countries
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -50,9 +58,20 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     fetchCountries();
   }, []);
 
-  // 2. Load User Data
   useEffect(() => {
     if (initialData) {
+      let initialCountry = initialData.default_country || "";
+
+      if (
+        hasPhysicalItems &&
+        initialCountry !== "IE" &&
+        initialCountry !== "US"
+      ) {
+        // If they have physical items but their saved country isn't IE or US,
+        // force them to manually select a valid country.
+        initialCountry = "";
+      }
+
       const initialShipping = {
         name: `${initialData.first_name || ""} ${initialData.last_name || ""}`.trim(),
         email: initialData.email || "",
@@ -61,7 +80,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         line2: initialData.default_street_address2 || "",
         city: initialData.default_town || "",
         state: initialData.default_county || "",
-        country: initialData.default_country || "",
+        country: initialCountry,
         postal_code: initialData.default_postcode || "",
       };
       setShippingDetails(initialShipping);
@@ -109,7 +128,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     setIsLoading(false);
   };
 
-  // Reusable Input Styles
+  // 👇 DYNAMIC COUNTRY FILTERING
+  // If cart has prints, only show IE and US. Otherwise, show all.
+  const displayedCountries = hasPhysicalItems
+    ? countries.filter((c) => c.code === "IE" || c.code === "US")
+    : countries;
+
   const inputClass =
     "w-full bg-black border border-white/20 rounded-lg p-4 text-white placeholder-gray-600 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all";
   const labelClass =
@@ -117,7 +141,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* 1. SHIPPING SECTION */}
+      {/* 1. SHIPPING DETAILS */}
       <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
         <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
           <FaTruck className="text-accent" />
@@ -127,6 +151,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </div>
 
         <div className="space-y-5">
+          {/* ... Name, Email, Address, City, Postal Code identical to yours ... */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className={labelClass}>Full Name</label>
@@ -201,12 +226,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 className={`${inputClass} appearance-none cursor-pointer`}
               >
                 <option value="">Select Country...</option>
-                {countries.map((c) => (
+                {displayedCountries.map((c) => (
                   <option key={c.code} value={c.code}>
                     {c.name}
                   </option>
                 ))}
               </select>
+              {hasPhysicalItems && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Physical prints currently ship to IE & US only.
+                </p>
+              )}
             </div>
             <div>
               <label className={labelClass}>Phone</label>
@@ -224,7 +254,44 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </div>
       </div>
 
-      {/* 2. PAYMENT SECTION */}
+      {/* 2. SHIPPING METHOD (NEW UI) */}
+      {hasPhysicalItems && (
+        <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
+          <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+            <FaBoxOpen className="text-accent" />
+            <h2 className="text-xl font-serif font-bold text-white">
+              Delivery Speed
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {["budget", "standard", "express"].map((method) => (
+              <label
+                key={method}
+                className={`flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer transition-all ${
+                  shippingMethod === method
+                    ? "border-brand-500 bg-brand-500/10 shadow-[0_0_10px_rgba(0,196,0,0.2)]"
+                    : "border-white/10 hover:border-white/30"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="shippingMethod"
+                  value={method}
+                  checked={shippingMethod === method}
+                  onChange={(e) => onShippingMethodChange(e.target.value)}
+                  className="hidden"
+                />
+                <span className="capitalize text-white font-bold mb-1">
+                  {method}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 3. PAYMENT SECTION */}
       <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
         <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
           <FaCreditCard className="text-accent" />
@@ -233,7 +300,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           </h2>
         </div>
 
-        {/* Stripe Element injects here (Themed via CheckoutPage options) */}
         <div className="min-h-[200px]">
           <PaymentElement />
         </div>
@@ -260,21 +326,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         )}
       </div>
 
-      {/* ERROR DISPLAY */}
       {errorMessage && (
         <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold">
           {errorMessage}
         </div>
       )}
 
-      {/* SUBMIT BUTTON */}
       <button
-        disabled={isLoading || !stripe || !elements}
-        className="w-full py-5 bg-brand-700 hover:bg-brand-900 text-paper font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(0,196,0,0.3)] transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isLoading || !stripe || !elements || isUpdatingIntent}
+        className="w-full py-5 bg-brand-700 hover:bg-brand-900 text-white font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(0,196,0,0.3)] transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? (
           <div className="flex items-center justify-center gap-2">
-            <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full" />
+            <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full" />{" "}
             Processing...
           </div>
         ) : (

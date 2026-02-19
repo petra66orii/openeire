@@ -5,10 +5,12 @@ import { FaLock } from "react-icons/fa";
 
 interface OrderSummaryProps {
   isCheckoutPage?: boolean;
+  shippingCost: number; // Added to accept shipping cost as a prop
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   isCheckoutPage = false,
+  shippingCost,
 }) => {
   const { cartItems: cart, cartTotal } = useCart();
 
@@ -20,11 +22,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       );
     });
   }, [cart]);
-
-  let shippingCost = 0;
-  if (hasPhysicalItems) {
-    shippingCost = cartTotal > 50 ? 0 : 5.99;
-  }
 
   const grandTotal = cartTotal + shippingCost;
 
@@ -50,11 +47,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           >
             {shippingCost === 0 ? "Free" : `€${shippingCost.toFixed(2)}`}
           </span>
-        </div>
-        {/* Optional: Tax line */}
-        <div className="flex justify-between text-sm text-gray-400">
-          <span>Tax</span>
-          <span className="text-white font-medium">Calculated at Checkout</span>
         </div>
       </div>
 

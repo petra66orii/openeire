@@ -171,6 +171,8 @@ export interface OrderHistory {
   town: string;
   country: string;
   items: OrderHistoryItem[];
+  delivery_cost: string | number;
+  shipping_method: string;
 }
 
 interface ChangeEmailData {
