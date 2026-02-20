@@ -5,12 +5,14 @@ import { FaLock } from "react-icons/fa";
 
 interface OrderSummaryProps {
   isCheckoutPage?: boolean;
-  shippingCost: number; // Added to accept shipping cost as a prop
+  shippingCost: number;
+  isShippingPending?: boolean;
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   isCheckoutPage = false,
   shippingCost,
+  isShippingPending = false,
 }) => {
   const { cartItems: cart, cartTotal } = useCart();
 
@@ -38,15 +40,22 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         </div>
         <div className="flex justify-between text-sm text-gray-400">
           <span>Shipping</span>
-          <span
-            className={
-              shippingCost === 0
-                ? "text-accent font-bold"
-                : "text-white font-medium"
-            }
-          >
-            {shippingCost === 0 ? "Free" : `€${shippingCost.toFixed(2)}`}
-          </span>
+          {isShippingPending ? (
+            // 👇 NEW LOGIC: Show text if pending
+            <span className="text-xs text-gray-500 uppercase tracking-wide mt-1">
+              Calculated at checkout
+            </span>
+          ) : shippingCost === 0 ? (
+            // 👇 Keep your Free logic if it's explicitly 0
+            <span className="text-brand-500 font-bold uppercase tracking-wider text-xs mt-1">
+              Free
+            </span>
+          ) : (
+            // 👇 Show the calculated price
+            <span className="text-white font-medium">
+              €{shippingCost.toFixed(2)}
+            </span>
+          )}
         </div>
       </div>
 

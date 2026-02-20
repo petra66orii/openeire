@@ -74,7 +74,7 @@ const ShoppingBagPage: React.FC = () => {
           {/* RIGHT: SUMMARY (Sticky) */}
           <div className="lg:col-span-4">
             <div className="sticky top-32">
-              <OrderSummary shippingCost={10} />
+              <OrderSummary shippingCost={0} isShippingPending={true} />
 
               {/* Security Note */}
               <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500 uppercase tracking-wider">
