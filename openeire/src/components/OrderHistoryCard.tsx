@@ -74,7 +74,8 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
           return (
             <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
               <Link
-                to={`/gallery/${item.product.product_type === "video" ? "video" : "photo"}/${item.product.id}`}
+                // 👇 FIX: Use photo_id if it exists, otherwise fallback to id (for digital)
+                to={`/gallery/${item.product.product_type === "video" ? "video" : "photo"}/${item.product.photo_id || item.product.id}`}
                 className="block flex-shrink-0 w-16 h-16 bg-gray-800 rounded overflow-hidden border border-white/10"
               >
                 <img
@@ -88,9 +89,11 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                 <h4 className="font-bold text-white truncate">
                   {item.product.title}
                 </h4>
+
+                {/* 👇 FIX: Show the actual material and size instead of generic text */}
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                   {item.product.product_type === "physical"
-                    ? "Fine Art Print"
+                    ? `${item.product.material_display} (${item.product.size_display})`
                     : "Digital License"}
                 </p>
 

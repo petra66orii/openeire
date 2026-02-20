@@ -113,6 +113,9 @@ export interface GalleryItem {
   starting_price?: string | number;
   file?: string;
   location?: string;
+  photo_id?: number;
+  material_display?: string; 
+  size_display?: string;
 }
 
 export interface PaginatedResponse<T> {
