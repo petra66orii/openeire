@@ -57,9 +57,31 @@ const ProductDetailPage: React.FC = () => {
     setLoading(true);
     try {
       const data = await getProductDetail(type, id);
-      setProduct(data);
+      const scrubDigitalPricing = (item: any) => {
+        if (!item || item.product_type === "physical") return item;
+        const { price, price_hd, price_4k, starting_price, ...rest } = item;
+        return {
+          ...rest,
+          price: undefined,
+          price_hd: undefined,
+          price_4k: undefined,
+          starting_price: undefined,
+        };
+      };
+      const sanitized = scrubDigitalPricing(data);
+      if (
+        sanitized &&
+        "related_products" in sanitized &&
+        Array.isArray((sanitized as any).related_products)
+      ) {
+        (sanitized as any).related_products = (sanitized as any).related_products.map(
+          scrubDigitalPricing,
+        );
+      }
+
+      setProduct(sanitized);
       setReviewRefreshKey((prev) => prev + 1);
-      setBreadcrumbTitle(location.pathname, data.title);
+      setBreadcrumbTitle(location.pathname, sanitized.title);
     } catch (err) {
       setError("Failed to load product details.");
     } finally {

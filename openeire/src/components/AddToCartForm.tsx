@@ -11,35 +11,13 @@ const AddToCartForm: React.FC<AddToCartFormProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
+  if (product.product_type !== "physical") return null;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Detect if this is a forced digital product
-    const isVideo = product.product_type === "video";
-    const isPhoto = product.product_type === "photo";
-    const isDigital = isVideo || isPhoto;
-
-    // 2. Define Options
-    let options: any = {};
-
-    if (isDigital) {
-      // Force the cart to see this as digital
-      options.type = product.product_type;
-
-      // Add License details
-      if (product.title.includes("4K")) {
-        options.license = "4k";
-      } else {
-        options.license = "hd";
-      }
-      options.details = `${options.license.toUpperCase()} License`;
-    } else {
-      // Physical Fallback
-      options.type = "physical";
-    }
-
     // 3. Add to Cart
-    addToCart(product, quantity, options);
+    addToCart(product, quantity, { type: "physical" });
 
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);

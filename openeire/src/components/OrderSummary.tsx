@@ -17,12 +17,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const { cartItems: cart, cartTotal } = useCart();
 
   const hasPhysicalItems = useMemo(() => {
-    return cart.some((item) => {
-      return (
-        item.options?.type === "physical" ||
-        item.product?.product_type === "physical"
-      );
-    });
+    return cart.some((item) => item.product?.product_type === "physical");
   }, [cart]);
 
   const grandTotal = cartTotal + shippingCost;
@@ -70,14 +65,19 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         </div>
       </div>
 
-      {!isCheckoutPage && (
-        <Link
-          to="/checkout"
-          className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
-        >
-          Checkout
-        </Link>
-      )}
+      {!isCheckoutPage &&
+        (hasPhysicalItems ? (
+          <Link
+            to="/checkout"
+            className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
+          >
+            Checkout
+          </Link>
+        ) : (
+          <div className="block w-full text-center bg-white/10 text-gray-400 font-bold text-lg py-4 rounded-xl cursor-not-allowed">
+            Physical Prints Only
+          </div>
+        ))}
 
       {isCheckoutPage && (
         <div className="flex items-center justify-center gap-2 text-gray-500 text-xs mt-4">

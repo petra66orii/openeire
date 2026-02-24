@@ -1,12 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import {
-  FaCheckCircle,
-  FaDownload,
-  FaHome,
-  FaArrowRight,
-} from "react-icons/fa";
+import { FaCheckCircle, FaHome } from "react-icons/fa";
 
 const CheckoutSuccessPage: React.FC = () => {
   const { clearCart } = useCart();
@@ -34,28 +29,7 @@ const CheckoutSuccessPage: React.FC = () => {
         </p>
 
         {/* 3. Next Steps (Cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 text-left">
-          {/* Digital Downloads Card */}
-          <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:bg-white/10 transition-colors group">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-accent/10 rounded-lg text-accent">
-                <FaDownload />
-              </div>
-              <h3 className="font-bold text-white">Digital Assets?</h3>
-            </div>
-            <p className="text-sm text-gray-400 mb-4">
-              Your high-resolution files are ready for instant download in your
-              profile.
-            </p>
-            <Link
-              to="/profile"
-              className="text-accent text-sm font-bold uppercase tracking-wider flex items-center gap-2 hover:gap-3 transition-all"
-            >
-              Go to Downloads <FaArrowRight />
-            </Link>
-          </div>
-
-          {/* Physical Prints Card */}
+        <div className="grid grid-cols-1 gap-4 mb-10 text-left">
           <div className="bg-white/5 border border-white/10 p-6 rounded-xl hover:bg-white/10 transition-colors group">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
@@ -73,7 +47,7 @@ const CheckoutSuccessPage: React.FC = () => {
                   />
                 </svg>
               </div>
-              <h3 className="font-bold text-white">Physical Prints?</h3>
+              <h3 className="font-bold text-white">Physical Prints</h3>
             </div>
             <p className="text-sm text-gray-400 mb-4">
               Your fine art prints are being processed. You will receive a
