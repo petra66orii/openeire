@@ -114,7 +114,6 @@ const GalleryPage: React.FC = () => {
               >
                 <ProductCard
                   product={product}
-                  contextType={type}
                   onModalOpen={() => setIsAnyModalOpen(true)}
                   onModalClose={() => setIsAnyModalOpen(false)}
                 />

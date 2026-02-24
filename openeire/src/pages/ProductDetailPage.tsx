@@ -135,7 +135,13 @@ const ProductDetailPage: React.FC = () => {
 
   // --- 5. HANDLERS ---
   const handleAddToCart = () => {
-    if (!activeProductForCart || !isPhysical) return;
+    // Only allow adding to cart for physical products with a resolved variant
+    if (!isPhysical) return;
+    if (!activePhysicalVariant) {
+      toast.error("Please select a print option before adding to your bag.");
+      return;
+    }
+    if (!activeProductForCart) return;
     addToCart(activeProductForCart, 1);
     toast.success("Added to Bag");
   };
@@ -413,9 +419,7 @@ const ProductDetailPage: React.FC = () => {
 
         {product && "related_products" in product && (
           <div className="mt-20">
-            <RelatedProducts
-              products={(product as any).related_products}
-            />
+            <RelatedProducts products={(product as any).related_products} />
           </div>
         )}
       </div>
