@@ -52,10 +52,23 @@ const GalleryPage: React.FC = () => {
         );
 
         // 🛡️ FIX: Handle both Paginated (response.results) and Non-Paginated (response is Array) formats
+        const scrubDigitalPricing = (items: GalleryItem[]) =>
+          items.map((item) =>
+            item.product_type === "physical"
+              ? item
+              : {
+                  ...item,
+                  price: undefined,
+                  price_hd: undefined,
+                  price_4k: undefined,
+                  starting_price: undefined,
+                },
+          );
+
         if (Array.isArray(response)) {
-          setProducts(response);
+          setProducts(scrubDigitalPricing(response));
         } else if (response && response.results) {
-          setProducts(response.results);
+          setProducts(scrubDigitalPricing(response.results));
         } else {
           // Fallback for empty or unexpected structure
           setProducts([]);
@@ -114,7 +127,6 @@ const GalleryPage: React.FC = () => {
               >
                 <ProductCard
                   product={product}
-                  contextType={type}
                   onModalOpen={() => setIsAnyModalOpen(true)}
                   onModalClose={() => setIsAnyModalOpen(false)}
                 />

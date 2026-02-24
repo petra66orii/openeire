@@ -9,13 +9,27 @@ import { FaShoppingBag, FaArrowRight } from "react-icons/fa";
 
 const ShoppingBagPage: React.FC = () => {
   const { cartItems } = useCart();
+  const physicalCartItems = cartItems.filter(
+    (item) => item.product.product_type === "physical",
+  );
   const [recommendations, setRecommendations] = useState<GalleryItem[]>([]);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
         const data = await getShoppingBagRecommendations();
-        setRecommendations(data);
+        const scrubbed = data.map((item) =>
+          item.product_type === "physical"
+            ? item
+            : {
+                ...item,
+                price: undefined,
+                price_hd: undefined,
+                price_4k: undefined,
+                starting_price: undefined,
+              },
+        );
+        setRecommendations(scrubbed);
       } catch (error) {
         console.error("Failed to load recommendations", error);
       }
@@ -23,7 +37,7 @@ const ShoppingBagPage: React.FC = () => {
     fetchRecommendations();
   }, []);
 
-  if (cartItems.length === 0) {
+  if (physicalCartItems.length === 0) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
         <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
@@ -58,7 +72,7 @@ const ShoppingBagPage: React.FC = () => {
           {/* LEFT: CART ITEMS */}
           <div className="lg:col-span-8 space-y-8">
             <div className="bg-gray-900/50 border border-white/10 rounded-2xl overflow-hidden p-6 md:p-8">
-              {cartItems.map((item) => (
+              {physicalCartItems.map((item) => (
                 <BagItem key={item.cartId} item={item} />
               ))}
             </div>
@@ -99,7 +113,7 @@ const ShoppingBagPage: React.FC = () => {
 
         {/* RELATED PRODUCTS */}
         <div className="mt-32">
-          <RelatedProducts products={recommendations} contextType="all" />
+          <RelatedProducts products={recommendations} />
         </div>
       </div>
     </div>

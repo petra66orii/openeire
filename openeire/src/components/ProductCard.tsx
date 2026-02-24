@@ -1,14 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GalleryItem } from "../services/api";
-import { useCart } from "../context/CartContext";
 import QuickAddModal from "./QuickAddModal";
-import toast from "react-hot-toast";
-import { FaPlay, FaShoppingCart, FaExpand, FaImage } from "react-icons/fa";
+import { FaPlay, FaExpand, FaImage, FaFileContract } from "react-icons/fa";
 
 interface ProductCardProps {
   product: GalleryItem;
-  contextType?: "digital" | "physical" | "all";
   onModalOpen?: () => void;
   onModalClose?: () => void;
 }
@@ -17,11 +14,9 @@ const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  contextType,
   onModalOpen,
   onModalClose,
 }) => {
-  const { addToCart } = useCart();
   const [showQuickView, setShowQuickView] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -29,20 +24,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // --- 1. DETERMINE TYPE ---
   const isVideo = product.product_type === "video";
+  const isPhysical = product.product_type === "physical";
+  const isDigital = !isPhysical;
 
-  const showDigitalPrice =
-    contextType === "digital" ||
-    product.product_type === "video" ||
-    (contextType !== "physical" && product.product_type !== "physical");
-
-  const displayPrice = showDigitalPrice
-    ? product.price_hd || product.price || "0.00"
-    : product.starting_price || product.price || "0.00";
+  const displayPrice = isPhysical
+    ? product.starting_price || product.price || "0.00"
+    : null;
 
   let detailUrl = "";
   if (isVideo) detailUrl = `/gallery/video/${product.id}`;
-  else if (showDigitalPrice) detailUrl = `/gallery/photo/${product.id}`;
-  else detailUrl = `/gallery/physical/${product.id}`;
+  else if (isPhysical) detailUrl = `/gallery/physical/${product.id}`;
+  else detailUrl = `/gallery/photo/${product.id}`;
 
   // --- 2. CONSTRUCT URLS ---
   const rawImageUrl = product.preview_image || product.thumbnail_image;
@@ -93,26 +85,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }, [isHovered, isVideo, videoUrl, product.title]);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
+    if (!isPhysical) return;
     e.preventDefault();
     e.stopPropagation();
 
-    if (isVideo) {
-      addToCart({ ...product, price: product.price_hd || product.price }, 1, {
-        license: "hd",
-        type: "digital",
-      });
-      toast.success("HD Video added to cart");
-    } else if (showDigitalPrice) {
-      addToCart({ ...product, price: product.price }, 1, {
-        license: "standard",
-        type: "digital",
-      });
-      toast.success("Digital Photo added to cart");
-    } else {
-      // Open Modal
-      setShowQuickView(true);
-      if (onModalOpen) onModalOpen();
-    }
+    // Open Modal (Physical Only)
+    setShowQuickView(true);
+    if (onModalOpen) onModalOpen();
   };
   const getBadge = () => {
     if (isVideo)
@@ -121,7 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         color: "bg-white/90 text-brand-900",
         icon: <FaPlay className="text-[8px] mr-1" />,
       };
-    if (!showDigitalPrice)
+    if (isPhysical)
       return {
         label: "Fine Art Print",
         color: "bg-accent text-brand-900",
@@ -195,22 +174,34 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* E. QUICK ADD BAR */}
           <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-gradient-to-t from-black via-black/80 to-transparent flex justify-between items-end z-20">
-            <div className="text-white">
-              <p className="text-[10px] opacity-80 uppercase tracking-wider font-bold">
-                Price
-              </p>
-              <span className="font-serif font-bold text-lg">
-                €{displayPrice}
-              </span>
-            </div>
+            {isPhysical ? (
+              <div className="text-white">
+                <p className="text-[10px] opacity-80 uppercase tracking-wider font-bold">
+                  Price
+                </p>
+                <span className="font-serif font-bold text-lg">
+                  €{displayPrice}
+                </span>
+              </div>
+            ) : (
+              <div className="text-white">
+                <p className="text-[10px] opacity-80 uppercase tracking-wider font-bold">
+                  License
+                </p>
+                <span className="font-serif font-bold text-lg">
+                  Request Access
+                </span>
+              </div>
+            )}
             <button
               onClick={handleQuickAdd}
               className="bg-white text-brand-900 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent hover:scale-110 transition-all shadow-lg"
+              aria-label={isPhysical ? "Select print options" : "Request license"}
             >
-              {showDigitalPrice ? (
-                <FaShoppingCart className="text-sm" />
-              ) : (
+              {isPhysical ? (
                 <FaExpand className="text-sm" />
+              ) : (
+                <FaFileContract className="text-sm" />
               )}
             </button>
           </div>
@@ -227,7 +218,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <p className="text-gray-500 text-xs uppercase tracking-wider font-bold">
               {product.collection}
             </p>
-            {showDigitalPrice && (
+            {isDigital && (
               <span className="text-[10px] text-gray-400 bg-white/10 px-2 py-0.5 rounded border border-white/10">
                 4K Available
               </span>

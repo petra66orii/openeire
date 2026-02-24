@@ -12,12 +12,11 @@ import { GalleryItem } from "../services/api";
 export interface CartOptions {
   material?: string; // e.g. "canvas"
   size?: string; // e.g. "A4"
-  license?: string; // e.g. "hd" or "4k"
   [key: string]: any; // Allow flexibility
 }
 
 export interface CartItem {
-  cartId: string; // Unique Key (e.g. "photo-5-license:hd")
+  cartId: string; // Unique Key (e.g. "physical-105-{}")
   productId: string | number; // The actual Database ID
   product: GalleryItem;
   quantity: number;
@@ -42,11 +41,15 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const filterPhysicalItems = (items: CartItem[]) =>
+  items.filter((item) => item?.product?.product_type === "physical");
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
       const localData = localStorage.getItem("cart");
-      return localData ? JSON.parse(localData) : [];
+      const parsed = localData ? (JSON.parse(localData) as CartItem[]) : [];
+      return filterPhysicalItems(parsed);
     } catch (error) {
       console.error("Could not parse cart data from localStorage", error);
       return [];
@@ -54,13 +57,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
+    const filtered = filterPhysicalItems(cartItems);
+    if (filtered.length !== cartItems.length) {
+      setCartItems(filtered);
+    }
+  }, [cartItems]);
+
+  useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
   const addToCart = useCallback(
     (product: GalleryItem, quantity: number, options?: CartOptions) => {
+      if (product.product_type !== "physical") {
+        console.warn("Digital products cannot be added to the cart.");
+        return;
+      }
+
       // Create a unique string based on options to differentiate variants
-      // e.g. "physical-105-{}" or "photo-20-{license:hd}"
       const optionsString = options ? JSON.stringify(options) : "";
       const uniqueCartId = `${product.product_type}-${product.id}-${optionsString}`;
 
@@ -119,14 +133,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   const cartTotal = cartItems.reduce((total, item) => {
-    // Handle dynamic prices (some items might have 'price' directly, others 'price_hd')
-    let price = 0;
-    if (item.product.price) {
-      price = parseFloat(item.product.price);
-    } else if (item.product.price_hd) {
-      price = parseFloat(item.product.price_hd);
-    }
-
+    if (item.product.product_type !== "physical") return total;
+    const rawPrice =
+      item.product.price ??
+      (item.product.starting_price as string | number | undefined) ??
+      "0";
+    const price = parseFloat(String(rawPrice));
     return total + price * item.quantity;
   }, 0);
 

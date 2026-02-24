@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useCart } from "../context/CartContext";
@@ -25,6 +25,10 @@ const CheckoutPage: React.FC = () => {
 
   const { cartItems } = useCart();
   const { isAuthenticated } = useAuth();
+  const physicalCartItems = useMemo(
+    () => cartItems.filter((item) => item.product.product_type === "physical"),
+    [cartItems],
+  );
 
   // 1. Fetch Profile on Mount
   useEffect(() => {
@@ -38,16 +42,21 @@ const CheckoutPage: React.FC = () => {
   // 2. Dynamic Payment Intent Fetcher
   useEffect(() => {
     const initializeCheckout = async () => {
-      if (cartItems.length === 0) return;
+      if (physicalCartItems.length === 0) {
+        setClientSecret("");
+        setCalculatedShippingCost(0);
+        setIsUpdatingIntent(false);
+        return;
+      }
 
       setIsUpdatingIntent(true);
 
       try {
-        const simplifiedCart = cartItems.map((item) => ({
+        const simplifiedCart = physicalCartItems.map((item) => ({
           product_id: item.product.id,
           product_type: item.product.product_type,
           quantity: item.quantity,
-          options: item.options, // Ensure options (licenses) are passed
+          options: item.options,
         }));
 
         const response = await api.post("checkout/create-payment-intent/", {
@@ -77,7 +86,7 @@ const CheckoutPage: React.FC = () => {
     return () => clearTimeout(timeoutId);
 
     // Refetch if cart, country, or speed changes
-  }, [cartItems, shippingDetails.country, shippingMethod]);
+  }, [physicalCartItems, shippingDetails.country, shippingMethod]);
 
   const options: StripeElementsOptions = {
     clientSecret,
@@ -129,6 +138,13 @@ const CheckoutPage: React.FC = () => {
                   isUpdatingIntent={isUpdatingIntent}
                 />
               </Elements>
+            ) : physicalCartItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+                <p className="text-sm uppercase tracking-widest font-bold text-gray-400 mb-2">
+                  Checkout Unavailable
+                </p>
+                <p>Only physical prints can be purchased online.</p>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent mb-4"></div>

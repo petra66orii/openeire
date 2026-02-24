@@ -1,6 +1,5 @@
 import React from "react";
 import { OrderHistory } from "../services/api";
-import DownloadButton from "./DownloadButton";
 import { Link } from "react-router-dom";
 
 interface OrderHistoryCardProps {
@@ -15,6 +14,9 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
     month: "long",
     year: "numeric",
   });
+  const hasDigitalItems = order.items.some(
+    (item) => item.product.product_type !== "physical",
+  );
 
   return (
     <div className="bg-black border border-white/10 rounded-xl overflow-hidden shadow-sm hover:border-white/20 transition-colors">
@@ -56,9 +58,15 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
           <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold text-right">
             Total
           </p>
-          <p className="text-accent font-bold text-lg">
-            €{Number(order.total_price).toFixed(2)}
-          </p>
+          {hasDigitalItems ? (
+            <p className="text-gray-400 font-bold text-sm">
+              Licensing handled separately
+            </p>
+          ) : (
+            <p className="text-accent font-bold text-lg">
+              €{Number(order.total_price).toFixed(2)}
+            </p>
+          )}
         </div>
       </div>
 
@@ -70,12 +78,22 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
           const imageUrl = rawImageUrl?.startsWith("http")
             ? rawImageUrl
             : `${BACKEND_BASE_URL}${rawImageUrl}`;
+          const productPath =
+            item.product.product_type === "video"
+              ? "video"
+              : item.product.product_type === "physical"
+                ? "physical"
+                : "photo";
+          const productId =
+            item.product.product_type === "physical"
+              ? item.product.id
+              : item.product.photo_id || item.product.id;
 
           return (
             <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
               <Link
-                // 👇 FIX: Use photo_id if it exists, otherwise fallback to id (for digital)
-                to={`/gallery/${item.product.product_type === "video" ? "video" : "photo"}/${item.product.photo_id || item.product.id}`}
+                // 👇 Use photo_id for digital items when available
+                to={`/gallery/${productPath}/${productId}`}
                 className="block flex-shrink-0 w-16 h-16 bg-gray-800 rounded overflow-hidden border border-white/10"
               >
                 <img
@@ -94,25 +112,18 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                   {item.product.product_type === "physical"
                     ? `${item.product.material_display} (${item.product.size_display})`
-                    : "Digital License"}
+                    : "Licensed Asset"}
                 </p>
-
-                {(item.product.product_type === "photo" ||
-                  item.product.product_type === "video") && (
-                  <div className="mt-2">
-                    <DownloadButton
-                      productType={item.product.product_type}
-                      productId={item.product.id}
-                      fileName={`${item.product.title}.${item.product.product_type === "video" ? "mp4" : "jpg"}`}
-                    />
-                  </div>
-                )}
               </div>
 
               <div className="text-right">
-                <p className="text-white font-bold">
-                  €{Number(item.item_total).toFixed(2)}
-                </p>
+                {item.product.product_type === "physical" ? (
+                  <p className="text-white font-bold">
+                    €{Number(item.item_total).toFixed(2)}
+                  </p>
+                ) : (
+                  <p className="text-gray-400 text-sm font-bold">Licensed</p>
+                )}
                 <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
               </div>
             </div>
