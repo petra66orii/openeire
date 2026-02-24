@@ -27,9 +27,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const isPhysical = product.product_type === "physical";
   const isDigital = !isPhysical;
 
-  const displayPrice = isDigital
-    ? product.price_hd || product.price || "0.00"
-    : product.starting_price || product.price || "0.00";
+  const displayPrice = isPhysical
+    ? product.starting_price || product.price || "0.00"
+    : null;
 
   let detailUrl = "";
   if (isVideo) detailUrl = `/gallery/video/${product.id}`;
@@ -174,14 +174,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* E. QUICK ADD BAR */}
           <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-gradient-to-t from-black via-black/80 to-transparent flex justify-between items-end z-20">
-            <div className="text-white">
-              <p className="text-[10px] opacity-80 uppercase tracking-wider font-bold">
-                Price
-              </p>
-              <span className="font-serif font-bold text-lg">
-                €{displayPrice}
-              </span>
-            </div>
+            {isPhysical ? (
+              <div className="text-white">
+                <p className="text-[10px] opacity-80 uppercase tracking-wider font-bold">
+                  Price
+                </p>
+                <span className="font-serif font-bold text-lg">
+                  €{displayPrice}
+                </span>
+              </div>
+            ) : (
+              <div className="text-white">
+                <p className="text-[10px] opacity-80 uppercase tracking-wider font-bold">
+                  License
+                </p>
+                <span className="font-serif font-bold text-lg">
+                  Request Access
+                </span>
+              </div>
+            )}
             <button
               onClick={handleQuickAdd}
               className="bg-white text-brand-900 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent hover:scale-110 transition-all shadow-lg"
