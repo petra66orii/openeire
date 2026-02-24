@@ -5,12 +5,10 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 interface RelatedProductsProps {
   products: GalleryItem[];
-  contextType: "digital" | "physical" | "all";
 }
 
 const RelatedProducts: React.FC<RelatedProductsProps> = ({
   products,
-  contextType,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -65,7 +63,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
             key={item.id}
             className="min-w-[280px] md:min-w-[320px] snap-start flex-shrink-0"
           >
-            <ProductCard product={item} contextType={contextType} />
+            <ProductCard product={item} />
           </div>
         ))}
       </div>

@@ -99,7 +99,7 @@ const ShoppingBagPage: React.FC = () => {
 
         {/* RELATED PRODUCTS */}
         <div className="mt-32">
-          <RelatedProducts products={recommendations} contextType="all" />
+          <RelatedProducts products={recommendations} />
         </div>
       </div>
     </div>
