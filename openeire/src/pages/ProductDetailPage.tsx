@@ -13,6 +13,7 @@ import { useCart } from "../context/CartContext";
 import { toast } from "react-toastify";
 import { useBreadcrumb } from "../context/BreadcrumbContext";
 import RelatedProducts from "../components/RelatedProducts";
+import LicenseRequestModal from "../components/LicenseRequestModal";
 import SEOHead from "../components/SEOHead";
 import {
   FaPlay,
@@ -31,6 +32,7 @@ const ProductDetailPage: React.FC = () => {
   // Media Player Refs
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
 
   // --- 2. LOGIC ---
   const type = useMemo(() => {
@@ -74,9 +76,9 @@ const ProductDetailPage: React.FC = () => {
         "related_products" in sanitized &&
         Array.isArray((sanitized as any).related_products)
       ) {
-        (sanitized as any).related_products = (sanitized as any).related_products.map(
-          scrubDigitalPricing,
-        );
+        (sanitized as any).related_products = (
+          sanitized as any
+        ).related_products.map(scrubDigitalPricing);
       }
 
       setProduct(sanitized);
@@ -169,8 +171,7 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleRequestLicense = () => {
-    // 🚧 STAGE 2 PLACEHOLDER 🚧
-    toast.info("Opening License Request Form... (Coming in Stage 2!)");
+    setIsLicenseModalOpen(true); // Open the modal instead of the toast
   };
 
   const toggleVideo = () => {
@@ -445,6 +446,15 @@ const ProductDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+      {isDigital && product && (
+        <LicenseRequestModal
+          isOpen={isLicenseModalOpen}
+          onClose={() => setIsLicenseModalOpen(false)}
+          assetId={product.id}
+          assetType={product.product_type as "photo" | "video"}
+          assetTitle={product.title}
+        />
+      )}
     </div>
   );
 };
