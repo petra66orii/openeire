@@ -268,6 +268,17 @@ export interface ContactData {
   message: string;
 }
 
+export interface LicenseRequestPayload {
+  asset_type: "photo" | "video";
+  asset_id: number;
+  client_name: string;
+  company?: string;
+  email: string;
+  project_type: "REAL_ESTATE" | "EDITORIAL" | "COMMERCIAL" | "OTHER";
+  duration: "1_YEAR" | "2_YEARS" | "PERPETUAL" | "OTHER";
+  message?: string;
+}
+
 // API METHODS
 export const getOrderHistory = async (): Promise<OrderHistory[]> => {
   try {
@@ -690,6 +701,17 @@ export const getLikedBlogPosts = async (): Promise<PaginatedResponse<BlogPostLis
     if (axios.isAxiosError(error) && error.response) {
       throw error.response.data;
     }
+    throw error;
+  }
+};
+
+export const submitLicenseRequest = async (payload: LicenseRequestPayload) => {
+  try {
+    // Adjust the URL path if your urls.py prefix is different (e.g., /api/products/license-requests/)
+    const response = await api.post("license-requests/", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting license request:", error);
     throw error;
   }
 };
