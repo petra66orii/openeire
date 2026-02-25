@@ -57,6 +57,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
+    const filtered = filterPhysicalItems(cartItems);
+    if (filtered.length !== cartItems.length) {
+      setCartItems(filtered);
+    }
+  }, [cartItems]);
+
+  useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 

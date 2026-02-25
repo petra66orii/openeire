@@ -87,6 +87,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }, [isHovered, isVideo, videoUrl, product.title]);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
+    if (!isPhysical) return;
     e.preventDefault();
     e.stopPropagation();
 
