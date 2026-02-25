@@ -711,7 +711,9 @@ export const submitLicenseRequest = async (payload: LicenseRequestPayload) => {
     const response = await api.post("license-requests/", payload);
     return response.data;
   } catch (error) {
-    console.error("Error submitting license request:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
     throw error;
   }
 };

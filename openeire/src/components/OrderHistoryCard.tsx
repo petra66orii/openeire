@@ -84,10 +84,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
               : item.product.product_type === "physical"
                 ? "physical"
                 : "photo";
-          const productId =
-            item.product.product_type === "physical"
-              ? item.product.id
-              : item.product.photo_id || item.product.id;
+          const productId = item.product.photo_id || item.product.id;
 
           return (
             <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
