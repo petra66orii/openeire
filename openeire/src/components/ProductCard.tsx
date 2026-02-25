@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GalleryItem } from "../services/api";
 import QuickAddModal from "./QuickAddModal";
+import LicenseRequestModal from "./LicenseRequestModal";
 import { FaPlay, FaExpand, FaImage, FaFileContract } from "react-icons/fa";
 
 interface ProductCardProps {
@@ -18,6 +19,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onModalClose,
 }) => {
   const [showQuickView, setShowQuickView] = useState(false);
+  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -85,12 +87,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }, [isHovered, isVideo, videoUrl, product.title]);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
-    if (!isPhysical) return;
     e.preventDefault();
     e.stopPropagation();
 
-    // Open Modal (Physical Only)
-    setShowQuickView(true);
+    if (isPhysical) {
+      setShowQuickView(true);
+      if (onModalOpen) onModalOpen();
+      return;
+    }
+
+    setIsLicenseModalOpen(true);
     if (onModalOpen) onModalOpen();
   };
   const getBadge = () => {
@@ -234,6 +240,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
             setShowQuickView(false);
             if (onModalClose) onModalClose();
           }}
+        />
+      )}
+
+      {isDigital && (
+        <LicenseRequestModal
+          isOpen={isLicenseModalOpen}
+          onClose={() => {
+            setIsLicenseModalOpen(false);
+            if (onModalClose) onModalClose();
+          }}
+          assetId={product.id}
+          assetType={product.product_type as "photo" | "video"}
+          assetTitle={product.title}
         />
       )}
     </>

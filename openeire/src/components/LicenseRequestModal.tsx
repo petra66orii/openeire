@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 import { FaTimes } from "react-icons/fa";
 import { submitLicenseRequest, LicenseRequestPayload } from "../services/api";
 import { toast } from "react-toastify";
@@ -11,6 +12,18 @@ interface LicenseRequestModalProps {
   assetTitle: string;
 }
 
+const getInitialFormData = (): Omit<
+  LicenseRequestPayload,
+  "asset_id" | "asset_type"
+> => ({
+  client_name: "",
+  company: "",
+  email: "",
+  project_type: "COMMERCIAL",
+  duration: "1_YEAR",
+  message: "",
+});
+
 const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
   isOpen,
   onClose,
@@ -21,16 +34,21 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<
     Omit<LicenseRequestPayload, "asset_id" | "asset_type">
-  >({
-    client_name: "",
-    company: "",
-    email: "",
-    project_type: "COMMERCIAL",
-    duration: "1_YEAR",
-    message: "",
-  });
+  >(getInitialFormData);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setFormData(getInitialFormData());
+    setIsSubmitting(false);
+  }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    setFormData(getInitialFormData());
+    setIsSubmitting(false);
+    onClose();
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -53,7 +71,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
       toast.success(
         "License request submitted! We will be in touch shortly with a quote.",
       );
-      onClose();
+      handleClose();
     } catch (error) {
       toast.error("Failed to submit request. Please try again.");
     } finally {
@@ -61,9 +79,16 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+  const modalContent = (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        onClick={handleClose}
+      ></div>
+      <div
+        className="relative bg-gray-900 border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-white/10">
           <div>
@@ -75,7 +100,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-gray-400 hover:text-white transition-colors"
           >
             <FaTimes className="text-xl" />
@@ -189,6 +214,8 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default LicenseRequestModal;
