@@ -274,8 +274,38 @@ export interface LicenseRequestPayload {
   client_name: string;
   company?: string;
   email: string;
-  project_type: "REAL_ESTATE" | "EDITORIAL" | "COMMERCIAL" | "OTHER";
-  duration: "1_YEAR" | "2_YEARS" | "PERPETUAL" | "OTHER";
+  project_type:
+    | "REAL_ESTATE"
+    | "CORPORATE"
+    | "EDITORIAL"
+    | "COMMERCIAL"
+    | "OTHER";
+  duration:
+    | "1_MONTH"
+    | "3_MONTHS"
+    | "6_MONTHS"
+    | "1_YEAR"
+    | "2_YEARS"
+    | "5_YEARS"
+    | "PERPETUAL"
+    | "OTHER";
+  territory:
+    | "IRELAND"
+    | "EU"
+    | "US_NA"
+    | "SOUTH_AMERICA"
+    | "ASIA"
+    | "AFRICA"
+    | "OCEANIA"
+    | "WORLDWIDE";
+  permitted_media:
+    | "WEB_SOCIAL"
+    | "PAID_DIGITAL"
+    | "PRINT_BROCHURE"
+    | "BROADCAST"
+    | "ALL_MEDIA";
+  exclusivity: "NON_EXCLUSIVE" | "CATEGORY" | "FULL";
+  reach_caps?: string;
   message?: string;
 }
 
