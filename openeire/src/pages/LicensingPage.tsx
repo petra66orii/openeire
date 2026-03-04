@@ -10,27 +10,37 @@ import {
   FaGlobe,
 } from "react-icons/fa";
 
-const BRAND_NAME = "OpenEire Studios";
+const BRAND_NAME = "OpenÉire Studios";
 const COPYRIGHT_SYMBOL = "\u00A9";
 
 const INTRO_TEXT = `${BRAND_NAME} offers premium fine-art photography and high-resolution aerial footage. To protect the integrity of the work, all media is subject to strict licensing terms. Please review the tiers below to ensure your intended use complies with our copyright and licensing policies.`;
 
 const INTERNATIONAL_USE_TEXT = `Licences issued by ${BRAND_NAME} apply to customers worldwide. Your permitted usage is governed by the licence you purchase and the scope we approve. Copyright protection is recognised internationally and unauthorised use may be pursued in Ireland and/or the jurisdiction where the use occurs.`;
 
+// --- PERSONAL TIER DATA ---
 const PERSONAL_RIGHTS = [
-  "Personal display only (home or private office)",
-  "Personal device backgrounds",
+  "Display physical prints in your home or private office",
+  "Give physical prints as a personal gift to another individual",
+  "Store digital files on your personal devices and make reasonable backup copies",
+  "Print digital files solely for your own personal, non-commercial display",
 ];
 
 const PERSONAL_PROHIBITED = [
-  "Any form of reproduction, scanning, copying, or tracing",
-  "Commercial, promotional, advertising, or corporate use",
-  "Resale, redistribution, sublicensing, or sharing files",
-  'Uploading to stock libraries or "free asset" platforms',
-  "AI training, model fine-tuning, dataset creation, or similar",
-  "NFT minting, tokenisation, or blockchain-based commercialisation",
+  "Any business activity, advertising, client work, or promotional materials",
+  "Resale, redistribution, sublicensing, or sharing files publicly",
+  'Uploading to stock libraries, marketplaces, or "free asset" platforms',
+  "Uploading to Print-on-Demand (POD) services or merchandise platforms",
+  "Use in logos, trademarks, brand identities, templates, or design packs",
+  "Training artificial intelligence, machine learning systems, or dataset creation",
 ];
 
+const PERSONAL_ADDITIONAL_TERMS = [
+  "Third-Party Rights: Images may depict locations or elements subject to third-party rights. This licence does not grant permission to use any trademarks or private property rights.",
+  "Privacy & Personality Rights: You must not use any work in a way that invades privacy, misrepresents a person, or implies endorsement by an identifiable individual.",
+  "Consumer Rights: Nothing in this licence limits your statutory rights under Irish or EU consumer protection law.",
+];
+
+// --- COMMERCIAL TIER DATA ---
 const COMMERCIAL_KEY_TERMS = [
   "Defined scope (specific campaign, property listing, brand, or project)",
   "Non-exclusive by default (exclusivity only by written agreement)",
@@ -40,40 +50,49 @@ const COMMERCIAL_KEY_TERMS = [
 ];
 
 const LICENCE_SCHEDULE_ITEMS = [
-  "Licensed Asset(s): specific file(s) / ID(s)",
-  "Permitted Media: e.g., website, organic social, print brochure, property listing, OOH, broadcast, paid digital ads",
-  "Territory: e.g., Ireland, EU/EEA, United States, North America, Worldwide",
-  "Duration: start date + end date (or fixed term from activation)",
-  "Project / Campaign: brand, property listing, or campaign name",
-  "Reach / Distribution Limits (if applicable): e.g., print run, ad spend cap, audience size, placement types",
-  "Exclusivity (if applicable): scope + duration + territory + category",
+  "Licensed Asset(s): specific file(s), ID(s), and SHA-256 hashes",
+  "Permitted Media: precisely defined usage channels",
+  "Territory: authorized geographic regions",
+  "Duration: activation date to expiry date",
+  "Project / Campaign: specific brand or project name",
+  "Reach / Distribution Limits: e.g., print run, ad spend cap, or impression limits",
+  "Modifications Allowed: defined limitations on edits",
 ];
 
 const COMMERCIAL_PROHIBITED_USES = [
-  "Resale, redistribution, sublicensing, or making the file available to third parties except as allowed below",
-  'Uploading to stock libraries, marketplaces, or "asset packs"',
-  "Use in logos, trademarks, service marks, or as a primary brand identifier",
-  "AI training, dataset creation, model fine-tuning, or similar machine learning usage",
-  "NFT minting, tokenisation, or blockchain-based commercialisation",
-  "Use that is unlawful, defamatory, or misleading (including false endorsement)",
+  "Reselling, sublicensing, redistributing, or making the standalone file available to third parties",
+  "Physical merchandise, apparel, posters, or uploading to Print-on-Demand (POD) platforms for resale",
+  "Uploading to stock libraries, marketplaces, or asset repositories",
+  "Use as a trademark, logo, service mark, or source identifier",
+  "Use in political campaigns, defamatory material, adult content, or misleading endorsements",
+  "Incorporation into template packs, design kits, LUT bundles, or resale toolkits",
+  "NFT minting, tokenisation, blockchain registration, or smart-contract systems",
+];
+
+const AI_PROHIBITIONS = [
+  "Training, fine-tuning, or evaluating any AI, machine learning, deep learning, or generative models",
+  "Inclusion in any dataset, corpus, or archive for computational analysis",
+  "Use as input, conditioning material, or style reference for automated generation systems",
+  "Creation of derivative synthetic imagery, video, or 3D assets algorithmically",
+  "Reverse engineering or extraction of compositional data for machine-readable pattern replication",
 ];
 
 const EDITORIAL_CONDITIONS = [
   "Written approval required",
   "Mandatory visual credit (when required)",
-  "No advertising or paid promotion",
+  "No advertising, paid promotion, or commercial endorsement",
 ];
 
 const COMMERCIAL_LEGAL_INTRO = {
   prefix:
-    "The terms below form the legal licensing framework for commercial usage. The exact scope of your licence is set out in the",
+    "The terms below summarise the legal licensing framework for commercial usage. The exact scope of your licence is set out in the",
   emphasis: "Licence Schedule",
   suffix:
-    "(asset, media, territory, duration, and any limits). By purchasing or using licensed media, the Licensee agrees to these terms.",
+    "(asset, media, territory, duration, and any limits). By purchasing or using licensed media, the Licensee agrees to the Master Rights-Managed Agreement.",
 };
 
 const COMMERCIAL_NOTE =
-  "Note: Your commercial licence is valid only after written approval and payment. If you are unsure whether your use is within scope, request clarification before publishing.";
+  "Note: Your commercial licence is valid only after written approval and full payment. If you are unsure whether your use is within scope, request clarification before publishing.";
 
 type Paragraph = {
   text: string;
@@ -89,125 +108,121 @@ type LegalSection = {
 
 const LEGAL_SECTIONS: LegalSection[] = [
   {
-    title: "1. Ownership",
+    title: "1. Ownership & Copyright",
     paragraphs: [
       {
-        text: `All imagery and footage remain the exclusive intellectual property of ${BRAND_NAME}. No ownership rights are transferred. The Licensee receives only the limited rights expressly granted in the Licence Schedule and these terms.`,
+        text: `All Licensed Asset(s) remain the exclusive intellectual property of ${BRAND_NAME}. No ownership, title, or copyright is transferred. The Licensee receives only the limited rights expressly granted in the Licence Schedule.`,
       },
     ],
   },
   {
-    title: "2. Grant of Licence",
+    title: "2. Drone Capture Compliance & Limited Warranty",
     paragraphs: [
       {
-        text: `Subject to (a) written approval by ${BRAND_NAME} and (b) full payment, ${BRAND_NAME} grants the Licensee a non-exclusive, non-transferable, rights-managed licence to use the Licensed Asset(s) solely within the agreed scope. Any usage outside scope requires a separate written licence.`,
+        text: `${BRAND_NAME} represents that, to the best of its knowledge, assets were captured in material compliance with applicable unmanned aircraft rules (including airspace restrictions and geographic zones). However, regulations evolve and ${BRAND_NAME} does not warrant the absence of all third-party rights in every element of the captured scene.`,
       },
     ],
   },
   {
-    title: "3. Territory",
+    title: "3. Grant of Licence, Territory & Duration",
     paragraphs: [
       {
-        text: "Usage is restricted to the territory defined in the Licence Schedule. Use outside the agreed territory constitutes unauthorised use.",
+        text: `Subject to written approval and full payment, ${BRAND_NAME} grants a non-exclusive, non-transferable, rights-managed licence strictly within the defined scope, territory, duration, and permitted media channels stated in the Licence Schedule. Use is limited to the stated purpose; any new campaign, placement type, or media channel not listed is outside scope. Upon expiry, all usage must cease, and digital copies must be deleted except for one secure archival copy retained solely for legal record purposes.`,
       },
     ],
   },
   {
-    title: "4. Duration",
+    title: "4. Modifications & Moral Rights",
     paragraphs: [
       {
-        text: "Rights are granted for the term defined in the Licence Schedule. Use after expiry requires renewal or a new licence.",
+        text: `Only modifications expressly permitted in the Licence Schedule are allowed. The Licensee shall not distort, mutilate, misrepresent, or treat the asset in a manner prejudicial to the honour or reputation of ${BRAND_NAME}.`,
       },
     ],
   },
   {
-    title: "5. Permitted Media & Purpose",
+    title: "5. Prohibited Uses & Standalone Value",
     paragraphs: [
       {
-        text: "The Licensee may use the Licensed Asset(s) only in the media channels and for the purpose stated in the Licence Schedule. Any new campaign, brand, property listing, product, or placement type not specified is outside scope.",
-      },
-    ],
-  },
-  {
-    title: "6. Modifications & Derivative Works",
-    paragraphs: [
-      {
-        text: "Unless the Licence Schedule states otherwise, limited modifications are permitted strictly to implement the approved usage: resizing, cropping, compression, minor colour grading, and adding text/graphics overlays.",
+        text: "The Licensed Asset(s) may not be used as the primary value component of any product for resale, redistribution, or extraction.",
         className: "mb-2",
       },
-      {
-        text: "Prohibited: modifications that materially alter the meaning, context, or integrity of the work; removal of embedded watermarks/metadata; and creation of derivative commercial products intended for redistribution or resale.",
-      },
     ],
-  },
-  {
-    title: "7. Prohibited Uses (Commercial)",
     listItems: COMMERCIAL_PROHIBITED_USES,
   },
   {
-    title: "8. Agencies, Contractors & Limited Sharing",
+    title: "6. Artificial Intelligence & Automated Systems Prohibition",
     paragraphs: [
       {
-        text: "The Licensee may provide the Licensed Asset(s) to contracted agencies or contractors solely to execute the approved project, provided such parties are bound to comply with these terms. The Licensee remains responsible for all usage and any breach.",
+        text: "The Licensee shall not, directly or indirectly, use, upload, distribute, embed, or make available the Licensed Asset(s) for:",
+        className: "mb-2",
+      },
+    ],
+    listItems: AI_PROHIBITIONS,
+  },
+  {
+    title: "7. Metadata & Copyright Management Information",
+    paragraphs: [
+      {
+        text: "The Licensee shall not remove, alter, obscure, or falsify copyright notices, attribution, embedded metadata (including EXIF/IPTC), digital watermarks, or file identifiers. Such removal may constitute material breach and statutory violation.",
       },
     ],
   },
   {
-    title: "9. Editorial Use",
+    title: "8. Third-Party Rights, Releases & Clearances",
     paragraphs: [
       {
-        text: "Editorial licences are for storytelling, reporting, documentary, educational, or commentary purposes and require written approval. Editorial use may not be used for advertising, paid promotion, or product/service endorsement.",
+        text: "Unless expressly stated as 'Releases Included', no model, property, trademark, or location releases are provided. The Licensee bears sole and absolute responsibility for determining whether their specific intended use requires any additional third-party releases, particularly for advertising or sensitive contexts.",
+      },
+    ],
+  },
+  {
+    title: "9. Agencies, Contractors & No Implied Endorsement",
+    paragraphs: [
+      {
+        text: `The Licensee may provide assets to contracted third parties solely for execution of the defined scope, remaining fully liable for their acts and omissions. The asset may not be used to suggest endorsement, sponsorship, or affiliation by ${BRAND_NAME} unless expressly authorised.`,
+      },
+    ],
+  },
+  {
+    title: "10. Editorial Use & Credit",
+    paragraphs: [
+      {
+        text: "Editorial use requires written approval and may not be used for advertising, paid promotion, or product/service endorsement.",
         className: "mb-2",
       },
     ],
     creditLine: `Where required by ${BRAND_NAME}, credit must be displayed as:`,
   },
   {
-    title: "10. Warranty (Limited)",
+    title: "11. Indemnity & Limitation of Liability",
     paragraphs: [
       {
-        text: `${BRAND_NAME} warrants only that it is the lawful copyright holder of the Licensed Asset(s) or has the right to license them. No other warranties are provided.`,
+        text: `The Licensee agrees to indemnify and hold harmless ${BRAND_NAME} against claims and costs arising from misuse, breach, or use beyond the defined scope. ${BRAND_NAME} shall not be liable for indirect, incidental, or consequential damages.`,
       },
     ],
   },
   {
-    title: "11. Indemnity",
+    title: "12. Governing Law, Audit & Enforcement",
     paragraphs: [
       {
-        text: `The Licensee agrees to indemnify and hold harmless ${BRAND_NAME} against claims, damages, liabilities, costs, and expenses arising from the Licensee's use of the Licensed Asset(s), including use beyond scope or in breach of this Agreement.`,
-      },
-    ],
-  },
-  {
-    title: "12. Limitation of Liability",
-    paragraphs: [
-      {
-        text: `To the maximum extent permitted by applicable law, ${BRAND_NAME} shall not be liable for indirect, incidental, special, or consequential damages arising out of or related to the licence or use of the Licensed Asset(s).`,
-      },
-    ],
-  },
-  {
-    title: "13. Governing Law & Jurisdiction",
-    paragraphs: [
-      {
-        text: "This Agreement is governed by the laws of Ireland and applicable European Union law. The parties submit to the jurisdiction of the Irish courts.",
+        text: "This Licence is governed by the laws of Ireland and applicable EU law. Upon reasonable request, the Licensee shall provide written certification confirming compliance.",
         className: "mb-2",
       },
       {
-        text: `${BRAND_NAME} may also pursue enforcement and remedies in the jurisdiction where the unauthorised use occurs and/or where the Licensee is established. For US-based usage, remedies may also be available under Title 17 of the United States Code.`,
+        text: `${BRAND_NAME} reserves the right to pursue enforcement and remedies (including injunctive relief and statutory damages) in the jurisdiction where infringement occurs and/or where the Licensee is established.`,
       },
     ],
   },
   {
-    title: "14. Breach, Termination & Remedies",
+    title: "13. Breach, Termination & Remedies",
     paragraphs: [
       {
-        text: `Any unauthorised use constitutes infringement and material breach. ${BRAND_NAME} may immediately terminate the licence upon breach. Remedies may include takedown demands, injunctive relief, damages (including statutory damages where available), account of profits, and recovery of reasonable legal costs.`,
+        text: `Any unauthorised use constitutes material breach and infringement. ${BRAND_NAME} may terminate the licence immediately upon breach. Remedies may include takedown demands, injunctive relief, damages (including statutory damages where available), account of profits, and recovery of reasonable legal costs.`,
       },
     ],
   },
   {
-    title: "15. Entire Agreement",
+    title: "14. Entire Agreement",
     paragraphs: [
       {
         text: `These terms, together with the Licence Schedule and any written approval issued by ${BRAND_NAME}, constitute the entire agreement between the parties regarding the Licensed Asset(s) and supersede prior discussions or communications.`,
@@ -271,15 +286,15 @@ const LicensingPage: React.FC = () => {
             </div>
 
             <p className="text-gray-400 mb-6">
-              Applies to all physical purchases (canvas, framed prints, metal
-              prints) and approved personal digital downloads. This tier is for
-              private enjoyment only.
+              Applies where you purchase an {BRAND_NAME} photograph, artwork, or
+              video as an individual for personal use, and not in connection
+              with a business, trade, profession, or organisation.
             </p>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div>
                 <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-3">
-                  Rights Granted
+                  Permitted Personal Use
                 </h3>
                 <BulletList
                   items={PERSONAL_RIGHTS}
@@ -296,6 +311,17 @@ const LicensingPage: React.FC = () => {
                   className="space-y-2 text-sm text-gray-300"
                 />
               </div>
+            </div>
+
+            <div className="bg-black/30 border border-white/10 rounded-xl p-5">
+              <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-3">
+                Important Notices
+              </h3>
+              <ul className="space-y-3 text-sm text-gray-300">
+                {PERSONAL_ADDITIONAL_TERMS.map((term, i) => (
+                  <li key={i}>{term}</li>
+                ))}
+              </ul>
             </div>
           </section>
 
@@ -314,8 +340,7 @@ const LicensingPage: React.FC = () => {
               Applies to real estate agencies, hospitality brands, developers,
               and tourism operators. This is a{" "}
               <span className="text-white font-semibold">Rights-Managed</span>{" "}
-              licence and requires approval. Pricing and approval depend on
-              intended usage (media, territory, duration, reach).
+              licence and requires approval.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -361,8 +386,7 @@ const LicensingPage: React.FC = () => {
               <div className="space-y-6 text-sm text-gray-300 leading-relaxed">
                 <div className="bg-black/30 border border-white/10 rounded-xl p-5">
                   <p className="text-gray-200 font-semibold mb-2">
-                    Licence Schedule (must be defined for each commercial
-                    licence)
+                    Licence Schedule Format
                   </p>
                   <BulletList
                     items={LICENCE_SCHEDULE_ITEMS}
@@ -372,7 +396,7 @@ const LicensingPage: React.FC = () => {
 
                 {LEGAL_SECTIONS.map((section) => (
                   <div key={section.title}>
-                    <p className="text-gray-200 font-semibold">
+                    <p className="text-gray-200 font-semibold mb-1">
                       {section.title}
                     </p>
                     {section.paragraphs?.map((paragraph, index) => (
@@ -386,11 +410,11 @@ const LicensingPage: React.FC = () => {
                     {section.listItems && (
                       <BulletList
                         items={section.listItems}
-                        className="space-y-1"
+                        className="space-y-1 mt-2"
                       />
                     )}
                     {section.creditLine && (
-                      <p>
+                      <p className="mt-2">
                         {section.creditLine}{" "}
                         <span className="text-white font-semibold">
                           {COPYRIGHT_SYMBOL} {BRAND_NAME}
@@ -442,11 +466,10 @@ const LicensingPage: React.FC = () => {
         {/* COPYRIGHT NOTICE */}
         <div className="mt-16 p-6 border-t border-white/10 text-center">
           <p className="text-xs text-gray-500 uppercase tracking-widest leading-loose">
-            {COPYRIGHT_SYMBOL} {new Date().getFullYear()} {BRAND_NAME}. All rights
-            reserved.
-            Unauthorised use may constitute copyright infringement and may
-            result in takedown demands, injunctive relief, damages, and recovery
-            of legal costs.
+            {COPYRIGHT_SYMBOL} {new Date().getFullYear()} {BRAND_NAME}. All
+            rights reserved. Unauthorised use may constitute copyright
+            infringement and may result in takedown demands, injunctive relief,
+            damages, and recovery of legal costs.
           </p>
         </div>
       </div>

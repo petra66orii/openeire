@@ -92,7 +92,7 @@ const Navbar: React.FC = () => {
             <Link to="/" className="flex items-center">
               <img
                 src={logoImage}
-                alt="OpenEire Studios Logo"
+                alt="OpenÉire Studios Logo"
                 className="text-white h-16 transition-all"
               />
             </Link>

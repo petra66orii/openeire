@@ -32,7 +32,7 @@ const Footer: React.FC = () => {
             <Link to="/" className="inline-block mb-6">
               <img
                 src={logoImage}
-                alt="OpenEire Studios"
+                alt="OpenÉire Studios"
                 className="h-12 w-auto opacity-90 hover:opacity-100 transition-opacity"
               />
             </Link>
@@ -110,7 +110,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-brand-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/60">
           <div className="text-center md:text-left">
             <p>
-              &copy; {new Date().getFullYear()} OpenEire Studios. All rights
+              &copy; {new Date().getFullYear()} OpenÉire Studios. All rights
               reserved.
               <span className="hidden md:inline"> • </span>
               <span className="block md:inline mt-1 md:mt-0">

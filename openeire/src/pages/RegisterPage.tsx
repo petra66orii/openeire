@@ -11,7 +11,7 @@ const RegisterPage = () => {
             Create Account
           </h1>
           <p className="text-gray-400 text-sm">
-            Join OpenEire Studios to access exclusive content.
+            Join OpenÉire Studios to access exclusive content.
           </p>
         </div>
 
