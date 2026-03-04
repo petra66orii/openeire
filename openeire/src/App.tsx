@@ -26,6 +26,7 @@ import GalleryGatePage from "./pages/GalleryGatePage";
 import GalleryGuard from "./components/GalleryGuard";
 import Breadcrumbs from "./components/Breadcrumbs";
 import AboutPage from "./pages/AboutPage";
+import LicensingPage from "./pages/LicensingPage";
 import { BreadcrumbProvider } from "./context/BreadcrumbContext";
 import { Toaster } from "react-hot-toast";
 
@@ -88,6 +89,7 @@ function App() {
             <Route path="/blog" element={<BlogListPage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/licensing" element={<LicensingPage />} />
 
             {/* ================= PROTECTED ROUTES ================= */}
 

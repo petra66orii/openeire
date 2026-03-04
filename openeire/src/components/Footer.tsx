@@ -108,22 +108,34 @@ const Footer: React.FC = () => {
 
         {/* BOTTOM BAR */}
         <div className="border-t border-brand-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/60">
-          <p>
-            &copy; {new Date().getFullYear()} OpenEire Studios.
-            <span className="hidden md:inline"> • </span>
-            <span className="block md:inline mt-1 md:mt-0">
-              Designed with ☘️ by
-              <a
-                href="https://missbott.online"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-100 hover:text-accent font-medium transition-colors duration-300"
-              >
-                {" "}
-                Miss Bott
-              </a>
-            </span>
-          </p>
+          <div className="text-center md:text-left">
+            <p>
+              &copy; {new Date().getFullYear()} OpenEire Studios. All rights
+              reserved.
+              <span className="hidden md:inline"> • </span>
+              <span className="block md:inline mt-1 md:mt-0">
+                Designed with ☘️ by
+                <a
+                  href="https://missbott.online"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-100 hover:text-accent font-medium transition-colors duration-300"
+                >
+                  {" "}
+                  Miss Bott
+                </a>
+              </span>
+            </p>
+            <p className="mt-2 text-[10px] text-gray-500 max-w-2xl mx-auto uppercase tracking-wider leading-relaxed">
+              Art prints are sold for personal display only and do not include
+              reproduction rights. Digital media is Rights-Managed and subject
+              to strict commercial licensing terms.
+              <Link to="/licensing" className="underline hover:text-white ml-1">
+                View Licensing Terms
+              </Link>
+              .
+            </p>
+          </div>
         </div>
       </div>
     </footer>
