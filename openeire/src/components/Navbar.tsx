@@ -9,6 +9,7 @@ const Navbar: React.FC = () => {
   const { itemCount } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [showBanner, setShowBanner] = useState(true); // 👈 New State for Banner
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   // Check if we are on the Home Page
@@ -22,6 +23,10 @@ const Navbar: React.FC = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.key, location.pathname, location.search, location.hash]);
 
   // --- DYNAMIC STYLES ---
 
@@ -148,6 +153,44 @@ const Navbar: React.FC = () => {
                 )}
               </Link>
 
+              {/* Mobile Menu Button (Hamburger) */}
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/10 text-white hover:bg-white/10 transition-all"
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-nav"
+              >
+                {isMobileMenuOpen ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M3 5h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2zm0 4h14a1 1 0 010 2H3a1 1 0 010-2z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </button>
+
               {/* User Menu */}
               <div className="hidden md:flex items-center space-x-4 text-sm font-medium">
                 {isAuthenticated ? (
@@ -185,9 +228,81 @@ const Navbar: React.FC = () => {
                 )}
               </div>
             </div>
-
-            {/* Mobile Menu Button (Hamburger) - Placeholder */}
           </div>
+
+          {/* Mobile Menu Panel */}
+          {isMobileMenuOpen && (
+            <div id="mobile-nav" className="md:hidden px-4 pb-4">
+              <div className="mt-4 rounded-2xl border border-white/10 bg-dark/95 backdrop-blur-md shadow-lg p-4 space-y-4">
+                <NavLink
+                  to="/gallery/digital"
+                  className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Stock Footage
+                </NavLink>
+                <NavLink
+                  to="/gallery/physical"
+                  className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Art Prints
+                </NavLink>
+                <NavLink
+                  to="/blog"
+                  className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Blog
+                </NavLink>
+                <NavLink
+                  to="/contact"
+                  className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Contact
+                </NavLink>
+
+                <div className="border-t border-white/10 pt-4 space-y-3">
+                  {isAuthenticated ? (
+                    <>
+                      <NavLink
+                        to="/profile"
+                        className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Profile
+                      </NavLink>
+                      <Link
+                        to="/logout"
+                        className="block text-sm font-semibold uppercase tracking-wide border border-white/20 rounded-full px-4 py-2 text-center"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Logout
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <NavLink
+                        to="/login"
+                        className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Login
+                      </NavLink>
+                      <Link
+                        to="/register"
+                        className="block text-sm font-semibold uppercase tracking-wide bg-primary text-white rounded-full px-4 py-2 text-center"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Get Started
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
     </div>
