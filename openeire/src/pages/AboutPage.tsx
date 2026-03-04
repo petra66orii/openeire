@@ -25,7 +25,7 @@ const AboutPage: React.FC = () => {
             Capturing the <br /> Spirit of the Wild
           </h1>
           <p className="text-gray-300 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200">
-            OpenEire Studios is a premier digital gallery dedicated to the raw,
+            OpenÉire Studios is a premier digital gallery dedicated to the raw,
             unspoken beauty of the Irish landscape and beyond.
           </p>
         </div>
@@ -47,7 +47,7 @@ const AboutPage: React.FC = () => {
                 Atlantic—it wasn't just a view; it was an emotion.
               </p>
               <p>
-                At OpenEire Studios, we believe that photography should
+                At OpenÉire Studios, we believe that photography should
                 transport you. From Galway Bay, New Zealand to Galway in
                 Ireland, our mission is to freeze those fleeting moments in
                 time.
