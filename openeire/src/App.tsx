@@ -29,11 +29,13 @@ import AboutPage from "./pages/AboutPage";
 import LicensingPage from "./pages/LicensingPage";
 import { BreadcrumbProvider } from "./context/BreadcrumbContext";
 import { Toaster } from "react-hot-toast";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   return (
     <>
       <BreadcrumbProvider>
+        <ScrollToTop />
         <Navbar />
         <ToastContainer
           position="bottom-right"
