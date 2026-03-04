@@ -23,7 +23,7 @@ const getInitialFormData = (): Omit<
   duration: "1_YEAR",
   territory: "IRELAND",
   permitted_media: "WEB_SOCIAL",
-  reach_caps: "NONE",
+  reach_caps: "",
   exclusivity: "NON_EXCLUSIVE",
   message: "",
 });
@@ -67,11 +67,13 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAgreements({ ...agreements, [e.target.name]: e.target.checked });
+    const { name, checked } = e.target;
+    setAgreements((prev) => ({ ...prev, [name]: checked }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -278,7 +280,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
 
           <div>
             <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">
-              Additional Details & Reach Caps
+              Additional Details
             </label>
             <textarea
               name="message"
@@ -286,7 +288,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
               onChange={handleChange}
               rows={2}
               maxLength={2000}
-              placeholder="e.g., Target audience size, estimated ad spend, or print run limits..."
+              placeholder="Include reach caps if applicable (e.g., audience size, ad spend, print run limits)..."
               className="w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent outline-none resize-none"
             ></textarea>
           </div>
