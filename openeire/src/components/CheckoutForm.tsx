@@ -8,6 +8,26 @@ import { UserProfile, getCountries, Country } from "../services/api";
 import { useCart } from "../context/CartContext";
 import { FaTruck, FaCreditCard, FaBoxOpen } from "react-icons/fa";
 
+const SHIPPING_METHODS = ["budget", "standard", "express"] as const;
+type ShippingMethod = (typeof SHIPPING_METHODS)[number];
+type SupportedTransitCountry = "IE" | "US";
+
+const TRANSIT_ESTIMATES: Record<
+  SupportedTransitCountry,
+  Record<ShippingMethod, string>
+> = {
+  IE: {
+    budget: "Estimated: Slower than Standard postal service",
+    standard: "Estimated: 5-7 working days",
+    express: "Estimated: 1-6 working days",
+  },
+  US: {
+    budget: "Estimated: Slower than Standard postal service",
+    standard: "Estimated: 4-6 working days",
+    express: "Estimated: 1-6 working days",
+  },
+};
+
 interface CheckoutFormProps {
   initialData?: UserProfile | null;
   onShippingChange: (details: any) => void;
@@ -138,6 +158,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     "w-full bg-black border border-white/20 rounded-lg p-4 text-white placeholder-gray-600 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all";
   const labelClass =
     "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2";
+  const selectedTransitCountry =
+    shippingDetails.country === "IE" || shippingDetails.country === "US"
+      ? shippingDetails.country
+      : null;
+
+  const getTransitEstimate = (method: ShippingMethod) => {
+    if (!selectedTransitCountry) {
+      return "Select country for estimate";
+    }
+    return TRANSIT_ESTIMATES[selectedTransitCountry][method];
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -265,7 +296,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {["budget", "standard", "express"].map((method) => (
+            {SHIPPING_METHODS.map((method) => (
               <label
                 key={method}
                 className={`flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer transition-all ${
@@ -285,9 +316,23 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 <span className="capitalize text-white font-bold mb-1">
                   {method}
                 </span>
+                <span className="text-xs text-gray-400 text-center">
+                  {getTransitEstimate(method)}
+                </span>
               </label>
             ))}
           </div>
+
+          <p className="mt-4 text-xs text-gray-400">
+            Note: Transit times do not include the 2-4 day custom production
+            window.
+          </p>
+          {selectedTransitCountry === "US" && shippingMethod === "standard" && (
+            <p className="mt-2 text-xs text-gray-500">
+              Some specialty items printed only in Europe can take 10-15
+              working days to reach the US.
+            </p>
+          )}
         </div>
       )}
 
