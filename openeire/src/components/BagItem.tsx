@@ -1,5 +1,9 @@
 import React from "react";
-import { useCart, CartItem } from "../context/CartContext";
+import {
+  useCart,
+  CartItem,
+  getCartItemUnitPrice,
+} from "../context/CartContext";
 import { FaTrash, FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -27,10 +31,7 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
       ? `${BACKEND_BASE_URL}${rawImageUrl}`
       : "https://via.placeholder.com/150?text=No+Image";
 
-  const parsedOptionPrice = parseFloat(String(item.options?.unitPrice ?? ""));
-  const unitPrice = Number.isFinite(parsedOptionPrice)
-    ? parsedOptionPrice
-    : parseFloat(item.product.price || "0");
+  const unitPrice = getCartItemUnitPrice(item);
   const licenseLabel =
     item.options?.license === "4k"
       ? "4K Personal Licence"

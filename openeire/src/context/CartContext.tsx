@@ -7,7 +7,11 @@ import React, {
   useCallback,
 } from "react";
 import { GalleryItem } from "../services/api";
-import { isDigitalProductType, isValidDigitalLicense } from "../utils/purchaseFlow";
+import {
+  isDigitalProductType,
+  isPhysicalProductType,
+  isValidDigitalLicense,
+} from "../utils/purchaseFlow";
 
 // 1. Define what "Options" look like
 export interface CartOptions {
@@ -51,22 +55,17 @@ const toNumber = (value: string | number | undefined): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const getUnitPriceForItem = (item: CartItem): number => {
-  if (typeof item.options?.unitPrice === "number") {
-    return item.options.unitPrice;
-  }
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
 
-  if (typeof item.options?.unitPrice === "string") {
-    return toNumber(item.options.unitPrice);
-  }
-
+export const getCartItemUnitPrice = (item: CartItem): number => {
   if (item.product.product_type === "physical") {
     return toNumber(item.product.price ?? item.product.starting_price);
   }
 
   const is4k = item.options?.license === "4k";
   if (is4k) {
-    return toNumber((item.product as any).price_4k ?? item.product.price);
+    return toNumber(item.product.price_4k ?? item.product.price);
   }
 
   return toNumber(item.product.price ?? item.product.starting_price);
@@ -90,11 +89,67 @@ const sanitizeOptionsForCart = (
   options?: CartOptions,
 ): CartOptions | undefined => {
   if (!options) return options;
-  if (!isDigitalProductType(productType)) return options;
+  if (!isRecord(options)) return undefined;
+
+  const safeOptions = { ...options };
+  delete safeOptions.unitPrice;
+
+  if (!isDigitalProductType(productType)) return safeOptions;
 
   return {
-    ...options,
-    license: isValidDigitalLicense(options.license) ? options.license : "hd",
+    ...safeOptions,
+    license: isValidDigitalLicense(safeOptions.license)
+      ? safeOptions.license
+      : "hd",
+  };
+};
+
+const sanitizeStoredCartEntry = (entry: unknown): CartItem | null => {
+  if (!isRecord(entry)) return null;
+  if (!isRecord(entry.product)) return null;
+
+  const productType =
+    typeof entry.product.product_type === "string"
+      ? entry.product.product_type
+      : undefined;
+
+  if (!isDigitalProductType(productType) && !isPhysicalProductType(productType)) {
+    return null;
+  }
+
+  const productIdCandidate = entry.product.id;
+  if (
+    typeof productIdCandidate !== "number" &&
+    typeof productIdCandidate !== "string"
+  ) {
+    return null;
+  }
+
+  const safeProduct = sanitizeProductForCart(entry.product as unknown as GalleryItem);
+  const safeOptions = sanitizeOptionsForCart(
+    safeProduct.product_type,
+    isRecord(entry.options) ? (entry.options as CartOptions) : undefined,
+  );
+  const optionsString = safeOptions ? JSON.stringify(safeOptions) : "";
+
+  const quantityCandidate = Number(entry.quantity);
+  const safeQuantity =
+    Number.isFinite(quantityCandidate) && quantityCandidate > 0
+      ? Math.floor(quantityCandidate)
+      : 1;
+
+  return {
+    cartId:
+      typeof entry.cartId === "string" && entry.cartId.length > 0
+        ? entry.cartId
+        : `${safeProduct.product_type}-${safeProduct.id}-${optionsString}`,
+    productId:
+      typeof entry.productId === "string" || typeof entry.productId === "number"
+        ? entry.productId
+        : safeProduct.id,
+    product: safeProduct,
+    quantity: safeQuantity,
+    options: safeOptions,
   };
 };
 
@@ -102,12 +157,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
       const localData = localStorage.getItem("cart");
-      const parsed = localData ? (JSON.parse(localData) as CartItem[]) : [];
-      return parsed.map((item) => ({
-        ...item,
-        product: sanitizeProductForCart(item.product),
-        options: sanitizeOptionsForCart(item.product?.product_type, item.options),
-      }));
+      const parsed = localData ? JSON.parse(localData) : [];
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .map((entry) => sanitizeStoredCartEntry(entry))
+        .filter((entry): entry is CartItem => entry !== null);
     } catch (error) {
       console.error("Could not parse cart data from localStorage", error);
       return [];
@@ -182,7 +236,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   const cartTotal = cartItems.reduce((total, item) => {
-    const unitPrice = getUnitPriceForItem(item);
+    const unitPrice = getCartItemUnitPrice(item);
     return total + unitPrice * item.quantity;
   }, 0);
 

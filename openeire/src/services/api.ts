@@ -109,6 +109,7 @@ export interface GalleryItem {
   collection: string;
   price: string;
   price_hd?: string;
+  price_4k?: string;
   product_type: "photo" | "video" | "physical";
   starting_price?: string | number;
   file?: string;
@@ -616,9 +617,7 @@ export const getProductDetail = async (
     const response = await api.get(url);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw error.response.data;
-    }
+    // Preserve status/headers for access-gate handling on the product page.
     throw error;
   }
 };
