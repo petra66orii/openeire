@@ -109,6 +109,7 @@ export interface GalleryItem {
   collection: string;
   price: string;
   price_hd?: string;
+  price_4k?: string;
   product_type: "photo" | "video" | "physical";
   starting_price?: string | number;
   file?: string;
@@ -224,7 +225,7 @@ export interface ProductVariant {
 export interface PhotoDetail extends GalleryItem {
   description: string;
   collection: string;
-  high_res_file: string;
+  download_url?: string | null;
   price_4k: string;
   tags: string | null;
   created_at: string;
@@ -235,7 +236,7 @@ export interface PhotoDetail extends GalleryItem {
 export interface VideoDetail extends GalleryItem {
   description: string;
   collection: string;
-  video_file: string;
+  download_url?: string | null;
   price_4k: string;
   tags: string | null;
   created_at: string;
@@ -616,9 +617,7 @@ export const getProductDetail = async (
     const response = await api.get(url);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw error.response.data;
-    }
+    // Preserve status/headers for access-gate handling on the product page.
     throw error;
   }
 };

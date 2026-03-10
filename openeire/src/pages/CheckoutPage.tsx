@@ -3,14 +3,38 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import axios from "axios";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { getProfile, UserProfile, api } from "../services/api";
 import CheckoutForm from "../components/CheckoutForm";
 import OrderSummary from "../components/OrderSummary";
 import { FaLock, FaShieldAlt } from "react-icons/fa";
+import {
+  isDigitalProductType,
+  isPhysicalProductType,
+  isValidDigitalLicense,
+} from "../utils/purchaseFlow";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+const getApiErrorMessage = (error: unknown): string | null => {
+  if (!axios.isAxiosError(error)) return null;
+
+  const data = error.response?.data;
+  if (typeof data === "string") return data;
+  if (typeof data?.detail === "string") return data.detail;
+  if (typeof data?.error === "string") return data.error;
+  if (typeof data?.message === "string") return data.message;
+  if (Array.isArray(data?.non_field_errors)) {
+    const firstError = data.non_field_errors.find(
+      (entry: unknown) => typeof entry === "string",
+    );
+    if (firstError) return firstError;
+  }
+
+  return null;
+};
 
 const CheckoutPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState("");
@@ -22,11 +46,16 @@ const CheckoutPage: React.FC = () => {
   const [calculatedShippingCost, setCalculatedShippingCost] = useState(0);
   const [saveInfo, setSaveInfo] = useState(true);
   const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const { cartItems } = useCart();
   const { isAuthenticated } = useAuth();
-  const physicalCartItems = useMemo(
-    () => cartItems.filter((item) => item.product.product_type === "physical"),
+  const hasPhysicalItems = useMemo(
+    () => cartItems.some((item) => item.product.product_type === "physical"),
+    [cartItems],
+  );
+  const checkoutCartItems = useMemo(
+    () => cartItems,
     [cartItems],
   );
 
@@ -42,37 +71,95 @@ const CheckoutPage: React.FC = () => {
   // 2. Dynamic Payment Intent Fetcher
   useEffect(() => {
     const initializeCheckout = async () => {
-      if (physicalCartItems.length === 0) {
+      if (checkoutCartItems.length === 0) {
         setClientSecret("");
         setCalculatedShippingCost(0);
+        setCheckoutError(null);
         setIsUpdatingIntent(false);
         return;
       }
 
       setIsUpdatingIntent(true);
+      setCheckoutError(null);
 
       try {
-        const simplifiedCart = physicalCartItems.map((item) => ({
-          product_id: item.product.id,
-          product_type: item.product.product_type,
-          quantity: item.quantity,
-          options: item.options,
-        }));
+        const simplifiedCart = checkoutCartItems.map((item) => {
+          const productType = item.product.product_type;
+          if (
+            !isPhysicalProductType(productType) &&
+            !isDigitalProductType(productType)
+          ) {
+            throw new Error(
+              "One or more bag items have an unsupported product type. Remove and re-add the item.",
+            );
+          }
 
-        const response = await api.post("checkout/create-payment-intent/", {
-          cart: simplifiedCart,
-          // Pass the currently selected country to calculate exact rates
-          shipping_details: {
-            address: { country: shippingDetails.country || "IE" },
-          },
-          shipping_method: shippingMethod,
-          save_info: saveInfo,
+          if (
+            isDigitalProductType(productType) &&
+            !isValidDigitalLicense(item.options?.license)
+          ) {
+            throw new Error(
+              "One or more digital licence options are invalid. Remove and re-add the item.",
+            );
+          }
+
+          const sanitizedOptions = isPhysicalProductType(productType)
+            ? (() => {
+                const rawVariantId =
+                  item.options?.variantId ?? Number(item.product.id);
+                const variantId = Number(rawVariantId);
+                if (!Number.isFinite(variantId) || variantId <= 0) {
+                  throw new Error(
+                    "One or more print options are invalid. Remove and re-add the item.",
+                  );
+                }
+
+                return {
+                  material: item.options?.material,
+                  size: item.options?.size,
+                  variantId,
+                };
+              })()
+            : {
+                license: item.options?.license,
+              };
+
+          return {
+            product_id: item.product.id,
+            product_type: productType,
+            quantity: item.quantity,
+            options: sanitizedOptions,
+          };
         });
 
+        const payload: Record<string, any> = {
+          cart: simplifiedCart,
+          save_info: saveInfo,
+        };
+
+        if (hasPhysicalItems) {
+          payload.shipping_details = {
+            address: { country: shippingDetails.country || "IE" },
+          };
+          payload.shipping_method = shippingMethod;
+        }
+
+        const response = await api.post("checkout/create-payment-intent/", payload);
+
         setClientSecret(response.data.clientSecret);
-        setCalculatedShippingCost(response.data.shippingCost || 0);
+        setCalculatedShippingCost(
+          hasPhysicalItems ? (response.data.shippingCost || 0) : 0,
+        );
       } catch (error) {
         console.error("Error creating payment intent:", error);
+        setClientSecret("");
+        const apiMessage = getApiErrorMessage(error);
+        setCheckoutError(
+          apiMessage ??
+            (error instanceof Error
+              ? error.message
+              : "Unable to initialize checkout. Please review your bag and try again."),
+        );
       } finally {
         setIsUpdatingIntent(false);
       }
@@ -86,7 +173,13 @@ const CheckoutPage: React.FC = () => {
     return () => clearTimeout(timeoutId);
 
     // Refetch if cart, country, or speed changes
-  }, [physicalCartItems, shippingDetails.country, shippingMethod]);
+  }, [
+    checkoutCartItems,
+    hasPhysicalItems,
+    shippingDetails.country,
+    shippingMethod,
+    saveInfo,
+  ]);
 
   const options: StripeElementsOptions = {
     clientSecret,
@@ -138,17 +231,22 @@ const CheckoutPage: React.FC = () => {
                   isUpdatingIntent={isUpdatingIntent}
                 />
               </Elements>
-            ) : physicalCartItems.length === 0 ? (
+            ) : checkoutCartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                 <p className="text-sm uppercase tracking-widest font-bold text-gray-400 mb-2">
                   Checkout Unavailable
                 </p>
-                <p>Only physical prints can be purchased online.</p>
+                <p>Your bag is empty.</p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent mb-4"></div>
                 <p>Preparing secure connection...</p>
+              </div>
+            )}
+            {checkoutError && (
+              <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold">
+                {checkoutError}
               </div>
             )}
           </div>

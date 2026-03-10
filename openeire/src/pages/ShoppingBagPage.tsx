@@ -8,10 +8,7 @@ import { getShoppingBagRecommendations, GalleryItem } from "../services/api";
 import { FaShoppingBag, FaArrowRight } from "react-icons/fa";
 
 const ShoppingBagPage: React.FC = () => {
-  const { cartItems } = useCart();
-  const physicalCartItems = cartItems.filter(
-    (item) => item.product.product_type === "physical",
-  );
+  const { cartItems, hasPhysicalItems } = useCart();
   const [recommendations, setRecommendations] = useState<GalleryItem[]>([]);
 
   useEffect(() => {
@@ -37,7 +34,7 @@ const ShoppingBagPage: React.FC = () => {
     fetchRecommendations();
   }, []);
 
-  if (physicalCartItems.length === 0) {
+  if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
         <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
@@ -72,7 +69,7 @@ const ShoppingBagPage: React.FC = () => {
           {/* LEFT: CART ITEMS */}
           <div className="lg:col-span-8 space-y-8">
             <div className="bg-gray-900/50 border border-white/10 rounded-2xl overflow-hidden p-6 md:p-8">
-              {physicalCartItems.map((item) => (
+              {cartItems.map((item) => (
                 <BagItem key={item.cartId} item={item} />
               ))}
             </div>
@@ -88,7 +85,10 @@ const ShoppingBagPage: React.FC = () => {
           {/* RIGHT: SUMMARY (Sticky) */}
           <div className="lg:col-span-4">
             <div className="sticky top-32">
-              <OrderSummary shippingCost={0} isShippingPending={true} />
+              <OrderSummary
+                shippingCost={0}
+                isShippingPending={Boolean(hasPhysicalItems)}
+              />
 
               {/* Security Note */}
               <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500 uppercase tracking-wider">

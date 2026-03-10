@@ -1,5 +1,9 @@
 import React from "react";
-import { useCart, CartItem } from "../context/CartContext";
+import {
+  useCart,
+  CartItem,
+  getCartItemUnitPrice,
+} from "../context/CartContext";
 import { FaTrash, FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -12,23 +16,31 @@ const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 const BagItem: React.FC<BagItemProps> = ({ item }) => {
   const { updateQuantity, removeFromCart } = useCart();
 
-  if (item.product.product_type !== "physical") return null;
+  const isPhysical = item.product.product_type === "physical";
+  const isDigital =
+    item.product.product_type === "photo" || item.product.product_type === "video";
 
-  const rawImageUrl =
-    item.product.preview_image || item.product.thumbnail_image;
+  const detailLink = isPhysical
+    ? `/gallery/physical/${item.options?.sourceProductId ?? item.productId}`
+    : `/gallery/${item.product.product_type}/${item.productId}`;
+
+  const rawImageUrl = item.product.preview_image || item.product.thumbnail_image;
   const imageUrl = rawImageUrl?.startsWith("http")
     ? rawImageUrl
     : rawImageUrl
       ? `${BACKEND_BASE_URL}${rawImageUrl}`
       : "https://via.placeholder.com/150?text=No+Image";
 
-  const price = parseFloat(item.product.price || "0");
+  const unitPrice = getCartItemUnitPrice(item);
+  const licenseLabel =
+    item.options?.license === "4k"
+      ? "4K Personal Licence"
+      : "HD Personal Licence";
 
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center py-8 border-b border-white/5 last:border-0 group transition-colors -mx-4 px-4 md:mx-0 md:px-0 rounded-lg">
-      {/* IMAGE */}
       <Link
-        to={`/gallery/physical/${item.product.id}`}
+        to={detailLink}
         className="flex-shrink-0 w-24 h-32 md:w-32 md:h-24 bg-black rounded-lg overflow-hidden border border-white/10 relative"
       >
         <img
@@ -38,39 +50,49 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
         />
       </Link>
 
-      {/* DETAILS */}
       <div className="flex-grow mt-4 md:mt-0 md:ml-8 w-full">
         <div className="flex justify-between items-start">
           <div>
             <Link
-              to={`/gallery/physical/${item.product.id}`}
+              to={detailLink}
               className="text-xl font-serif font-bold text-white hover:text-brand-500 transition-colors"
             >
               {item.product.title}
             </Link>
 
             <div className="mt-2 space-y-1">
-              <p className="text-xs font-bold uppercase tracking-widest text-accent">
-                Fine Art Print
-              </p>
-
-              {/* Physical Details */}
-              {item.product.title.includes("(") && (
-                <p className="text-sm text-gray-400">
-                  {item.product.title.split("(")[1].replace(")", "")}
-                </p>
+              {isPhysical ? (
+                <>
+                  <p className="text-xs font-bold uppercase tracking-widest text-accent">
+                    Fine Art Print
+                  </p>
+                  {item.product.title.includes("(") && (
+                    <p className="text-sm text-gray-400">
+                      {item.product.title.split("(")[1].replace(")", "")}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p className="text-xs font-bold uppercase tracking-widest text-accent">
+                    {item.product.product_type === "video"
+                      ? "Digital Video"
+                      : "Digital Photo"}
+                  </p>
+                  {isDigital && (
+                    <p className="text-sm text-gray-400">{licenseLabel}</p>
+                  )}
+                </>
               )}
             </div>
           </div>
 
           <p className="text-xl font-serif font-bold text-white">
-            €{(price * item.quantity).toFixed(2)}
+            €{(unitPrice * item.quantity).toFixed(2)}
           </p>
         </div>
 
-        {/* CONTROLS */}
         <div className="flex justify-between items-end mt-4">
-          {/* Quantity */}
           <div className="flex items-center bg-black border border-white/20 rounded-lg h-9">
             <button
               onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
@@ -90,7 +112,6 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
             </button>
           </div>
 
-          {/* Remove */}
           <button
             onClick={() => removeFromCart(item.cartId)}
             className="text-xs uppercase tracking-widest font-bold text-gray-500 hover:text-red-500 transition-colors flex items-center gap-2"
