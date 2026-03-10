@@ -77,7 +77,13 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
       preview_image: product.preview_image,
     };
 
-    addToCart(cartItem, 1);
+    addToCart(cartItem, 1, {
+      type: "physical",
+      material: selectedMaterial,
+      size: selectedSize,
+      variantId: variant.id,
+      sourceProductId: product.id,
+    });
     toast.success("Added to Bag");
     onClose();
   };

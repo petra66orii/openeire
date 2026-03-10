@@ -2,8 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GalleryItem } from "../services/api";
 import QuickAddModal from "./QuickAddModal";
-import LicenseRequestModal from "./LicenseRequestModal";
-import { FaPlay, FaExpand, FaImage, FaFileContract } from "react-icons/fa";
+import { FaPlay, FaExpand, FaImage, FaShoppingBag } from "react-icons/fa";
+import {
+  isDigitalProductType,
+  isPhysicalProductType,
+} from "../utils/purchaseFlow";
 
 interface ProductCardProps {
   product: GalleryItem;
@@ -19,15 +22,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onModalClose,
 }) => {
   const [showQuickView, setShowQuickView] = useState(false);
-  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // --- 1. DETERMINE TYPE ---
   const isVideo = product.product_type === "video";
-  const isPhysical = product.product_type === "physical";
-  const isDigital = !isPhysical;
+  const isPhysical = isPhysicalProductType(product.product_type);
+  const isDigital = isDigitalProductType(product.product_type);
 
   const displayPrice = isPhysical
     ? product.starting_price || product.price || "0.00"
@@ -38,7 +39,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   else if (isPhysical) detailUrl = `/gallery/physical/${product.id}`;
   else detailUrl = `/gallery/photo/${product.id}`;
 
-  // --- 2. CONSTRUCT URLS ---
   const rawImageUrl = product.preview_image || product.thumbnail_image;
   const imageUrl = rawImageUrl
     ? rawImageUrl.startsWith("http")
@@ -46,59 +46,40 @@ const ProductCard: React.FC<ProductCardProps> = ({
       : `${BACKEND_BASE_URL}${rawImageUrl}`
     : "https://via.placeholder.com/400x300?text=No+Preview";
 
-  const rawVideoFile = (product as any).video_file || product.file;
+  const rawVideoFile = product.file;
   const videoUrl = rawVideoFile
     ? rawVideoFile.startsWith("http")
       ? rawVideoFile
       : `${BACKEND_BASE_URL}${rawVideoFile}`
     : null;
 
-  // --- 3. VIDEO HOVER LOGIC (DEBUG VERSION) ---
   useEffect(() => {
-    if (!isVideo || !videoRef.current || !videoUrl) {
-      // Optional: Log this only once to check if we are missing URLs
-      console.log("No video URL found for:", product.title);
-      return;
-    }
+    if (!isVideo || !videoRef.current || !videoUrl) return;
 
     if (isHovered) {
-      console.log(`🎬 Hover detected on ${product.title}. Attempting play...`);
-      console.log(`🔗 Video URL: ${videoUrl}`);
-
       const playPromise = videoRef.current.play();
-
       if (playPromise !== undefined) {
         playPromise
-          .then(() => {
-            console.log("✅ Video started playing!");
-            setIsVideoPlaying(true);
-          })
-          .catch((error) => {
-            console.error("❌ Video play blocked/failed:", error);
-            setIsVideoPlaying(false);
-          });
+          .then(() => setIsVideoPlaying(true))
+          .catch(() => setIsVideoPlaying(false));
       }
-    } else {
-      // Mouse leave
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-      setIsVideoPlaying(false);
-    }
-  }, [isHovered, isVideo, videoUrl, product.title]);
-
-  const handleQuickAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (isPhysical) {
-      setShowQuickView(true);
-      if (onModalOpen) onModalOpen();
       return;
     }
 
-    setIsLicenseModalOpen(true);
+    videoRef.current.pause();
+    videoRef.current.currentTime = 0;
+    setIsVideoPlaying(false);
+  }, [isHovered, isVideo, videoUrl]);
+
+  const handleQuickAdd = (e: React.MouseEvent) => {
+    if (!isPhysical) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    setShowQuickView(true);
     if (onModalOpen) onModalOpen();
   };
+
   const getBadge = () => {
     if (isVideo)
       return {
@@ -131,7 +112,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
           to={detailUrl}
           className="block relative aspect-[4/3] overflow-hidden bg-gray-900"
         >
-          {/* A. IMAGE LAYER */}
           <img
             src={imageUrl}
             alt={product.title}
@@ -141,7 +121,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }`}
           />
 
-          {/* B. VIDEO LAYER */}
           {isVideo && videoUrl && (
             <video
               ref={videoRef}
@@ -149,16 +128,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
               muted
               loop
               playsInline
-              // 'auto' loads enough to start playing. 'metadata' might be too slow for immediate hover.
               preload="auto"
               className="absolute inset-0 z-0 w-full h-full object-cover"
-              onError={(e) =>
-                console.error("❌ Video Element Error:", e.currentTarget.error)
-              }
             />
           )}
 
-          {/* C. BADGE */}
           <div className="absolute top-3 right-3 z-20">
             <span
               className={`flex items-center px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-md backdrop-blur-md ${badge.color}`}
@@ -167,7 +141,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </span>
           </div>
 
-          {/* D. CENTER ICON (Play) */}
           {isVideo && (
             <div
               className={`absolute inset-0 flex items-center justify-center z-20 pointer-events-none transition-opacity duration-300 ${isHovered ? "opacity-0" : "opacity-100"}`}
@@ -178,7 +151,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           )}
 
-          {/* E. QUICK ADD BAR */}
           <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-gradient-to-t from-black via-black/80 to-transparent flex justify-between items-end z-20">
             {isPhysical ? (
               <div className="text-white">
@@ -192,28 +164,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
             ) : (
               <div className="text-white">
                 <p className="text-[10px] opacity-80 uppercase tracking-wider font-bold">
-                  License
+                  Personal Checkout
                 </p>
                 <span className="font-serif font-bold text-lg">
-                  Request Access
+                  View Options
                 </span>
               </div>
             )}
             <button
               onClick={handleQuickAdd}
               className="bg-white text-brand-900 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent hover:scale-110 transition-all shadow-lg"
-              aria-label={isPhysical ? "Select print options" : "Request license"}
+              aria-label={
+                isPhysical ? "Select print options" : "View purchase options"
+              }
             >
               {isPhysical ? (
                 <FaExpand className="text-sm" />
               ) : (
-                <FaFileContract className="text-sm" />
+                <FaShoppingBag className="text-sm" />
               )}
             </button>
           </div>
         </Link>
 
-        {/* F. DETAILS */}
         <div className="p-5">
           <Link to={detailUrl}>
             <h3 className="text-white font-bold font-serif text-lg leading-tight mb-1 truncate hover:text-accent transition-colors">
@@ -240,19 +213,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             setShowQuickView(false);
             if (onModalClose) onModalClose();
           }}
-        />
-      )}
-
-      {isDigital && (
-        <LicenseRequestModal
-          isOpen={isLicenseModalOpen}
-          onClose={() => {
-            setIsLicenseModalOpen(false);
-            if (onModalClose) onModalClose();
-          }}
-          assetId={product.id}
-          assetType={product.product_type as "photo" | "video"}
-          assetTitle={product.title}
         />
       )}
     </>

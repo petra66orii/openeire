@@ -1,11 +1,12 @@
-import React, {
+﻿import React, {
   useState,
   useEffect,
   useCallback,
   useMemo,
   useRef,
 } from "react";
-import { useParams, useLocation, Link } from "react-router-dom";
+import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { getProductDetail, ProductDetailItem } from "../services/api";
 import ReviewForm from "../components/ReviewForm";
 import ProductReviewList from "../components/ProductReviewList";
@@ -16,16 +17,24 @@ import RelatedProducts from "../components/RelatedProducts";
 import LicenseRequestModal from "../components/LicenseRequestModal";
 import SEOHead from "../components/SEOHead";
 import {
+  isDigitalProductType,
+  isPhysicalProductType,
+  normalizeDigitalLicense,
+  shouldShowGalleryAccessCodeUx,
+} from "../utils/purchaseFlow";
+import {
   FaPlay,
   FaShieldAlt,
   FaShippingFast,
   FaFileContract,
+  FaShoppingBag,
 } from "react-icons/fa";
 
 const ProductDetailPage: React.FC = () => {
   // --- 1. HOOKS & ROUTING ---
   const { type: paramType, id } = useParams<{ type?: string; id: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const { setBreadcrumbTitle } = useBreadcrumb();
   const { addToCart } = useCart();
 
@@ -48,6 +57,9 @@ const ProductDetailPage: React.FC = () => {
   // Physical State (Only used if it's a physical print)
   const [selectedMaterial, setSelectedMaterial] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
+  const [selectedDigitalLicense, setSelectedDigitalLicense] = useState<
+    "hd" | "4k"
+  >("hd");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,37 +71,26 @@ const ProductDetailPage: React.FC = () => {
     setLoading(true);
     try {
       const data = await getProductDetail(type, id);
-      const scrubDigitalPricing = (item: any) => {
-        if (!item || item.product_type === "physical") return item;
-        const { price, price_hd, price_4k, starting_price, ...rest } = item;
-        return {
-          ...rest,
-          price: undefined,
-          price_hd: undefined,
-          price_4k: undefined,
-          starting_price: undefined,
-        };
-      };
-      const sanitized = scrubDigitalPricing(data);
-      if (
-        sanitized &&
-        "related_products" in sanitized &&
-        Array.isArray((sanitized as any).related_products)
-      ) {
-        (sanitized as any).related_products = (
-          sanitized as any
-        ).related_products.map(scrubDigitalPricing);
-      }
-
-      setProduct(sanitized);
+      setProduct(data);
       setReviewRefreshKey((prev) => prev + 1);
-      setBreadcrumbTitle(location.pathname, sanitized.title);
+      setBreadcrumbTitle(location.pathname, data.title);
     } catch (err) {
+      if (
+        axios.isAxiosError(err) &&
+        shouldShowGalleryAccessCodeUx(type, err.response?.status)
+      ) {
+        toast.info("Please re-enter your gallery access code.");
+        navigate("/gallery-gate", {
+          replace: true,
+          state: { from: { pathname: location.pathname } },
+        });
+        return;
+      }
       setError("Failed to load product details.");
     } finally {
       setLoading(false);
     }
-  }, [type, id, location.pathname, setBreadcrumbTitle]);
+  }, [type, id, location.pathname, navigate, setBreadcrumbTitle]);
 
   useEffect(() => {
     fetchProductDetail();
@@ -134,9 +135,40 @@ const ProductDetailPage: React.FC = () => {
 
   // Determine Page Mode (Prefer product type; fallback to route)
   const resolvedType = product?.product_type ?? type;
-  const isPhysical = resolvedType === "physical";
-  const isDigital = resolvedType === "photo" || resolvedType === "video";
+  const isPhysical = isPhysicalProductType(resolvedType);
+  const isDigital = isDigitalProductType(resolvedType);
   const isVideo = resolvedType === "video";
+  const isPhoto = resolvedType === "photo";
+
+  const toMoneyNumber = (value: string | number | undefined): number => {
+    if (value === undefined) return 0;
+    const parsed = parseFloat(String(value));
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const digitalHdPrice = useMemo(() => {
+    if (!product || !isDigital) return 0;
+    return toMoneyNumber((product as any).price ?? (product as any).starting_price);
+  }, [product, isDigital]);
+
+  const digital4kPrice = useMemo(() => {
+    if (!product || !isDigital) return 0;
+    return toMoneyNumber((product as any).price_4k ?? (product as any).price);
+  }, [product, isDigital]);
+
+  const selectedDigitalPrice = useMemo(() => {
+    if (selectedDigitalLicense === "4k") return digital4kPrice || digitalHdPrice;
+    return digitalHdPrice || digital4kPrice;
+  }, [selectedDigitalLicense, digital4kPrice, digitalHdPrice]);
+
+  useEffect(() => {
+    if (!isDigital) return;
+    if (digitalHdPrice <= 0 && digital4kPrice > 0) {
+      setSelectedDigitalLicense("4k");
+      return;
+    }
+    setSelectedDigitalLicense("hd");
+  }, [isDigital, digitalHdPrice, digital4kPrice, product?.id]);
 
   // Pricing & Cart Object Construction (Only for Physical Prints now)
   let displayPrice = "0.00";
@@ -161,12 +193,37 @@ const ProductDetailPage: React.FC = () => {
   const handleAddToCart = () => {
     // Only allow adding to cart for physical products with a resolved variant
     if (!isPhysical) return;
+    if (!product) return;
     if (!activePhysicalVariant) {
       toast.error("Please select a print option before adding to your bag.");
       return;
     }
     if (!activeProductForCart) return;
-    addToCart(activeProductForCart, 1);
+    addToCart(activeProductForCart, 1, {
+      type: "physical",
+      material: selectedMaterial,
+      size: selectedSize,
+      variantId: activePhysicalVariant.id,
+      sourceProductId: Number(product.id),
+    });
+    toast.success("Added to Bag");
+  };
+
+  const handleAddDigitalToCart = () => {
+    if (!product || !isDigital) return;
+
+    if (selectedDigitalPrice <= 0) {
+      toast.error("Price unavailable. Please contact support.");
+      return;
+    }
+
+    addToCart(product, 1, {
+      type: "digital",
+      license: selectedDigitalLicense,
+      unitPrice: selectedDigitalPrice,
+      sourceProductId: Number(product.id),
+    });
+
     toast.success("Added to Bag");
   };
 
@@ -210,6 +267,10 @@ const ProductDetailPage: React.FC = () => {
   else if ("preview_image" in product) imageUrl = product.preview_image || "";
   else if ("thumbnail_image" in product)
     imageUrl = product.thumbnail_image || "";
+  const videoPreviewUrl =
+    isVideo && typeof (product as any).file === "string"
+      ? (product as any).file
+      : "";
 
   const reviewProductId =
     product.product_type === "physical" && "photo" in product
@@ -223,7 +284,9 @@ const ProductDetailPage: React.FC = () => {
       <SEOHead
         title={product.title}
         description={
-          isDigital ? `License ${product.title}` : `Buy ${product.title}`
+          isDigital
+            ? `Buy ${product.title} for personal use or request commercial licensing`
+            : `Buy ${product.title}`
         }
         image={product.preview_image}
       />
@@ -245,11 +308,11 @@ const ProductDetailPage: React.FC = () => {
           <div className="lg:col-span-8">
             <div className="sticky top-32">
               <div className="relative w-fit mx-auto rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black group">
-                {isVideo && "video_file" in product ? (
+                {isVideo && videoPreviewUrl ? (
                   <>
                     <video
                       ref={videoRef}
-                      src={(product as any).video_file}
+                      src={videoPreviewUrl}
                       className="w-auto h-auto max-h-[75vh] max-w-full shadow-lg block"
                       loop
                       poster={product.thumbnail_image}
@@ -373,7 +436,7 @@ const ProductDetailPage: React.FC = () => {
                       Add to Cart
                     </button>
 
-                    {/* 👇 STRICT ART PRINT LEGAL DISCLAIMER */}
+                    {/* Art print legal disclaimer */}
                     <p className="mt-4 text-[11px] text-gray-500 text-center leading-relaxed px-4">
                       Art prints are sold for personal display only and do not
                       include reproduction or commercial usage rights.
@@ -392,27 +455,68 @@ const ProductDetailPage: React.FC = () => {
               )}
 
               {/* =========================================
-                  FLOW B: DIGITAL FOOTAGE (LICENSING DESK) 
+                  FLOW B: DIGITAL (PERSONAL CHECKOUT + COMMERCIAL LICENSING)
                   ========================================= */}
               {isDigital && (
-                <div className="animate-fade-in-up">
-                  {/* 👇 LICENSING DESK NOTICE */}
-                  <div className="bg-white/5 border border-white/10 p-5 rounded-xl mb-6">
+                <div className="space-y-5 animate-fade-in-up">
+                  <div className="bg-white/5 border border-white/10 p-5 rounded-xl">
                     <h3 className="text-sm font-bold text-white mb-2 uppercase tracking-widest">
-                      Rights-Managed Asset
+                      Personal Use Purchase
                     </h3>
                     <p className="text-sm text-gray-400 leading-relaxed">
-                      Available for editorial and commercial licensing. Use is
-                      subject to application and approval.
+                      Buy this {isPhoto ? "photo" : "video"} for personal use.
+                      Commercial usage requires a separate rights-managed
+                      licence request.
                     </p>
                   </div>
 
-                  <button
-                    onClick={handleRequestLicense}
-                    className="w-full py-4 bg-transparent border-2 border-white/20 text-white font-bold text-lg rounded-xl hover:bg-white hover:text-black transition-all transform active:scale-[0.98] flex items-center justify-center gap-3"
-                  >
-                    <FaFileContract /> Request License
-                  </button>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-gray-500 mb-2 block">
+                      Personal License
+                    </label>
+                    <select
+                      value={selectedDigitalLicense}
+                      onChange={(e) =>
+                        setSelectedDigitalLicense(
+                          normalizeDigitalLicense(e.target.value),
+                        )
+                      }
+                      className="w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent focus:ring-1 focus:ring-accent outline-none appearance-none"
+                    >
+                      <option value="hd">HD Personal Licence</option>
+                      <option value="4k">4K Personal Licence</option>
+                    </select>
+                  </div>
+
+                  <div className="border-t border-white/10 pt-6 mt-8">
+                    <div className="flex justify-between items-end mb-6">
+                      <span className="text-gray-400 text-sm font-medium">
+                        Total
+                      </span>
+                      <span className="text-4xl font-serif font-bold text-white">
+                        €{selectedDigitalPrice.toFixed(2)}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={handleAddDigitalToCart}
+                      className="w-full py-4 bg-brand-700 text-paper font-bold text-lg rounded-xl hover:bg-brand-900 transition-all transform active:scale-[0.98] shadow-[0_0_20px_rgba(0,196,0,0.2)] flex items-center justify-center gap-2"
+                    >
+                      <FaShoppingBag /> Add to Bag
+                    </button>
+                  </div>
+
+                  <div className="border-t border-white/10 pt-5">
+                    <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">
+                      Need editorial/commercial rights?
+                    </p>
+                    <button
+                      onClick={handleRequestLicense}
+                      className="w-full py-4 bg-transparent border-2 border-white/20 text-white font-bold text-lg rounded-xl hover:bg-white hover:text-black transition-all transform active:scale-[0.98] flex items-center justify-center gap-3"
+                    >
+                      <FaFileContract /> Request Commercial Licence
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
