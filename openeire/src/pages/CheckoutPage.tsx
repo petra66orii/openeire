@@ -9,8 +9,11 @@ import { useAuth } from "../context/AuthContext";
 import { getProfile, UserProfile, api } from "../services/api";
 import CheckoutForm from "../components/CheckoutForm";
 import OrderSummary from "../components/OrderSummary";
+import { Link } from "react-router-dom";
 import { FaLock, FaShieldAlt } from "react-icons/fa";
 import {
+  cartHasDigitalItems,
+  cartHasPhysicalItems,
   isDigitalProductType,
   isPhysicalProductType,
   isValidDigitalLicense,
@@ -104,14 +107,13 @@ const CheckoutPage: React.FC = () => {
 
   const { cartItems } = useCart();
   const { isAuthenticated } = useAuth();
-  const hasPhysicalItems = useMemo(
-    () => cartItems.some((item) => item.product.product_type === "physical"),
-    [cartItems],
-  );
+  const hasPhysicalItems = useMemo(() => cartHasPhysicalItems(cartItems), [cartItems]);
+  const hasDigitalItems = useMemo(() => cartHasDigitalItems(cartItems), [cartItems]);
   const checkoutCartItems = useMemo(
     () => cartItems,
     [cartItems],
   );
+  const requiresAuthenticatedCheckout = hasDigitalItems;
   const physicalAddressKey = useMemo(
     () =>
       hasPhysicalItems
@@ -148,6 +150,15 @@ const CheckoutPage: React.FC = () => {
       const requestId = ++latestIntentRequestId.current;
 
       if (checkoutCartItems.length === 0) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
+        setClientSecret("");
+        setCalculatedShippingCost(0);
+        setCheckoutError(null);
+        setIsUpdatingIntent(false);
+        return;
+      }
+
+      if (requiresAuthenticatedCheckout && !isAuthenticated) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setClientSecret("");
         setCalculatedShippingCost(0);
@@ -280,6 +291,8 @@ const CheckoutPage: React.FC = () => {
   }, [
     checkoutCartItems,
     hasPhysicalItems,
+    requiresAuthenticatedCheckout,
+    isAuthenticated,
     physicalAddressKey,
     shippingMethodKey,
     saveInfo,
@@ -337,6 +350,23 @@ const CheckoutPage: React.FC = () => {
                   Checkout Unavailable
                 </p>
                 <p>Your bag is empty.</p>
+              </div>
+            ) : requiresAuthenticatedCheckout && !isAuthenticated ? (
+              <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                <p className="text-sm uppercase tracking-widest font-bold text-gray-300 mb-3">
+                  Login Required
+                </p>
+                <p className="text-center max-w-lg mb-6">
+                  Digital purchases are account-bound for secure download
+                  access. Please sign in to continue checkout.
+                </p>
+                <Link
+                  to="/login"
+                  state={{ from: { pathname: "/checkout" } }}
+                  className="px-6 py-3 bg-brand-500 text-black font-bold rounded-xl hover:bg-white transition-colors"
+                >
+                  Log In to Continue
+                </Link>
               </div>
             ) : (
               <Elements

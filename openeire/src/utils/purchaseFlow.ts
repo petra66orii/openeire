@@ -11,6 +11,18 @@ export const isPhysicalProductType = (
   productType: string | null | undefined,
 ): productType is "physical" => productType === "physical";
 
+type CartLikeItem = {
+  product?: {
+    product_type?: string | null;
+  } | null;
+};
+
+export const cartHasDigitalItems = (items: CartLikeItem[]): boolean =>
+  items.some((item) => isDigitalProductType(item.product?.product_type));
+
+export const cartHasPhysicalItems = (items: CartLikeItem[]): boolean =>
+  items.some((item) => isPhysicalProductType(item.product?.product_type));
+
 export interface PurchaseFlowConfig {
   showPrintPurchase: boolean;
   showPersonalDigitalPurchase: boolean;

@@ -4,9 +4,32 @@ import { api } from "../services/api";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { FcGoogle } from "react-icons/fc"; // Using React Icons for cleaner look
+import { useLocation, useNavigate } from "react-router-dom";
 
-const SocialLogin: React.FC = () => {
+interface SocialLoginProps {
+  redirectPath?: string;
+}
+
+const normalizeInternalPath = (value?: string): string | null => {
+  if (!value) return null;
+  if (!value.startsWith("/") || value.startsWith("//")) return null;
+  return value;
+};
+
+const SocialLogin: React.FC<SocialLoginProps> = ({ redirectPath }) => {
   const { setAuthData } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const stateRedirectPath = (
+    location.state as
+      | { from?: { pathname?: string } }
+      | undefined
+  )?.from?.pathname;
+  const postLoginPath =
+    normalizeInternalPath(redirectPath) ??
+    normalizeInternalPath(stateRedirectPath) ??
+    "/";
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (codeResponse) => {
@@ -17,7 +40,7 @@ const SocialLogin: React.FC = () => {
         const data = response.data;
         setAuthData({ access: data.access, refresh: data.refresh });
         toast.success(`Welcome back!`);
-        window.location.href = "/";
+        navigate(postLoginPath, { replace: true });
       } catch (err) {
         console.error("Google Login Error:", err);
         toast.error("Failed to log in with Google.");

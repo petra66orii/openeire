@@ -1,7 +1,12 @@
 import React, { useMemo } from "react";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import { FaLock } from "react-icons/fa";
+import {
+  cartHasDigitalItems,
+  cartHasPhysicalItems,
+} from "../utils/purchaseFlow";
 
 interface OrderSummaryProps {
   isCheckoutPage?: boolean;
@@ -15,10 +20,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   isShippingPending = false,
 }) => {
   const { cartItems: cart, cartTotal } = useCart();
+  const { isAuthenticated } = useAuth();
 
-  const hasPhysicalItems = useMemo(() => {
-    return cart.some((item) => item.product?.product_type === "physical");
-  }, [cart]);
+  const hasPhysicalItems = useMemo(() => cartHasPhysicalItems(cart), [cart]);
+  const hasDigitalItems = useMemo(() => cartHasDigitalItems(cart), [cart]);
   const hasItems = cart.length > 0;
 
   const grandTotal = cartTotal + (hasPhysicalItems ? shippingCost : 0);
@@ -65,12 +70,22 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
       {!isCheckoutPage &&
         (hasItems ? (
-          <Link
-            to="/checkout"
-            className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
-          >
-            Checkout
-          </Link>
+          hasDigitalItems && !isAuthenticated ? (
+            <Link
+              to="/login"
+              state={{ from: { pathname: "/checkout" } }}
+              className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
+            >
+              Log In to Checkout
+            </Link>
+          ) : (
+            <Link
+              to="/checkout"
+              className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
+            >
+              Checkout
+            </Link>
+          )
         ) : (
           <div className="block w-full text-center bg-white/10 text-gray-400 font-bold text-lg py-4 rounded-xl cursor-not-allowed">
             Your bag is empty

@@ -8,10 +8,12 @@ import React, {
 } from "react";
 import { GalleryItem } from "../services/api";
 import {
+  cartHasDigitalItems,
   isDigitalProductType,
   isPhysicalProductType,
   isValidDigitalLicense,
 } from "../utils/purchaseFlow";
+import { useAuth } from "./AuthContext";
 
 // 1. Define what "Options" look like
 export interface CartOptions {
@@ -153,15 +155,27 @@ const sanitizeStoredCartEntry = (entry: unknown): CartItem | null => {
   };
 };
 
+const hasAuthenticatedSession = (): boolean =>
+  Boolean(
+    localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken"),
+  );
+
+const removeDigitalItems = (items: CartItem[]): CartItem[] =>
+  items.filter((item) => !isDigitalProductType(item.product?.product_type));
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const { isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
       const localData = localStorage.getItem("cart");
       const parsed = localData ? JSON.parse(localData) : [];
       if (!Array.isArray(parsed)) return [];
-      return parsed
+      const sanitizedItems = parsed
         .map((entry) => sanitizeStoredCartEntry(entry))
         .filter((entry): entry is CartItem => entry !== null);
+      return hasAuthenticatedSession()
+        ? sanitizedItems
+        : removeDigitalItems(sanitizedItems);
     } catch (error) {
       console.error("Could not parse cart data from localStorage", error);
       return [];
@@ -171,6 +185,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    if (!cartHasDigitalItems(cartItems)) return;
+    setCartItems((prevItems) => removeDigitalItems(prevItems));
+  }, [isAuthenticated, cartItems]);
 
   const addToCart = useCallback(
     (product: GalleryItem, quantity: number, options?: CartOptions) => {
