@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import axios from "axios";
@@ -15,32 +15,12 @@ import {
   isPhysicalProductType,
   isValidDigitalLicense,
 } from "../utils/purchaseFlow";
+import {
+  EMPTY_SHIPPING_DETAILS,
+  ShippingDetails,
+} from "../types/checkout";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-
-type ShippingDetails = {
-  name: string;
-  email: string;
-  phone: string;
-  line1: string;
-  line2: string;
-  city: string;
-  state: string;
-  country: string;
-  postal_code: string;
-};
-
-const EMPTY_SHIPPING_DETAILS: ShippingDetails = {
-  name: "",
-  email: "",
-  phone: "",
-  line1: "",
-  line2: "",
-  city: "",
-  state: "",
-  country: "",
-  postal_code: "",
-};
 
 const flattenApiErrors = (value: unknown, path = ""): string[] => {
   if (typeof value === "string") {
@@ -64,6 +44,7 @@ const hasCompletePhysicalAddress = (shippingDetails: ShippingDetails): boolean =
   const requiredBaseFields = [
     shippingDetails.name,
     shippingDetails.email,
+    shippingDetails.phone,
     shippingDetails.line1,
     shippingDetails.city,
     shippingDetails.country,
@@ -119,6 +100,7 @@ const CheckoutPage: React.FC = () => {
   const [saveInfo, setSaveInfo] = useState(true);
   const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const latestIntentRequestId = useRef(0);
 
   const { cartItems } = useCart();
   const { isAuthenticated } = useAuth();
@@ -130,6 +112,24 @@ const CheckoutPage: React.FC = () => {
     () => cartItems,
     [cartItems],
   );
+  const physicalAddressKey = useMemo(
+    () =>
+      hasPhysicalItems
+        ? [
+            shippingDetails.name,
+            shippingDetails.email,
+            shippingDetails.phone,
+            shippingDetails.line1,
+            shippingDetails.line2,
+            shippingDetails.city,
+            shippingDetails.state,
+            shippingDetails.country,
+            shippingDetails.postal_code,
+          ].join("|")
+        : "",
+    [hasPhysicalItems, shippingDetails],
+  );
+  const shippingMethodKey = hasPhysicalItems ? shippingMethod : "";
 
   // 1. Fetch Profile on Mount
   useEffect(() => {
@@ -142,8 +142,13 @@ const CheckoutPage: React.FC = () => {
 
   // 2. Dynamic Payment Intent Fetcher
   useEffect(() => {
+    let isCancelled = false;
+
     const initializeCheckout = async () => {
+      const requestId = ++latestIntentRequestId.current;
+
       if (checkoutCartItems.length === 0) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setClientSecret("");
         setCalculatedShippingCost(0);
         setCheckoutError(null);
@@ -152,6 +157,7 @@ const CheckoutPage: React.FC = () => {
       }
 
       if (hasPhysicalItems && !hasCompletePhysicalAddress(shippingDetails)) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setClientSecret("");
         setCalculatedShippingCost(0);
         setCheckoutError(null);
@@ -159,6 +165,7 @@ const CheckoutPage: React.FC = () => {
         return;
       }
 
+      if (isCancelled || requestId !== latestIntentRequestId.current) return;
       setIsUpdatingIntent(true);
       setCheckoutError(null);
 
@@ -235,12 +242,14 @@ const CheckoutPage: React.FC = () => {
         }
 
         const response = await api.post("checkout/create-payment-intent/", payload);
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
 
         setClientSecret(response.data.clientSecret);
         setCalculatedShippingCost(
           hasPhysicalItems ? (response.data.shippingCost || 0) : 0,
         );
       } catch (error) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
         console.error("Error creating payment intent:", error);
         setClientSecret("");
         const apiMessage = getApiErrorMessage(error);
@@ -251,6 +260,7 @@ const CheckoutPage: React.FC = () => {
               : "Unable to initialize checkout. Please review your bag and try again."),
         );
       } finally {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setIsUpdatingIntent(false);
       }
     };
@@ -260,22 +270,18 @@ const CheckoutPage: React.FC = () => {
       initializeCheckout();
     }, 500);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      isCancelled = true;
+      latestIntentRequestId.current += 1;
+      clearTimeout(timeoutId);
+    };
 
     // Refetch if cart, country, or speed changes
   }, [
     checkoutCartItems,
     hasPhysicalItems,
-    shippingDetails.name,
-    shippingDetails.email,
-    shippingDetails.phone,
-    shippingDetails.line1,
-    shippingDetails.line2,
-    shippingDetails.city,
-    shippingDetails.state,
-    shippingDetails.country,
-    shippingDetails.postal_code,
-    shippingMethod,
+    physicalAddressKey,
+    shippingMethodKey,
     saveInfo,
   ]);
 
@@ -342,6 +348,7 @@ const CheckoutPage: React.FC = () => {
                   initialData={profileData}
                   shippingDetails={shippingDetails}
                   onShippingChange={setShippingDetails}
+                  saveInfo={saveInfo}
                   onSaveInfoChange={setSaveInfo}
                   shippingMethod={shippingMethod}
                   onShippingMethodChange={setShippingMethod}

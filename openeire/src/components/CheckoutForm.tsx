@@ -8,6 +8,7 @@ import { ConfirmPaymentData } from "@stripe/stripe-js";
 import { UserProfile, getCountries, Country } from "../services/api";
 import { useCart } from "../context/CartContext";
 import { FaTruck, FaCreditCard, FaBoxOpen } from "react-icons/fa";
+import { ShippingDetails } from "../types/checkout";
 
 const SHIPPING_METHODS = ["budget", "standard", "express"] as const;
 type ShippingMethod = (typeof SHIPPING_METHODS)[number];
@@ -29,22 +30,11 @@ const TRANSIT_ESTIMATES: Record<
   },
 };
 
-type ShippingDetails = {
-  name: string;
-  email: string;
-  phone: string;
-  line1: string;
-  line2: string;
-  city: string;
-  state: string;
-  country: string;
-  postal_code: string;
-};
-
 interface CheckoutFormProps {
   initialData?: UserProfile | null;
   shippingDetails: ShippingDetails;
   onShippingChange: React.Dispatch<React.SetStateAction<ShippingDetails>>;
+  saveInfo: boolean;
   onSaveInfoChange: (save: boolean) => void;
   shippingMethod: string;
   onShippingMethodChange: (method: string) => void;
@@ -68,6 +58,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   initialData,
   shippingDetails,
   onShippingChange,
+  saveInfo,
   onSaveInfoChange,
   shippingMethod,
   onShippingMethodChange,
@@ -82,7 +73,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [saveInfo, setSaveInfo] = useState(true);
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -466,10 +456,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               type="checkbox"
               id="save-info"
               checked={saveInfo}
-              onChange={(e) => {
-                setSaveInfo(e.target.checked);
-                onSaveInfoChange(e.target.checked);
-              }}
+              onChange={(e) => onSaveInfoChange(e.target.checked)}
               className="h-5 w-5 text-accent bg-black border-white/30 rounded focus:ring-accent focus:ring-offset-0 cursor-pointer"
             />
             <label
