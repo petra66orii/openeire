@@ -224,7 +224,7 @@ export interface ProductVariant {
 export interface PhotoDetail extends GalleryItem {
   description: string;
   collection: string;
-  high_res_file: string;
+  download_url?: string | null;
   price_4k: string;
   tags: string | null;
   created_at: string;
@@ -235,7 +235,7 @@ export interface PhotoDetail extends GalleryItem {
 export interface VideoDetail extends GalleryItem {
   description: string;
   collection: string;
-  video_file: string;
+  download_url?: string | null;
   price_4k: string;
   tags: string | null;
   created_at: string;
