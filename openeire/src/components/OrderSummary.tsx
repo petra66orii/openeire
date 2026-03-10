@@ -19,8 +19,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const hasPhysicalItems = useMemo(() => {
     return cart.some((item) => item.product?.product_type === "physical");
   }, [cart]);
+  const hasItems = cart.length > 0;
 
-  const grandTotal = cartTotal + shippingCost;
+  const grandTotal = cartTotal + (hasPhysicalItems ? shippingCost : 0);
 
   return (
     <div className="bg-gray-900 border border-white/10 p-8 rounded-2xl shadow-xl">
@@ -29,27 +30,24 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       <div className="space-y-4 mb-6">
         <div className="flex justify-between text-sm text-gray-400">
           <span>Subtotal</span>
-          <span className="text-white font-medium">
-            €{cartTotal.toFixed(2)}
-          </span>
+          <span className="text-white font-medium">€{cartTotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm text-gray-400">
           <span>Shipping</span>
-          {isShippingPending ? (
-            // 👇 NEW LOGIC: Show text if pending
+          {!hasPhysicalItems ? (
+            <span className="text-xs text-gray-500 uppercase tracking-wide mt-1">
+              Not applicable
+            </span>
+          ) : isShippingPending ? (
             <span className="text-xs text-gray-500 uppercase tracking-wide mt-1">
               Calculated at checkout
             </span>
           ) : shippingCost === 0 ? (
-            // 👇 Keep your Free logic if it's explicitly 0
             <span className="text-brand-500 font-bold uppercase tracking-wider text-xs mt-1">
               Free
             </span>
           ) : (
-            // 👇 Show the calculated price
-            <span className="text-white font-medium">
-              €{shippingCost.toFixed(2)}
-            </span>
+            <span className="text-white font-medium">€{shippingCost.toFixed(2)}</span>
           )}
         </div>
       </div>
@@ -66,7 +64,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       </div>
 
       {!isCheckoutPage &&
-        (hasPhysicalItems ? (
+        (hasItems ? (
           <Link
             to="/checkout"
             className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
@@ -75,7 +73,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           </Link>
         ) : (
           <div className="block w-full text-center bg-white/10 text-gray-400 font-bold text-lg py-4 rounded-xl cursor-not-allowed">
-            Physical Prints Only
+            Your bag is empty
           </div>
         ))}
 

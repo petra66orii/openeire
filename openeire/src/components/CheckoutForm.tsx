@@ -123,24 +123,29 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     setIsLoading(true);
     setErrorMessage(null);
 
+    const confirmParams: Record<string, any> = {
+      return_url: `${window.location.origin}/checkout-success`,
+      receipt_email: shippingDetails.email,
+    };
+
+    if (hasPhysicalItems) {
+      confirmParams.shipping = {
+        name: shippingDetails.name,
+        phone: shippingDetails.phone,
+        address: {
+          line1: shippingDetails.line1,
+          line2: shippingDetails.line2,
+          city: shippingDetails.city,
+          state: shippingDetails.state,
+          country: shippingDetails.country,
+          postal_code: shippingDetails.postal_code,
+        },
+      };
+    }
+
     const { error } = await stripe.confirmPayment({
       elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/checkout-success`,
-        receipt_email: shippingDetails.email,
-        shipping: {
-          name: shippingDetails.name,
-          phone: shippingDetails.phone,
-          address: {
-            line1: shippingDetails.line1,
-            line2: shippingDetails.line2,
-            city: shippingDetails.city,
-            state: shippingDetails.state,
-            country: shippingDetails.country,
-            postal_code: shippingDetails.postal_code,
-          },
-        },
-      },
+      confirmParams,
     });
 
     if (error)
@@ -148,7 +153,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     setIsLoading(false);
   };
 
-  // 👇 DYNAMIC COUNTRY FILTERING
   // If cart has prints, only show IE and US. Otherwise, show all.
   const displayedCountries = hasPhysicalItems
     ? countries.filter((c) => c.code === "IE" || c.code === "US")
@@ -172,17 +176,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* 1. SHIPPING DETAILS */}
+      {/* 1. CONTACT / SHIPPING DETAILS */}
       <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
         <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
           <FaTruck className="text-accent" />
           <h2 className="text-xl font-serif font-bold text-white">
-            Shipping Details
+            {hasPhysicalItems ? "Shipping Details" : "Contact Details"}
           </h2>
         </div>
 
         <div className="space-y-5">
-          {/* ... Name, Email, Address, City, Postal Code identical to yours ... */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className={labelClass}>Full Name</label>
@@ -209,79 +212,85 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className={labelClass}>Address Line 1</label>
-            <input
-              name="line1"
-              value={shippingDetails.line1}
-              onChange={handleChange}
-              placeholder="123 Main St"
-              required
-              className={inputClass}
-            />
-          </div>
+          {hasPhysicalItems ? (
+            <>
+              <div>
+                <label className={labelClass}>Address Line 1</label>
+                <input
+                  name="line1"
+                  value={shippingDetails.line1}
+                  onChange={handleChange}
+                  placeholder="123 Main St"
+                  required
+                  className={inputClass}
+                />
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className={labelClass}>City</label>
-              <input
-                name="city"
-                value={shippingDetails.city}
-                onChange={handleChange}
-                placeholder="Dublin"
-                required
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>Postal Code</label>
-              <input
-                name="postal_code"
-                value={shippingDetails.postal_code}
-                onChange={handleChange}
-                placeholder="D01 X123"
-                required
-                className={inputClass}
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className={labelClass}>City</label>
+                  <input
+                    name="city"
+                    value={shippingDetails.city}
+                    onChange={handleChange}
+                    placeholder="Dublin"
+                    required
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Postal Code</label>
+                  <input
+                    name="postal_code"
+                    value={shippingDetails.postal_code}
+                    onChange={handleChange}
+                    placeholder="D01 X123"
+                    required
+                    className={inputClass}
+                  />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className={labelClass}>Country</label>
-              <select
-                name="country"
-                value={shippingDetails.country}
-                onChange={handleChange}
-                required
-                className={`${inputClass} appearance-none cursor-pointer`}
-              >
-                <option value="">Select Country...</option>
-                {displayedCountries.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              {hasPhysicalItems && (
-                <p className="text-xs text-gray-500 mt-2">
-                  Physical prints currently ship to IE & US only.
-                </p>
-              )}
-            </div>
-            <div>
-              <label className={labelClass}>Phone</label>
-              <input
-                name="phone"
-                value={shippingDetails.phone}
-                onChange={handleChange}
-                placeholder="+353..."
-                type="tel"
-                required
-                className={inputClass}
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className={labelClass}>Country</label>
+                  <select
+                    name="country"
+                    value={shippingDetails.country}
+                    onChange={handleChange}
+                    required
+                    className={`${inputClass} appearance-none cursor-pointer`}
+                  >
+                    <option value="">Select Country...</option>
+                    {displayedCountries.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Physical prints currently ship to IE & US only.
+                  </p>
+                </div>
+                <div>
+                  <label className={labelClass}>Phone</label>
+                  <input
+                    name="phone"
+                    value={shippingDetails.phone}
+                    onChange={handleChange}
+                    placeholder="+353..."
+                    type="tel"
+                    required
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-gray-400">
+              Digital purchases are delivered after payment confirmation.
+            </p>
+          )}
         </div>
       </div>
 
@@ -365,7 +374,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               htmlFor="save-info"
               className="ml-3 block text-sm text-gray-400 cursor-pointer select-none"
             >
-              Save shipping information for future purchases
+              {hasPhysicalItems
+                ? "Save shipping information for future purchases"
+                : "Save contact information for future purchases"}
             </label>
           </div>
         )}
