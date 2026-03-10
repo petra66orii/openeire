@@ -135,7 +135,7 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        <SocialLogin />
+        <SocialLogin redirectPath={redirectPath} />
 
         <div className="text-center text-sm text-gray-500 mt-8 pt-6 border-t border-white/10">
           <p className="mb-2">
