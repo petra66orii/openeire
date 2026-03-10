@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import axios from "axios";
@@ -15,8 +15,54 @@ import {
   isPhysicalProductType,
   isValidDigitalLicense,
 } from "../utils/purchaseFlow";
+import {
+  EMPTY_SHIPPING_DETAILS,
+  ShippingDetails,
+} from "../types/checkout";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+const flattenApiErrors = (value: unknown, path = ""): string[] => {
+  if (typeof value === "string") {
+    return [path ? `${path}: ${value}` : value];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => flattenApiErrors(entry, path));
+  }
+
+  if (value && typeof value === "object") {
+    return Object.entries(value).flatMap(([key, nested]) =>
+      flattenApiErrors(nested, path ? `${path}.${key}` : key),
+    );
+  }
+
+  return [];
+};
+
+const hasCompletePhysicalAddress = (shippingDetails: ShippingDetails): boolean => {
+  const requiredBaseFields = [
+    shippingDetails.name,
+    shippingDetails.email,
+    shippingDetails.phone,
+    shippingDetails.line1,
+    shippingDetails.city,
+    shippingDetails.country,
+    shippingDetails.postal_code,
+  ];
+
+  const hasBase = requiredBaseFields.every(
+    (field) => typeof field === "string" && field.trim().length > 0,
+  );
+
+  if (!hasBase) return false;
+  if (shippingDetails.country === "US") {
+    return typeof shippingDetails.state === "string" &&
+      shippingDetails.state.trim().length > 0;
+  }
+
+  return true;
+};
 
 const getApiErrorMessage = (error: unknown): string | null => {
   if (!axios.isAxiosError(error)) return null;
@@ -33,6 +79,11 @@ const getApiErrorMessage = (error: unknown): string | null => {
     if (firstError) return firstError;
   }
 
+  const flattened = flattenApiErrors(data);
+  if (flattened.length > 0) {
+    return flattened.slice(0, 3).join(" | ");
+  }
+
   return null;
 };
 
@@ -41,12 +92,15 @@ const CheckoutPage: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
 
   // Lifted States
-  const [shippingDetails, setShippingDetails] = useState<any>({});
+  const [shippingDetails, setShippingDetails] = useState<ShippingDetails>(
+    EMPTY_SHIPPING_DETAILS,
+  );
   const [shippingMethod, setShippingMethod] = useState("budget");
   const [calculatedShippingCost, setCalculatedShippingCost] = useState(0);
   const [saveInfo, setSaveInfo] = useState(true);
   const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const latestIntentRequestId = useRef(0);
 
   const { cartItems } = useCart();
   const { isAuthenticated } = useAuth();
@@ -58,6 +112,24 @@ const CheckoutPage: React.FC = () => {
     () => cartItems,
     [cartItems],
   );
+  const physicalAddressKey = useMemo(
+    () =>
+      hasPhysicalItems
+        ? [
+            shippingDetails.name,
+            shippingDetails.email,
+            shippingDetails.phone,
+            shippingDetails.line1,
+            shippingDetails.line2,
+            shippingDetails.city,
+            shippingDetails.state,
+            shippingDetails.country,
+            shippingDetails.postal_code,
+          ].join("|")
+        : "",
+    [hasPhysicalItems, shippingDetails],
+  );
+  const shippingMethodKey = hasPhysicalItems ? shippingMethod : "";
 
   // 1. Fetch Profile on Mount
   useEffect(() => {
@@ -70,8 +142,13 @@ const CheckoutPage: React.FC = () => {
 
   // 2. Dynamic Payment Intent Fetcher
   useEffect(() => {
+    let isCancelled = false;
+
     const initializeCheckout = async () => {
+      const requestId = ++latestIntentRequestId.current;
+
       if (checkoutCartItems.length === 0) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setClientSecret("");
         setCalculatedShippingCost(0);
         setCheckoutError(null);
@@ -79,6 +156,16 @@ const CheckoutPage: React.FC = () => {
         return;
       }
 
+      if (hasPhysicalItems && !hasCompletePhysicalAddress(shippingDetails)) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
+        setClientSecret("");
+        setCalculatedShippingCost(0);
+        setCheckoutError(null);
+        setIsUpdatingIntent(false);
+        return;
+      }
+
+      if (isCancelled || requestId !== latestIntentRequestId.current) return;
       setIsUpdatingIntent(true);
       setCheckoutError(null);
 
@@ -139,18 +226,30 @@ const CheckoutPage: React.FC = () => {
 
         if (hasPhysicalItems) {
           payload.shipping_details = {
-            address: { country: shippingDetails.country || "IE" },
+            name: shippingDetails.name,
+            email: shippingDetails.email,
+            phone: shippingDetails.phone,
+            address: {
+              line1: shippingDetails.line1,
+              line2: shippingDetails.line2,
+              city: shippingDetails.city,
+              state: shippingDetails.state,
+              country: shippingDetails.country,
+              postal_code: shippingDetails.postal_code,
+            },
           };
           payload.shipping_method = shippingMethod;
         }
 
         const response = await api.post("checkout/create-payment-intent/", payload);
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
 
         setClientSecret(response.data.clientSecret);
         setCalculatedShippingCost(
           hasPhysicalItems ? (response.data.shippingCost || 0) : 0,
         );
       } catch (error) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
         console.error("Error creating payment intent:", error);
         setClientSecret("");
         const apiMessage = getApiErrorMessage(error);
@@ -161,6 +260,7 @@ const CheckoutPage: React.FC = () => {
               : "Unable to initialize checkout. Please review your bag and try again."),
         );
       } finally {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setIsUpdatingIntent(false);
       }
     };
@@ -170,14 +270,18 @@ const CheckoutPage: React.FC = () => {
       initializeCheckout();
     }, 500);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      isCancelled = true;
+      latestIntentRequestId.current += 1;
+      clearTimeout(timeoutId);
+    };
 
     // Refetch if cart, country, or speed changes
   }, [
     checkoutCartItems,
     hasPhysicalItems,
-    shippingDetails.country,
-    shippingMethod,
+    physicalAddressKey,
+    shippingMethodKey,
     saveInfo,
   ]);
 
@@ -205,6 +309,13 @@ const CheckoutPage: React.FC = () => {
     },
   };
 
+  const fallbackElementsOptions: StripeElementsOptions = {
+    mode: "payment",
+    amount: 100,
+    currency: "eur",
+    appearance: options.appearance,
+  };
+
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20">
       <div className="container mx-auto px-4 lg:px-8">
@@ -220,18 +331,7 @@ const CheckoutPage: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           <div className="lg:col-span-8">
-            {clientSecret ? (
-              <Elements options={options} stripe={stripePromise}>
-                <CheckoutForm
-                  initialData={profileData}
-                  onShippingChange={setShippingDetails}
-                  onSaveInfoChange={setSaveInfo}
-                  shippingMethod={shippingMethod}
-                  onShippingMethodChange={setShippingMethod}
-                  isUpdatingIntent={isUpdatingIntent}
-                />
-              </Elements>
-            ) : checkoutCartItems.length === 0 ? (
+            {checkoutCartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                 <p className="text-sm uppercase tracking-widest font-bold text-gray-400 mb-2">
                   Checkout Unavailable
@@ -239,10 +339,23 @@ const CheckoutPage: React.FC = () => {
                 <p>Your bag is empty.</p>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent mb-4"></div>
-                <p>Preparing secure connection...</p>
-              </div>
+              <Elements
+                key={clientSecret || "draft-elements"}
+                options={clientSecret ? options : fallbackElementsOptions}
+                stripe={stripePromise}
+              >
+                <CheckoutForm
+                  initialData={profileData}
+                  shippingDetails={shippingDetails}
+                  onShippingChange={setShippingDetails}
+                  saveInfo={saveInfo}
+                  onSaveInfoChange={setSaveInfo}
+                  shippingMethod={shippingMethod}
+                  onShippingMethodChange={setShippingMethod}
+                  isUpdatingIntent={isUpdatingIntent}
+                  isPaymentReady={Boolean(clientSecret)}
+                />
+              </Elements>
             )}
             {checkoutError && (
               <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold">
