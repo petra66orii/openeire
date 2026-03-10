@@ -18,6 +18,71 @@ import {
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
+type ShippingDetails = {
+  name: string;
+  email: string;
+  phone: string;
+  line1: string;
+  line2: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code: string;
+};
+
+const EMPTY_SHIPPING_DETAILS: ShippingDetails = {
+  name: "",
+  email: "",
+  phone: "",
+  line1: "",
+  line2: "",
+  city: "",
+  state: "",
+  country: "",
+  postal_code: "",
+};
+
+const flattenApiErrors = (value: unknown, path = ""): string[] => {
+  if (typeof value === "string") {
+    return [path ? `${path}: ${value}` : value];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => flattenApiErrors(entry, path));
+  }
+
+  if (value && typeof value === "object") {
+    return Object.entries(value).flatMap(([key, nested]) =>
+      flattenApiErrors(nested, path ? `${path}.${key}` : key),
+    );
+  }
+
+  return [];
+};
+
+const hasCompletePhysicalAddress = (shippingDetails: ShippingDetails): boolean => {
+  const requiredBaseFields = [
+    shippingDetails.name,
+    shippingDetails.email,
+    shippingDetails.line1,
+    shippingDetails.city,
+    shippingDetails.country,
+    shippingDetails.postal_code,
+  ];
+
+  const hasBase = requiredBaseFields.every(
+    (field) => typeof field === "string" && field.trim().length > 0,
+  );
+
+  if (!hasBase) return false;
+  if (shippingDetails.country === "US") {
+    return typeof shippingDetails.state === "string" &&
+      shippingDetails.state.trim().length > 0;
+  }
+
+  return true;
+};
+
 const getApiErrorMessage = (error: unknown): string | null => {
   if (!axios.isAxiosError(error)) return null;
 
@@ -33,6 +98,11 @@ const getApiErrorMessage = (error: unknown): string | null => {
     if (firstError) return firstError;
   }
 
+  const flattened = flattenApiErrors(data);
+  if (flattened.length > 0) {
+    return flattened.slice(0, 3).join(" | ");
+  }
+
   return null;
 };
 
@@ -41,7 +111,9 @@ const CheckoutPage: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
 
   // Lifted States
-  const [shippingDetails, setShippingDetails] = useState<any>({});
+  const [shippingDetails, setShippingDetails] = useState<ShippingDetails>(
+    EMPTY_SHIPPING_DETAILS,
+  );
   const [shippingMethod, setShippingMethod] = useState("budget");
   const [calculatedShippingCost, setCalculatedShippingCost] = useState(0);
   const [saveInfo, setSaveInfo] = useState(true);
@@ -72,6 +144,14 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     const initializeCheckout = async () => {
       if (checkoutCartItems.length === 0) {
+        setClientSecret("");
+        setCalculatedShippingCost(0);
+        setCheckoutError(null);
+        setIsUpdatingIntent(false);
+        return;
+      }
+
+      if (hasPhysicalItems && !hasCompletePhysicalAddress(shippingDetails)) {
         setClientSecret("");
         setCalculatedShippingCost(0);
         setCheckoutError(null);
@@ -139,7 +219,17 @@ const CheckoutPage: React.FC = () => {
 
         if (hasPhysicalItems) {
           payload.shipping_details = {
-            address: { country: shippingDetails.country || "IE" },
+            name: shippingDetails.name,
+            email: shippingDetails.email,
+            phone: shippingDetails.phone,
+            address: {
+              line1: shippingDetails.line1,
+              line2: shippingDetails.line2,
+              city: shippingDetails.city,
+              state: shippingDetails.state,
+              country: shippingDetails.country,
+              postal_code: shippingDetails.postal_code,
+            },
           };
           payload.shipping_method = shippingMethod;
         }
@@ -176,7 +266,15 @@ const CheckoutPage: React.FC = () => {
   }, [
     checkoutCartItems,
     hasPhysicalItems,
+    shippingDetails.name,
+    shippingDetails.email,
+    shippingDetails.phone,
+    shippingDetails.line1,
+    shippingDetails.line2,
+    shippingDetails.city,
+    shippingDetails.state,
     shippingDetails.country,
+    shippingDetails.postal_code,
     shippingMethod,
     saveInfo,
   ]);
@@ -205,6 +303,13 @@ const CheckoutPage: React.FC = () => {
     },
   };
 
+  const fallbackElementsOptions: StripeElementsOptions = {
+    mode: "payment",
+    amount: 100,
+    currency: "eur",
+    appearance: options.appearance,
+  };
+
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20">
       <div className="container mx-auto px-4 lg:px-8">
@@ -220,18 +325,7 @@ const CheckoutPage: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           <div className="lg:col-span-8">
-            {clientSecret ? (
-              <Elements options={options} stripe={stripePromise}>
-                <CheckoutForm
-                  initialData={profileData}
-                  onShippingChange={setShippingDetails}
-                  onSaveInfoChange={setSaveInfo}
-                  shippingMethod={shippingMethod}
-                  onShippingMethodChange={setShippingMethod}
-                  isUpdatingIntent={isUpdatingIntent}
-                />
-              </Elements>
-            ) : checkoutCartItems.length === 0 ? (
+            {checkoutCartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-gray-500">
                 <p className="text-sm uppercase tracking-widest font-bold text-gray-400 mb-2">
                   Checkout Unavailable
@@ -239,10 +333,22 @@ const CheckoutPage: React.FC = () => {
                 <p>Your bag is empty.</p>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent mb-4"></div>
-                <p>Preparing secure connection...</p>
-              </div>
+              <Elements
+                key={clientSecret || "draft-elements"}
+                options={clientSecret ? options : fallbackElementsOptions}
+                stripe={stripePromise}
+              >
+                <CheckoutForm
+                  initialData={profileData}
+                  shippingDetails={shippingDetails}
+                  onShippingChange={setShippingDetails}
+                  onSaveInfoChange={setSaveInfo}
+                  shippingMethod={shippingMethod}
+                  onShippingMethodChange={setShippingMethod}
+                  isUpdatingIntent={isUpdatingIntent}
+                  isPaymentReady={Boolean(clientSecret)}
+                />
+              </Elements>
             )}
             {checkoutError && (
               <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold">

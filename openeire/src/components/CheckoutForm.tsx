@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   useStripe,
   useElements,
   PaymentElement,
 } from "@stripe/react-stripe-js";
+import { ConfirmPaymentData } from "@stripe/stripe-js";
 import { UserProfile, getCountries, Country } from "../services/api";
 import { useCart } from "../context/CartContext";
 import { FaTruck, FaCreditCard, FaBoxOpen } from "react-icons/fa";
@@ -28,43 +29,60 @@ const TRANSIT_ESTIMATES: Record<
   },
 };
 
+type ShippingDetails = {
+  name: string;
+  email: string;
+  phone: string;
+  line1: string;
+  line2: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code: string;
+};
+
 interface CheckoutFormProps {
   initialData?: UserProfile | null;
-  onShippingChange: (details: any) => void;
+  shippingDetails: ShippingDetails;
+  onShippingChange: React.Dispatch<React.SetStateAction<ShippingDetails>>;
   onSaveInfoChange: (save: boolean) => void;
   shippingMethod: string;
   onShippingMethodChange: (method: string) => void;
   isUpdatingIntent?: boolean; // New prop to indicate if intent is being updated
+  isPaymentReady?: boolean;
 }
+
+const SHIPPING_FIELD_NAMES: Array<keyof ShippingDetails> = [
+  "name",
+  "email",
+  "phone",
+  "line1",
+  "line2",
+  "city",
+  "state",
+  "country",
+  "postal_code",
+];
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({
   initialData,
+  shippingDetails,
   onShippingChange,
   onSaveInfoChange,
   shippingMethod,
   onShippingMethodChange,
   isUpdatingIntent,
+  isPaymentReady,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { hasPhysicalItems } = useCart();
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const [countries, setCountries] = useState<Country[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [saveInfo, setSaveInfo] = useState(true);
-
-  const [shippingDetails, setShippingDetails] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    line1: "",
-    line2: "",
-    city: "",
-    state: "",
-    country: "",
-    postal_code: "",
-  });
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -80,6 +98,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   useEffect(() => {
     if (initialData) {
+      const hasExistingInput = SHIPPING_FIELD_NAMES.some(
+        (field) => shippingDetails[field].trim().length > 0,
+      );
+      if (hasExistingInput) return;
+
       let initialCountry = initialData.default_country || "";
 
       if (
@@ -103,27 +126,61 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         country: initialCountry,
         postal_code: initialData.default_postcode || "",
       };
-      setShippingDetails(initialShipping);
       onShippingChange(initialShipping);
     }
-  }, [initialData]);
+  }, [initialData, hasPhysicalItems, onShippingChange, shippingDetails]);
+
+  const syncAutofilledValues = useCallback(() => {
+    if (!formRef.current) return;
+    onShippingChange((prev) => {
+      const nextDetails = { ...prev };
+      let changed = false;
+
+      SHIPPING_FIELD_NAMES.forEach((fieldName) => {
+        const element = formRef.current?.elements.namedItem(fieldName);
+        if (
+          !element ||
+          !("value" in element) ||
+          typeof (element as unknown as HTMLInputElement | HTMLSelectElement)
+            .value !== "string"
+        ) {
+          return;
+        }
+
+        const domValue = (
+          element as unknown as HTMLInputElement | HTMLSelectElement
+        ).value;
+        if (domValue !== prev[fieldName]) {
+          nextDetails[fieldName] = domValue;
+          changed = true;
+        }
+      });
+
+      return changed ? nextDetails : prev;
+    });
+  }, [onShippingChange]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    const newDetails = { ...shippingDetails, [e.target.name]: e.target.value };
-    setShippingDetails(newDetails);
-    onShippingChange(newDetails);
+    if (errorMessage) setErrorMessage(null);
+    const fieldName = e.target.name as keyof ShippingDetails;
+    const fieldValue = e.target.value;
+    onShippingChange((prev) => ({ ...prev, [fieldName]: fieldValue }));
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!isPaymentReady) {
+      setErrorMessage("Complete shipping details to load payment options.");
+      return;
+    }
     if (!stripe || !elements) return;
 
     setIsLoading(true);
     setErrorMessage(null);
 
-    const confirmParams: Record<string, any> = {
+    const confirmParams: ConfirmPaymentData = {
       return_url: `${window.location.origin}/checkout-success`,
       receipt_email: shippingDetails.email,
     };
@@ -162,6 +219,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     "w-full bg-black border border-white/20 rounded-lg p-4 text-white placeholder-gray-600 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all";
   const labelClass =
     "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2";
+  const requiresState = hasPhysicalItems && shippingDetails.country === "US";
   const selectedTransitCountry =
     shippingDetails.country === "IE" || shippingDetails.country === "US"
       ? shippingDetails.country
@@ -175,7 +233,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      onBlurCapture={syncAutofilledValues}
+      className="space-y-8"
+    >
       {/* 1. CONTACT / SHIPPING DETAILS */}
       <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
         <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
@@ -195,6 +258,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 onChange={handleChange}
                 placeholder="John Doe"
                 required
+                autoComplete="name"
                 className={inputClass}
               />
             </div>
@@ -207,6 +271,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 placeholder="john@example.com"
                 type="email"
                 required
+                autoComplete="email"
                 className={inputClass}
               />
             </div>
@@ -222,6 +287,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   onChange={handleChange}
                   placeholder="123 Main St"
                   required
+                  autoComplete="address-line1"
                   className={inputClass}
                 />
               </div>
@@ -235,6 +301,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     onChange={handleChange}
                     placeholder="Dublin"
                     required
+                    autoComplete="address-level2"
                     className={inputClass}
                   />
                 </div>
@@ -244,11 +311,36 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     name="postal_code"
                     value={shippingDetails.postal_code}
                     onChange={handleChange}
-                    placeholder="D01 X123"
+                    placeholder={
+                      shippingDetails.country === "US" ? "12345" : "D01 X123"
+                    }
                     required
+                    autoComplete="postal-code"
                     className={inputClass}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  {shippingDetails.country === "US" ? "State" : "County"}
+                </label>
+                <input
+                  name="state"
+                  value={shippingDetails.state}
+                  onChange={handleChange}
+                  placeholder={
+                    shippingDetails.country === "US" ? "California" : "Galway"
+                  }
+                  required={requiresState}
+                  autoComplete="address-level1"
+                  className={inputClass}
+                />
+                {requiresState && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    State is required for US shipping addresses.
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -259,6 +351,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     value={shippingDetails.country}
                     onChange={handleChange}
                     required
+                    autoComplete="country"
                     className={`${inputClass} appearance-none cursor-pointer`}
                   >
                     <option value="">Select Country...</option>
@@ -281,6 +374,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     placeholder="+353..."
                     type="tel"
                     required
+                    autoComplete="tel"
                     className={inputClass}
                   />
                 </div>
@@ -338,8 +432,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           </p>
           {selectedTransitCountry === "US" && shippingMethod === "standard" && (
             <p className="mt-2 text-xs text-gray-500">
-              Some specialty items printed only in Europe can take 10-15
-              working days to reach the US.
+              Some specialty items printed only in Europe can take 10-15 working
+              days to reach the US.
             </p>
           )}
         </div>
@@ -355,7 +449,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </div>
 
         <div className="min-h-[200px]">
-          <PaymentElement />
+          {isPaymentReady ? (
+            <PaymentElement />
+          ) : (
+            <div className="h-full min-h-[200px] rounded-xl border border-white/10 bg-black/40 flex items-center justify-center px-6 text-center text-sm text-gray-400">
+              {hasPhysicalItems
+                ? "Enter a complete shipping address to load secure payment options."
+                : "Preparing secure payment options..."}
+            </div>
+          )}
         </div>
 
         {initialData && (
@@ -389,7 +491,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       )}
 
       <button
-        disabled={isLoading || !stripe || !elements || isUpdatingIntent}
+        disabled={
+          isLoading ||
+          !stripe ||
+          !elements ||
+          isUpdatingIntent ||
+          !isPaymentReady
+        }
         className="w-full py-5 bg-brand-700 hover:bg-brand-900 text-white font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(0,196,0,0.3)] transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? (
@@ -397,6 +505,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full" />{" "}
             Processing...
           </div>
+        ) : isUpdatingIntent ? (
+          "Updating checkout..."
+        ) : !isPaymentReady ? (
+          "Enter shipping details to continue"
         ) : (
           "Pay Now"
         )}
