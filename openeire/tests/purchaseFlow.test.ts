@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  cartHasDigitalItems,
+  cartHasPhysicalItems,
   getPurchaseFlowConfig,
   isValidDigitalLicense,
   normalizeDigitalLicense,
@@ -45,5 +47,20 @@ describe("digital license normalization", () => {
     expect(isValidDigitalLicense("4k")).toBe(true);
     expect(isValidDigitalLicense("invalid")).toBe(false);
     expect(isValidDigitalLicense(undefined)).toBe(false);
+  });
+});
+
+describe("cart product-type helpers", () => {
+  it("detects digital and physical presence from cart-like items", () => {
+    const mixed = [
+      { product: { product_type: "photo" } },
+      { product: { product_type: "physical" } },
+    ];
+    const physicalOnly = [{ product: { product_type: "physical" } }];
+
+    expect(cartHasDigitalItems(mixed)).toBe(true);
+    expect(cartHasPhysicalItems(mixed)).toBe(true);
+    expect(cartHasDigitalItems(physicalOnly)).toBe(false);
+    expect(cartHasPhysicalItems(physicalOnly)).toBe(true);
   });
 });

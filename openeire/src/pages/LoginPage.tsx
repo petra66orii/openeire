@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { resendVerificationEmail } from "../services/api";
@@ -13,6 +13,13 @@ const LoginPage: React.FC = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectPath =
+    (
+      location.state as
+        | { from?: { pathname?: string } }
+        | undefined
+    )?.from?.pathname || "/profile";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +27,7 @@ const LoginPage: React.FC = () => {
     try {
       await login(email, password, remember);
       toast.success("Welcome back.");
-      navigate("/profile");
+      navigate(redirectPath, { replace: true });
     } catch (err: any) {
       toast.error(
         err.detail || "Failed to log in. Please check your credentials.",

@@ -11,6 +11,7 @@ import { getProductDetail, ProductDetailItem } from "../services/api";
 import ReviewForm from "../components/ReviewForm";
 import ProductReviewList from "../components/ProductReviewList";
 import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import { useBreadcrumb } from "../context/BreadcrumbContext";
 import RelatedProducts from "../components/RelatedProducts";
@@ -37,6 +38,7 @@ const ProductDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useBreadcrumb();
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   // Media Player Refs
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -211,6 +213,13 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddDigitalToCart = () => {
     if (!product || !isDigital) return;
+    if (!isAuthenticated) {
+      toast.info("Please log in to purchase and download digital assets.");
+      navigate("/login", {
+        state: { from: { pathname: location.pathname } },
+      });
+      return;
+    }
 
     if (selectedDigitalPrice <= 0) {
       toast.error("Price unavailable. Please contact support.");
