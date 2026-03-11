@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { UserProfile, updateProfile } from "../services/api";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
+import { toastInfo } from "../utils/toast";
 
 interface UpdateAccountFormProps {
   profile: UserProfile;
@@ -25,7 +26,7 @@ const UpdateAccountForm: React.FC<UpdateAccountFormProps> = ({ profile }) => {
       formData.username === profile.username &&
       formData.email === profile.email
     ) {
-      toast.info("No changes to save.");
+      toastInfo("No changes to save.");
       return;
     }
     setLoading(true);

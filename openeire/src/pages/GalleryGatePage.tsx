@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { requestGalleryAccess, verifyGalleryAccess } from "../services/api";
 
 const GalleryGatePage = () => {

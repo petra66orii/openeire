@@ -6,8 +6,6 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 
@@ -25,7 +23,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <AuthProvider>
               <CartProvider>
                 <App />
-                <ToastContainer position="bottom-right" />
               </CartProvider>
             </AuthProvider>
           </AppErrorBoundary>

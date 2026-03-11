@@ -1,16 +1,15 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteAccount } from "../services/api"; // Verify this path matches your file structure
-import { toast } from "react-toastify";
-import AuthContext from "../context/AuthContext"; // Verify this path matches your file structure
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 const DeleteAccount: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const { logoutUser } = useContext(AuthContext) as any;
+  const { logout } = useAuth();
 
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +19,7 @@ const DeleteAccount: React.FC = () => {
       await deleteAccount(password);
       toast.success("Your account has been deleted.");
 
-      logoutUser();
+      logout();
 
       navigate("/");
     } catch (err: any) {
