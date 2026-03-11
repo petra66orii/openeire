@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import RegisterPage from "./pages/RegisterPage";
 import VerificationStatusPage from "./pages/VerificationStatusPage";
@@ -30,8 +31,21 @@ import LicensingPage from "./pages/LicensingPage";
 import { BreadcrumbProvider } from "./context/BreadcrumbContext";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "./components/ScrollToTop";
+import NotFoundPage from "./pages/NotFoundPage";
+import ForbiddenPage from "./pages/ForbiddenPage";
+import ServerErrorPage from "./pages/ServerErrorPage";
+import { subscribeToErrorRoute } from "./utils/errorRouting";
 
 function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    return subscribeToErrorRoute((path) => {
+      if (window.location.pathname === path) return;
+      navigate(path, { replace: true });
+    });
+  }, [navigate]);
+
   return (
     <>
       <BreadcrumbProvider>
@@ -92,6 +106,9 @@ function App() {
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/licensing" element={<LicensingPage />} />
+            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="/403" element={<ForbiddenPage />} />
+            <Route path="/500" element={<ServerErrorPage />} />
 
             {/* ================= PROTECTED ROUTES ================= */}
 
@@ -128,6 +145,7 @@ function App() {
             <Route path="/bag" element={<ShoppingBagPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
           <BackToTop />
         </main>
