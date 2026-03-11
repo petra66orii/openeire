@@ -749,14 +749,14 @@ export const getShoppingBagRecommendations = async (): Promise<GalleryItem[]> =>
 };
 
 export const downloadProduct = async (
-  type: "photo" | "video", 
-  id: number, 
+  type: "photo" | "video",
+  id: number,
   filename: string
 ) => {
   const response = await api.get(
     normalizeApiPath(`/products/download/${type}/${id}/`),
     {
-    responseType: 'blob', // IMPORTANT: Tells Axios this is a file, not JSON
+      responseType: 'blob', // IMPORTANT: Tells Axios this is a file, not JSON
     },
   );
 
