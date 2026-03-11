@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   getBlogPostDetail,
@@ -14,6 +14,7 @@ import { toast } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import SocialShareButtons from "../components/SocialShareButtons";
 import SEOHead from "../components/SEOHead";
+import { sanitizeRichHtml } from "../utils/sanitizeHtml";
 import {
   FaArrowLeft,
   FaHeart,
@@ -33,6 +34,10 @@ const BlogDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const sanitizedContent = useMemo(
+    () => sanitizeRichHtml(post?.content ?? ""),
+    [post?.content],
+  );
 
   useEffect(() => {
     if (slug) {
@@ -148,7 +153,7 @@ const BlogDetailPage: React.FC = () => {
 
         {/* CONTENT (Use prose-invert for dark mode) */}
         <article className="prose prose-invert prose-lg max-w-none text-gray-300 leading-loose prose-a:text-accent prose-headings:font-serif prose-headings:text-white prose-blockquote:border-l-accent prose-img:rounded-xl">
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
         </article>
 
         {/* ACTIONS */}
