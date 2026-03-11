@@ -1,4 +1,5 @@
 import axios from "axios";
+import { emitErrorRoute } from "../utils/errorRouting";
 
 // Create an Axios instance for our API
 export const api = axios.create({
@@ -37,6 +38,53 @@ api.interceptors.request.use(
   (error) => {
     return Promise.reject(error);
   }
+);
+
+const getRequestPath = (url?: string): string => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.pathname.replace(/^\/api\//, "");
+    } catch {
+      return "";
+    }
+  }
+  return url.replace(/^\/+/, "");
+};
+
+const shouldSkipForbiddenRouteRedirect = (requestPath: string): boolean =>
+  requestPath.startsWith("photos/") ||
+  requestPath.startsWith("videos/") ||
+  requestPath.startsWith("gallery/");
+
+const shouldHandleGlobalErrorRoute = (method?: string): boolean =>
+  (method ?? "get").toLowerCase() === "get";
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error)) {
+      const method = error.config?.method;
+      if (!shouldHandleGlobalErrorRoute(method)) {
+        return Promise.reject(error);
+      }
+
+      const statusCode = error.response?.status;
+      const requestPath = getRequestPath(error.config?.url);
+
+      if (
+        statusCode === 403 &&
+        !shouldSkipForbiddenRouteRedirect(requestPath)
+      ) {
+        emitErrorRoute("/403");
+      } else if (typeof statusCode === "number" && statusCode >= 500) {
+        emitErrorRoute("/500");
+      }
+    }
+
+    return Promise.reject(error);
+  },
 );
 
 // --- TYPES ---

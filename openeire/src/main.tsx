@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import AppErrorBoundary from "./components/AppErrorBoundary";
 
 const GOOGLE_CLIENT_ID =
   "915383717686-bhrb8rik5rckglurgeqa17igdr44obg4.apps.googleusercontent.com";
@@ -20,12 +21,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <AuthProvider>
-            <CartProvider>
-              <App />
-              <ToastContainer position="bottom-right" />
-            </CartProvider>
-          </AuthProvider>
+          <AppErrorBoundary>
+            <AuthProvider>
+              <CartProvider>
+                <App />
+                <ToastContainer position="bottom-right" />
+              </CartProvider>
+            </AuthProvider>
+          </AppErrorBoundary>
         </BrowserRouter>
       </QueryClientProvider>
     </GoogleOAuthProvider>
