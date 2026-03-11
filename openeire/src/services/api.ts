@@ -1,5 +1,6 @@
 import axios from "axios";
 import { emitErrorRoute } from "../utils/errorRouting";
+import { normalizeApiPath } from "../utils/apiPath";
 
 // Create an Axios instance for our API
 export const api = axios.create({
@@ -52,7 +53,7 @@ const getRequestPath = (url?: string): string => {
       return "";
     }
   }
-  return url.replace(/^\/+/, "");
+  return normalizeApiPath(url);
 };
 
 const shouldSkipForbiddenRouteRedirect = (requestPath: string): boolean =>
@@ -743,7 +744,7 @@ export const verifyGalleryAccess = async (access_code: string) => {
 };
 
 export const getShoppingBagRecommendations = async (): Promise<GalleryItem[]> => {
-  const response = await api.get('/products/recommendations/');
+  const response = await api.get(normalizeApiPath("/products/recommendations/"));
   return response.data;
 };
 
@@ -752,9 +753,12 @@ export const downloadProduct = async (
   id: number, 
   filename: string
 ) => {
-  const response = await api.get(`/products/download/${type}/${id}/`, {
+  const response = await api.get(
+    normalizeApiPath(`/products/download/${type}/${id}/`),
+    {
     responseType: 'blob', // IMPORTANT: Tells Axios this is a file, not JSON
-  });
+    },
+  );
 
   // Convert Blob to downloadable URL
   const url = window.URL.createObjectURL(new Blob([response.data]));
