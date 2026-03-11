@@ -55,14 +55,14 @@ const GalleryPage: React.FC = () => {
         const scrubDigitalPricing = (items: GalleryItem[]) =>
           items.map((item) =>
             item.product_type === "physical"
-              ? item
-              : {
-                  ...item,
-                  price: undefined,
-                  price_hd: undefined,
-                  price_4k: undefined,
-                  starting_price: undefined,
-                },
+                ? item
+                : {
+                    ...item,
+                    price: "",
+                    price_hd: undefined,
+                    price_4k: undefined,
+                    starting_price: undefined,
+                  },
           );
 
         if (Array.isArray(response)) {

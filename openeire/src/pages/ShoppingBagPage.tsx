@@ -20,7 +20,7 @@ const ShoppingBagPage: React.FC = () => {
             ? item
             : {
                 ...item,
-                price: undefined,
+                price: "",
                 price_hd: undefined,
                 price_4k: undefined,
                 starting_price: undefined,

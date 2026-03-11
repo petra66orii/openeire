@@ -12,8 +12,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
 import GalleryPage from "./pages/GalleryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import ShoppingBagPage from "./pages/ShoppingBagPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
@@ -51,18 +49,6 @@ function App() {
       <BreadcrumbProvider>
         <ScrollToTop />
         <Navbar />
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          aria-label={undefined}
-        />
         <Breadcrumbs />
         <main className="flex-grow">
           <Toaster position="bottom-center" toastOptions={{ duration: 3000 }} />

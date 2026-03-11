@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { submitProductReview } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import StarRating from "./StarRating";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 interface ReviewFormProps {

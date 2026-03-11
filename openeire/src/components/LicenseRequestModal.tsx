@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { FaTimes } from "react-icons/fa";
 import { submitLicenseRequest, LicenseRequestPayload } from "../services/api";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 interface LicenseRequestModalProps {
   isOpen: boolean;

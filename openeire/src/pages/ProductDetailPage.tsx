@@ -12,11 +12,12 @@ import ReviewForm from "../components/ReviewForm";
 import ProductReviewList from "../components/ProductReviewList";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useBreadcrumb } from "../context/BreadcrumbContext";
 import RelatedProducts from "../components/RelatedProducts";
 import LicenseRequestModal from "../components/LicenseRequestModal";
 import SEOHead from "../components/SEOHead";
+import { toastInfo } from "../utils/toast";
 import {
   isDigitalProductType,
   isPhysicalProductType,
@@ -81,7 +82,7 @@ const ProductDetailPage: React.FC = () => {
         axios.isAxiosError(err) &&
         shouldShowGalleryAccessCodeUx(type, err.response?.status)
       ) {
-        toast.info("Please re-enter your gallery access code.");
+        toastInfo("Please re-enter your gallery access code.");
         navigate("/gallery-gate", {
           replace: true,
           state: { from: { pathname: location.pathname } },
@@ -214,7 +215,7 @@ const ProductDetailPage: React.FC = () => {
   const handleAddDigitalToCart = () => {
     if (!product || !isDigital) return;
     if (!isAuthenticated) {
-      toast.info("Please log in to purchase and download digital assets.");
+      toastInfo("Please log in to purchase and download digital assets.");
       navigate("/login", {
         state: { from: { pathname: location.pathname } },
       });
