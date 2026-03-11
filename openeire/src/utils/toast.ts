@@ -2,10 +2,10 @@ import toast, { ToastOptions } from "react-hot-toast";
 
 export const toastInfo = (
   message: string,
-  options?: ToastOptions,
+  options?: Omit<ToastOptions, "icon">,
 ): string => {
   return toast(message, {
-    icon: "i",
     ...options,
+    icon: "i",
   });
 };
