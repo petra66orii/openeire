@@ -6,12 +6,11 @@ import {
 } from "../context/CartContext";
 import { FaTrash, FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { resolveMediaUrl } from "../config/backend";
 
 interface BagItemProps {
   item: CartItem;
 }
-
-const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const BagItem: React.FC<BagItemProps> = ({ item }) => {
   const { updateQuantity, removeFromCart } = useCart();
@@ -25,11 +24,8 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
     : `/gallery/${item.product.product_type}/${item.productId}`;
 
   const rawImageUrl = item.product.preview_image || item.product.thumbnail_image;
-  const imageUrl = rawImageUrl?.startsWith("http")
-    ? rawImageUrl
-    : rawImageUrl
-      ? `${BACKEND_BASE_URL}${rawImageUrl}`
-      : "https://via.placeholder.com/150?text=No+Image";
+  const imageUrl =
+    resolveMediaUrl(rawImageUrl) || "https://via.placeholder.com/150?text=No+Image";
 
   const unitPrice = getCartItemUnitPrice(item);
   const licenseLabel =

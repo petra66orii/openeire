@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getLikedBlogPosts, BlogPostListItem } from "../services/api";
 import { FaHeart, FaArrowRight } from "react-icons/fa";
-
-const BACKEND_BASE_URL = "http://127.0.0.1:8000";
+import { resolveMediaUrl } from "../config/backend";
 
 const LikedPostsList: React.FC = () => {
   const [posts, setPosts] = useState<BlogPostListItem[]>([]);
@@ -57,7 +56,7 @@ const LikedPostsList: React.FC = () => {
               <img
                 src={
                   post.featured_image
-                    ? `${BACKEND_BASE_URL}${post.featured_image}`
+                    ? resolveMediaUrl(post.featured_image)
                     : "https://via.placeholder.com/400"
                 }
                 alt={post.title}

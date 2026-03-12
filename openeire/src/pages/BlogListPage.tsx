@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { getBlogPosts, BlogPostListItem } from "../services/api";
 import { FaCalendarAlt, FaUser, FaTag, FaHeart } from "react-icons/fa";
-
-const BACKEND_BASE_URL = "http://127.0.0.1:8000";
+import { resolveMediaUrl } from "../config/backend";
 
 const BlogPostCard: React.FC<{ post: BlogPostListItem }> = ({ post }) => (
   <Link
@@ -15,7 +14,7 @@ const BlogPostCard: React.FC<{ post: BlogPostListItem }> = ({ post }) => (
       <img
         src={
           post.featured_image
-            ? `${BACKEND_BASE_URL}${post.featured_image}`
+            ? resolveMediaUrl(post.featured_image)
             : "https://via.placeholder.com/800x600?text=OpenEire+Journal"
         }
         alt={post.title}

@@ -1,10 +1,11 @@
 import axios from "axios";
 import { emitErrorRoute } from "../utils/errorRouting";
 import { normalizeApiPath } from "../utils/apiPath";
+import { API_BASE_URL } from "../config/backend";
 
 // Create an Axios instance for our API
 export const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },

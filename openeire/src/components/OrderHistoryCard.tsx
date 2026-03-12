@@ -1,12 +1,11 @@
 import React from "react";
 import { OrderHistory } from "../services/api";
 import { Link } from "react-router-dom";
+import { resolveMediaUrl } from "../config/backend";
 
 interface OrderHistoryCardProps {
   order: OrderHistory;
 }
-
-const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
   const orderDate = new Date(order.date).toLocaleDateString("en-IE", {
@@ -75,9 +74,8 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
         {order.items.map((item) => {
           const rawImageUrl =
             item.product.preview_image || item.product.thumbnail_image;
-          const imageUrl = rawImageUrl?.startsWith("http")
-            ? rawImageUrl
-            : `${BACKEND_BASE_URL}${rawImageUrl}`;
+          const imageUrl =
+            resolveMediaUrl(rawImageUrl) || "https://via.placeholder.com/150?text=No+Image";
           const productPath =
             item.product.product_type === "video"
               ? "video"

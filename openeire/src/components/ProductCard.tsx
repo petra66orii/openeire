@@ -7,14 +7,13 @@ import {
   isDigitalProductType,
   isPhysicalProductType,
 } from "../utils/purchaseFlow";
+import { resolveMediaUrl } from "../config/backend";
 
 interface ProductCardProps {
   product: GalleryItem;
   onModalOpen?: () => void;
   onModalClose?: () => void;
 }
-
-const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
@@ -42,18 +41,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   else detailUrl = `/gallery/photo/${product.id}`;
 
   const rawImageUrl = product.preview_image || product.thumbnail_image;
-  const imageUrl = rawImageUrl
-    ? rawImageUrl.startsWith("http")
-      ? rawImageUrl
-      : `${BACKEND_BASE_URL}${rawImageUrl}`
-    : "https://via.placeholder.com/400x300?text=No+Preview";
+  const imageUrl =
+    resolveMediaUrl(rawImageUrl) || "https://via.placeholder.com/400x300?text=No+Preview";
 
   const rawVideoFile = product.file;
-  const fullVideoUrl = rawVideoFile
-    ? rawVideoFile.startsWith("http")
-      ? rawVideoFile
-      : `${BACKEND_BASE_URL}${rawVideoFile}`
-    : null;
+  const fullVideoUrl = resolveMediaUrl(rawVideoFile) ?? null;
   const videoUrl = shouldLoadVideo ? fullVideoUrl : null;
 
   useEffect(() => {
