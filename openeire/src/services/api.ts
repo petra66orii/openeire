@@ -10,39 +10,6 @@ export const api = axios.create({
   },
 });
 
-// --- UNIFIED INTERCEPTOR ---
-// This handles BOTH User Authentication and Gallery Access
-api.interceptors.request.use(
-  (config) => {
-    // 1. Handle User Auth (Login)
-    const token =
-      localStorage.getItem("accessToken") ||
-      sessionStorage.getItem("accessToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    // 2. Handle Gallery Guest Pass (The new feature)
-    const gallerySession = localStorage.getItem('gallery_access');
-    if (gallerySession) {
-      try {
-        const { code } = JSON.parse(gallerySession);
-        if (code) {
-          // This header tells the backend: "I have the password for the vault"
-          config.headers['X-Gallery-Access-Token'] = code;
-        }
-      } catch (e) {
-        console.error("Error parsing gallery access token", e);
-      }
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
 const getRequestPath = (url?: string): string => {
   if (!url) return "";
   if (url.startsWith("http://") || url.startsWith("https://")) {
@@ -56,13 +23,85 @@ const getRequestPath = (url?: string): string => {
   return normalizeApiPath(url);
 };
 
-const shouldSkipForbiddenRouteRedirect = (requestPath: string): boolean =>
+export const isGalleryAccessScopedPath = (requestPath: string): boolean =>
   requestPath.startsWith("photos/") ||
   requestPath.startsWith("videos/") ||
   requestPath.startsWith("gallery/");
 
+const isAbsoluteUrl = (url: string): boolean =>
+  url.startsWith("http://") || url.startsWith("https://");
+
+export const isSameApiOriginRequest = (
+  url?: string,
+  baseUrl?: string,
+): boolean => {
+  if (!url || !isAbsoluteUrl(url)) {
+    return true;
+  }
+
+  if (!baseUrl) {
+    return false;
+  }
+
+  try {
+    const requestOrigin = new URL(url).origin;
+    const apiOrigin = new URL(baseUrl).origin;
+    return requestOrigin === apiOrigin;
+  } catch {
+    return false;
+  }
+};
+
+export const shouldAttachGalleryAccessToken = (
+  url?: string,
+  baseUrl?: string,
+): boolean =>
+  isGalleryAccessScopedPath(getRequestPath(url)) &&
+  isSameApiOriginRequest(url, baseUrl);
+
+const shouldSkipForbiddenRouteRedirect = (requestPath: string): boolean =>
+  isGalleryAccessScopedPath(requestPath);
+
 const shouldHandleGlobalErrorRoute = (method?: string): boolean =>
   (method ?? "get").toLowerCase() === "get";
+
+// --- UNIFIED INTERCEPTOR ---
+// This handles BOTH User Authentication and Gallery Access
+api.interceptors.request.use(
+  (config) => {
+    // 1. Handle User Auth (Login)
+    const token =
+      localStorage.getItem("accessToken") ||
+      sessionStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    // 2. Handle Gallery Guest Pass (Only for scoped digital-gallery endpoints)
+    const gallerySession = localStorage.getItem("gallery_access");
+    const apiBaseUrl =
+      typeof config.baseURL === "string" ? config.baseURL : api.defaults.baseURL;
+    if (
+      gallerySession &&
+      shouldAttachGalleryAccessToken(config.url, apiBaseUrl)
+    ) {
+      try {
+        const { code } = JSON.parse(gallerySession);
+        if (code) {
+          // This header tells the backend: "I have the password for the vault"
+          config.headers["X-Gallery-Access-Token"] = code;
+        }
+      } catch (e) {
+        console.error("Error parsing gallery access token", e);
+      }
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 api.interceptors.response.use(
   (response) => response,
