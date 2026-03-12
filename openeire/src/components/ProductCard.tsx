@@ -24,6 +24,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [showQuickView, setShowQuickView] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const isVideo = product.product_type === "video";
@@ -47,14 +49,40 @@ const ProductCard: React.FC<ProductCardProps> = ({
     : "https://via.placeholder.com/400x300?text=No+Preview";
 
   const rawVideoFile = product.file;
-  const videoUrl = rawVideoFile
+  const fullVideoUrl = rawVideoFile
     ? rawVideoFile.startsWith("http")
       ? rawVideoFile
       : `${BACKEND_BASE_URL}${rawVideoFile}`
     : null;
+  const videoUrl = shouldLoadVideo ? fullVideoUrl : null;
 
   useEffect(() => {
-    if (!isVideo || !videoRef.current || !videoUrl) return;
+    if (!isVideo || shouldLoadVideo || !cardRef.current) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setShouldLoadVideo(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadVideo(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "150px" },
+    );
+
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, [isVideo, shouldLoadVideo]);
+
+  useEffect(() => {
+    if (!isVideo || !videoRef.current || !videoUrl) {
+      setIsVideoPlaying(false);
+      return;
+    }
 
     if (isHovered) {
       const playPromise = videoRef.current.play();
@@ -78,6 +106,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     e.stopPropagation();
     setShowQuickView(true);
     if (onModalOpen) onModalOpen();
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (isVideo) {
+      setShouldLoadVideo(true);
+    }
   };
 
   const getBadge = () => {
@@ -104,8 +139,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <>
       <div
+        ref={cardRef}
         className="group relative bg-black rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-white/10"
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
       >
         <Link
@@ -121,14 +157,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }`}
           />
 
-          {isVideo && videoUrl && (
+          {isVideo && shouldLoadVideo && videoUrl && (
             <video
               ref={videoRef}
               src={videoUrl}
               muted
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
               className="absolute inset-0 z-0 w-full h-full object-cover"
             />
           )}
