@@ -114,7 +114,7 @@ const Footer: React.FC = () => {
               reserved.
               <span className="hidden md:inline"> {"\u2022"} </span>
               <span className="block md:inline mt-1 md:mt-0">
-                Designed with {"\u2618"} by
+                Designed with {"\u2618\uFE0F"} by
                 <a
                   href="https://missbott.online"
                   target="_blank"
