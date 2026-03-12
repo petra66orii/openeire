@@ -15,6 +15,7 @@ import { useAuth } from "../context/AuthContext";
 import SocialShareButtons from "../components/SocialShareButtons";
 import SEOHead from "../components/SEOHead";
 import { sanitizeRichHtml } from "../utils/sanitizeHtml";
+import { resolveMediaUrl } from "../config/backend";
 import {
   FaArrowLeft,
   FaHeart,
@@ -22,8 +23,6 @@ import {
   FaCalendar,
   FaUser,
 } from "react-icons/fa";
-
-const BACKEND_BASE_URL = "http://127.0.0.1:8000";
 
 const BlogDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -102,7 +101,7 @@ const BlogDetailPage: React.FC = () => {
         description={post.excerpt}
         image={
           post.featured_image
-            ? `${BACKEND_BASE_URL}${post.featured_image}`
+            ? resolveMediaUrl(post.featured_image)
             : undefined
         }
       />
@@ -144,7 +143,7 @@ const BlogDetailPage: React.FC = () => {
         {post.featured_image && (
           <div className="rounded-2xl overflow-hidden border border-white/10 mb-12 shadow-2xl">
             <img
-              src={`${BACKEND_BASE_URL}${post.featured_image}`}
+              src={resolveMediaUrl(post.featured_image)}
               alt={post.title}
               className="w-full h-auto"
             />
@@ -179,7 +178,7 @@ const BlogDetailPage: React.FC = () => {
               title={post.title}
               image={
                 post.featured_image
-                  ? `${BACKEND_BASE_URL}${post.featured_image}`
+                  ? resolveMediaUrl(post.featured_image)
                   : undefined
               }
             />
@@ -203,7 +202,7 @@ const BlogDetailPage: React.FC = () => {
                     <img
                       src={
                         related.featured_image
-                          ? `${BACKEND_BASE_URL}${related.featured_image}`
+                          ? resolveMediaUrl(related.featured_image)
                           : "https://via.placeholder.com/400"
                       }
                       className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
