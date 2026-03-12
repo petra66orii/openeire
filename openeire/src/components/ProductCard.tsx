@@ -186,7 +186,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   Price
                 </p>
                 <span className="font-serif font-bold text-lg">
-                  €{displayPrice}
+                  {"\u20AC"}{displayPrice}
                 </span>
               </div>
             ) : (

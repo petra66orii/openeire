@@ -29,7 +29,7 @@ interface AuthState {
   logout: () => void;
   isAuthenticated: boolean;
   setAuthData: (data: { access: string; refresh: string; user?: User }) => void;
-  refreshUser: () => Promise<void>; // 👈 NEW: Expose this function
+  refreshUser: () => Promise<void>; // Expose this function
 }
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -127,7 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         logout,
         isAuthenticated,
         setAuthData,
-        refreshUser, // 👈 Exporting it here
+        refreshUser, // Exporting it here
       }}
     >
       {children}

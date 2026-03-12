@@ -10,7 +10,7 @@ import {
   FaGlobe,
 } from "react-icons/fa";
 
-const BRAND_NAME = "OpenÉire Studios";
+const BRAND_NAME = "Open\u00C9ire Studios";
 const COPYRIGHT_SYMBOL = "\u00A9";
 
 const INTRO_TEXT = `${BRAND_NAME} offers premium fine-art photography and high-resolution aerial footage. To protect the integrity of the work, all media is subject to strict licensing terms. Please review the tiers below to ensure your intended use complies with our copyright and licensing policies.`;

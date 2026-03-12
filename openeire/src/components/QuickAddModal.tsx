@@ -267,7 +267,7 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
                     Total Price
                   </span>
                   <span className="text-4xl font-serif font-bold text-white">
-                    €{price}
+                    {"\u20AC"}{price}
                   </span>
                 </div>
 

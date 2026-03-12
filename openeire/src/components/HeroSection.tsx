@@ -28,7 +28,7 @@ const HeroSection: React.FC = () => {
         {/* The Glass Container */}
         <div className="glass px-6 md:px-12 py-12 md:py-20 rounded-3xl border border-white/10 shadow-2xl backdrop-blur-md bg-black/20">
           <span className="inline-block py-1 px-4 rounded-full bg-black/40 border border-accent/60 text-accent text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
-            Est. 2026 • Ireland
+            Est. 2026 {"\u2022"} Ireland
           </span>
 
           {/* Main Heading with IRISH TRICOLOR GRADIENT */}

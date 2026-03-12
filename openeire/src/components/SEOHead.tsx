@@ -13,7 +13,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   image,
   url = window.location.href,
 }) => {
-  const siteTitle = "OpenÉire Studios";
+  const siteTitle = "Open\u00C9ire Studios";
   const fullTitle = `${title} | ${siteTitle}`;
 
   useEffect(() => {

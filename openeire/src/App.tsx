@@ -78,7 +78,7 @@ function App() {
             <Route path="/gallery-gate" element={<GalleryGatePage />} />
             <Route path="/about" element={<AboutPage />} />
 
-            {/* 🟢 PUBLIC GALLERY (Physical Products & General View) */}
+            {/* PUBLIC GALLERY (Physical Products & General View) */}
             {/* Allows access to the main gallery page and physical items without a code */}
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/gallery/physical" element={<GalleryPage />} />
@@ -98,7 +98,7 @@ function App() {
 
             {/* ================= PROTECTED ROUTES ================= */}
 
-            {/* 🔒 LOCKED GALLERY (Stock Footage / Digital Only) */}
+            {/* LOCKED GALLERY (Stock Footage / Digital Only) */}
             <Route element={<GalleryGuard />}>
               {/* React Router matches specific paths before dynamic ones. 
                 These will trigger the Guard/Gate Page. */}
@@ -117,7 +117,7 @@ function App() {
               />
             </Route>
 
-            {/* 🔒 USER PROFILE (Requires Login) */}
+            {/* USER PROFILE (Requires Login) */}
             <Route
               path="/profile"
               element={

@@ -148,7 +148,7 @@ const AuthForm: React.FC = () => {
           value={formData.password}
           onChange={handleChange}
           className={inputClass}
-          placeholder="••••••••"
+          placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
         />
       </div>
 
@@ -164,7 +164,7 @@ const AuthForm: React.FC = () => {
           value={formData.confirmPassword}
           onChange={handleChange}
           className={inputClass}
-          placeholder="••••••••"
+          placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
         />
       </div>
 

@@ -9,8 +9,8 @@ const HomePage: React.FC = () => {
   return (
     <div>
       <SEOHead
-        title="Home" // Will become: "Home | OpenÉire Studios"
-        description="Welcome to OpenÉire Studios. Discover premium stock footage, high-quality photography, and fine art prints capturing the raw beauty of Ireland, New Zealand and much more."
+        title="Home" // Will become: "Home | Open\u00C9ire Studios"
+        description="Welcome to Open\u00C9ire Studios. Discover premium stock footage, high-quality photography, and fine art prints capturing the raw beauty of Ireland, New Zealand and much more."
         image="https://openeire.online/static/images/og-home-preview.jpg"
       />
       <HeroSection />
