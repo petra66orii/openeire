@@ -106,7 +106,7 @@ const LoginPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className={inputClass}
-              placeholder="••••••••"
+              placeholder={"\u2022".repeat(8)}
             />
           </div>
 

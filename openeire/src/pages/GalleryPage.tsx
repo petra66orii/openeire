@@ -51,7 +51,7 @@ const GalleryPage: React.FC = () => {
           sortOrder,
         );
 
-        // 🛡️ FIX: Handle both Paginated (response.results) and Non-Paginated (response is Array) formats
+        // Handle both paginated (response.results) and non-paginated (array) formats
         const scrubDigitalPricing = (items: GalleryItem[]) =>
           items.map((item) =>
             item.product_type === "physical"
@@ -85,7 +85,7 @@ const GalleryPage: React.FC = () => {
   }, [type, collection, searchTerm, sortOrder]);
 
   return (
-    // 🌑 DARK MODE BACKGROUND for that Cinema/Voyage feel
+    // Dark mode background for the gallery canvas
     <div className="bg-black min-h-screen pb-20">
       {/* 1. 3D SWIPER HERO (Controls Collection State) */}
       <VisualCategoryHero

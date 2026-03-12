@@ -435,7 +435,7 @@ const ProductDetailPage: React.FC = () => {
                         Total
                       </span>
                       <span className="text-4xl font-serif font-bold text-white">
-                        €{displayPrice}
+                        {"\u20AC"}{displayPrice}
                       </span>
                     </div>
 
@@ -504,7 +504,7 @@ const ProductDetailPage: React.FC = () => {
                         Total
                       </span>
                       <span className="text-4xl font-serif font-bold text-white">
-                        €{selectedDigitalPrice.toFixed(2)}
+                        {"\u20AC"}{selectedDigitalPrice.toFixed(2)}
                       </span>
                     </div>
 

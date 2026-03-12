@@ -106,7 +106,7 @@ const BlogListPage: React.FC = () => {
                 className="ml-4 hover:text-white transition-colors"
                 onClick={() => setSearchParams({})}
               >
-                ✕
+                {"\u2715"}
               </Link>
             </div>
           )}

@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
     setLoading(true);
     try {
       await newsletterSignup(email);
-      toast.success("Welcome to the community! 🇮🇪");
+      toast.success("Welcome to the community! \uD83C\uDDEE\uD83C\uDDEA");
       setEmail("");
     } catch (err: any) {
       toast.error(err.email?.[0] || "Failed to subscribe. Please try again.");
@@ -32,7 +32,7 @@ const Footer: React.FC = () => {
             <Link to="/" className="inline-block mb-6">
               <img
                 src={logoImage}
-                alt="OpenÉire Studios"
+                alt={"Open\u00C9ire Studios"}
                 className="h-12 w-auto opacity-90 hover:opacity-100 transition-opacity"
               />
             </Link>
@@ -110,11 +110,11 @@ const Footer: React.FC = () => {
         <div className="border-t border-brand-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/60">
           <div className="text-center md:text-left">
             <p>
-              &copy; {new Date().getFullYear()} OpenÉire Studios. All rights
+              &copy; {new Date().getFullYear()} Open{"\u00C9"}ire Studios. All rights
               reserved.
-              <span className="hidden md:inline"> • </span>
+              <span className="hidden md:inline"> {"\u2022"} </span>
               <span className="block md:inline mt-1 md:mt-0">
-                Designed with ☘️ by
+                Designed with {"\u2618\uFE0F"} by
                 <a
                   href="https://missbott.online"
                   target="_blank"

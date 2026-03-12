@@ -27,7 +27,7 @@ const TestimonialsCarousel: React.FC = () => {
 
   return (
     <section className="bg-brand-50 py-20 lg:py-28 overflow-hidden relative">
-      {/* 🌫️ THE "DARK MIST" GRADIENT 🌫️ */}
+      {/* Dark gradient backdrop */}
       <div className="absolute top-0 left-0 w-full h-32 md:h-48 bg-gradient-to-b from-brand-900 to-brand-50 z-0 pointer-events-none"></div>
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
@@ -51,7 +51,7 @@ const TestimonialsCarousel: React.FC = () => {
                 <span className="text-brand-500 font-bold text-xl mr-2">
                   5.0
                 </span>
-                <div className="flex text-accent text-sm">{"★".repeat(5)}</div>
+                <div className="flex text-accent text-sm">{"\u2605".repeat(5)}</div>
                 <span className="ml-3 text-gray-400 text-sm border-l pl-3">
                   Average Rating
                 </span>

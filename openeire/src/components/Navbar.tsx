@@ -8,7 +8,7 @@ const Navbar: React.FC = () => {
   const { isAuthenticated, logout } = useAuth(); // Removed unused 'logout' if not using, but keeping for safety
   const { itemCount } = useCart();
   const [scrolled, setScrolled] = useState(false);
-  const [showBanner, setShowBanner] = useState(true); // 👈 New State for Banner
+  const [showBanner, setShowBanner] = useState(true); // Banner state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -45,16 +45,16 @@ const Navbar: React.FC = () => {
 
   return (
     <div className="fixed top-0 left-0 w-full z-50 flex flex-col transition-all duration-300">
-      {/* ✨ 1. ANNOUNCEMENT BAR ✨ */}
+      {/* 1. Announcement Bar */}
       {showBanner && (
         <div className="bg-dark text-white text-xs font-medium py-2 px-4 relative transition-all duration-300 ease-in-out">
           <div className="container mx-auto flex justify-center items-center text-center">
             <p className="tracking-wide">
-              <span className="text-accent font-bold">✨ Free Delivery</span>
+              <span className="text-accent font-bold">{"\u2728"} Free Delivery</span>
               <span className="opacity-90 ml-1">
                 on all physical orders over{" "}
               </span>
-              <span className="font-bold text-white ml-1">€120</span>
+              <span className="font-bold text-white ml-1">{"\u20AC"}120</span>
 
               <Link
                 to="/gallery/physical"
@@ -87,7 +87,7 @@ const Navbar: React.FC = () => {
         </div>
       )}
 
-      {/* 🧭 2. NAVBAR 🧭 */}
+      {/* 2. Navbar */}
       <nav
         className={`w-full transition-all duration-300 text-white ${navBackground}`}
       >
@@ -97,7 +97,7 @@ const Navbar: React.FC = () => {
             <Link to="/" className="flex items-center">
               <img
                 src={logoImage}
-                alt="OpenÉire Studios Logo"
+                alt={"Open\u00C9ire Studios Logo"}
                 className="text-white h-16 transition-all"
               />
             </Link>

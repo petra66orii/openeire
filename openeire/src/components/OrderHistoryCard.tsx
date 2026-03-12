@@ -35,7 +35,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
             <p className="text-white">{orderDate}</p>
           </div>
 
-          {/* 👇 NEW: SHIPPING DETAILS DISPLAY 👇 */}
+          {/* Shipping details display */}
           {Number(order.delivery_cost) > 0 && (
             <div>
               <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
@@ -47,7 +47,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                 )
               </p>
               <p className="text-white">
-                €{Number(order.delivery_cost).toFixed(2)}
+                {"\u20AC"}{Number(order.delivery_cost).toFixed(2)}
               </p>
             </div>
           )}
@@ -63,7 +63,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
             </p>
           ) : (
             <p className="text-accent font-bold text-lg">
-              €{Number(order.total_price).toFixed(2)}
+              {"\u20AC"}{Number(order.total_price).toFixed(2)}
             </p>
           )}
         </div>
@@ -87,7 +87,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
           return (
             <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
               <Link
-                // 👇 Use photo_id for digital items when available
+                // Use photo_id for digital items when available
                 to={`/gallery/${productPath}/${productId}`}
                 className="block flex-shrink-0 w-16 h-16 bg-gray-800 rounded overflow-hidden border border-white/10"
               >
@@ -103,7 +103,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                   {item.product.title}
                 </h4>
 
-                {/* 👇 FIX: Show the actual material and size instead of generic text */}
+                {/* Show material and size for physical items */}
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                   {item.product.product_type === "physical"
                     ? `${item.product.material_display} (${item.product.size_display})`
@@ -114,7 +114,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
               <div className="text-right">
                 {item.product.product_type === "physical" ? (
                   <p className="text-white font-bold">
-                    €{Number(item.item_total).toFixed(2)}
+                    {"\u20AC"}{Number(item.item_total).toFixed(2)}
                   </p>
                 ) : (
                   <p className="text-gray-400 text-sm font-bold">Licensed</p>

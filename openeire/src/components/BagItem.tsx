@@ -84,7 +84,7 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
           </div>
 
           <p className="text-xl font-serif font-bold text-white">
-            €{(unitPrice * item.quantity).toFixed(2)}
+            {"\u20AC"}{(unitPrice * item.quantity).toFixed(2)}
           </p>
         </div>
 
