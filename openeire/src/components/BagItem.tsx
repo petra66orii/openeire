@@ -3,6 +3,7 @@ import {
   useCart,
   CartItem,
   getCartItemUnitPrice,
+  isDigitalCartOptions,
 } from "../context/CartContext";
 import { FaTrash, FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -29,7 +30,7 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
 
   const unitPrice = getCartItemUnitPrice(item);
   const licenseLabel =
-    item.options?.license === "4k"
+    isDigitalCartOptions(item.options) && item.options.license === "4k"
       ? "4K Personal Licence"
       : "HD Personal Licence";
 

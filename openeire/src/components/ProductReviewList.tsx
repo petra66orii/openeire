@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { getProductReviews, ProductReview } from "../services/api";
+import {
+  getProductReviews,
+  ProductReview,
+  ReviewProductType,
+} from "../services/api";
 import ReviewCard from "./ReviewCard"; // Import ReviewCard
 
 interface ProductReviewListProps {
-  productType: string;
+  productType: ReviewProductType;
   productId: string;
   refreshKey: number; // A prop to trigger re-fetch when reviews are submitted
 }

@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { useCart } from "../context/CartContext";
-import { GalleryItem } from "../services/api";
+import { PhysicalCartProduct, useCart } from "../context/CartContext";
 
 interface AddToCartFormProps {
-  product: GalleryItem;
+  product: PhysicalCartProduct;
 }
 
 const AddToCartForm: React.FC<AddToCartFormProps> = ({ product }) => {
@@ -11,13 +10,15 @@ const AddToCartForm: React.FC<AddToCartFormProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-  if (product.product_type !== "physical") return null;
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // 3. Add to Cart
-    addToCart(product, quantity, { type: "physical" });
+    addToCart(product, quantity, {
+      type: "physical",
+      variantId: Number(product.id),
+      sourceProductId: Number(product.id),
+    });
 
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);

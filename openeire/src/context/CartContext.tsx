@@ -9,22 +9,67 @@ import React, {
 import { GalleryItem } from "../services/api";
 import {
   cartHasDigitalItems,
+  DigitalLicense,
   isDigitalProductType,
   isPhysicalProductType,
   isValidDigitalLicense,
 } from "../utils/purchaseFlow";
 import { useAuth } from "./AuthContext";
 
-// 1. Define what "Options" look like
-export interface CartOptions {
-  material?: string; // e.g. "canvas"
-  size?: string; // e.g. "A4"
-  license?: "hd" | "4k";
-  unitPrice?: number;
-  variantId?: number;
+export interface PhysicalCartOptions {
+  type?: "physical";
+  material?: string;
+  size?: string;
+  variantId: number;
   sourceProductId?: number;
-  [key: string]: any; // Allow flexibility
 }
+
+export interface DigitalCartOptions {
+  type?: "digital";
+  license: DigitalLicense;
+  unitPrice?: number;
+  sourceProductId?: number;
+}
+
+export type CartOptions = PhysicalCartOptions | DigitalCartOptions;
+export type PhysicalCartProduct = GalleryItem & { product_type: "physical" };
+export type DigitalCartProduct = GalleryItem & {
+  product_type: "photo" | "video";
+};
+
+type AddToCartFn = {
+  (
+    product: PhysicalCartProduct,
+    quantity: number,
+    options: PhysicalCartOptions,
+  ): void;
+  (
+    product: DigitalCartProduct,
+    quantity: number,
+    options: DigitalCartOptions,
+  ): void;
+};
+
+export const isDigitalCartOptions = (
+  options: CartOptions | undefined,
+): options is DigitalCartOptions =>
+  Boolean(
+    options &&
+      "license" in options &&
+      typeof options.license === "string" &&
+      isValidDigitalLicense(options.license),
+  );
+
+export const isPhysicalCartOptions = (
+  options: CartOptions | undefined,
+): options is PhysicalCartOptions =>
+  Boolean(
+    options &&
+      "variantId" in options &&
+      typeof options.variantId === "number" &&
+      Number.isFinite(options.variantId) &&
+      options.variantId > 0,
+  );
 
 export interface CartItem {
   cartId: string; // Unique Key (e.g. "physical-105-{}")
@@ -36,12 +81,7 @@ export interface CartItem {
 
 interface CartContextType {
   cartItems: CartItem[];
-  // Updated addToCart to accept options
-  addToCart: (
-    product: GalleryItem,
-    quantity: number,
-    options?: CartOptions,
-  ) => void;
+  addToCart: AddToCartFn;
   updateQuantity: (cartId: string, newQuantity: number) => void;
   removeFromCart: (cartId: string) => void;
   itemCount: number;
@@ -57,6 +97,12 @@ const toNumber = (value: string | number | undefined): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const toPositiveInteger = (value: unknown): number | undefined => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
+  return Math.floor(parsed);
+};
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
@@ -65,7 +111,7 @@ export const getCartItemUnitPrice = (item: CartItem): number => {
     return toNumber(item.product.price ?? item.product.starting_price);
   }
 
-  const is4k = item.options?.license === "4k";
+  const is4k = isDigitalCartOptions(item.options) && item.options.license === "4k";
   if (is4k) {
     return toNumber(item.product.price_4k ?? item.product.price);
   }
@@ -86,24 +132,63 @@ const sanitizeProductForCart = (product: GalleryItem): GalleryItem => {
   return safeProduct as GalleryItem;
 };
 
+const getPhysicalSourceProductId = (product: GalleryItem): number | undefined => {
+  if (!isPhysicalProductType(product.product_type)) return undefined;
+  const productRecord = product as unknown;
+  if (!isRecord(productRecord)) return undefined;
+  const photoCandidate = productRecord.photo;
+  if (!isRecord(photoCandidate)) return undefined;
+  return toPositiveInteger(photoCandidate.id);
+};
+
 const sanitizeOptionsForCart = (
   productType: string | null | undefined,
-  options?: CartOptions,
+  options: unknown,
+  fallbackIds?: { variantId?: number; sourceProductId?: number },
 ): CartOptions | undefined => {
-  if (!options) return options;
-  if (!isRecord(options)) return undefined;
+  const optionRecord = isRecord(options) ? options : undefined;
+  const sourceProductId =
+    toPositiveInteger(optionRecord?.sourceProductId) ??
+    fallbackIds?.sourceProductId;
 
-  const safeOptions = { ...options };
-  delete safeOptions.unitPrice;
+  if (isDigitalProductType(productType)) {
+    const rawLicense =
+      optionRecord && typeof optionRecord.license === "string"
+        ? optionRecord.license
+        : undefined;
+    const license: DigitalLicense = isValidDigitalLicense(rawLicense)
+      ? rawLicense
+      : "hd";
 
-  if (!isDigitalProductType(productType)) return safeOptions;
+    return {
+      type: "digital",
+      license,
+      sourceProductId,
+    };
+  }
 
-  return {
-    ...safeOptions,
-    license: isValidDigitalLicense(safeOptions.license)
-      ? safeOptions.license
-      : "hd",
-  };
+  if (isPhysicalProductType(productType)) {
+    const variantId =
+      (optionRecord ? toPositiveInteger(optionRecord.variantId) : undefined) ??
+      fallbackIds?.variantId;
+    if (!variantId) return undefined;
+
+    return {
+      type: "physical",
+      material:
+        optionRecord && typeof optionRecord.material === "string"
+          ? optionRecord.material
+          : undefined,
+      size:
+        optionRecord && typeof optionRecord.size === "string"
+          ? optionRecord.size
+          : undefined,
+      variantId,
+      sourceProductId,
+    };
+  }
+
+  return undefined;
 };
 
 const sanitizeStoredCartEntry = (entry: unknown): CartItem | null => {
@@ -130,7 +215,12 @@ const sanitizeStoredCartEntry = (entry: unknown): CartItem | null => {
   const safeProduct = sanitizeProductForCart(entry.product as unknown as GalleryItem);
   const safeOptions = sanitizeOptionsForCart(
     safeProduct.product_type,
-    isRecord(entry.options) ? (entry.options as CartOptions) : undefined,
+    entry.options,
+    {
+      variantId: toPositiveInteger(safeProduct.id),
+      sourceProductId:
+        getPhysicalSourceProductId(safeProduct) ?? toPositiveInteger(safeProduct.id),
+    },
   );
   const optionsString = safeOptions ? JSON.stringify(safeOptions) : "";
 
@@ -193,12 +283,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [isAuthenticated, cartItems]);
 
   const addToCart = useCallback(
-    (product: GalleryItem, quantity: number, options?: CartOptions) => {
+    ((product: GalleryItem, quantity: number, options: CartOptions) => {
       const safeProduct = sanitizeProductForCart(product);
-      const safeOptions = sanitizeOptionsForCart(safeProduct.product_type, options);
+      const safeOptions = sanitizeOptionsForCart(
+        safeProduct.product_type,
+        options,
+        {
+          variantId: toPositiveInteger(safeProduct.id),
+          sourceProductId:
+            getPhysicalSourceProductId(safeProduct) ??
+            toPositiveInteger(safeProduct.id),
+        },
+      );
+      if (!safeOptions) {
+        console.error("Invalid cart options for product", {
+          productId: safeProduct.id,
+          productType: safeProduct.product_type,
+          options,
+        });
+        return;
+      }
 
       // Create a unique string based on options to differentiate variants
-      const optionsString = safeOptions ? JSON.stringify(safeOptions) : "";
+      const optionsString = JSON.stringify(safeOptions);
       const uniqueCartId = `${safeProduct.product_type}-${safeProduct.id}-${optionsString}`;
 
       setCartItems((prevItems) => {
@@ -226,7 +333,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           ];
         }
       });
-    },
+    }) as AddToCartFn,
     [],
   );
 

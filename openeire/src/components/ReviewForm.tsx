@@ -1,12 +1,16 @@
 import React, { useState } from "react";
-import { submitProductReview } from "../services/api";
+import {
+  ApiErrorResponse,
+  ReviewProductType,
+  submitProductReview,
+} from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import StarRating from "./StarRating";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 interface ReviewFormProps {
-  productType: string;
+  productType: ReviewProductType;
   productId: string;
   onReviewSubmitted: () => void;
 }
@@ -20,6 +24,16 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const getErrorMessage = (error: unknown): string => {
+    if (typeof error === "string") return error;
+    if (error && typeof error === "object") {
+      const responseError = error as ApiErrorResponse;
+      if (typeof responseError.detail === "string") return responseError.detail;
+      if (typeof responseError.message === "string") return responseError.message;
+    }
+    return "Failed to submit review.";
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,9 +49,8 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
       setRating(0);
       setComment("");
       onReviewSubmitted();
-    } catch (error: any) {
-      const errorMessage = error?.detail || "Failed to submit review.";
-      toast.error(errorMessage);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
