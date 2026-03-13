@@ -100,6 +100,8 @@ const GalleryPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState("date_desc");
   const [isGridHovered, setIsGridHovered] = useState(false);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
+  const [modalOwnerKey, setModalOwnerKey] = useState<string | null>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState<number>(() =>
     typeof window === "undefined"
@@ -129,11 +131,19 @@ const GalleryPage: React.FC = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    let rafId: number | null = null;
+    let scrollRafId: number | null = null;
 
-    const syncViewport = () => {
-      rafId = null;
+    const syncScrollPosition = () => {
+      scrollRafId = null;
       setScrollY(window.scrollY);
+    };
+
+    const requestScrollSync = () => {
+      if (scrollRafId !== null) return;
+      scrollRafId = window.requestAnimationFrame(syncScrollPosition);
+    };
+
+    const syncViewportSize = () => {
       setViewportHeight(window.innerHeight);
       measureGridMetrics();
       setColumnCount((prev) => {
@@ -142,35 +152,32 @@ const GalleryPage: React.FC = () => {
       });
     };
 
-    const requestSync = () => {
-      if (rafId !== null) return;
-      rafId = window.requestAnimationFrame(syncViewport);
-    };
-
-    requestSync();
-    window.addEventListener("scroll", requestSync, { passive: true });
-    window.addEventListener("resize", requestSync);
+    setScrollY(window.scrollY);
+    syncViewportSize();
+    window.addEventListener("scroll", requestScrollSync, { passive: true });
+    window.addEventListener("resize", syncViewportSize);
 
     return () => {
-      if (rafId !== null) {
-        window.cancelAnimationFrame(rafId);
+      if (scrollRafId !== null) {
+        window.cancelAnimationFrame(scrollRafId);
       }
-      window.removeEventListener("scroll", requestSync);
-      window.removeEventListener("resize", requestSync);
+      window.removeEventListener("scroll", requestScrollSync);
+      window.removeEventListener("resize", syncViewportSize);
     };
   }, [measureGridMetrics]);
 
   useEffect(() => {
-    if (!gridRef.current || typeof window === "undefined") return;
+    if (!gridRef.current || !pageRef.current || typeof window === "undefined")
+      return;
 
     measureGridMetrics();
 
     if (typeof ResizeObserver === "undefined") return;
     const resizeObserver = new ResizeObserver(() => measureGridMetrics());
     resizeObserver.observe(gridRef.current);
-    resizeObserver.observe(document.body);
+    resizeObserver.observe(pageRef.current);
     return () => resizeObserver.disconnect();
-  }, [measureGridMetrics, columnCount, products.length]);
+  }, [measureGridMetrics, columnCount, products.length, loading]);
 
   const columnWidth = useMemo(() => {
     if (columnCount <= 0 || containerWidth <= 0) return 0;
@@ -205,6 +212,16 @@ const GalleryPage: React.FC = () => {
       return changed ? next : prev;
     });
   }, [products, layoutKey]);
+
+  useEffect(() => {
+    if (!modalOwnerKey) return;
+    const ownerStillPresent = products.some(
+      (product) => getProductKey(product) === modalOwnerKey,
+    );
+    if (ownerStillPresent) return;
+    setModalOwnerKey(null);
+    setIsAnyModalOpen(false);
+  }, [products, modalOwnerKey]);
 
   const columns = useMemo<
     Array<Array<{ product: GalleryItem; index: number; productKey: string }>>
@@ -274,7 +291,8 @@ const GalleryPage: React.FC = () => {
         const totalHeight = Math.max(0, offset - MASONRY_GAP_PX);
         const visibleItems = items.filter(
           (item) =>
-            item.top + item.height >= visibleTop && item.top <= visibleBottom,
+            item.productKey === modalOwnerKey ||
+            (item.top + item.height >= visibleTop && item.top <= visibleBottom),
         );
 
         return {
@@ -287,6 +305,7 @@ const GalleryPage: React.FC = () => {
       measuredHeights,
       layoutKey,
       estimatedCardHeight,
+      modalOwnerKey,
       visibleTop,
       visibleBottom,
     ],
@@ -339,7 +358,7 @@ const GalleryPage: React.FC = () => {
 
   return (
     // Dark mode background for the gallery canvas
-    <div className="bg-black min-h-screen pb-20">
+    <div ref={pageRef} className="bg-black min-h-screen pb-20">
       {/* 1. 3D SWIPER HERO (Controls Collection State) */}
       <VisualCategoryHero
         activeCollection={collection}
@@ -365,17 +384,15 @@ const GalleryPage: React.FC = () => {
 
         {/* Masonry Grid */}
         {!loading && !error && products.length > 0 && (
-          <div className="my-masonry-grid w-full items-start gap-8 !ml-0">
+          <div className="flex w-full items-start gap-8">
             {columnLayouts.map((layout, columnIndex) => (
               <div
                 key={`gallery-column-${columnIndex}`}
-                className="my-masonry-grid_column"
+                className="min-w-0 bg-clip-padding"
                 style={{
                   position: "relative",
                   minHeight: layout.totalHeight,
                   flex: "1 1 0",
-                  minWidth: 0,
-                  paddingLeft: 0,
                 }}
               >
                 {layout.visibleItems.map(({ product, productKey, top }) => (
@@ -384,8 +401,16 @@ const GalleryPage: React.FC = () => {
                     productKey={productKey}
                     product={product}
                     top={top}
-                    onModalOpen={() => setIsAnyModalOpen(true)}
-                    onModalClose={() => setIsAnyModalOpen(false)}
+                    onModalOpen={() => {
+                      setModalOwnerKey(productKey);
+                      setIsAnyModalOpen(true);
+                    }}
+                    onModalClose={() => {
+                      setModalOwnerKey((prev) =>
+                        prev === productKey ? null : prev,
+                      );
+                      setIsAnyModalOpen(false);
+                    }}
                     onHeightMeasured={handleHeightMeasured}
                   />
                 ))}

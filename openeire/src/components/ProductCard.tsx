@@ -91,6 +91,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
     setIsVideoPlaying(false);
   }, [isHovered, isVideo, videoUrl]);
 
+  useEffect(() => {
+    return () => {
+      if (showQuickView && onModalClose) {
+        onModalClose();
+      }
+    };
+  }, [showQuickView, onModalClose]);
+
   const handleQuickAdd = (e: React.MouseEvent) => {
     if (!isPhysical) return;
 
