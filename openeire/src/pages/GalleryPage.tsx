@@ -289,6 +289,8 @@ const GalleryPage: React.FC = () => {
         });
 
         const totalHeight = Math.max(0, offset - MASONRY_GAP_PX);
+        // Intentional virtualization: keep only near-viewport cards mounted.
+        // The modal owner stays mounted while quick-add is open to avoid modal teardown on scroll.
         const visibleItems = items.filter(
           (item) =>
             item.productKey === modalOwnerKey ||

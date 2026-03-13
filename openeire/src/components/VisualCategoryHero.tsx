@@ -15,27 +15,27 @@ const categories = [
   {
     id: "all",
     label: "All Footage",
-    image: "../public/all-gallery.webp",
+    image: "/all-gallery.webp",
   },
   {
     id: "ireland",
     label: "Ireland",
-    image: "../public/ireland-gallery.webp",
+    image: "/ireland-gallery.webp",
   },
   {
     id: "new zealand",
     label: "New Zealand",
-    image: "../public/new-zealand-gallery.webp",
+    image: "/new-zealand-gallery.webp",
   },
   {
     id: "thailand",
     label: "Thailand",
-    image: "../public/thailand-gallery.webp",
+    image: "/thailand-gallery.webp",
   },
   {
     id: "romania",
     label: "Romania",
-    image: "../public/romania-gallery.webp",
+    image: "/romania-gallery.webp",
   },
 ];
 

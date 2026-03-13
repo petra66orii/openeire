@@ -21,11 +21,7 @@ interface AuthState {
   accessToken: string | null;
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  login: (
-    username: string,
-    password: string,
-    remember?: boolean
-  ) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   setAuthData: (data: { access: string; refresh: string; user?: User }) => void;
@@ -35,10 +31,11 @@ interface AuthState {
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const getSessionAccessToken = () => sessionStorage.getItem("accessToken");
+  const getSessionRefreshToken = () => sessionStorage.getItem("refreshToken");
+
   const [accessToken, setAccessToken] = useState<string | null>(
-    () =>
-      localStorage.getItem("accessToken") ||
-      sessionStorage.getItem("accessToken")
+    () => getSessionAccessToken() || localStorage.getItem("accessToken")
   );
 
   const [user, setUser] = useState<User | null>(null);
@@ -54,9 +51,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    const storedToken =
-      localStorage.getItem("accessToken") ||
-      sessionStorage.getItem("accessToken");
+    // Security hardening: keep auth tokens session-scoped only.
+    // If older deployments persisted tokens in localStorage, migrate once.
+    const legacyAccessToken = localStorage.getItem("accessToken");
+    const legacyRefreshToken = localStorage.getItem("refreshToken");
+
+    if (!getSessionAccessToken() && legacyAccessToken) {
+      sessionStorage.setItem("accessToken", legacyAccessToken);
+    }
+    if (!getSessionRefreshToken() && legacyRefreshToken) {
+      sessionStorage.setItem("refreshToken", legacyRefreshToken);
+    }
+
+    if (legacyAccessToken || legacyRefreshToken) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    }
+
+    const storedToken = getSessionAccessToken();
 
     if (storedToken) {
       setAccessToken(storedToken);
@@ -67,24 +79,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [refreshUser]); // Dependency added
 
-  const login = async (
-    username: string,
-    password: string,
-    remember: boolean = true
-  ) => {
+  const login = async (username: string, password: string) => {
     const response = await loginUser({ username, password });
 
-    if (remember) {
-      localStorage.setItem("accessToken", response.access);
-      localStorage.setItem("refreshToken", response.refresh);
-      sessionStorage.removeItem("accessToken");
-      sessionStorage.removeItem("refreshToken");
-    } else {
-      sessionStorage.setItem("accessToken", response.access);
-      sessionStorage.setItem("refreshToken", response.refresh);
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-    }
+    // Security hardening: authentication tokens are session-scoped.
+    sessionStorage.setItem("accessToken", response.access);
+    sessionStorage.setItem("refreshToken", response.refresh);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
 
     setAccessToken(response.access);
     await refreshUser(); // Load user data immediately
@@ -95,8 +97,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     refresh: string;
     user?: User;
   }) => {
-    localStorage.setItem("accessToken", data.access);
-    localStorage.setItem("refreshToken", data.refresh);
+    sessionStorage.setItem("accessToken", data.access);
+    sessionStorage.setItem("refreshToken", data.refresh);
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     setAccessToken(data.access);
 
     if (data.user) {
