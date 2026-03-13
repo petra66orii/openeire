@@ -192,6 +192,12 @@ export interface ProductReview {
   admin_reply?: string | null;
 }
 
+export interface ApiErrorResponse {
+  detail?: string;
+  message?: string;
+  [key: string]: unknown;
+}
+
 export interface GalleryItem {
   id: number;
   title: string;
@@ -253,7 +259,13 @@ export interface OrderHistoryItem {
   id: number;
   quantity: number;
   item_total: string;
-  details: any;
+  details: {
+    material?: string;
+    size?: string;
+    license?: "hd" | "4k";
+    variantId?: number;
+    sourceProductId?: number;
+  } | null;
   product: GalleryItem;
 }
 
@@ -314,6 +326,7 @@ export interface ProductVariant {
 }
 
 export interface PhotoDetail extends GalleryItem {
+  product_type: "photo";
   description: string;
   collection: string;
   download_url?: string | null;
@@ -325,6 +338,7 @@ export interface PhotoDetail extends GalleryItem {
 }
 
 export interface VideoDetail extends GalleryItem {
+  product_type: "video";
   description: string;
   collection: string;
   download_url?: string | null;
@@ -338,6 +352,7 @@ export interface VideoDetail extends GalleryItem {
 }
 
 export interface ProductDetail extends GalleryItem {
+  product_type: "physical";
   photo: PhotoDetail; 
   material: string;
   size: string;
@@ -346,12 +361,23 @@ export interface ProductDetail extends GalleryItem {
   size_display?: string;
 }
 
-export type ProductDetailItem = PhotoDetail | VideoDetail | ProductDetail;
+export interface PhysicalDetailFlat extends GalleryItem {
+  product_type: "physical";
+  description?: string;
+  variants: ProductVariant[];
+  related_products: GalleryItem[];
+}
+
+export type PhysicalDetail = ProductDetail | PhysicalDetailFlat;
+export type ProductDetailItem = PhotoDetail | VideoDetail | PhysicalDetail;
 
 export interface ReviewSubmitData {
   rating: number;
   comment?: string; // Optional as per requirement
 }
+
+export type ReviewProductType = "photo" | "video";
+export type ReviewSubmissionResponse = ProductReview | { message: string };
 
 export interface ContactData {
   name: string;
@@ -714,10 +740,10 @@ export const getProductDetail = async (
 };
 
 export const submitProductReview = async (
-  productType: string,
+  productType: ReviewProductType,
   productId: string,
-  reviewData: ReviewSubmitData
-): Promise<any> => {
+  reviewData: ReviewSubmitData,
+): Promise<ReviewSubmissionResponse> => {
   try {
     const response = await api.post(
       `${productType}/${productId}/reviews/`,
@@ -733,8 +759,8 @@ export const submitProductReview = async (
 };
 
 export const getProductReviews = async (
-  productType: string,
-  productId: string
+  productType: ReviewProductType,
+  productId: string,
 ): Promise<ProductReview[]> => {
   try {
     const response = await api.get<ProductReview[]>(

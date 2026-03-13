@@ -4,7 +4,11 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import axios from "axios";
-import { useCart } from "../context/CartContext";
+import {
+  isDigitalCartOptions,
+  isPhysicalCartOptions,
+  useCart,
+} from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { getProfile, UserProfile, api } from "../services/api";
 import CheckoutForm from "../components/CheckoutForm";
@@ -14,6 +18,7 @@ import { FaLock, FaShieldAlt } from "react-icons/fa";
 import {
   cartHasDigitalItems,
   cartHasPhysicalItems,
+  DigitalLicense,
   isDigitalProductType,
   isPhysicalProductType,
   isValidDigitalLicense,
@@ -88,6 +93,58 @@ const getApiErrorMessage = (error: unknown): string | null => {
   }
 
   return null;
+};
+
+type CheckoutDigitalOptionsPayload = {
+  license: DigitalLicense;
+};
+
+type CheckoutPhysicalOptionsPayload = {
+  material?: string;
+  size?: string;
+  variantId: number;
+};
+
+type CheckoutCartItemPayload =
+  | {
+      product_id: number;
+      product_type: "photo" | "video";
+      quantity: number;
+      options: CheckoutDigitalOptionsPayload;
+    }
+  | {
+      product_id: number;
+      product_type: "physical";
+      quantity: number;
+      options: CheckoutPhysicalOptionsPayload;
+    };
+
+type CheckoutShippingAddressPayload = {
+  line1: string;
+  line2: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code: string;
+};
+
+type CheckoutShippingDetailsPayload = {
+  name: string;
+  email: string;
+  phone: string;
+  address: CheckoutShippingAddressPayload;
+};
+
+type CreatePaymentIntentPayload = {
+  cart: CheckoutCartItemPayload[];
+  save_info: boolean;
+  shipping_details?: CheckoutShippingDetailsPayload;
+  shipping_method?: string;
+};
+
+type CreatePaymentIntentResponse = {
+  clientSecret: string;
+  shippingCost?: number;
 };
 
 const CheckoutPage: React.FC = () => {
@@ -181,7 +238,7 @@ const CheckoutPage: React.FC = () => {
       setCheckoutError(null);
 
       try {
-        const simplifiedCart = checkoutCartItems.map((item) => {
+        const simplifiedCart: CheckoutCartItemPayload[] = checkoutCartItems.map((item) => {
           const productType = item.product.product_type;
           if (
             !isPhysicalProductType(productType) &&
@@ -192,45 +249,53 @@ const CheckoutPage: React.FC = () => {
             );
           }
 
-          if (
-            isDigitalProductType(productType) &&
-            !isValidDigitalLicense(item.options?.license)
-          ) {
+          if (isPhysicalProductType(productType)) {
+            const rawVariantId = isPhysicalCartOptions(item.options)
+              ? item.options.variantId
+              : Number(item.product.id);
+            const variantId = Number(rawVariantId);
+            if (!Number.isFinite(variantId) || variantId <= 0) {
+              throw new Error(
+                "One or more print options are invalid. Remove and re-add the item.",
+              );
+            }
+
+            return {
+              product_id: item.product.id,
+              product_type: "physical",
+              quantity: item.quantity,
+              options: {
+                material: isPhysicalCartOptions(item.options)
+                  ? item.options.material
+                  : undefined,
+                size: isPhysicalCartOptions(item.options)
+                  ? item.options.size
+                  : undefined,
+                variantId,
+              },
+            };
+          }
+
+          const license = isDigitalCartOptions(item.options)
+            ? item.options.license
+            : undefined;
+          if (!isValidDigitalLicense(license)) {
             throw new Error(
               "One or more digital licence options are invalid. Remove and re-add the item.",
             );
           }
 
-          const sanitizedOptions = isPhysicalProductType(productType)
-            ? (() => {
-                const rawVariantId =
-                  item.options?.variantId ?? Number(item.product.id);
-                const variantId = Number(rawVariantId);
-                if (!Number.isFinite(variantId) || variantId <= 0) {
-                  throw new Error(
-                    "One or more print options are invalid. Remove and re-add the item.",
-                  );
-                }
-
-                return {
-                  material: item.options?.material,
-                  size: item.options?.size,
-                  variantId,
-                };
-              })()
-            : {
-                license: item.options?.license,
-              };
-
           return {
             product_id: item.product.id,
             product_type: productType,
             quantity: item.quantity,
-            options: sanitizedOptions,
+            options: {
+              license,
+            },
           };
         });
 
-        const payload: Record<string, any> = {
+        const payload: CreatePaymentIntentPayload = {
           cart: simplifiedCart,
           save_info: saveInfo,
         };
@@ -252,12 +317,15 @@ const CheckoutPage: React.FC = () => {
           payload.shipping_method = shippingMethod;
         }
 
-        const response = await api.post("checkout/create-payment-intent/", payload);
+        const response = await api.post<CreatePaymentIntentResponse>(
+          "checkout/create-payment-intent/",
+          payload,
+        );
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
 
         setClientSecret(response.data.clientSecret);
         setCalculatedShippingCost(
-          hasPhysicalItems ? (response.data.shippingCost || 0) : 0,
+          hasPhysicalItems ? Number(response.data.shippingCost ?? 0) : 0,
         );
       } catch (error) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;

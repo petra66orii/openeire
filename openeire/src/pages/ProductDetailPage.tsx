@@ -7,7 +7,18 @@ import React, {
 } from "react";
 import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { getProductDetail, ProductDetailItem } from "../services/api";
+import {
+  GalleryItem,
+  getProductDetail,
+  PhysicalDetail,
+  PhysicalDetailFlat,
+  PhotoDetail,
+  ProductDetail,
+  ProductDetailItem,
+  ProductVariant,
+  ReviewProductType,
+  VideoDetail,
+} from "../services/api";
 import ReviewForm from "../components/ReviewForm";
 import ProductReviewList from "../components/ProductReviewList";
 import { useCart } from "../context/CartContext";
@@ -31,6 +42,29 @@ import {
   FaFileContract,
   FaShoppingBag,
 } from "react-icons/fa";
+
+const isPhotoDetail = (item: ProductDetailItem): item is PhotoDetail =>
+  item.product_type === "photo";
+
+const isVideoDetail = (item: ProductDetailItem): item is VideoDetail =>
+  item.product_type === "video";
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const isPhysicalNestedDetail = (item: ProductDetailItem): item is ProductDetail => {
+  if (item.product_type !== "physical") return false;
+  const candidate = item as unknown as { photo?: unknown };
+  if (!isRecord(candidate.photo)) return false;
+  return Array.isArray(candidate.photo.variants);
+};
+
+const isPhysicalFlatDetail = (
+  item: ProductDetailItem,
+): item is PhysicalDetailFlat =>
+  item.product_type === "physical" &&
+  "variants" in item &&
+  Array.isArray(item.variants);
 
 const ProductDetailPage: React.FC = () => {
   // --- 1. HOOKS & ROUTING ---
@@ -100,34 +134,43 @@ const ProductDetailPage: React.FC = () => {
   }, [fetchProductDetail]);
 
   // --- 4. COMPUTED VALUES ---
-  const variants = useMemo(() => {
+  const variants = useMemo<ProductVariant[]>(() => {
     if (!product) return [];
-    if ("variants" in product && Array.isArray(product.variants))
-      return product.variants;
-    if ("photo" in product && product.photo && "variants" in product.photo)
-      return (product.photo as any).variants;
+    if (isPhotoDetail(product)) return product.variants;
+    if (isPhysicalNestedDetail(product)) return product.photo.variants;
+    if (isPhysicalFlatDetail(product)) return product.variants;
     return [];
   }, [product]);
 
-  const uniqueMaterials = useMemo(() => {
-    const map = new Map();
-    variants.forEach((v: any) => {
-      if (!map.has(v.material)) map.set(v.material, v.material_display);
+  const uniqueMaterials = useMemo<Array<[string, string]>>(() => {
+    const map = new Map<string, string>();
+    variants.forEach((variant) => {
+      if (!map.has(variant.material)) {
+        map.set(variant.material, variant.material_display);
+      }
     });
     return Array.from(map.entries());
   }, [variants]);
 
-  const availableSizes = useMemo(() => {
-    return variants
-      .filter((v: any) => v.material === selectedMaterial)
-      .map((v: any) => ({ code: v.size, label: v.size_display }));
-  }, [variants, selectedMaterial]);
+  const availableSizes = useMemo<Array<{ code: string; label: string }>>(
+    () =>
+      variants
+        .filter((variant) => variant.material === selectedMaterial)
+        .map((variant) => ({
+          code: variant.size,
+          label: variant.size_display,
+        })),
+    [variants, selectedMaterial],
+  );
 
-  const activePhysicalVariant = useMemo(() => {
-    return variants.find(
-      (v: any) => v.material === selectedMaterial && v.size === selectedSize,
-    );
-  }, [variants, selectedMaterial, selectedSize]);
+  const activePhysicalVariant = useMemo(
+    () =>
+      variants.find(
+        (variant) =>
+          variant.material === selectedMaterial && variant.size === selectedSize,
+      ),
+    [variants, selectedMaterial, selectedSize],
+  );
 
   useEffect(() => {
     if (variants.length > 0 && !selectedMaterial) {
@@ -149,15 +192,21 @@ const ProductDetailPage: React.FC = () => {
     return Number.isFinite(parsed) ? parsed : 0;
   };
 
+  const digitalProduct = useMemo<PhotoDetail | VideoDetail | null>(() => {
+    if (!product) return null;
+    if (isPhotoDetail(product) || isVideoDetail(product)) return product;
+    return null;
+  }, [product]);
+
   const digitalHdPrice = useMemo(() => {
-    if (!product || !isDigital) return 0;
-    return toMoneyNumber((product as any).price ?? (product as any).starting_price);
-  }, [product, isDigital]);
+    if (!digitalProduct || !isDigital) return 0;
+    return toMoneyNumber(digitalProduct.price ?? digitalProduct.starting_price);
+  }, [digitalProduct, isDigital]);
 
   const digital4kPrice = useMemo(() => {
-    if (!product || !isDigital) return 0;
-    return toMoneyNumber((product as any).price_4k ?? (product as any).price);
-  }, [product, isDigital]);
+    if (!digitalProduct || !isDigital) return 0;
+    return toMoneyNumber(digitalProduct.price_4k ?? digitalProduct.price);
+  }, [digitalProduct, isDigital]);
 
   const selectedDigitalPrice = useMemo(() => {
     if (selectedDigitalLicense === "4k") return digital4kPrice || digitalHdPrice;
@@ -173,47 +222,66 @@ const ProductDetailPage: React.FC = () => {
     setSelectedDigitalLicense("hd");
   }, [isDigital, digitalHdPrice, digital4kPrice, product?.id]);
 
-  // Pricing & Cart Object Construction (Only for Physical Prints now)
-  let displayPrice = "0.00";
-  let activeProductForCart = product;
+  const physicalProduct = useMemo<PhysicalDetail | null>(() => {
+    if (!product || product.product_type !== "physical") return null;
+    if (isPhysicalNestedDetail(product) || isPhysicalFlatDetail(product)) {
+      return product;
+    }
+    return null;
+  }, [product]);
 
-  if (product && isPhysical && activePhysicalVariant) {
-    displayPrice = activePhysicalVariant.price;
-    activeProductForCart = {
-      ...product,
+  const displayPrice = useMemo(() => {
+    if (isPhysical && activePhysicalVariant) return activePhysicalVariant.price;
+    return "0.00";
+  }, [isPhysical, activePhysicalVariant]);
+
+  const activePhysicalProductForCart = useMemo<
+    (GalleryItem & { product_type: "physical" }) | null
+  >(() => {
+    if (!physicalProduct || !activePhysicalVariant) return null;
+    const sourcePhotoId = isPhysicalNestedDetail(physicalProduct)
+      ? Number(physicalProduct.photo.id)
+      : Number(physicalProduct.photo_id ?? physicalProduct.id);
+    const previewImage = isPhysicalNestedDetail(physicalProduct)
+      ? physicalProduct.photo.preview_image ?? physicalProduct.preview_image
+      : physicalProduct.preview_image;
+
+    return {
+      ...physicalProduct,
       id: activePhysicalVariant.id,
-      title: `${product.title} (${activePhysicalVariant.material_display} - ${activePhysicalVariant.size_display})`,
+      title: `${physicalProduct.title} (${activePhysicalVariant.material_display} - ${activePhysicalVariant.size_display})`,
       price: activePhysicalVariant.price,
       product_type: "physical",
-      preview_image:
-        "photo" in product && (product as any).photo
-          ? (product as any).photo.preview_image
-          : product.preview_image,
+      photo_id: Number.isFinite(sourcePhotoId) ? sourcePhotoId : undefined,
+      preview_image: previewImage,
     };
-  }
+  }, [physicalProduct, activePhysicalVariant]);
 
   // --- 5. HANDLERS ---
   const handleAddToCart = () => {
     // Only allow adding to cart for physical products with a resolved variant
-    if (!isPhysical) return;
-    if (!product) return;
+    if (!isPhysical || !physicalProduct) return;
     if (!activePhysicalVariant) {
       toast.error("Please select a print option before adding to your bag.");
       return;
     }
-    if (!activeProductForCart) return;
-    addToCart(activeProductForCart, 1, {
+    if (!activePhysicalProductForCart) return;
+    addToCart(activePhysicalProductForCart, 1, {
       type: "physical",
       material: selectedMaterial,
       size: selectedSize,
       variantId: activePhysicalVariant.id,
-      sourceProductId: Number(product.id),
+      sourceProductId: Number(
+        isPhysicalNestedDetail(physicalProduct)
+          ? physicalProduct.photo.id
+          : physicalProduct.photo_id ?? physicalProduct.id,
+      ),
     });
     toast.success("Added to Bag");
   };
 
   const handleAddDigitalToCart = () => {
-    if (!product || !isDigital) return;
+    if (!digitalProduct || !isDigital) return;
     if (!isAuthenticated) {
       toastInfo("Please log in to purchase and download digital assets.");
       navigate("/login", {
@@ -227,11 +295,11 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
-    addToCart(product, 1, {
+    addToCart(digitalProduct, 1, {
       type: "digital",
       license: selectedDigitalLicense,
       unitPrice: selectedDigitalPrice,
-      sourceProductId: Number(product.id),
+      sourceProductId: Number(digitalProduct.id),
     });
 
     toast.success("Added to Bag");
@@ -270,24 +338,33 @@ const ProductDetailPage: React.FC = () => {
       </div>
     );
 
-  // Image URL Resolver
-  let imageUrl = "";
-  if (product.product_type === "physical" && "photo" in product)
-    imageUrl = (product as any).photo.preview_image || "";
-  else if ("preview_image" in product) imageUrl = product.preview_image || "";
-  else if ("thumbnail_image" in product)
-    imageUrl = product.thumbnail_image || "";
+  const imageUrl = isPhysicalNestedDetail(product)
+    ? product.photo.preview_image || product.preview_image || ""
+    : product.preview_image || product.thumbnail_image || "";
   const videoPreviewUrl =
-    isVideo && typeof (product as any).file === "string"
-      ? (product as any).file
+    isVideo && isVideoDetail(product) && typeof product.file === "string"
+      ? product.file
       : "";
-
-  const reviewProductId =
-    product.product_type === "physical" && "photo" in product
-      ? String((product as any).photo.id)
-      : String(product.id);
-  const reviewProductType =
+  const reviewProductId = isPhysicalNestedDetail(product)
+    ? String(product.photo.id)
+    : String(product.photo_id ?? product.id);
+  const reviewProductType: ReviewProductType =
     product.product_type === "physical" ? "photo" : product.product_type;
+  const reviewDescription = isPhysicalNestedDetail(product)
+    ? product.photo.description
+    : product.description ?? "";
+  const relatedProducts = isPhysicalNestedDetail(product)
+    ? product.photo.related_products
+    : product.related_products ?? [];
+  const specResolution =
+    isVideoDetail(product) && product.resolution
+      ? product.resolution
+      : "High Res";
+  const specFrameRate =
+    isVideoDetail(product) && product.frame_rate ? product.frame_rate : "N/A";
+  const specDuration = isVideoDetail(product)
+    ? formatDuration(product.duration)
+    : "N/A";
 
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black">
@@ -350,22 +427,13 @@ const ProductDetailPage: React.FC = () => {
 
               {/* TECH SPECS GRID */}
               <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10 border border-white/10 rounded-lg overflow-hidden">
-                <SpecBox
-                  label="Resolution"
-                  value={(product as any).resolution || "High Res"}
-                />
+                <SpecBox label="Resolution" value={specResolution} />
                 <SpecBox
                   label="Format"
                   value={isVideo ? "MP4 / ProRes" : "Fine Art / JPEG"}
                 />
-                <SpecBox
-                  label="Frame Rate"
-                  value={(product as any).frame_rate || "N/A"}
-                />
-                <SpecBox
-                  label="Duration"
-                  value={formatDuration((product as any).duration)}
-                />
+                <SpecBox label="Frame Rate" value={specFrameRate} />
+                <SpecBox label="Duration" value={specDuration} />
               </div>
             </div>
           </div>
@@ -378,9 +446,9 @@ const ProductDetailPage: React.FC = () => {
               </h1>
 
               {/* DESCRIPTION */}
-              {"description" in product && (
+              {reviewDescription && (
                 <p className="text-gray-400 text-sm leading-relaxed mb-8 border-l-2 border-accent pl-4">
-                  {(product as any).description}
+                  {reviewDescription}
                 </p>
               )}
 
@@ -398,7 +466,7 @@ const ProductDetailPage: React.FC = () => {
                       onChange={(e) => {
                         setSelectedMaterial(e.target.value);
                         const firstSize = variants.find(
-                          (v: any) => v.material === e.target.value,
+                          (variant) => variant.material === e.target.value,
                         )?.size;
                         if (firstSize) setSelectedSize(firstSize);
                       }}
@@ -420,7 +488,7 @@ const ProductDetailPage: React.FC = () => {
                       onChange={(e) => setSelectedSize(e.target.value)}
                       className="w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent focus:ring-1 focus:ring-accent outline-none appearance-none"
                     >
-                      {availableSizes.map((s: any) => (
+                      {availableSizes.map((s) => (
                         <option key={s.code} value={s.code}>
                           {s.label}
                         </option>
@@ -554,19 +622,19 @@ const ProductDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {product && "related_products" in product && (
+        {relatedProducts.length > 0 && (
           <div className="mt-20">
-            <RelatedProducts products={(product as any).related_products} />
+            <RelatedProducts products={relatedProducts} />
           </div>
         )}
       </div>
-      {isDigital && product && (
+      {isDigital && digitalProduct && (
         <LicenseRequestModal
           isOpen={isLicenseModalOpen}
           onClose={() => setIsLicenseModalOpen(false)}
-          assetId={product.id}
-          assetType={product.product_type as "photo" | "video"}
-          assetTitle={product.title}
+          assetId={digitalProduct.id}
+          assetType={digitalProduct.product_type}
+          assetTitle={digitalProduct.title}
         />
       )}
     </div>
