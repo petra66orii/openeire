@@ -248,8 +248,10 @@ const sanitizeStoredCartEntry = (entry: unknown): CartItem | null => {
 };
 
 const hasAuthenticatedSession = (): boolean =>
+  // Include legacy localStorage token to avoid dropping digital cart items
+  // before AuthProvider migrates persisted sessions.
   Boolean(
-    localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken"),
+    sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken"),
   );
 
 const removeDigitalItems = (items: CartItem[]): CartItem[] =>
