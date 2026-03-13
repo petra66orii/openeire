@@ -21,11 +21,7 @@ interface AuthState {
   accessToken: string | null;
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  login: (
-    username: string,
-    password: string,
-    remember?: boolean
-  ) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   setAuthData: (data: { access: string; refresh: string; user?: User }) => void;
@@ -39,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const getSessionRefreshToken = () => sessionStorage.getItem("refreshToken");
 
   const [accessToken, setAccessToken] = useState<string | null>(
-    () => getSessionAccessToken()
+    () => getSessionAccessToken() || localStorage.getItem("accessToken")
   );
 
   const [user, setUser] = useState<User | null>(null);
@@ -83,11 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [refreshUser]); // Dependency added
 
-  const login = async (
-    username: string,
-    password: string,
-    _remember: boolean = true
-  ) => {
+  const login = async (username: string, password: string) => {
     const response = await loginUser({ username, password });
 
     // Security hardening: authentication tokens are session-scoped.

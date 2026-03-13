@@ -8,7 +8,6 @@ import SocialLogin from "../components/SocialLogin";
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
@@ -25,7 +24,7 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password, remember);
+      await login(email, password);
       toast.success("Welcome back.");
       navigate(redirectPath, { replace: true });
     } catch (err: any) {
@@ -108,22 +107,6 @@ const LoginPage: React.FC = () => {
               className={inputClass}
               placeholder={"\u2022".repeat(8)}
             />
-          </div>
-
-          <div className="flex items-center">
-            <input
-              id="remember-me"
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="h-4 w-4 text-brand-500 bg-black border-white/20 rounded focus:ring-brand-500 cursor-pointer"
-            />
-            <label
-              htmlFor="remember-me"
-              className="ml-2 block text-sm text-gray-400 cursor-pointer"
-            >
-              Remember me
-            </label>
           </div>
 
           <button

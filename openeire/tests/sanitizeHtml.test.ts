@@ -34,4 +34,20 @@ describe("sanitizeRichHtml", () => {
       "https://example.com",
     );
   });
+
+  it("removes newly forbidden tags and attributes", () => {
+    const dirty =
+      '<p style="color:red" data-track="x">Styled</p><iframe src="https://example.com"></iframe><form><input /></form>';
+
+    const clean = sanitizeRichHtml(dirty);
+    const container = document.createElement("div");
+    container.innerHTML = clean;
+
+    expect(container.querySelector("iframe")).toBeNull();
+    expect(container.querySelector("form")).toBeNull();
+    expect(container.querySelector("input")).toBeNull();
+    expect(container.querySelector("p")?.getAttribute("style")).toBeNull();
+    expect(container.querySelector("p")?.getAttribute("data-track")).toBeNull();
+    expect(container.textContent).toContain("Styled");
+  });
 });
