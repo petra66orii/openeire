@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { getProductDetail, PhotoDetail } from "../services/api";
-import { useCart } from "../context/CartContext";
+import {
+  getProductDetail,
+  PhysicalDetailFlat,
+  ProductDetail,
+  ProductDetailItem,
+  ProductVariant,
+} from "../services/api";
+import { PhysicalCartProduct, useCart } from "../context/CartContext";
 import { FaTimes, FaCheck, FaShoppingBag } from "react-icons/fa";
 import toast from "react-hot-toast";
 
@@ -10,12 +16,65 @@ interface QuickAddModalProps {
   onClose: () => void;
 }
 
+interface QuickAddProductState {
+  product: PhysicalCartProduct;
+  sourceProductId: number;
+  variants: ProductVariant[];
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const isPhysicalNestedDetail = (item: ProductDetailItem): item is ProductDetail => {
+  if (item.product_type !== "physical") return false;
+  const candidate = item as unknown as { photo?: unknown };
+  if (!isRecord(candidate.photo)) return false;
+  return Array.isArray(candidate.photo.variants);
+};
+
+const isPhysicalFlatDetail = (
+  item: ProductDetailItem,
+): item is PhysicalDetailFlat =>
+  item.product_type === "physical" &&
+  "variants" in item &&
+  Array.isArray(item.variants);
+
+const normalizeQuickAddProduct = (
+  item: ProductDetailItem,
+): QuickAddProductState | null => {
+  if (isPhysicalNestedDetail(item)) {
+    return {
+      product: {
+        ...item,
+        product_type: "physical",
+        preview_image: item.photo.preview_image ?? item.preview_image,
+        photo_id: item.photo.id,
+      },
+      sourceProductId: Number(item.photo.id),
+      variants: item.photo.variants,
+    };
+  }
+
+  if (isPhysicalFlatDetail(item)) {
+    return {
+      product: {
+        ...item,
+        product_type: "physical",
+      },
+      sourceProductId: Number(item.photo_id ?? item.id),
+      variants: item.variants,
+    };
+  }
+
+  return null;
+};
+
 const QuickAddModal: React.FC<QuickAddModalProps> = ({
   productId,
   onClose,
 }) => {
   const { addToCart } = useCart();
-  const [product, setProduct] = useState<PhotoDetail | null>(null);
+  const [product, setProduct] = useState<QuickAddProductState | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Selection State
@@ -26,14 +85,16 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = (await getProductDetail(
-          "physical",
-          productId.toString(),
-        )) as PhotoDetail;
-        setProduct(data);
+        const data = await getProductDetail("physical", productId.toString());
+        const normalized = normalizeQuickAddProduct(data);
+        if (!normalized) {
+          throw new Error("Physical product options are unavailable");
+        }
 
-        if (data.variants && data.variants.length > 0) {
-          const first = data.variants[0];
+        setProduct(normalized);
+
+        if (normalized.variants.length > 0) {
+          const first = normalized.variants[0];
           setSelectedMaterial(first.material);
           setSelectedSize(first.size);
           setPrice(first.price);
@@ -69,12 +130,13 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
     }
 
     const cartItem = {
-      ...product,
+      ...product.product,
       id: variant.id,
       price: variant.price,
-      title: `${product.title} (${variant.material_display} - ${variant.size_display})`,
+      title: `${product.product.title} (${variant.material_display} - ${variant.size_display})`,
       product_type: "physical" as const,
-      preview_image: product.preview_image,
+      preview_image: product.product.preview_image,
+      photo_id: product.sourceProductId,
     };
 
     addToCart(cartItem, 1, {
@@ -82,7 +144,7 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
       material: selectedMaterial,
       size: selectedSize,
       variantId: variant.id,
-      sourceProductId: product.id,
+      sourceProductId: product.sourceProductId,
     });
     toast.success("Added to Bag");
     onClose();
@@ -145,8 +207,8 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
             {/* 1. CINEMATIC HEADER WITH GRADIENT */}
             <div className="relative h-64 w-full shrink-0 bg-black group">
               <img
-                src={product?.preview_image}
-                alt={product?.title}
+                src={product?.product.preview_image}
+                alt={product?.product.title}
                 className="w-full h-full object-cover opacity-90 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent" />
@@ -160,7 +222,7 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
                   Fine Art Print
                 </span>
                 <h3 className="text-white font-serif font-bold text-4xl leading-tight drop-shadow-xl">
-                  {product?.title}
+                  {product?.product.title}
                 </h3>
               </div>
 

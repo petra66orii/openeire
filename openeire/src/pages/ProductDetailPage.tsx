@@ -10,6 +10,8 @@ import axios from "axios";
 import {
   GalleryItem,
   getProductDetail,
+  PhysicalDetail,
+  PhysicalDetailFlat,
   PhotoDetail,
   ProductDetail,
   ProductDetailItem,
@@ -47,8 +49,22 @@ const isPhotoDetail = (item: ProductDetailItem): item is PhotoDetail =>
 const isVideoDetail = (item: ProductDetailItem): item is VideoDetail =>
   item.product_type === "video";
 
-const isPhysicalDetail = (item: ProductDetailItem): item is ProductDetail =>
-  item.product_type === "physical";
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const isPhysicalNestedDetail = (item: ProductDetailItem): item is ProductDetail => {
+  if (item.product_type !== "physical") return false;
+  const candidate = item as unknown as { photo?: unknown };
+  if (!isRecord(candidate.photo)) return false;
+  return Array.isArray(candidate.photo.variants);
+};
+
+const isPhysicalFlatDetail = (
+  item: ProductDetailItem,
+): item is PhysicalDetailFlat =>
+  item.product_type === "physical" &&
+  "variants" in item &&
+  Array.isArray(item.variants);
 
 const ProductDetailPage: React.FC = () => {
   // --- 1. HOOKS & ROUTING ---
@@ -121,7 +137,8 @@ const ProductDetailPage: React.FC = () => {
   const variants = useMemo<ProductVariant[]>(() => {
     if (!product) return [];
     if (isPhotoDetail(product)) return product.variants;
-    if (isPhysicalDetail(product)) return product.photo.variants;
+    if (isPhysicalNestedDetail(product)) return product.photo.variants;
+    if (isPhysicalFlatDetail(product)) return product.variants;
     return [];
   }, [product]);
 
@@ -205,9 +222,12 @@ const ProductDetailPage: React.FC = () => {
     setSelectedDigitalLicense("hd");
   }, [isDigital, digitalHdPrice, digital4kPrice, product?.id]);
 
-  const physicalProduct = useMemo<ProductDetail | null>(() => {
-    if (!product || !isPhysicalDetail(product)) return null;
-    return product;
+  const physicalProduct = useMemo<PhysicalDetail | null>(() => {
+    if (!product || product.product_type !== "physical") return null;
+    if (isPhysicalNestedDetail(product) || isPhysicalFlatDetail(product)) {
+      return product;
+    }
+    return null;
   }, [product]);
 
   const displayPrice = useMemo(() => {
@@ -219,6 +239,12 @@ const ProductDetailPage: React.FC = () => {
     (GalleryItem & { product_type: "physical" }) | null
   >(() => {
     if (!physicalProduct || !activePhysicalVariant) return null;
+    const sourcePhotoId = isPhysicalNestedDetail(physicalProduct)
+      ? Number(physicalProduct.photo.id)
+      : Number(physicalProduct.photo_id ?? physicalProduct.id);
+    const previewImage = isPhysicalNestedDetail(physicalProduct)
+      ? physicalProduct.photo.preview_image ?? physicalProduct.preview_image
+      : physicalProduct.preview_image;
 
     return {
       ...physicalProduct,
@@ -226,8 +252,8 @@ const ProductDetailPage: React.FC = () => {
       title: `${physicalProduct.title} (${activePhysicalVariant.material_display} - ${activePhysicalVariant.size_display})`,
       price: activePhysicalVariant.price,
       product_type: "physical",
-      preview_image:
-        physicalProduct.photo.preview_image ?? physicalProduct.preview_image,
+      photo_id: Number.isFinite(sourcePhotoId) ? sourcePhotoId : undefined,
+      preview_image: previewImage,
     };
   }, [physicalProduct, activePhysicalVariant]);
 
@@ -245,7 +271,11 @@ const ProductDetailPage: React.FC = () => {
       material: selectedMaterial,
       size: selectedSize,
       variantId: activePhysicalVariant.id,
-      sourceProductId: Number(physicalProduct.id),
+      sourceProductId: Number(
+        isPhysicalNestedDetail(physicalProduct)
+          ? physicalProduct.photo.id
+          : physicalProduct.photo_id ?? physicalProduct.id,
+      ),
     });
     toast.success("Added to Bag");
   };
@@ -308,25 +338,24 @@ const ProductDetailPage: React.FC = () => {
       </div>
     );
 
-  const imageUrl = isPhysicalDetail(product)
+  const imageUrl = isPhysicalNestedDetail(product)
     ? product.photo.preview_image || product.preview_image || ""
     : product.preview_image || product.thumbnail_image || "";
   const videoPreviewUrl =
     isVideo && isVideoDetail(product) && typeof product.file === "string"
       ? product.file
       : "";
-  const reviewProductId = isPhysicalDetail(product)
+  const reviewProductId = isPhysicalNestedDetail(product)
     ? String(product.photo.id)
-    : String(product.id);
-  const reviewProductType: ReviewProductType = isPhysicalDetail(product)
-    ? "photo"
-    : product.product_type;
-  const reviewDescription = isPhysicalDetail(product)
+    : String(product.photo_id ?? product.id);
+  const reviewProductType: ReviewProductType =
+    product.product_type === "physical" ? "photo" : product.product_type;
+  const reviewDescription = isPhysicalNestedDetail(product)
     ? product.photo.description
-    : product.description;
-  const relatedProducts = isPhysicalDetail(product)
+    : product.description ?? "";
+  const relatedProducts = isPhysicalNestedDetail(product)
     ? product.photo.related_products
-    : product.related_products;
+    : product.related_products ?? [];
   const specResolution =
     isVideoDetail(product) && product.resolution
       ? product.resolution

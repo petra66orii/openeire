@@ -17,7 +17,7 @@ const AddToCartForm: React.FC<AddToCartFormProps> = ({ product }) => {
     addToCart(product, quantity, {
       type: "physical",
       variantId: Number(product.id),
-      sourceProductId: Number(product.id),
+      sourceProductId: Number(product.photo_id ?? product.id),
     });
 
     setAdded(true);

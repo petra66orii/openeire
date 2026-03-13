@@ -134,6 +134,8 @@ const sanitizeProductForCart = (product: GalleryItem): GalleryItem => {
 
 const getPhysicalSourceProductId = (product: GalleryItem): number | undefined => {
   if (!isPhysicalProductType(product.product_type)) return undefined;
+  const photoId = toPositiveInteger(product.photo_id);
+  if (photoId) return photoId;
   const productRecord = product as unknown;
   if (!isRecord(productRecord)) return undefined;
   const photoCandidate = productRecord.photo;

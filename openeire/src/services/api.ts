@@ -361,7 +361,15 @@ export interface ProductDetail extends GalleryItem {
   size_display?: string;
 }
 
-export type ProductDetailItem = PhotoDetail | VideoDetail | ProductDetail;
+export interface PhysicalDetailFlat extends GalleryItem {
+  product_type: "physical";
+  description?: string;
+  variants: ProductVariant[];
+  related_products: GalleryItem[];
+}
+
+export type PhysicalDetail = ProductDetail | PhysicalDetailFlat;
+export type ProductDetailItem = PhotoDetail | VideoDetail | PhysicalDetail;
 
 export interface ReviewSubmitData {
   rating: number;
