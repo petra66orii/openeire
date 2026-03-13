@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GalleryItem } from "../services/api";
 import QuickAddModal from "./QuickAddModal";
-import { FaPlay, FaExpand, FaImage, FaShoppingBag } from "react-icons/fa";
+import { FaPlay, FaExpand, FaImage } from "react-icons/fa";
 import {
   isDigitalProductType,
   isPhysicalProductType,
@@ -90,6 +90,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
     videoRef.current.currentTime = 0;
     setIsVideoPlaying(false);
   }, [isHovered, isVideo, videoUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (showQuickView && onModalClose) {
+        onModalClose();
+      }
+    };
+  }, [showQuickView, onModalClose]);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     if (!isPhysical) return;
@@ -199,19 +207,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 </span>
               </div>
             )}
-            <button
-              onClick={handleQuickAdd}
-              className="bg-white text-brand-900 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent hover:scale-110 transition-all shadow-lg"
-              aria-label={
-                isPhysical ? "Select print options" : "View purchase options"
-              }
-            >
-              {isPhysical ? (
+            {isPhysical && (
+              <button
+                onClick={handleQuickAdd}
+                className="bg-white text-brand-900 w-10 h-10 rounded-full flex items-center justify-center hover:bg-accent hover:scale-110 transition-all shadow-lg"
+                aria-label="Select print options"
+              >
                 <FaExpand className="text-sm" />
-              ) : (
-                <FaShoppingBag className="text-sm" />
-              )}
-            </button>
+              </button>
+            )}
           </div>
         </Link>
 
