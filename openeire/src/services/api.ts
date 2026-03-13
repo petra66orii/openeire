@@ -71,9 +71,7 @@ const shouldHandleGlobalErrorRoute = (method?: string): boolean =>
 api.interceptors.request.use(
   (config) => {
     // 1. Handle User Auth (Login)
-    const token =
-      localStorage.getItem("accessToken") ||
-      sessionStorage.getItem("accessToken");
+    const token = sessionStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

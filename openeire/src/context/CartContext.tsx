@@ -248,9 +248,7 @@ const sanitizeStoredCartEntry = (entry: unknown): CartItem | null => {
 };
 
 const hasAuthenticatedSession = (): boolean =>
-  Boolean(
-    localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken"),
-  );
+  Boolean(sessionStorage.getItem("accessToken"));
 
 const removeDigitalItems = (items: CartItem[]): CartItem[] =>
   items.filter((item) => !isDigitalProductType(item.product?.product_type));
