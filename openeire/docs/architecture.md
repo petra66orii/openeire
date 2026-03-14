@@ -78,3 +78,11 @@ Expanded:
 3. Axios interceptor applies auth/gallery headers as needed.
 4. Backend responds with data or error.
 5. UI updates state, renders success, or routes to standard error pages (`/403`, `/500`) for selected cases.
+
+## Backend Integration Assumptions
+- Backend API is reachable under `/api/` (or equivalent absolute `VITE_API_BASE_URL`).
+- Frontend auth is bearer-token based:
+  - tokens are stored in `sessionStorage`
+  - auth header is attached by axios interceptor
+- Digital gallery access depends on `X-Gallery-Access-Token` for scoped endpoints.
+- Media URLs are resolved through `resolveMediaUrl` and may require explicit `VITE_MEDIA_BASE_URL` when backend media origin differs from API origin.

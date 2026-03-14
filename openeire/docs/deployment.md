@@ -55,6 +55,24 @@ In production, this proxy is not used. Equivalent routing must be handled by:
 - your reverse proxy, or
 - your `VITE_API_BASE_URL` / `VITE_MEDIA_BASE_URL` configuration.
 
+## Required Backend Configuration
+
+Frontend deployment depends on backend runtime settings being aligned:
+
+- API path prefix:
+  - Backend routes are exposed under `/api/`.
+- CORS and trusted origins:
+  - Frontend production origin must be allowed by backend CORS and origin trust settings.
+- Auth mode:
+  - Frontend currently uses JWT bearer token headers from login responses.
+  - If backend is switched to HttpOnly cookie-only mode, frontend needs client updates (`withCredentials` + CSRF support) before release.
+- Gallery token flow:
+  - Backend must accept `X-Gallery-Access-Token` for digital gallery/photo/video endpoints.
+- Media hosting:
+  - If backend media is hosted on a different origin, configure `VITE_MEDIA_BASE_URL` accordingly.
+- Checkout:
+  - Backend Stripe configuration must be valid for `checkout/create-payment-intent/` and webhook processing, otherwise frontend checkout will fail.
+
 ## Deployment Checklist
 
 1. Set production env variables.
