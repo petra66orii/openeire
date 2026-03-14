@@ -11,8 +11,7 @@ const AboutPage: React.FC = () => {
         <div
           className="absolute inset-0 bg-cover bg-center opacity-60 scale-105 animate-slow-zoom"
           style={{
-            backgroundImage:
-              'url("https://images.unsplash.com/photo-1476610182048-b716b8518aae?auto=format&fit=crop&q=80&w=2000")',
+            backgroundImage: 'url("/doubtful_sound.webp")',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/30" />
@@ -25,8 +24,8 @@ const AboutPage: React.FC = () => {
             Capturing the <br /> Spirit of the Wild
           </h1>
           <p className="text-gray-300 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200">
-            Open{"\u00C9"}ire Studios is a premier digital gallery dedicated to the raw,
-            unspoken beauty of the Irish landscape and beyond.
+            Open{"\u00C9"}ire Studios is a premier digital gallery dedicated to
+            the raw, unspoken beauty of the Irish landscape and beyond.
           </p>
         </div>
       </div>
@@ -43,8 +42,8 @@ const AboutPage: React.FC = () => {
             <div className="space-y-6 text-gray-400 leading-loose text-lg">
               <p>
                 It started with a single drone flight over the cliffs of Moher.
-                The way the light hit the water, the sheer scale of the
-                Atlantic{"\u2014"}it wasn't just a view; it was an emotion.
+                The way the light hit the water, the sheer scale of the Atlantic
+                {"\u2014"}it wasn't just a view; it was an emotion.
               </p>
               <p>
                 At Open{"\u00C9"}ire Studios, we believe that photography should
@@ -59,25 +58,17 @@ const AboutPage: React.FC = () => {
                 homes.
               </p>
             </div>
-
-            <div className="pt-4">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Signature_sample.svg"
-                alt="Signature"
-                className="h-12 opacity-50 invert"
-              />
-            </div>
           </div>
 
           {/* Right: Image Grid */}
           <div className="grid grid-cols-2 gap-4 relative">
             <img
-              src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&q=80&w=800"
+              src="/macro_flower.webp?auto=format&fit=crop&q=80&w=800"
               className="rounded-2xl w-full h-64 object-cover transform translate-y-8 border border-white/10 shadow-2xl"
               alt="Irish Coast"
             />
             <img
-              src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=800"
+              src="/thai-sunset.webp?auto=format&fit=crop&q=80&w=800"
               className="rounded-2xl w-full h-64 object-cover transform -translate-y-8 border border-white/10 shadow-2xl"
               alt="Mountain Hike"
             />
@@ -185,8 +176,8 @@ const AboutPage: React.FC = () => {
       {/* 5. CTA SECTION */}
       <div className="relative h-[50vh] flex items-center justify-center overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1511576661531-b34d7da5d0bb?auto=format&fit=crop&q=80&w=2000"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          src="pacific_ocean.webp?auto=format&fit=crop&q=80&w=1200"
+          className="absolute inset-0 w-full h-full object-cover opacity-70"
           alt="CTA Background"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
