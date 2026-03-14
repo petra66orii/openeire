@@ -1,10 +1,12 @@
 # OpenEire Studios Frontend
 
 ## Overview
+
 This repository contains the production React frontend for OpenEire Studios.  
 It provides public content pages, gated digital gallery browsing, physical print browsing, shopping bag and checkout, user profile/account management, and a blog/comment experience.
 
 ## Tech Stack
+
 - React 19 + TypeScript
 - Vite 7
 - Tailwind CSS 4 (via `@tailwindcss/vite`)
@@ -17,6 +19,7 @@ It provides public content pages, gated digital gallery browsing, physical print
 - Vitest + jsdom (frontend unit tests)
 
 ## Repository Structure
+
 ```text
 openeire/
   public/                 # Static assets (favicons, hero/gallery media)
@@ -38,6 +41,7 @@ openeire/
 ```
 
 ## Key Directories
+
 - `src/pages`: Route views for home, gallery, product detail, profile, checkout, blog, auth, and error pages.
 - `src/components`: Shared UI and feature components used across pages.
 - `src/services/api.ts`: Centralized API client, interceptors, DTOs/types, and endpoint methods.
@@ -46,6 +50,7 @@ openeire/
 - `tests`: Unit tests for URL config/path normalization, gallery token scoping, purchase flow, and HTML sanitization.
 
 ## Local Development Setup
+
 1. Install dependencies:
    ```bash
    npm install
@@ -61,6 +66,7 @@ openeire/
 4. App runs on `http://localhost:5173` by default (configured in `vite.config.js`).
 
 ## Environment Variables
+
 Defined in `.env.example`:
 
 - `VITE_API_BASE_URL`  
@@ -74,10 +80,12 @@ Defined in `.env.example`:
   Stripe publishable key used to initialize Stripe Elements.
 
 ### Configuration Required
+
 `src/main.tsx` currently contains a hardcoded Google OAuth client ID.  
 If this should vary by environment, move it to a Vite env variable (for example `VITE_GOOGLE_CLIENT_ID`) and inject via `import.meta.env`.
 
 ## API Communication Overview
+
 - Axios instance is defined in `src/services/api.ts`.
 - `baseURL` comes from `src/config/backend.ts` (`API_BASE_URL`).
 - Request interceptor attaches:
@@ -88,6 +96,7 @@ If this should vary by environment, move it to a Vite env variable (for example 
   - `5xx` -> `/500`
 
 ## Backend Configuration Requirements
+
 For this frontend to work correctly in staging/production, backend configuration must satisfy:
 
 - API prefix compatibility:
@@ -103,6 +112,7 @@ For this frontend to work correctly in staging/production, backend configuration
   - If media is not served from the same origin as API/static host, set `VITE_MEDIA_BASE_URL` to the backend media origin.
 
 ## Build Instructions
+
 - Lint:
   ```bash
   npm run lint
@@ -125,6 +135,7 @@ For this frontend to work correctly in staging/production, backend configuration
   ```
 
 ## Deployment Overview
+
 - Build output is generated to `dist/`.
 - Deploy `dist/` to a static host/CDN.
 - Ensure runtime environment values are set for API/media/Stripe.
@@ -133,8 +144,6 @@ For this frontend to work correctly in staging/production, backend configuration
 Detailed deployment notes: `docs/deployment.md`.
 
 ## Maintainer
-### Configuration Required
-Set this section to your owning team/contact:
-- Team name
-- Primary on-call/contact channel
-- Release owner/process
+
+- Project/team owner: [Miss Bott](https://github.com/petra66orii)
+- Primary frontend maintainer: [Miss Bott](https://github.com/petra66orii)
