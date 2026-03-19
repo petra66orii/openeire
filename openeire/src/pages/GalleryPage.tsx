@@ -15,6 +15,15 @@ const breakpointColumnsObj = {
   500: 1, // 1 column on mobile
 };
 const MASONRY_GAP_PX = 32;
+const COLLECTION_LABELS: Record<string, string> = {
+  all: "All Footage",
+  ireland: "Ireland",
+  "new zealand": "New Zealand",
+  thailand: "Thailand",
+  romania: "Romania",
+  australia: "Australia",
+};
+const COMING_SOON_COLLECTIONS = new Set(["australia"]);
 
 const getColumnCount = (width: number): number => {
   if (width <= 500) return breakpointColumnsObj[500];
@@ -117,6 +126,7 @@ const GalleryPage: React.FC = () => {
   const [gridTop, setGridTop] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>({});
+  const normalizedSearchTerm = searchTerm.trim();
 
   const measureGridMetrics = useCallback(() => {
     if (!gridRef.current || typeof window === "undefined") return;
@@ -317,11 +327,18 @@ const GalleryPage: React.FC = () => {
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
+
+      if (COMING_SOON_COLLECTIONS.has(collection)) {
+        setProducts([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await getGalleryProducts(
           type,
           collection,
-          searchTerm,
+          normalizedSearchTerm || undefined,
           sortOrder,
         );
 
@@ -356,7 +373,7 @@ const GalleryPage: React.FC = () => {
     };
 
     fetchProducts();
-  }, [type, collection, searchTerm, sortOrder]);
+  }, [type, collection, normalizedSearchTerm, sortOrder]);
 
   return (
     // Dark mode background for the gallery canvas
@@ -423,8 +440,23 @@ const GalleryPage: React.FC = () => {
 
         {/* Empty State */}
         {!loading && products.length === 0 && (
-          <div className="text-center text-gray-500 py-20">
-            No results found.
+          <div className="py-20 text-center">
+            {normalizedSearchTerm ? (
+              <div className="text-gray-500">No results found.</div>
+            ) : collection !== "all" ? (
+              <>
+                <div className="text-2xl font-serif font-bold text-white">
+                  {COLLECTION_LABELS[collection] ?? "This collection"} is coming
+                  soon!
+                </div>
+                <p className="mt-3 text-gray-500">
+                  We&apos;re curating this collection now. Check back soon for
+                  new releases.
+                </p>
+              </>
+            ) : (
+              <div className="text-gray-500">No results found.</div>
+            )}
           </div>
         )}
       </div>
