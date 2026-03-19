@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import RegisterPage from "./pages/RegisterPage";
 import VerificationStatusPage from "./pages/VerificationStatusPage";
@@ -32,10 +32,18 @@ import ScrollToTop from "./components/ScrollToTop";
 import NotFoundPage from "./pages/NotFoundPage";
 import ForbiddenPage from "./pages/ForbiddenPage";
 import ServerErrorPage from "./pages/ServerErrorPage";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { subscribeToErrorRoute } from "./utils/errorRouting";
+
+const HEADER_OVERLAY_ROUTES = new Set(["/"]);
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const shouldOffsetForHeader = !HEADER_OVERLAY_ROUTES.has(location.pathname);
 
   useEffect(() => {
     return subscribeToErrorRoute((path) => {
@@ -49,10 +57,15 @@ function App() {
       <BreadcrumbProvider>
         <ScrollToTop />
         <Navbar />
-        <Breadcrumbs />
-        <main className="flex-grow">
-          <Toaster position="bottom-center" toastOptions={{ duration: 3000 }} />
-          <Routes>
+        <div
+          className={
+            shouldOffsetForHeader ? "pt-[var(--site-header-height,0px)]" : ""
+          }
+        >
+          <Breadcrumbs />
+          <main className="flex-grow">
+            <Toaster position="bottom-center" toastOptions={{ duration: 3000 }} />
+            <Routes>
             {/* ================= PUBLIC ROUTES ================= */}
             <Route path="/" element={<HomePage />} />
             <Route path="/register" element={<RegisterPage />} />
@@ -92,6 +105,11 @@ function App() {
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/licensing" element={<LicensingPage />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/shipping" element={<ShippingPolicy />} />
+            <Route path="/refunds" element={<RefundPolicy />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/cookie-policy" element={<PrivacyPolicy />} />
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="/403" element={<ForbiddenPage />} />
             <Route path="/500" element={<ServerErrorPage />} />
@@ -132,9 +150,10 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
             <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-          <BackToTop />
-        </main>
+            </Routes>
+            <BackToTop />
+          </main>
+        </div>
         <Footer />
       </BreadcrumbProvider>
     </>

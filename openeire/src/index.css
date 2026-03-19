@@ -51,8 +51,68 @@ body {
   @apply bg-paper text-dark font-sans antialiased;
 }
 
+:root {
+  --site-header-height: 0px;
+}
+
 h1, h2, h3, h4, h5, h6 {
   @apply font-serif;
+}
+
+.legal-content {
+  @apply mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8;
+}
+
+.legal-content h1 {
+  @apply mb-4 text-4xl font-serif font-bold text-dark;
+}
+
+.legal-content h2 {
+  @apply mt-10 mb-4 text-2xl font-serif font-bold text-dark;
+}
+
+.legal-content h3 {
+  @apply mt-6 mb-3 text-xl font-serif font-semibold text-dark;
+}
+
+.legal-content p {
+  @apply mb-4 text-base leading-8 text-gray-700;
+}
+
+.legal-content strong {
+  @apply font-semibold text-dark;
+}
+
+.legal-content ul,
+.legal-content ol {
+  @apply mb-5 ml-6 space-y-3 text-base leading-8 text-gray-700;
+}
+
+.legal-content ul {
+  list-style: disc;
+}
+
+.legal-content ol {
+  list-style: decimal;
+}
+
+.legal-content li {
+  @apply pl-1;
+}
+
+.legal-content a {
+  @apply text-brand-700 underline underline-offset-4 transition-colors hover:text-brand-500;
+}
+
+.legal-content hr {
+  @apply my-8 border-gray-200;
+}
+
+/* Keep the iubenda preferences button clear of our back-to-top control. */
+.iubenda-tp-btn.iubenda-cs-preferences-link {
+  left: 16px !important;
+  right: auto !important;
+  bottom: 16px !important;
 }
 
 .my-masonry-grid {

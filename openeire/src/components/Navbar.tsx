@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -11,6 +11,7 @@ const Navbar: React.FC = () => {
   const [showBanner, setShowBanner] = useState(true); // Banner state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const headerRef = useRef<HTMLDivElement | null>(null);
 
   // Check if we are on the Home Page
   const isHome = location.pathname === "/";
@@ -28,6 +29,35 @@ const Navbar: React.FC = () => {
     setIsMobileMenuOpen(false);
   }, [location.key, location.pathname, location.search, location.hash]);
 
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      const headerHeight = headerRef.current?.offsetHeight ?? 0;
+      document.documentElement.style.setProperty(
+        "--site-header-height",
+        `${headerHeight}px`,
+      );
+    };
+
+    updateHeaderHeight();
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            updateHeaderHeight();
+          })
+        : null;
+
+    if (resizeObserver && headerRef.current) {
+      resizeObserver.observe(headerRef.current);
+    }
+
+    window.addEventListener("resize", updateHeaderHeight);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateHeaderHeight);
+    };
+  }, [showBanner, isMobileMenuOpen, scrolled, location.pathname]);
+
   // --- DYNAMIC STYLES ---
 
   // 1. Background: Transparent on top of home, Glass/Dark everywhere else
@@ -44,7 +74,10 @@ const Navbar: React.FC = () => {
     isActive ? { color: "var(--color-accent)", fontWeight: 600 } : undefined;
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50 flex flex-col transition-all duration-300">
+    <div
+      ref={headerRef}
+      className="fixed top-0 left-0 w-full z-50 flex flex-col transition-all duration-300"
+    >
       {/* 1. Announcement Bar */}
       {showBanner && (
         <div className="bg-dark text-white text-xs font-medium py-2 px-4 relative transition-all duration-300 ease-in-out">
