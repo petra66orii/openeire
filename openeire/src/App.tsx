@@ -32,6 +32,10 @@ import ScrollToTop from "./components/ScrollToTop";
 import NotFoundPage from "./pages/NotFoundPage";
 import ForbiddenPage from "./pages/ForbiddenPage";
 import ServerErrorPage from "./pages/ServerErrorPage";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { subscribeToErrorRoute } from "./utils/errorRouting";
 
 function App() {
@@ -92,6 +96,11 @@ function App() {
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/licensing" element={<LicensingPage />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/shipping" element={<ShippingPolicy />} />
+            <Route path="/refunds" element={<RefundPolicy />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/cookie-policy" element={<PrivacyPolicy />} />
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="/403" element={<ForbiddenPage />} />
             <Route path="/500" element={<ServerErrorPage />} />

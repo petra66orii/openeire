@@ -72,9 +72,9 @@ const Footer: React.FC = () => {
                 Licensing Agreement (EULA)
               </FooterLink>
               <FooterLink to="/terms">Terms & Conditions</FooterLink>
-              <FooterLink to="/privacy">Privacy Policy</FooterLink>
-              <FooterLink to="/shipping">Shipping & Returns</FooterLink>
-              <FooterLink to="/cookie-policy">Cookie Policy</FooterLink>
+              <FooterLink to="/privacy">Privacy & Cookie Policy</FooterLink>
+              <FooterLink to="/shipping">Shipping Policy</FooterLink>
+              <FooterLink to="/refunds">Refund & Return Policy</FooterLink>
             </ul>
           </div>
 
