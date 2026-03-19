@@ -170,6 +170,11 @@ const GalleryGatePage = () => {
               Don't have a code? We'll email you a 30-day guest pass
               immediately.
             </p>
+            <p className="text-xs text-gray-400 mb-5 ml-11 font-sans leading-relaxed">
+              By requesting access, you agree to receive this gallery-pass email
+              and any follow-up access-related messages for the private
+              collection.
+            </p>
             <form onSubmit={handleRequestAccess} className="flex gap-3 ml-11">
               <input
                 type="email"

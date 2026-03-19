@@ -37,6 +37,11 @@ const categories = [
     label: "Romania",
     image: "/romania-gallery.webp",
   },
+  {
+    id: "australia",
+    label: "Australia",
+    image: "/australia-gallery.webp",
+  },
 ];
 
 interface VisualCategoryHeroProps {
