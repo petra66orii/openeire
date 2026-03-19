@@ -110,6 +110,7 @@ const GalleryPage: React.FC = () => {
   const [isGridHovered, setIsGridHovered] = useState(false);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
   const [modalOwnerKey, setModalOwnerKey] = useState<string | null>(null);
+  const galleryRequestIdRef = useRef(0);
   const pageRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState<number>(() =>
@@ -324,11 +325,16 @@ const GalleryPage: React.FC = () => {
   );
 
   useEffect(() => {
+    const requestId = ++galleryRequestIdRef.current;
+    let isCurrent = true;
+
     const fetchProducts = async () => {
+      if (!isCurrent || galleryRequestIdRef.current !== requestId) return;
       setLoading(true);
       setError(null);
 
       if (COMING_SOON_COLLECTIONS.has(collection)) {
+        if (!isCurrent || galleryRequestIdRef.current !== requestId) return;
         setProducts([]);
         setLoading(false);
         return;
@@ -341,6 +347,8 @@ const GalleryPage: React.FC = () => {
           normalizedSearchTerm || undefined,
           sortOrder,
         );
+
+        if (!isCurrent || galleryRequestIdRef.current !== requestId) return;
 
         // Handle both paginated (response.results) and non-paginated (array) formats
         const scrubDigitalPricing = (items: GalleryItem[]) =>
@@ -365,14 +373,20 @@ const GalleryPage: React.FC = () => {
           setProducts([]);
         }
       } catch (err) {
+        if (!isCurrent || galleryRequestIdRef.current !== requestId) return;
         console.error("Gallery Error:", err);
         setError("Failed to load products.");
       } finally {
+        if (!isCurrent || galleryRequestIdRef.current !== requestId) return;
         setLoading(false);
       }
     };
 
     fetchProducts();
+
+    return () => {
+      isCurrent = false;
+    };
   }, [type, collection, normalizedSearchTerm, sortOrder]);
 
   return (
