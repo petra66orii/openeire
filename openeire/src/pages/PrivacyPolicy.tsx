@@ -16,7 +16,7 @@ const PrivacyPolicy: React.FC = () => {
           src={IUBENDA_EMBED_URL}
           className="block h-[75vh] min-h-[720px] w-full border-0"
           loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
+          referrerPolicy="no-referrer"
         />
       </div>
 

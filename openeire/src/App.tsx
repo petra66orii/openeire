@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import RegisterPage from "./pages/RegisterPage";
 import VerificationStatusPage from "./pages/VerificationStatusPage";
@@ -38,12 +38,8 @@ import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { subscribeToErrorRoute } from "./utils/errorRouting";
 
-const HEADER_OVERLAY_ROUTES = new Set(["/"]);
-
 function App() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const shouldOffsetForHeader = !HEADER_OVERLAY_ROUTES.has(location.pathname);
 
   useEffect(() => {
     return subscribeToErrorRoute((path) => {
@@ -57,15 +53,10 @@ function App() {
       <BreadcrumbProvider>
         <ScrollToTop />
         <Navbar />
-        <div
-          className={
-            shouldOffsetForHeader ? "pt-[var(--site-header-height,0px)]" : ""
-          }
-        >
-          <Breadcrumbs />
-          <main className="flex-grow">
-            <Toaster position="bottom-center" toastOptions={{ duration: 3000 }} />
-            <Routes>
+        <Breadcrumbs />
+        <main className="flex-grow">
+          <Toaster position="bottom-center" toastOptions={{ duration: 3000 }} />
+          <Routes>
             {/* ================= PUBLIC ROUTES ================= */}
             <Route path="/" element={<HomePage />} />
             <Route path="/register" element={<RegisterPage />} />
@@ -150,10 +141,9 @@ function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
             <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-            <BackToTop />
-          </main>
-        </div>
+          </Routes>
+          <BackToTop />
+        </main>
         <Footer />
       </BreadcrumbProvider>
     </>
