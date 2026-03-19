@@ -1,6 +1,4 @@
 export type ProductType = "photo" | "video" | "physical";
-export type DigitalLicense = "hd" | "4k";
-const DIGITAL_LICENSES: DigitalLicense[] = ["hd", "4k"];
 
 export const isDigitalProductType = (
   productType: string | null | undefined,
@@ -48,13 +46,3 @@ export const shouldShowGalleryAccessCodeUx = (
 ): boolean =>
   isDigitalProductType(productType) &&
   (statusCode === 401 || statusCode === 403);
-
-export const normalizeDigitalLicense = (
-  value: string | null | undefined,
-): DigitalLicense => (value === "4k" ? "4k" : "hd");
-
-export const isValidDigitalLicense = (
-  value: string | null | undefined,
-): value is DigitalLicense =>
-  typeof value === "string" &&
-  DIGITAL_LICENSES.includes(value as DigitalLicense);

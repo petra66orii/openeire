@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  useCart,
-  CartItem,
-  getCartItemUnitPrice,
-  isDigitalCartOptions,
-} from "../context/CartContext";
+import { useCart, CartItem, getCartItemUnitPrice } from "../context/CartContext";
 import { FaTrash, FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { resolveMediaUrl } from "../config/backend";
@@ -29,10 +24,6 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
     resolveMediaUrl(rawImageUrl) || "https://via.placeholder.com/150?text=No+Image";
 
   const unitPrice = getCartItemUnitPrice(item);
-  const licenseLabel =
-    isDigitalCartOptions(item.options) && item.options.license === "4k"
-      ? "4K Personal Licence"
-      : "HD Personal Licence";
 
   return (
     <div className="flex flex-col md:flex-row items-start md:items-center py-8 border-b border-white/5 last:border-0 group transition-colors -mx-4 px-4 md:mx-0 md:px-0 rounded-lg">
@@ -77,7 +68,7 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
                       : "Digital Photo"}
                   </p>
                   {isDigital && (
-                    <p className="text-sm text-gray-400">{licenseLabel}</p>
+                    <p className="text-sm text-gray-400">Personal Use</p>
                   )}
                 </>
               )}

@@ -32,7 +32,6 @@ import { toastInfo } from "../utils/toast";
 import {
   isDigitalProductType,
   isPhysicalProductType,
-  normalizeDigitalLicense,
   shouldShowGalleryAccessCodeUx,
 } from "../utils/purchaseFlow";
 import {
@@ -94,9 +93,6 @@ const ProductDetailPage: React.FC = () => {
   // Physical State (Only used if it's a physical print)
   const [selectedMaterial, setSelectedMaterial] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const [selectedDigitalLicense, setSelectedDigitalLicense] = useState<
-    "hd" | "4k"
-  >("hd");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -198,29 +194,10 @@ const ProductDetailPage: React.FC = () => {
     return null;
   }, [product]);
 
-  const digitalHdPrice = useMemo(() => {
+  const selectedDigitalPrice = useMemo(() => {
     if (!digitalProduct || !isDigital) return 0;
     return toMoneyNumber(digitalProduct.price ?? digitalProduct.starting_price);
   }, [digitalProduct, isDigital]);
-
-  const digital4kPrice = useMemo(() => {
-    if (!digitalProduct || !isDigital) return 0;
-    return toMoneyNumber(digitalProduct.price_4k ?? digitalProduct.price);
-  }, [digitalProduct, isDigital]);
-
-  const selectedDigitalPrice = useMemo(() => {
-    if (selectedDigitalLicense === "4k") return digital4kPrice || digitalHdPrice;
-    return digitalHdPrice || digital4kPrice;
-  }, [selectedDigitalLicense, digital4kPrice, digitalHdPrice]);
-
-  useEffect(() => {
-    if (!isDigital) return;
-    if (digitalHdPrice <= 0 && digital4kPrice > 0) {
-      setSelectedDigitalLicense("4k");
-      return;
-    }
-    setSelectedDigitalLicense("hd");
-  }, [isDigital, digitalHdPrice, digital4kPrice, product?.id]);
 
   const physicalProduct = useMemo<PhysicalDetail | null>(() => {
     if (!product || product.product_type !== "physical") return null;
@@ -297,8 +274,6 @@ const ProductDetailPage: React.FC = () => {
 
     addToCart(digitalProduct, 1, {
       type: "digital",
-      license: selectedDigitalLicense,
-      unitPrice: selectedDigitalPrice,
       sourceProductId: Number(digitalProduct.id),
     });
 
@@ -546,24 +521,6 @@ const ProductDetailPage: React.FC = () => {
                       Commercial usage requires a separate rights-managed
                       licence request.
                     </p>
-                  </div>
-
-                  <div>
-                    <label className="text-xs uppercase tracking-widest text-gray-500 mb-2 block">
-                      Personal License
-                    </label>
-                    <select
-                      value={selectedDigitalLicense}
-                      onChange={(e) =>
-                        setSelectedDigitalLicense(
-                          normalizeDigitalLicense(e.target.value),
-                        )
-                      }
-                      className="w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent focus:ring-1 focus:ring-accent outline-none appearance-none"
-                    >
-                      <option value="hd">HD Personal Licence</option>
-                      <option value="4k">4K Personal Licence</option>
-                    </select>
                   </div>
 
                   <div className="border-t border-white/10 pt-6 mt-8">
