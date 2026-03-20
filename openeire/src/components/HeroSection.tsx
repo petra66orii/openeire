@@ -1,7 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const HeroSection: React.FC = () => {
+  useEffect(() => {
+    const existingPreload = document.querySelector(
+      'link[rel="preload"][href="/hero-poster.jpg"]',
+    );
+    if (existingPreload) return;
+
+    const preloadLink = document.createElement("link");
+    preloadLink.rel = "preload";
+    preloadLink.as = "image";
+    preloadLink.href = "/hero-poster.jpg";
+    document.head.appendChild(preloadLink);
+
+    return () => {
+      preloadLink.remove();
+    };
+  }, []);
+
   return (
     <div className="relative h-screen flex items-center justify-center text-center overflow-hidden">
       {/* 1. VIDEO BACKGROUND */}
@@ -11,6 +28,7 @@ const HeroSection: React.FC = () => {
           loop
           muted
           playsInline // Crucial for iOS to prevent fullscreen
+          preload="metadata"
           poster="/hero-poster.jpg" // The loading placeholder
           className="absolute top-0 left-0 w-full h-full object-cover"
         >
@@ -51,7 +69,7 @@ const HeroSection: React.FC = () => {
             {/* Primary Button (Brand Green) */}
             <Link
               to="/gallery/digital"
-              className="px-8 py-4 bg-brand-500 hover:bg-brand-700 text-white font-bold rounded-full transition-all transform hover:scale-105 shadow-lg shadow-brand-500/40 border border-transparent"
+              className="px-8 py-4 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-full transition-all transform hover:scale-105 shadow-lg shadow-brand-700/40 border border-transparent"
             >
               Explore Footage
             </Link>

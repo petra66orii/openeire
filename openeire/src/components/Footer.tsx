@@ -33,6 +33,9 @@ const Footer: React.FC = () => {
               <img
                 src={logoImage}
                 alt={"Open\u00C9ire Studios"}
+                width={380}
+                height={200}
+                decoding="async"
                 className="h-12 w-auto opacity-90 hover:opacity-100 transition-opacity"
               />
             </Link>
@@ -41,10 +44,10 @@ const Footer: React.FC = () => {
               stock footage and fine art prints for creators and collectors.
             </p>
             <div className="flex space-x-4">
-              <SocialLink href="#" icon={<FaInstagram />} />
-              <SocialLink href="#" icon={<FaFacebook />} />
-              <SocialLink href="#" icon={<FaYoutube />} />
-              <SocialLink href="#" icon={<FaTwitter />} />
+              <SocialLink label="Instagram" icon={<FaInstagram />} />
+              <SocialLink label="Facebook" icon={<FaFacebook />} />
+              <SocialLink label="YouTube" icon={<FaYoutube />} />
+              <SocialLink label="Twitter" icon={<FaTwitter />} />
             </div>
           </div>
 
@@ -107,7 +110,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* BOTTOM BAR */}
-        <div className="border-t border-brand-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/60">
+        <div className="border-t border-brand-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/80">
           <div className="text-center md:text-left">
             <p>
               &copy; {new Date().getFullYear()} Open{"\u00C9"}ire Studios. All rights
@@ -126,11 +129,14 @@ const Footer: React.FC = () => {
                 </a>
               </span>
             </p>
-            <p className="mt-2 text-[10px] text-gray-500 max-w-2xl mx-auto uppercase tracking-wider leading-relaxed">
+            <p className="mt-2 text-[10px] text-brand-100/90 max-w-2xl mx-auto uppercase tracking-wider leading-relaxed">
               Art prints are sold for personal display only and do not include
               reproduction rights. Digital media is Rights-Managed and subject
               to strict commercial licensing terms.
-              <Link to="/licensing" className="underline hover:text-white ml-1">
+              <Link
+                to="/licensing"
+                className="ml-1 underline text-white hover:text-accent"
+              >
                 View Licensing Terms
               </Link>
               .
@@ -157,18 +163,44 @@ const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({
   </li>
 );
 
-const SocialLink: React.FC<{ href: string; icon: React.ReactNode }> = ({
+const SocialLink: React.FC<{
+  href?: string;
+  label: string;
+  icon: React.ReactNode;
+}> = ({
   href,
+  label,
   icon,
-}) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="h-10 w-10 rounded-full bg-brand-800 flex items-center justify-center text-white hover:bg-accent hover:text-brand-900 transition-all duration-300"
-  >
-    {icon}
-  </a>
-);
+}) => {
+  const isConfiguredLink = typeof href === "string" && href.trim() !== "" && href !== "#";
+  const sharedClassName =
+    "h-10 w-10 rounded-full bg-brand-800 flex items-center justify-center text-white transition-all duration-300";
+
+  if (!isConfiguredLink) {
+    return (
+      <span
+        aria-label={`${label} link coming soon`}
+        title={`${label} coming soon`}
+        aria-disabled="true"
+        className={`${sharedClassName} cursor-not-allowed opacity-60`}
+      >
+        {icon}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      title={label}
+      className={`${sharedClassName} hover:bg-accent hover:text-brand-900`}
+    >
+      {icon}
+    </a>
+  );
+};
 
 export default Footer;

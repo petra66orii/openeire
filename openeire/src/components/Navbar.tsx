@@ -131,6 +131,9 @@ const Navbar: React.FC = () => {
               <img
                 src={logoImage}
                 alt={"Open\u00C9ire Studios Logo"}
+                width={380}
+                height={200}
+                decoding="async"
                 className="text-white h-16 transition-all"
               />
             </Link>
@@ -162,7 +165,12 @@ const Navbar: React.FC = () => {
             {/* RIGHT: Cart & Auth */}
             <div className="flex items-center space-x-6">
               {/* Shopping Bag */}
-              <Link to="/bag" className={`relative group ${hoverColor}`}>
+              <Link
+                to="/bag"
+                className={`relative group ${hoverColor}`}
+                aria-label="Open shopping bag"
+                title="Shopping bag"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6"
