@@ -9,10 +9,8 @@ import React, {
 import { GalleryItem } from "../services/api";
 import {
   cartHasDigitalItems,
-  DigitalLicense,
   isDigitalProductType,
   isPhysicalProductType,
-  isValidDigitalLicense,
 } from "../utils/purchaseFlow";
 import { useAuth } from "./AuthContext";
 
@@ -26,8 +24,6 @@ export interface PhysicalCartOptions {
 
 export interface DigitalCartOptions {
   type?: "digital";
-  license: DigitalLicense;
-  unitPrice?: number;
   sourceProductId?: number;
 }
 
@@ -49,16 +45,6 @@ type AddToCartFn = {
     options: DigitalCartOptions,
   ): void;
 };
-
-export const isDigitalCartOptions = (
-  options: CartOptions | undefined,
-): options is DigitalCartOptions =>
-  Boolean(
-    options &&
-      "license" in options &&
-      typeof options.license === "string" &&
-      isValidDigitalLicense(options.license),
-  );
 
 export const isPhysicalCartOptions = (
   options: CartOptions | undefined,
@@ -107,15 +93,6 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
 export const getCartItemUnitPrice = (item: CartItem): number => {
-  if (item.product.product_type === "physical") {
-    return toNumber(item.product.price ?? item.product.starting_price);
-  }
-
-  const is4k = isDigitalCartOptions(item.options) && item.options.license === "4k";
-  if (is4k) {
-    return toNumber(item.product.price_4k ?? item.product.price);
-  }
-
   return toNumber(item.product.price ?? item.product.starting_price);
 };
 
@@ -125,6 +102,12 @@ const sanitizeProductForCart = (product: GalleryItem): GalleryItem => {
   const safeProduct = {
     ...product,
   } as GalleryItem & Record<string, unknown>;
+  const legacy4kPrice = safeProduct["price_4k"];
+  if (typeof legacy4kPrice === "string" || typeof legacy4kPrice === "number") {
+    safeProduct.price = String(legacy4kPrice);
+  }
+  delete safeProduct["price_hd"];
+  delete safeProduct["price_4k"];
   delete safeProduct.file;
   delete safeProduct.high_res_file;
   delete safeProduct.video_file;
@@ -154,17 +137,8 @@ const sanitizeOptionsForCart = (
     fallbackIds?.sourceProductId;
 
   if (isDigitalProductType(productType)) {
-    const rawLicense =
-      optionRecord && typeof optionRecord.license === "string"
-        ? optionRecord.license
-        : undefined;
-    const license: DigitalLicense = isValidDigitalLicense(rawLicense)
-      ? rawLicense
-      : "hd";
-
     return {
       type: "digital",
-      license,
       sourceProductId,
     };
   }
@@ -400,3 +374,4 @@ export const useCart = () => {
   }
   return context;
 };
+

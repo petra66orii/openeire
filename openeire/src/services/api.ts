@@ -203,8 +203,6 @@ export interface GalleryItem {
   thumbnail_image?: string;
   collection: string;
   price: string;
-  price_hd?: string;
-  price_4k?: string;
   product_type: "photo" | "video" | "physical";
   starting_price?: string | number;
   file?: string;
@@ -260,7 +258,6 @@ export interface OrderHistoryItem {
   details: {
     material?: string;
     size?: string;
-    license?: "hd" | "4k";
     variantId?: number;
     sourceProductId?: number;
   } | null;
@@ -328,7 +325,6 @@ export interface PhotoDetail extends GalleryItem {
   description: string;
   collection: string;
   download_url?: string | null;
-  price_4k: string;
   tags: string | null;
   created_at: string;
   variants: ProductVariant[]; 
@@ -340,7 +336,6 @@ export interface VideoDetail extends GalleryItem {
   description: string;
   collection: string;
   download_url?: string | null;
-  price_4k: string;
   tags: string | null;
   created_at: string;
   duration?: number;

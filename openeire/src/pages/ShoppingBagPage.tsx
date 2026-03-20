@@ -21,8 +21,6 @@ const ShoppingBagPage: React.FC = () => {
             : {
                 ...item,
                 price: "",
-                price_hd: undefined,
-                price_4k: undefined,
                 starting_price: undefined,
               },
         );

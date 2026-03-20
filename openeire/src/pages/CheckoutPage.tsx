@@ -5,7 +5,6 @@ import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import axios from "axios";
 import {
-  isDigitalCartOptions,
   isPhysicalCartOptions,
   useCart,
 } from "../context/CartContext";
@@ -18,10 +17,8 @@ import { FaLock, FaShieldAlt } from "react-icons/fa";
 import {
   cartHasDigitalItems,
   cartHasPhysicalItems,
-  DigitalLicense,
   isDigitalProductType,
   isPhysicalProductType,
-  isValidDigitalLicense,
 } from "../utils/purchaseFlow";
 import {
   EMPTY_SHIPPING_DETAILS,
@@ -95,10 +92,6 @@ const getApiErrorMessage = (error: unknown): string | null => {
   return null;
 };
 
-type CheckoutDigitalOptionsPayload = {
-  license: DigitalLicense;
-};
-
 type CheckoutPhysicalOptionsPayload = {
   material?: string;
   size?: string;
@@ -110,7 +103,6 @@ type CheckoutCartItemPayload =
       product_id: number;
       product_type: "photo" | "video";
       quantity: number;
-      options: CheckoutDigitalOptionsPayload;
     }
   | {
       product_id: number;
@@ -276,22 +268,10 @@ const CheckoutPage: React.FC = () => {
             };
           }
 
-          const license = isDigitalCartOptions(item.options)
-            ? item.options.license
-            : undefined;
-          if (!isValidDigitalLicense(license)) {
-            throw new Error(
-              "One or more digital licence options are invalid. Remove and re-add the item.",
-            );
-          }
-
           return {
             product_id: item.product.id,
             product_type: productType,
             quantity: item.quantity,
-            options: {
-              license,
-            },
           };
         });
 

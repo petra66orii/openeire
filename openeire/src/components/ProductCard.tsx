@@ -231,7 +231,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </p>
             {isDigital && (
               <span className="text-[10px] text-gray-400 bg-white/10 px-2 py-0.5 rounded border border-white/10">
-                4K Available
+                Digital Download
               </span>
             )}
           </div>
@@ -252,3 +252,4 @@ const ProductCard: React.FC<ProductCardProps> = ({
 };
 
 export default ProductCard;
+
