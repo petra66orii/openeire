@@ -11,8 +11,33 @@ import AppErrorBoundary from "./components/AppErrorBoundary";
 
 const GOOGLE_CLIENT_ID =
   "915383717686-bhrb8rik5rckglurgeqa17igdr44obg4.apps.googleusercontent.com";
+const CHUNK_RELOAD_STORAGE_KEY = "openeire:chunk-reload-attempted";
 
 const queryClient = new QueryClient();
+
+window.addEventListener("vite:preloadError", (event) => {
+  const hasRetriedChunkLoad =
+    window.sessionStorage.getItem(CHUNK_RELOAD_STORAGE_KEY) === "1";
+
+  if (hasRetriedChunkLoad) {
+    window.sessionStorage.removeItem(CHUNK_RELOAD_STORAGE_KEY);
+    return;
+  }
+
+  event.preventDefault();
+  window.sessionStorage.setItem(CHUNK_RELOAD_STORAGE_KEY, "1");
+  window.location.reload();
+});
+
+if (window.sessionStorage.getItem(CHUNK_RELOAD_STORAGE_KEY) === "1") {
+  window.addEventListener(
+    "load",
+    () => {
+      window.sessionStorage.removeItem(CHUNK_RELOAD_STORAGE_KEY);
+    },
+    { once: true },
+  );
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

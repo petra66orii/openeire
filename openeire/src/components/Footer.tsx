@@ -44,10 +44,10 @@ const Footer: React.FC = () => {
               stock footage and fine art prints for creators and collectors.
             </p>
             <div className="flex space-x-4">
-              <SocialLink href="#" label="Instagram" icon={<FaInstagram />} />
-              <SocialLink href="#" label="Facebook" icon={<FaFacebook />} />
-              <SocialLink href="#" label="YouTube" icon={<FaYoutube />} />
-              <SocialLink href="#" label="Twitter" icon={<FaTwitter />} />
+              <SocialLink label="Instagram" icon={<FaInstagram />} />
+              <SocialLink label="Facebook" icon={<FaFacebook />} />
+              <SocialLink label="YouTube" icon={<FaYoutube />} />
+              <SocialLink label="Twitter" icon={<FaTwitter />} />
             </div>
           </div>
 
@@ -164,24 +164,43 @@ const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({
 );
 
 const SocialLink: React.FC<{
-  href: string;
+  href?: string;
   label: string;
   icon: React.ReactNode;
 }> = ({
   href,
   label,
   icon,
-}) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={label}
-    title={label}
-    className="h-10 w-10 rounded-full bg-brand-800 flex items-center justify-center text-white hover:bg-accent hover:text-brand-900 transition-all duration-300"
-  >
-    {icon}
-  </a>
-);
+}) => {
+  const isConfiguredLink = typeof href === "string" && href.trim() !== "" && href !== "#";
+  const sharedClassName =
+    "h-10 w-10 rounded-full bg-brand-800 flex items-center justify-center text-white transition-all duration-300";
+
+  if (!isConfiguredLink) {
+    return (
+      <span
+        aria-label={`${label} link coming soon`}
+        title={`${label} coming soon`}
+        aria-disabled="true"
+        className={`${sharedClassName} cursor-not-allowed opacity-60`}
+      >
+        {icon}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      title={label}
+      className={`${sharedClassName} hover:bg-accent hover:text-brand-900`}
+    >
+      {icon}
+    </a>
+  );
+};
 
 export default Footer;
