@@ -4,6 +4,7 @@ import { getGalleryProducts, GalleryItem } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import VisualCategoryHero from "../components/VisualCategoryHero";
 import MinimalToolbar from "../components/MinimalToolbar";
+import SEOHead from "../components/SEOHead";
 
 type GalleryType = "digital" | "physical" | "all";
 
@@ -128,6 +129,15 @@ const GalleryPage: React.FC = () => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>({});
   const normalizedSearchTerm = searchTerm.trim();
+  const collectionLabel = COLLECTION_LABELS[collection] ?? "Gallery";
+  const typeLabel =
+    type === "physical" ? "Art Prints" : type === "digital" ? "Stock Footage" : "Gallery";
+  const galleryDescription = useMemo(() => {
+    if (collection !== "all") {
+      return `Browse ${collectionLabel} ${typeLabel.toLowerCase()} from Open\u00C9ire Studios, including curated visuals, licensing details, and limited releases.`;
+    }
+    return "Browse stock footage and art prints from Open\u00C9ire Studios, with curated collections, licensing details, and gallery access options.";
+  }, [collection, collectionLabel, typeLabel]);
 
   const measureGridMetrics = useCallback(() => {
     if (!gridRef.current || typeof window === "undefined") return;
@@ -390,6 +400,10 @@ const GalleryPage: React.FC = () => {
   return (
     // Dark mode background for the gallery canvas
     <div ref={pageRef} className="bg-black min-h-screen pb-20">
+      <SEOHead
+        title={collection === "all" ? typeLabel : `${collectionLabel} ${typeLabel}`}
+        description={galleryDescription}
+      />
       {/* 1. 3D SWIPER HERO (Controls Collection State) */}
       <VisualCategoryHero
         activeCollection={collection}
@@ -461,7 +475,7 @@ const GalleryPage: React.FC = () => {
                   {COLLECTION_LABELS[collection] ?? "This collection"} is coming
                   soon!
                 </div>
-                <p className="mt-3 text-gray-500">
+                <p className="mt-3 text-gray-400">
                   We&apos;re curating this collection now. Check back soon for
                   new releases.
                 </p>

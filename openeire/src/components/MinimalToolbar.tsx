@@ -16,6 +16,7 @@ const MinimalToolbar: React.FC<Props> = ({ onSearch, onSortChange }) => {
           <input
             type="text"
             placeholder="Search keywords..."
+            aria-label="Search gallery keywords"
             onChange={(e) => onSearch(e.target.value)}
             className="w-full bg-transparent pl-8 py-2 text-white border-none focus:ring-0 placeholder-gray-500 text-lg font-serif border-b border-gray-700 focus:border-accent transition-colors outline-none"
           />
@@ -24,11 +25,12 @@ const MinimalToolbar: React.FC<Props> = ({ onSearch, onSortChange }) => {
 
         {/* Sort - Minimal Text Dropdown */}
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-500 uppercase tracking-widest font-bold">
+          <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">
             Sort By
           </span>
           <div className="relative">
             <select
+              aria-label="Sort gallery products"
               onChange={(e) => onSortChange(e.target.value)}
               className="appearance-none bg-transparent text-white font-medium pr-8 pl-2 py-1 cursor-pointer outline-none hover:text-accent transition-colors text-right"
             >
@@ -42,7 +44,7 @@ const MinimalToolbar: React.FC<Props> = ({ onSearch, onSortChange }) => {
                 Price: High to Low
               </option>
             </select>
-            <FaSortAmountDown className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+            <FaSortAmountDown className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           </div>
         </div>
       </div>

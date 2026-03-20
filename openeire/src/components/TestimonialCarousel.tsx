@@ -21,7 +21,7 @@ const TestimonialsCarousel: React.FC = () => {
 
   if (isLoading)
     return (
-      <div className="py-20 text-center text-gray-400">Loading reviews...</div>
+      <div className="py-20 text-center text-gray-700">Loading reviews...</div>
     );
   if (isError || !testimonials) return null;
 
@@ -97,9 +97,9 @@ const TestimonialsCarousel: React.FC = () => {
                           {testimonial.name.charAt(0)}
                         </div>
                         <div>
-                          <h4 className="font-bold text-dark text-sm">
+                          <p className="font-bold text-dark text-sm">
                             {testimonial.name}
-                          </h4>
+                          </p>
                           <div className="scale-75 origin-left">
                             <StarRating
                               rating={testimonial.rating}
