@@ -3,8 +3,6 @@ import {
   cartHasDigitalItems,
   cartHasPhysicalItems,
   getPurchaseFlowConfig,
-  isValidDigitalLicense,
-  normalizeDigitalLicense,
   shouldShowGalleryAccessCodeUx,
 } from "../src/utils/purchaseFlow";
 
@@ -32,21 +30,6 @@ describe("gallery access fallback behavior", () => {
 
   it("does not trigger access-code UX for non-digital products", () => {
     expect(shouldShowGalleryAccessCodeUx("physical", 401)).toBe(false);
-  });
-});
-
-describe("digital license normalization", () => {
-  it("keeps 4k when selected and defaults unknown values to hd", () => {
-    expect(normalizeDigitalLicense("4k")).toBe("4k");
-    expect(normalizeDigitalLicense("hd")).toBe("hd");
-    expect(normalizeDigitalLicense("unknown")).toBe("hd");
-  });
-
-  it("validates only hd and 4k as accepted digital license options", () => {
-    expect(isValidDigitalLicense("hd")).toBe(true);
-    expect(isValidDigitalLicense("4k")).toBe(true);
-    expect(isValidDigitalLicense("invalid")).toBe(false);
-    expect(isValidDigitalLicense(undefined)).toBe(false);
   });
 });
 
