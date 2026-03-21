@@ -12,6 +12,7 @@ import DeferredIubendaLoader from "./components/DeferredIubendaLoader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GalleryGuard from "./components/GalleryGuard";
 import HomePage from "./pages/HomePage";
+import GalleryPage from "./pages/GalleryPage";
 import ServerErrorPage from "./pages/ServerErrorPage";
 import { BreadcrumbProvider } from "./context/BreadcrumbContext";
 import { Toaster } from "react-hot-toast";
@@ -35,7 +36,6 @@ const ConfirmPasswordResetPage = lazy(
   () => import("./pages/ConfirmPasswordResetPage"),
 );
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
-const GalleryPage = lazy(() => import("./pages/GalleryPage"));
 const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
 const ShoppingBagPage = lazy(() => import("./pages/ShoppingBagPage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
