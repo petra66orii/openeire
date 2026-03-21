@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import {
   EffectCoverflow,
   Navigation,
   Mousewheel,
-  Autoplay,
 } from "swiper/modules";
-import type { Swiper as SwiperType } from "swiper";
 
 import "swiper/css";
 import "swiper/css/effect-coverflow";
@@ -52,27 +50,9 @@ interface VisualCategoryHeroProps {
 
 const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
   onSelectCollection,
-  isPaused,
 }) => {
-  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
-
-  useEffect(() => {
-    if (!swiperInstance) return;
-
-    if (isPaused) {
-      // User is hovering grid -> STOP
-      swiperInstance.autoplay.stop();
-    } else {
-      // User left grid -> RESUME
-      // We check if it's already running to avoid stuttering
-      if (!swiperInstance.autoplay.running) {
-        swiperInstance.autoplay.start();
-      }
-    }
-  }, [isPaused, swiperInstance]);
-
   return (
-    <div className="relative w-full py-16 md:py-24 overflow-hidden">
+    <div className="relative w-full py-16 md:py-24 overflow-hidden min-h-[760px] md:min-h-[860px]">
       {/* Background Atmosphere */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)] z-0 pointer-events-none" />
 
@@ -87,7 +67,6 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
       </div>
 
       <Swiper
-        onSwiper={setSwiperInstance}
         effect={"coverflow"}
         grabCursor={true}
         centeredSlides={true}
@@ -96,19 +75,16 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
         loop={false} // Keeps the deck stable
         rewind={true}
         slideToClickedSlide={true}
+        speed={450}
         coverflowEffect={{
           rotate: 0,
           stretch: 0,
           depth: 150,
           modifier: 1.5,
-          slideShadows: true,
-        }}
-        autoplay={{
-          delay: 3000,
-          disableOnInteraction: false,
+          slideShadows: false,
         }}
         mousewheel={{ forceToAxis: true }}
-        modules={[EffectCoverflow, Navigation, Mousewheel, Autoplay]}
+        modules={[EffectCoverflow, Navigation, Mousewheel]}
         className="w-full relative z-20 py-8"
         onSlideChange={(swiper) => {
           const index = swiper.activeIndex;
