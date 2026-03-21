@@ -211,13 +211,6 @@ const GalleryPage: React.FC = () => {
     () => `${columnCount}-${Math.round(columnWidth)}`,
     [columnCount, columnWidth],
   );
-  const loadingSkeletonColumns = useMemo(
-    () =>
-      Array.from({ length: columnCount }, (_, columnIndex) =>
-        Array.from({ length: 2 }, (_, rowIndex) => `${columnIndex}-${rowIndex}`),
-      ),
-    [columnCount],
-  );
 
   useEffect(() => {
     const activeKeys = new Set(products.map((product) => getProductKey(product)));
@@ -429,29 +422,12 @@ const GalleryPage: React.FC = () => {
       >
         {/* Loading */}
         {loading && (
-          <div className="flex w-full items-start gap-8" aria-hidden="true">
-            {loadingSkeletonColumns.map((column) => (
-              <div
-                key={`gallery-loading-column-${column[0]}`}
-                className="min-w-0 flex-1 space-y-8"
-              >
-                {column.map((skeletonKey) => (
-                  <div
-                    key={skeletonKey}
-                    className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 animate-pulse"
-                  >
-                    <div className="aspect-[4/3] bg-white/10" />
-                    <div className="space-y-4 p-5">
-                      <div className="h-5 w-3/4 rounded bg-white/10" />
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="h-3 w-24 rounded bg-white/10" />
-                        <div className="h-6 w-28 rounded-full bg-white/10" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
+          <div className="flex justify-center py-20 min-h-[320px]" aria-live="polite">
+            <div
+              className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"
+              aria-hidden="true"
+            />
+            <span className="sr-only">Loading gallery items</span>
           </div>
         )}
 
