@@ -40,7 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   else if (isPhysical) detailUrl = `/gallery/physical/${product.id}`;
   else detailUrl = `/gallery/photo/${product.id}`;
 
-  const rawImageUrl = product.preview_image || product.thumbnail_image;
+  const rawImageUrl = product.thumbnail_image || product.preview_image;
   const imageUrl =
     resolveMediaUrl(rawImageUrl) || "https://via.placeholder.com/400x300?text=No+Preview";
 
@@ -152,6 +152,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             src={imageUrl}
             alt={product.title}
             loading="lazy"
+            decoding="async"
             className={`absolute inset-0 z-10 w-full h-full object-cover transition-opacity duration-500 ${
               isVideoPlaying ? "opacity-0" : "opacity-100"
             }`}
