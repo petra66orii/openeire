@@ -3,6 +3,7 @@ import { useEffect } from "react";
 const IUBENDA_WIDGET_SRC =
   "https://embeds.iubenda.com/widgets/c1a64030-d117-4ceb-823e-d39815727f36.js";
 const IUBENDA_LOAD_DELAY_MS = 1500;
+const IUBENDA_IDLE_TIMEOUT_MS = 2000;
 
 declare global {
   interface Window {
@@ -28,16 +29,28 @@ const DeferredIubendaLoader = () => {
   useEffect(() => {
     let timeoutId: number | null = null;
     let idleId: number | null = null;
+    let fallbackTimeoutId: number | null = null;
+    let hasScheduledLoad = false;
 
     const scheduleLoad = () => {
+      const delayedLoad = () => {
+        if (hasScheduledLoad) return;
+        hasScheduledLoad = true;
+        timeoutId = window.setTimeout(loadIubendaScript, IUBENDA_LOAD_DELAY_MS);
+      };
+
       if (typeof window.requestIdleCallback === "function") {
-        idleId = window.requestIdleCallback(() => {
-          timeoutId = window.setTimeout(loadIubendaScript, IUBENDA_LOAD_DELAY_MS);
+        idleId = window.requestIdleCallback(delayedLoad, {
+          timeout: IUBENDA_IDLE_TIMEOUT_MS,
         });
+        fallbackTimeoutId = window.setTimeout(
+          delayedLoad,
+          IUBENDA_IDLE_TIMEOUT_MS,
+        );
         return;
       }
 
-      timeoutId = window.setTimeout(loadIubendaScript, IUBENDA_LOAD_DELAY_MS);
+      delayedLoad();
     };
 
     if (document.readyState === "complete") {
@@ -51,6 +64,10 @@ const DeferredIubendaLoader = () => {
 
       if (idleId !== null && typeof window.cancelIdleCallback === "function") {
         window.cancelIdleCallback(idleId);
+      }
+
+      if (fallbackTimeoutId !== null) {
+        window.clearTimeout(fallbackTimeoutId);
       }
 
       if (timeoutId !== null) {

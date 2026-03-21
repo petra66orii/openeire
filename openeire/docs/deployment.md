@@ -29,6 +29,9 @@ Configure these values in your deployment environment:
   - Needed when media is served from a different origin/path than API defaults.
 - `VITE_STRIPE_PUBLIC_KEY`
   - Stripe publishable key for checkout.
+- `VITE_GOOGLE_CLIENT_ID`
+  - Google OAuth client ID for login/register social sign-in.
+  - If omitted, Google sign-in is disabled in the frontend.
 
 ## Production Build Output
 
@@ -92,5 +95,5 @@ The following production concerns are outside this repository and must be config
 - CORS policy on backend for frontend origin.
 - HTTPS/TLS termination.
 - Stripe webhook/backend payment processing setup.
-- Google OAuth client configuration (frontend currently uses a client ID in `src/main.tsx`).
+- Google OAuth client configuration aligned with `VITE_GOOGLE_CLIENT_ID`.
 - Cache strategy and CDN invalidation policy.

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import { api } from "../services/api";
 import toast from "react-hot-toast";
@@ -10,8 +10,17 @@ interface SocialLoginProps {
   redirectPath?: string;
 }
 
-const GOOGLE_CLIENT_ID =
-  "915383717686-bhrb8rik5rckglurgeqa17igdr44obg4.apps.googleusercontent.com";
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        oauth2?: unknown;
+      };
+    };
+  }
+}
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() ?? "";
 
 const normalizeInternalPath = (value?: string): string | null => {
   if (!value) return null;
@@ -23,6 +32,7 @@ const SocialLoginButton: React.FC<SocialLoginProps> = ({ redirectPath }) => {
   const { setAuthData } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
 
   const stateRedirectPath = (
     location.state as
@@ -33,6 +43,26 @@ const SocialLoginButton: React.FC<SocialLoginProps> = ({ redirectPath }) => {
     normalizeInternalPath(redirectPath) ??
     normalizeInternalPath(stateRedirectPath) ??
     "/";
+
+  useEffect(() => {
+    const checkGoogleReady = () => {
+      setIsGoogleReady(Boolean(window.google?.accounts?.oauth2));
+    };
+
+    checkGoogleReady();
+
+    if (window.google?.accounts?.oauth2) return;
+
+    const intervalId = window.setInterval(() => {
+      if (!window.google?.accounts?.oauth2) return;
+      checkGoogleReady();
+      window.clearInterval(intervalId);
+    }, 100);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (codeResponse) => {
@@ -70,10 +100,12 @@ const SocialLoginButton: React.FC<SocialLoginProps> = ({ redirectPath }) => {
         <button
           onClick={() => googleLogin()}
           type="button"
-          className="w-full flex justify-center items-center py-3 px-4 border border-white/20 rounded-lg shadow-sm bg-black hover:bg-white/5 text-sm font-bold text-white transition-all"
+          disabled={!isGoogleReady}
+          className="w-full flex justify-center items-center py-3 px-4 border border-white/20 rounded-lg shadow-sm bg-black hover:bg-white/5 text-sm font-bold text-white transition-all disabled:opacity-60 disabled:cursor-wait"
+          title={isGoogleReady ? "Sign in with Google" : "Preparing Google sign-in"}
         >
           <FcGoogle className="mr-3 text-xl" />
-          Sign in with Google
+          {isGoogleReady ? "Sign in with Google" : "Preparing Google sign-in..."}
         </button>
       </div>
     </div>
@@ -81,11 +113,24 @@ const SocialLoginButton: React.FC<SocialLoginProps> = ({ redirectPath }) => {
 };
 
 const SocialLogin: React.FC<SocialLoginProps> = ({ redirectPath }) => {
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <SocialLoginButton redirectPath={redirectPath} />
-    </GoogleOAuthProvider>
-  );
+  const provider = useMemo(() => {
+    if (!GOOGLE_CLIENT_ID) return null;
+
+    return (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <SocialLoginButton redirectPath={redirectPath} />
+      </GoogleOAuthProvider>
+    );
+  }, [redirectPath]);
+
+  if (!GOOGLE_CLIENT_ID) {
+    console.error(
+      "Google sign-in is disabled because VITE_GOOGLE_CLIENT_ID is not configured.",
+    );
+    return null;
+  }
+
+  return provider;
 };
 
 export default SocialLogin;
