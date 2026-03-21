@@ -429,7 +429,7 @@ const GalleryPage: React.FC = () => {
       >
         {/* Loading */}
         {loading && (
-          <div className="flex w-full items-start gap-8 py-6" aria-hidden="true">
+          <div className="flex w-full items-start gap-8" aria-hidden="true">
             {loadingSkeletonColumns.map((column) => (
               <div
                 key={`gallery-loading-column-${column[0]}`}

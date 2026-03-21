@@ -75,9 +75,7 @@ const HeroSection: React.FC = () => {
     preloadLink.href = "/hero-poster.jpg";
     document.head.appendChild(preloadLink);
 
-    return () => {
-      preloadLink.remove();
-    };
+    return;
   }, [shouldUseVideo]);
 
   return (

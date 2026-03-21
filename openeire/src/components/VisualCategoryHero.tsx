@@ -131,7 +131,6 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
               loading={cat.id === "all" ? "eager" : "lazy"}
               fetchPriority={cat.id === "all" ? "high" : "auto"}
               decoding="async"
-              sizes="(max-width: 768px) 240px, 300px"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-[.swiper-slide-active]:opacity-100 filter grayscale group-[.swiper-slide-active]:grayscale-0"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
