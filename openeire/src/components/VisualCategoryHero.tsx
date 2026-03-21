@@ -15,32 +15,32 @@ const categories = [
   {
     id: "all",
     label: "All Footage",
-    image: "/all-gallery.webp",
+    image: "/all-gallery-card.webp",
   },
   {
     id: "ireland",
     label: "Ireland",
-    image: "/ireland-gallery.webp",
+    image: "/ireland-gallery-card.webp",
   },
   {
     id: "new zealand",
     label: "New Zealand",
-    image: "/new-zealand-gallery.webp",
+    image: "/new-zealand-gallery-card.webp",
   },
   {
     id: "thailand",
     label: "Thailand",
-    image: "/thailand-gallery.webp",
+    image: "/thailand-gallery-card.webp",
   },
   {
     id: "romania",
     label: "Romania",
-    image: "/romania-gallery.webp",
+    image: "/romania-gallery-card.webp",
   },
   {
     id: "australia",
     label: "Australia",
-    image: "/australia-gallery.webp",
+    image: "/australia-gallery-card.webp",
   },
 ];
 
@@ -126,6 +126,12 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
             <img
               src={cat.image}
               alt={cat.label}
+              width={640}
+              height={960}
+              loading={cat.id === "all" ? "eager" : "lazy"}
+              fetchPriority={cat.id === "all" ? "high" : "auto"}
+              decoding="async"
+              sizes="(max-width: 768px) 240px, 300px"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-[.swiper-slide-active]:opacity-100 filter grayscale group-[.swiper-slide-active]:grayscale-0"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
