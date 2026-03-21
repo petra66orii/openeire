@@ -6,11 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import AppErrorBoundary from "./components/AppErrorBoundary";
-
-const GOOGLE_CLIENT_ID =
-  "915383717686-bhrb8rik5rckglurgeqa17igdr44obg4.apps.googleusercontent.com";
 const CHUNK_RELOAD_STORAGE_KEY = "openeire:chunk-reload-attempted";
 
 const queryClient = new QueryClient();
@@ -41,18 +37,16 @@ if (window.sessionStorage.getItem(CHUNK_RELOAD_STORAGE_KEY) === "1") {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <AppErrorBoundary>
-            <AuthProvider>
-              <CartProvider>
-                <App />
-              </CartProvider>
-            </AuthProvider>
-          </AppErrorBoundary>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </GoogleOAuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AppErrorBoundary>
+          <AuthProvider>
+            <CartProvider>
+              <App />
+            </CartProvider>
+          </AuthProvider>
+        </AppErrorBoundary>
+      </BrowserRouter>
+    </QueryClientProvider>
   </React.StrictMode>
 );

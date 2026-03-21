@@ -8,6 +8,7 @@ import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
 import Breadcrumbs from "./components/Breadcrumbs";
 import ScrollToTop from "./components/ScrollToTop";
+import DeferredIubendaLoader from "./components/DeferredIubendaLoader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GalleryGuard from "./components/GalleryGuard";
 import HomePage from "./pages/HomePage";
@@ -65,6 +66,7 @@ function App() {
   return (
     <>
       <BreadcrumbProvider>
+        <DeferredIubendaLoader />
         <ScrollToTop />
         <Navbar />
         <Breadcrumbs />

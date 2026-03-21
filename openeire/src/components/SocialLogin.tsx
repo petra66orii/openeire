@@ -1,14 +1,17 @@
 import React from "react";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import { api } from "../services/api";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
-import { FcGoogle } from "react-icons/fc"; // Using React Icons for cleaner look
+import { FcGoogle } from "react-icons/fc";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface SocialLoginProps {
   redirectPath?: string;
 }
+
+const GOOGLE_CLIENT_ID =
+  "915383717686-bhrb8rik5rckglurgeqa17igdr44obg4.apps.googleusercontent.com";
 
 const normalizeInternalPath = (value?: string): string | null => {
   if (!value) return null;
@@ -16,7 +19,7 @@ const normalizeInternalPath = (value?: string): string | null => {
   return value;
 };
 
-const SocialLogin: React.FC<SocialLoginProps> = ({ redirectPath }) => {
+const SocialLoginButton: React.FC<SocialLoginProps> = ({ redirectPath }) => {
   const { setAuthData } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,7 +42,7 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ redirectPath }) => {
         });
         const data = response.data;
         setAuthData({ access: data.access, refresh: data.refresh });
-        toast.success(`Welcome back!`);
+        toast.success("Welcome back!");
         navigate(postLoginPath, { replace: true });
       } catch (err) {
         console.error("Google Login Error:", err);
@@ -74,6 +77,14 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ redirectPath }) => {
         </button>
       </div>
     </div>
+  );
+};
+
+const SocialLogin: React.FC<SocialLoginProps> = ({ redirectPath }) => {
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <SocialLoginButton redirectPath={redirectPath} />
+    </GoogleOAuthProvider>
   );
 };
 
