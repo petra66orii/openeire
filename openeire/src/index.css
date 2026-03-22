@@ -111,7 +111,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 767px) {
   .mobile-page-offset {
-    padding-top: calc(var(--site-header-height, 0px) + 1rem) !important;
+    padding-top: calc(var(--site-header-height, 0px) + 1rem);
   }
 }
 

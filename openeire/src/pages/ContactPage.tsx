@@ -82,7 +82,7 @@ const ContactPage = () => {
                 </p>
                 <a
                   href="mailto:openeirestudios@gmail.com"
-                  className="text-brand-500 hover:underline font-mono break-all"
+                  className="text-brand-500 hover:underline font-mono break-words"
                 >
                   openeirestudios@gmail.com
                 </a>
