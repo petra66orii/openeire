@@ -2,8 +2,10 @@ import { useEffect } from "react";
 
 const IUBENDA_WIDGET_SRC =
   "https://embeds.iubenda.com/widgets/c1a64030-d117-4ceb-823e-d39815727f36.js";
-const IUBENDA_LOAD_DELAY_MS = 1500;
 const IUBENDA_IDLE_TIMEOUT_MS = 2000;
+const IUBENDA_DESKTOP_DELAY_MS = 1500;
+const IUBENDA_MOBILE_DELAY_MS = 4500;
+const IUBENDA_MOBILE_BREAKPOINT_QUERY = "(max-width: 767px)";
 
 declare global {
   interface Window {
@@ -33,10 +35,17 @@ const DeferredIubendaLoader = () => {
     let hasScheduledLoad = false;
 
     const scheduleLoad = () => {
+      const isMobileViewport = window.matchMedia(
+        IUBENDA_MOBILE_BREAKPOINT_QUERY,
+      ).matches;
+      const loadDelay = isMobileViewport
+        ? IUBENDA_MOBILE_DELAY_MS
+        : IUBENDA_DESKTOP_DELAY_MS;
+
       const delayedLoad = () => {
         if (hasScheduledLoad) return;
         hasScheduledLoad = true;
-        timeoutId = window.setTimeout(loadIubendaScript, IUBENDA_LOAD_DELAY_MS);
+        timeoutId = window.setTimeout(loadIubendaScript, loadDelay);
       };
 
       if (typeof window.requestIdleCallback === "function") {
