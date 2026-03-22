@@ -82,7 +82,7 @@ const BlogListPage: React.FC = () => {
   }, [currentTag]);
 
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20">
+    <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">

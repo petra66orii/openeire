@@ -378,7 +378,7 @@ const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20">
+    <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex items-center justify-between mb-12 border-b border-white/10 pb-6">
           <h1 className="text-3xl md:text-4xl font-serif font-bold">

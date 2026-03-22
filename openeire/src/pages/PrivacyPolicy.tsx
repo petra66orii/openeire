@@ -6,28 +6,30 @@ const IUBENDA_EMBED_URL =
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="legal-content">
-      <h1>Privacy & Cookie Policy</h1>
-      <p>This policy is hosted by iubenda, our compliance provider.</p>
+    <div className="bg-black min-h-screen text-white">
+      <div className="legal-content">
+        <h1>Privacy & Cookie Policy</h1>
+        <p>This policy is hosted by iubenda, our compliance provider.</p>
 
-      <div className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <iframe
-          title="OpenEire Studios Privacy and Cookie Policy"
-          src={IUBENDA_EMBED_URL}
-          className="block h-[75vh] min-h-[720px] w-full border-0"
-          loading="lazy"
-          referrerPolicy="no-referrer"
-        />
+        <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-sm">
+          <iframe
+            title="OpenEire Studios Privacy and Cookie Policy"
+            src={IUBENDA_EMBED_URL}
+            className="block h-[75vh] min-h-[720px] w-full border-0 bg-white"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+
+        <p className="mt-6">
+          If the embedded policy does not load in your browser, you can open it
+          directly here:{" "}
+          <a href={IUBENDA_POLICY_URL} target="_blank" rel="noopener noreferrer">
+            View Privacy & Cookie Policy
+          </a>
+          .
+        </p>
       </div>
-
-      <p className="mt-6">
-        If the embedded policy does not load in your browser, you can open it
-        directly here:{" "}
-        <a href={IUBENDA_POLICY_URL} target="_blank" rel="noopener noreferrer">
-          View Privacy & Cookie Policy
-        </a>
-        .
-      </p>
     </div>
   );
 };

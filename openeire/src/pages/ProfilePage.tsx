@@ -24,7 +24,7 @@ const ProfilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-black min-h-screen flex justify-center items-center">
+      <div className="bg-black min-h-screen flex justify-center items-center mobile-page-offset">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
       </div>
     );
@@ -40,7 +40,7 @@ const ProfilePage: React.FC = () => {
     }`;
 
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20">
+    <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
       <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
         {/* Header */}
         <div className="mb-12 border-b border-white/10 pb-6">
