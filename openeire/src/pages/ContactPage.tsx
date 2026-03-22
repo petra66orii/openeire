@@ -53,7 +53,7 @@ const ContactPage = () => {
     "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2";
 
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20">
+    <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
       <div className="container mx-auto px-4 lg:px-8">
         {/* HEADER */}
         <div className="text-center mb-16">
@@ -82,7 +82,7 @@ const ContactPage = () => {
                 </p>
                 <a
                   href="mailto:openeirestudios@gmail.com"
-                  className="text-brand-500 hover:underline font-mono"
+                  className="text-brand-500 hover:underline font-mono break-words"
                 >
                   openeirestudios@gmail.com
                 </a>

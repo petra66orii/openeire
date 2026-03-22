@@ -3,19 +3,20 @@ import { Link } from "react-router-dom";
 
 const TermsAndConditions: React.FC = () => {
   return (
-    <div className="legal-content">
-      <h1>Terms & Conditions</h1>
-      <p>
-        <strong>Last Updated: March 2026</strong>
-      </p>
-      <p>
-        Welcome to OpenEire Studios. These Terms & Conditions ("Terms")
-        govern your access to and use of our website, as well as the purchase
-        of any physical prints, digital downloads, or commercial media
-        licenses. By accessing our website or placing an order, you agree to
-        be bound by these Terms. If you do not agree to these Terms, please do
-        not use our site or purchase our products.
-      </p>
+    <div className="bg-black min-h-screen text-white">
+      <div className="legal-content">
+        <h1>Terms & Conditions</h1>
+        <p>
+          <strong>Last Updated: March 2026</strong>
+        </p>
+        <p>
+          Welcome to OpenEire Studios. These Terms & Conditions ("Terms")
+          govern your access to and use of our website, as well as the purchase
+          of any physical prints, digital downloads, or commercial media
+          licenses. By accessing our website or placing an order, you agree to
+          be bound by these Terms. If you do not agree to these Terms, please do
+          not use our site or purchase our products.
+        </p>
 
       <hr />
 
@@ -185,11 +186,12 @@ const TermsAndConditions: React.FC = () => {
         changes constitutes acceptance of those changes.
       </p>
 
-      <h2>11. Contact Information</h2>
-      <p>
-        Questions about these Terms & Conditions can be sent to{" "}
-        <a href="mailto:contact@openeire.ie">contact@openeire.ie</a>.
-      </p>
+        <h2>11. Contact Information</h2>
+        <p>
+          Questions about these Terms & Conditions can be sent to{" "}
+          <a href="mailto:contact@openeire.ie">contact@openeire.ie</a>.
+        </p>
+      </div>
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { FaCamera, FaPlane, FaMapMarkedAlt, FaAward } from "react-icons/fa";
 
 const AboutPage: React.FC = () => {
   return (
-    <div className="bg-black min-h-screen text-white">
+    <div className="bg-black min-h-screen text-white mobile-page-offset">
       {/* 1. HERO SECTION (Parallax feel) */}
       <div className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center">
         {/* Background Image */}

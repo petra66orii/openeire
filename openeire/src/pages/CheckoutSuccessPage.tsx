@@ -11,7 +11,7 @@ const CheckoutSuccessPage: React.FC = () => {
   }, [clearCart]);
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 pt-20">
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 pt-20 mobile-page-offset">
       <div className="max-w-2xl w-full bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 md:p-12 text-center animate-fade-in-up">
         {/* 1. Success Animation */}
         <div className="mb-8 relative inline-block">

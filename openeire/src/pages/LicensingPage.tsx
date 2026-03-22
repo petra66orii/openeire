@@ -244,7 +244,7 @@ const BulletList: React.FC<{ items: string[]; className?: string }> = ({
 
 const LicensingPage: React.FC = () => {
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black">
+    <div className="bg-black min-h-screen text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black mobile-page-offset">
       <SEOHead
         title="Licensing & Usage Rights"
         description={`Understanding personal, commercial (rights-managed), and editorial licensing for ${BRAND_NAME}.`}

@@ -3,18 +3,19 @@ import { Link } from "react-router-dom";
 
 const RefundPolicy: React.FC = () => {
   return (
-    <div className="legal-content">
-      <h1>Refund & Return Policy</h1>
-      <p>
-        <strong>Last Updated: March 2026</strong>
-      </p>
-      <p>
-        OpenEire Studios sells two distinct product types: digital media
-        licences and physical art prints. Because these products are fulfilled
-        differently, the refund and return rules are different as well. Nothing
-        in this policy affects your statutory rights under Irish or European
-        Union consumer protection law.
-      </p>
+    <div className="bg-black min-h-screen text-white">
+      <div className="legal-content">
+        <h1>Refund & Return Policy</h1>
+        <p>
+          <strong>Last Updated: March 2026</strong>
+        </p>
+        <p>
+          OpenEire Studios sells two distinct product types: digital media
+          licences and physical art prints. Because these products are fulfilled
+          differently, the refund and return rules are different as well. Nothing
+          in this policy affects your statutory rights under Irish or European
+          Union consumer protection law.
+        </p>
 
       <hr />
 
@@ -109,10 +110,11 @@ const RefundPolicy: React.FC = () => {
         delivery issue, please contact us at{" "}
         <a href="mailto:support@openeire.ie">support@openeire.ie</a>.
       </p>
-      <p>
-        You can also review our <Link to="/shipping">Shipping Policy</Link> for
-        dispatch and transit expectations.
-      </p>
+        <p>
+          You can also review our <Link to="/shipping">Shipping Policy</Link> for
+          dispatch and transit expectations.
+        </p>
+      </div>
     </div>
   );
 };

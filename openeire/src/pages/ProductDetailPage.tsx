@@ -302,13 +302,13 @@ const ProductDetailPage: React.FC = () => {
   // Loading/Error Views
   if (loading)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center mobile-page-offset">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
       </div>
     );
   if (error || !product)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+      <div className="min-h-screen bg-black flex items-center justify-center text-white mobile-page-offset">
         {error || "Product not found"}
       </div>
     );
@@ -342,7 +342,7 @@ const ProductDetailPage: React.FC = () => {
     : "N/A";
 
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black">
+    <div className="bg-black min-h-screen text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black mobile-page-offset">
       <SEOHead
         title={product.title}
         description={

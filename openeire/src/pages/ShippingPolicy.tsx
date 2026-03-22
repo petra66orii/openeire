@@ -3,18 +3,19 @@ import { Link } from "react-router-dom";
 
 const ShippingPolicy: React.FC = () => {
   return (
-    <div className="legal-content">
-      <h1>Shipping & Delivery Policy</h1>
-      <p>
-        <strong>Last Updated: March 2026</strong>
-      </p>
-      <p>
-        At OpenEire Studios, we deliver our premium media in two formats:
-        digital vault delivery for commercial licences and digital downloads,
-        and physical print delivery for bespoke, museum-quality art prints.
-        We currently ship physical prints exclusively to Ireland and the United
-        States.
-      </p>
+    <div className="bg-black min-h-screen text-white">
+      <div className="legal-content">
+        <h1>Shipping & Delivery Policy</h1>
+        <p>
+          <strong>Last Updated: March 2026</strong>
+        </p>
+        <p>
+          At OpenEire Studios, we deliver our premium media in two formats:
+          digital vault delivery for commercial licences and digital downloads,
+          and physical print delivery for bespoke, museum-quality art prints.
+          We currently ship physical prints exclusively to Ireland and the United
+          States.
+        </p>
 
       <hr />
 
@@ -136,12 +137,13 @@ const ShippingPolicy: React.FC = () => {
           <strong>US orders shipped from the EU or UK:</strong> 28 working days
         </li>
       </ul>
-      <p>
-        If a package is lost within those criteria, or if it arrives damaged,
-        we will arrange a replacement at no additional cost. For reporting
-        damage or replacement requests, please review our{" "}
-        <Link to="/refunds">Refund & Return Policy</Link>.
-      </p>
+        <p>
+          If a package is lost within those criteria, or if it arrives damaged,
+          we will arrange a replacement at no additional cost. For reporting
+          damage or replacement requests, please review our{" "}
+          <Link to="/refunds">Refund & Return Policy</Link>.
+        </p>
+      </div>
     </div>
   );
 };

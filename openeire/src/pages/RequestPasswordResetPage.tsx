@@ -24,7 +24,7 @@ const RequestPasswordResetPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex justify-center items-center p-4">
+    <div className="min-h-screen bg-black flex justify-center items-center p-4 mobile-page-offset">
       <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 animate-fade-in-up">
         <div className="text-center mb-6">
           <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">

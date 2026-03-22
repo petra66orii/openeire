@@ -49,7 +49,7 @@ const GalleryGatePage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-brand-900 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-brand-900 relative overflow-hidden mobile-page-offset">
       {/* Background Decor (Subtle Pattern) */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
         <svg width="100%" height="100%">

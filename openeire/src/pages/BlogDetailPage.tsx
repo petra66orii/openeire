@@ -83,19 +83,19 @@ const BlogDetailPage: React.FC = () => {
 
   if (loading)
     return (
-      <div className="bg-black min-h-screen flex items-center justify-center">
+      <div className="bg-black min-h-screen flex items-center justify-center mobile-page-offset">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent"></div>
       </div>
     );
   if (!post)
     return (
-      <div className="bg-black min-h-screen text-white flex items-center justify-center">
+      <div className="bg-black min-h-screen text-white flex items-center justify-center mobile-page-offset">
         Post not found.
       </div>
     );
 
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20">
+    <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
       <SEOHead
         title={post.title}
         description={post.excerpt}

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const RegisterPage = () => {
   return (
-    <div className="min-h-screen bg-black flex flex-col justify-center items-center p-4 pt-20">
+    <div className="min-h-screen bg-black flex flex-col justify-center items-center p-4 pt-20 mobile-page-offset">
       <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 animate-fade-in-up">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif font-bold text-white mb-2">

@@ -3,7 +3,7 @@ import { FaEnvelopeOpenText } from "react-icons/fa";
 
 const VerificationPendingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-black flex justify-center items-center p-4">
+    <div className="min-h-screen bg-black flex justify-center items-center p-4 mobile-page-offset">
       <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 text-center animate-fade-in-up">
         {/* Animated Icon */}
         <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 relative group">
