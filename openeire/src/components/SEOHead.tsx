@@ -5,22 +5,64 @@ interface SEOHeadProps {
   description: string;
   image?: string;
   url?: string;
+  canonicalPath?: string;
+  noindex?: boolean;
+  type?: "website" | "article";
 }
+
+const getSiteOrigin = (): string => {
+  const configured = import.meta.env.VITE_SITE_URL?.trim().replace(/\/+$/, "");
+  if (configured) return configured;
+  if (typeof window === "undefined") return "";
+  return window.location.origin;
+};
+
+const buildAbsoluteUrl = (value: string): string => {
+  if (/^https?:\/\//i.test(value)) return value;
+  const origin = getSiteOrigin();
+  if (!origin) return value;
+  return new URL(value, `${origin}/`).toString();
+};
+
+const getCurrentUrl = (): string => {
+  if (typeof window === "undefined") return "";
+  const origin = getSiteOrigin();
+  const current = new URL(window.location.href);
+  return origin
+    ? new URL(`${current.pathname}${current.search}${current.hash}`, `${origin}/`).toString()
+    : current.toString();
+};
+
+const getCurrentCanonicalUrl = (): string => {
+  if (typeof window === "undefined") return "";
+  const origin = getSiteOrigin();
+  const current = new URL(window.location.href);
+  current.search = "";
+  current.hash = "";
+  return origin
+    ? new URL(current.pathname, `${origin}/`).toString()
+    : current.toString();
+};
 
 const SEOHead: React.FC<SEOHeadProps> = ({
   title,
   description,
   image,
-  url = window.location.href,
+  url,
+  canonicalPath,
+  noindex = false,
+  type = "website",
 }) => {
-  const siteTitle = "Open\u00C9ire Studios";
+  const siteTitle = "OpenÉire Studios";
   const fullTitle = `${title} | ${siteTitle}`;
+  const pageUrl = url ? buildAbsoluteUrl(url) : getCurrentUrl();
+  const canonicalUrl = canonicalPath
+    ? buildAbsoluteUrl(canonicalPath)
+    : getCurrentCanonicalUrl();
 
   useEffect(() => {
-    // 1. Update Title
     document.title = fullTitle;
 
-    // 2. Helper to update Meta Tags
     const updateMeta = (
       name: string,
       content: string,
@@ -37,30 +79,42 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       element.setAttribute("content", content);
     };
 
-    // 3. Update Standard Meta Tags
-    updateMeta("description", description);
+    const updateLink = (rel: string, href: string) => {
+      let element = document.querySelector(`link[rel="${rel}"]`);
 
-    // 4. Update Open Graph (Facebook/LinkedIn)
-    updateMeta("og:type", "website", "property");
-    updateMeta("og:url", url, "property");
+      if (!element) {
+        element = document.createElement("link");
+        element.setAttribute("rel", rel);
+        document.head.appendChild(element);
+      }
+
+      element.setAttribute("href", href);
+    };
+
+    updateMeta("description", description);
+    updateMeta("robots", noindex ? "noindex, follow" : "index, follow");
+
+    updateMeta("og:type", type, "property");
+    updateMeta("og:site_name", siteTitle, "property");
+    updateMeta("og:url", pageUrl, "property");
     updateMeta("og:title", fullTitle, "property");
     updateMeta("og:description", description, "property");
-    if (image) updateMeta("og:image", image, "property");
+    if (image) {
+      updateMeta("og:image", image, "property");
+    }
 
-    // 5. Update Twitter / X
-    updateMeta("twitter:card", "summary_large_image");
-    updateMeta("twitter:url", url);
+    updateMeta("twitter:card", image ? "summary_large_image" : "summary");
+    updateMeta("twitter:url", pageUrl);
     updateMeta("twitter:title", fullTitle);
     updateMeta("twitter:description", description);
-    if (image) updateMeta("twitter:image", image);
+    if (image) {
+      updateMeta("twitter:image", image);
+    }
 
-    // Optional: Cleanup function to reset title when component unmounts
-    return () => {
-      // document.title = siteTitle;
-    };
-  }, [fullTitle, description, image, url]);
+    updateLink("canonical", canonicalUrl);
+  }, [canonicalUrl, description, fullTitle, image, noindex, pageUrl, type]);
 
-  return null; // This component renders nothing in the DOM body
+  return null;
 };
 
 export default SEOHead;

@@ -350,7 +350,9 @@ const ProductDetailPage: React.FC = () => {
             ? `Buy ${product.title} for personal use or request commercial licensing`
             : `Buy ${product.title}`
         }
-        image={product.preview_image}
+        image={imageUrl || undefined}
+        canonicalPath={location.pathname}
+        noindex={isDigital}
       />
 
       <div className="container mx-auto px-4 lg:px-8">

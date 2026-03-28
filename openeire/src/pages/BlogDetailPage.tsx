@@ -104,6 +104,8 @@ const BlogDetailPage: React.FC = () => {
             ? resolveMediaUrl(post.featured_image)
             : undefined
         }
+        canonicalPath={`/blog/${post.slug}`}
+        type="article"
       />
 
       {/* HERO SECTION */}
