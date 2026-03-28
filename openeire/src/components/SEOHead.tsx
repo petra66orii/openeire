@@ -12,7 +12,20 @@ interface SEOHeadProps {
 
 const getSiteOrigin = (): string => {
   const configured = import.meta.env.VITE_SITE_URL?.trim().replace(/\/+$/, "");
-  if (configured) return configured;
+  if (configured) {
+    try {
+      const normalized = new URL(configured);
+      if (normalized.protocol === "http:" || normalized.protocol === "https:") {
+        normalized.pathname = "";
+        normalized.search = "";
+        normalized.hash = "";
+        return normalized.toString().replace(/\/+$/, "");
+      }
+    } catch {
+      // Fall back to the current origin when VITE_SITE_URL is misconfigured.
+    }
+  }
+
   if (typeof window === "undefined") return "";
   return window.location.origin;
 };
