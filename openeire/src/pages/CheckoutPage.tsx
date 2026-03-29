@@ -184,6 +184,7 @@ const CheckoutPage: React.FC = () => {
   const isShippingCostPending =
     hasPhysicalItems &&
     (!hasCompletePhysicalAddress(shippingDetails) || isUpdatingIntent);
+  const hasResolvedAccountEmail = Boolean(isAuthenticated && profileData?.email);
 
   // 1. Fetch Profile on Mount
   useEffect(() => {
@@ -442,7 +443,7 @@ const CheckoutPage: React.FC = () => {
                   onShippingMethodChange={setShippingMethod}
                   isUpdatingIntent={isUpdatingIntent}
                   isPaymentReady={Boolean(clientSecret)}
-                  isAuthenticated={isAuthenticated}
+                  isAuthenticated={hasResolvedAccountEmail}
                   accountEmail={profileData?.email ?? null}
                 />
               </Elements>

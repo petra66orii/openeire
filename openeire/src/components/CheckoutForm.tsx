@@ -218,6 +218,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     shippingDetails.country === "IE" || shippingDetails.country === "US"
       ? shippingDetails.country
       : null;
+  const shouldLockAccountEmail = Boolean(isAuthenticated && accountEmail);
 
   const getTransitEstimate = (method: ShippingMethod) => {
     if (!selectedTransitCountry) {
@@ -266,11 +267,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 type="email"
                 required
                 autoComplete="email"
-                readOnly={isAuthenticated}
-                aria-readonly={isAuthenticated}
-                className={`${inputClass} ${isAuthenticated ? "cursor-not-allowed opacity-80" : ""}`}
+                readOnly={shouldLockAccountEmail}
+                aria-readonly={shouldLockAccountEmail}
+                className={`${inputClass} ${shouldLockAccountEmail ? "cursor-not-allowed opacity-80" : ""}`}
               />
-              {isAuthenticated && accountEmail && (
+              {shouldLockAccountEmail && accountEmail && (
                 <p className="text-xs text-gray-500 mt-2">
                   Signed-in purchases use your account email: {accountEmail}
                 </p>

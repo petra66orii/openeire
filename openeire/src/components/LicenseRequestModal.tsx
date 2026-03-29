@@ -50,15 +50,21 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    setFormData({
-      ...getInitialFormData(),
-      email: isAuthenticated ? user?.email ?? "" : "",
-    });
+    setFormData(getInitialFormData());
     setAgreements({ merch: false, ai: false });
     setIsSubmitting(false);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !isAuthenticated || !user?.email) return;
+    setFormData((prev) =>
+      prev.email === user.email ? prev : { ...prev, email: user.email },
+    );
   }, [isOpen, isAuthenticated, user?.email]);
 
   if (!isOpen) return null;
+
+  const shouldLockEmail = Boolean(isAuthenticated && user?.email);
 
   const handleClose = () => {
     setFormData(getInitialFormData());
@@ -177,11 +183,11 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
               name="email"
               value={formData.email}
               onChange={handleChange}
-              readOnly={isAuthenticated}
-              aria-readonly={isAuthenticated}
-              className={`w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent outline-none ${isAuthenticated ? "cursor-not-allowed opacity-80" : ""}`}
+              readOnly={shouldLockEmail}
+              aria-readonly={shouldLockEmail}
+              className={`w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent outline-none ${shouldLockEmail ? "cursor-not-allowed opacity-80" : ""}`}
             />
-            {isAuthenticated && user?.email && (
+            {shouldLockEmail && user?.email && (
               <p className="text-xs text-gray-500 mt-2">
                 Signed-in license requests use your account email: {user.email}
               </p>
