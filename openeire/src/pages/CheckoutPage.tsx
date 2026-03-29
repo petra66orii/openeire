@@ -139,6 +139,12 @@ type CreatePaymentIntentResponse = {
   shippingCost?: number;
 };
 
+type CheckoutSuccessContext = {
+  hasDigitalItems: boolean;
+  hasPhysicalItems: boolean;
+  itemCount: number;
+};
+
 const CheckoutPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState("");
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
@@ -161,6 +167,14 @@ const CheckoutPage: React.FC = () => {
   const checkoutCartItems = useMemo(
     () => cartItems,
     [cartItems],
+  );
+  const checkoutSuccessContext = useMemo<CheckoutSuccessContext>(
+    () => ({
+      hasDigitalItems,
+      hasPhysicalItems,
+      itemCount: checkoutCartItems.reduce((total, item) => total + item.quantity, 0),
+    }),
+    [checkoutCartItems, hasDigitalItems, hasPhysicalItems],
   );
   const requiresAuthenticatedCheckout = hasDigitalItems;
   const physicalAddressKey = useMemo(
@@ -445,6 +459,7 @@ const CheckoutPage: React.FC = () => {
                   isPaymentReady={Boolean(clientSecret)}
                   isAuthenticated={hasResolvedAccountEmail}
                   accountEmail={profileData?.email ?? null}
+                  successContext={checkoutSuccessContext}
                 />
               </Elements>
             )}
@@ -487,3 +502,6 @@ const CheckoutPage: React.FC = () => {
 };
 
 export default CheckoutPage;
+
+
+

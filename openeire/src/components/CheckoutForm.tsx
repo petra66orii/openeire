@@ -10,6 +10,8 @@ import { useCart } from "../context/CartContext";
 import { FaTruck, FaCreditCard, FaBoxOpen } from "react-icons/fa";
 import { ShippingDetails } from "../types/checkout";
 
+const CHECKOUT_SUCCESS_CONTEXT_KEY = "checkoutSuccessContext";
+
 const SHIPPING_METHODS = ["budget", "standard", "express"] as const;
 type ShippingMethod = (typeof SHIPPING_METHODS)[number];
 type SupportedTransitCountry = "IE" | "US";
@@ -30,6 +32,12 @@ const TRANSIT_ESTIMATES: Record<
   },
 };
 
+type CheckoutSuccessContext = {
+  hasDigitalItems: boolean;
+  hasPhysicalItems: boolean;
+  itemCount: number;
+};
+
 interface CheckoutFormProps {
   initialData?: UserProfile | null;
   shippingDetails: ShippingDetails;
@@ -42,6 +50,7 @@ interface CheckoutFormProps {
   isPaymentReady?: boolean;
   isAuthenticated?: boolean;
   accountEmail?: string | null;
+  successContext: CheckoutSuccessContext;
 }
 
 const SHIPPING_FIELD_NAMES: Array<keyof ShippingDetails> = [
@@ -68,6 +77,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   isPaymentReady,
   isAuthenticated = false,
   accountEmail,
+  successContext,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -194,13 +204,28 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       };
     }
 
+    try {
+      sessionStorage.setItem(
+        CHECKOUT_SUCCESS_CONTEXT_KEY,
+        JSON.stringify(successContext),
+      );
+    } catch (storageError) {
+      console.warn("Could not persist checkout success context", storageError);
+    }
+
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams,
     });
 
-    if (error)
+    if (error) {
+      try {
+        sessionStorage.removeItem(CHECKOUT_SUCCESS_CONTEXT_KEY);
+      } catch (storageError) {
+        console.warn("Could not clear checkout success context", storageError);
+      }
       setErrorMessage(error.message || "An unexpected error occurred.");
+    }
     setIsLoading(false);
   };
 
@@ -517,3 +542,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 };
 
 export default CheckoutForm;
+
+
+
+
