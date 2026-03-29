@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Prevent crawlers from indexing user-specific, auth, gated, and utility pages
+Disallow: /bag
+Disallow: /checkout
+Disallow: /checkout-success
+Disallow: /profile
+
+Disallow: /login
+Disallow: /register
+Disallow: /logout
+Disallow: /request-password-reset
+Disallow: /password-reset/confirm
+Disallow: /verify-pending
+Disallow: /verify-email/confirm
+
+Disallow: /gallery/digital
+Disallow: /gallery/photo
+Disallow: /gallery/video
+Disallow: /gallery-gate
+
+Disallow: /403
+Disallow: /404
+Disallow: /500
+Disallow: /cookie-policy
+
+# Point Google to the backend to get the dynamically generated sitemap
+Sitemap: https://api.openeire.ie/sitemap.xml

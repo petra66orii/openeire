@@ -248,6 +248,7 @@ const LicensingPage: React.FC = () => {
       <SEOHead
         title="Licensing & Usage Rights"
         description={`Understanding personal, commercial (rights-managed), and editorial licensing for ${BRAND_NAME}.`}
+        canonicalPath="/licensing"
       />
 
       <div className="container mx-auto px-4 lg:px-8 max-w-5xl">
