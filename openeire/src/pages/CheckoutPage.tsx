@@ -184,6 +184,7 @@ const CheckoutPage: React.FC = () => {
   const isShippingCostPending =
     hasPhysicalItems &&
     (!hasCompletePhysicalAddress(shippingDetails) || isUpdatingIntent);
+  const hasResolvedAccountEmail = Boolean(isAuthenticated && profileData?.email);
 
   // 1. Fetch Profile on Mount
   useEffect(() => {
@@ -193,6 +194,13 @@ const CheckoutPage: React.FC = () => {
         .catch((e) => console.error("Profile fetch error", e));
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !profileData?.email) return;
+    setShippingDetails((prev) =>
+      prev.email === profileData.email ? prev : { ...prev, email: profileData.email },
+    );
+  }, [isAuthenticated, profileData?.email]);
 
   // 2. Dynamic Payment Intent Fetcher
   useEffect(() => {
@@ -435,6 +443,8 @@ const CheckoutPage: React.FC = () => {
                   onShippingMethodChange={setShippingMethod}
                   isUpdatingIntent={isUpdatingIntent}
                   isPaymentReady={Boolean(clientSecret)}
+                  isAuthenticated={hasResolvedAccountEmail}
+                  accountEmail={profileData?.email ?? null}
                 />
               </Elements>
             )}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { FaTimes } from "react-icons/fa";
 import { submitLicenseRequest, LicenseRequestPayload } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
 interface LicenseRequestModalProps {
@@ -35,6 +36,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
   assetType,
   assetTitle,
 }) => {
+  const { isAuthenticated, user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<
     Omit<LicenseRequestPayload, "asset_id" | "asset_type">
@@ -53,7 +55,16 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
     setIsSubmitting(false);
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen || !isAuthenticated || !user?.email) return;
+    setFormData((prev) =>
+      prev.email === user.email ? prev : { ...prev, email: user.email },
+    );
+  }, [isOpen, isAuthenticated, user?.email]);
+
   if (!isOpen) return null;
+
+  const shouldLockEmail = Boolean(isAuthenticated && user?.email);
 
   const handleClose = () => {
     setFormData(getInitialFormData());
@@ -172,8 +183,15 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent outline-none"
+              readOnly={shouldLockEmail}
+              aria-readonly={shouldLockEmail}
+              className={`w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent outline-none ${shouldLockEmail ? "cursor-not-allowed opacity-80" : ""}`}
             />
+            {shouldLockEmail && user?.email && (
+              <p className="text-xs text-gray-500 mt-2">
+                Signed-in license requests use your account email: {user.email}
+              </p>
+            )}
           </div>
 
           <div className="border-t border-white/10 pt-4 mt-2">
