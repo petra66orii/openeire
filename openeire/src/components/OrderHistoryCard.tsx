@@ -97,6 +97,12 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
           const isDigitalItem =
             item.product.product_type === "photo" ||
             item.product.product_type === "video";
+          const digitalType: "photo" | "video" | null =
+            item.product.product_type === "video"
+              ? "video"
+              : item.product.product_type === "photo"
+                ? "photo"
+                : null;
 
           return (
             <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
@@ -134,15 +140,15 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                 <p className="text-white font-bold">
                   {"\u20AC"}{Number(item.item_total).toFixed(2)}
                 </p>
-                {isDigitalItem ? (
+                {digitalType ? (
                   <button
                     type="button"
                     onClick={() =>
                       handleDownload(
                         item.id,
-                        item.product.id,
-                        item.product.product_type,
-                        `${item.product.title}.${item.product.product_type === "video" ? "mp4" : "jpg"}`,
+                        productId,
+                        digitalType,
+                        `${item.product.title}.${digitalType === "video" ? "mp4" : "jpg"}`,
                       )
                     }
                     disabled={downloadingItemId === item.id}
@@ -162,3 +168,5 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
 };
 
 export default OrderHistoryCard;
+
+

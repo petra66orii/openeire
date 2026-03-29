@@ -810,6 +810,30 @@ export const getShoppingBagRecommendations = async (): Promise<GalleryItem[]> =>
   return response.data;
 };
 
+const extractFilenameFromDisposition = (disposition?: string): string | null => {
+  if (!disposition) return null;
+
+  const encodedMatch = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+  if (encodedMatch?.[1]) {
+    try {
+      return decodeURIComponent(encodedMatch[1]);
+    } catch {
+      return encodedMatch[1];
+    }
+  }
+
+  const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
+  return filenameMatch?.[1] ?? null;
+};
+
+const sanitizeDownloadFilename = (filename: string): string => {
+  const sanitized = filename
+    .replace(/[\\/]+/g, "_")
+    .replace(/[\u0000-\u001f\u007f]+/g, "")
+    .trim();
+  return sanitized || "download";
+};
+
 export const downloadProduct = async (
   type: "photo" | "video",
   id: number,
@@ -823,10 +847,11 @@ export const downloadProduct = async (
   );
 
   const disposition = response.headers["content-disposition"] as string | undefined;
-  const filenameMatch = disposition?.match(/filename="?([^";]+)"?/i);
-  const resolvedFilename = filenameMatch?.[1] || fallbackFilename;
+  const resolvedFilename = sanitizeDownloadFilename(
+    extractFilenameFromDisposition(disposition) || fallbackFilename,
+  );
 
-  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const url = window.URL.createObjectURL(response.data);
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', resolvedFilename);
@@ -864,3 +889,4 @@ export const submitLicenseRequest = async (payload: LicenseRequestPayload) => {
     throw error;
   }
 };
+
