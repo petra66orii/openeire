@@ -21,6 +21,9 @@ import {
   isPhysicalProductType,
 } from "../utils/purchaseFlow";
 import {
+  CheckoutSuccessContext,
+} from "../utils/checkoutSuccessContext";
+import {
   EMPTY_SHIPPING_DETAILS,
   ShippingDetails,
 } from "../types/checkout";
@@ -143,7 +146,6 @@ const CheckoutPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState("");
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
 
-  // Lifted States
   const [shippingDetails, setShippingDetails] = useState<ShippingDetails>(
     EMPTY_SHIPPING_DETAILS,
   );
@@ -158,9 +160,14 @@ const CheckoutPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const hasPhysicalItems = useMemo(() => cartHasPhysicalItems(cartItems), [cartItems]);
   const hasDigitalItems = useMemo(() => cartHasDigitalItems(cartItems), [cartItems]);
-  const checkoutCartItems = useMemo(
-    () => cartItems,
-    [cartItems],
+  const checkoutCartItems = useMemo(() => cartItems, [cartItems]);
+  const checkoutSuccessContext = useMemo<CheckoutSuccessContext>(
+    () => ({
+      hasDigitalItems,
+      hasPhysicalItems,
+      itemCount: checkoutCartItems.reduce((total, item) => total + item.quantity, 0),
+    }),
+    [checkoutCartItems, hasDigitalItems, hasPhysicalItems],
   );
   const requiresAuthenticatedCheckout = hasDigitalItems;
   const physicalAddressKey = useMemo(
@@ -186,7 +193,6 @@ const CheckoutPage: React.FC = () => {
     (!hasCompletePhysicalAddress(shippingDetails) || isUpdatingIntent);
   const hasResolvedAccountEmail = Boolean(isAuthenticated && profileData?.email);
 
-  // 1. Fetch Profile on Mount
   useEffect(() => {
     if (isAuthenticated) {
       getProfile()
@@ -202,7 +208,6 @@ const CheckoutPage: React.FC = () => {
     );
   }, [isAuthenticated, profileData?.email]);
 
-  // 2. Dynamic Payment Intent Fetcher
   useEffect(() => {
     let isCancelled = false;
 
@@ -320,164 +325,156 @@ const CheckoutPage: React.FC = () => {
         );
       } catch (error) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
-        console.error("Error creating payment intent:", error);
         setClientSecret("");
-        const apiMessage = getApiErrorMessage(error);
+        setCalculatedShippingCost(0);
         setCheckoutError(
-          apiMessage ??
-            (error instanceof Error
-              ? error.message
-              : "Unable to initialize checkout. Please review your bag and try again."),
+          getApiErrorMessage(error) ||
+            "We could not prepare checkout right now. Please review your details and try again.",
         );
       } finally {
-        if (isCancelled || requestId !== latestIntentRequestId.current) return;
-        setIsUpdatingIntent(false);
+        if (!isCancelled && requestId === latestIntentRequestId.current) {
+          setIsUpdatingIntent(false);
+        }
       }
     };
 
-    // Delay slightly to prevent spamming the API while typing address
-    const timeoutId = setTimeout(() => {
-      initializeCheckout();
-    }, 500);
+    initializeCheckout();
 
     return () => {
       isCancelled = true;
-      latestIntentRequestId.current += 1;
-      clearTimeout(timeoutId);
     };
-
-    // Refetch if cart, country, or speed changes
   }, [
     checkoutCartItems,
     hasPhysicalItems,
-    requiresAuthenticatedCheckout,
     isAuthenticated,
     physicalAddressKey,
-    shippingMethodKey,
+    requiresAuthenticatedCheckout,
     saveInfo,
+    shippingMethodKey,
   ]);
 
-  const options: StripeElementsOptions = {
-    clientSecret,
-    appearance: {
-      theme: "night",
-      variables: {
-        colorPrimary: "#16a34a",
-        colorBackground: "#000000",
-        colorText: "#ffffff",
-        colorDanger: "#ef4444",
-        fontFamily: "Inter, system-ui, sans-serif",
-        borderRadius: "8px",
-      },
-      rules: {
-        ".Input": {
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          backgroundColor: "#000000",
-        },
-        ".Input:focus": {
-          border: "1px solid #16a34a",
+  const options: StripeElementsOptions = useMemo(
+    () => ({
+      clientSecret,
+      appearance: {
+        theme: "night",
+        variables: {
+          colorPrimary: "#00c853",
+          colorBackground: "#1a1a1a",
+          colorText: "#ffffff",
+          colorDanger: "#ef4444",
+          fontFamily: "sans-serif",
+          borderRadius: "12px",
         },
       },
-    },
-  };
+    }),
+    [clientSecret],
+  );
 
-  const fallbackElementsOptions: StripeElementsOptions = {
-    mode: "payment",
-    amount: 100,
-    currency: "eur",
-    appearance: options.appearance,
-  };
+  const fallbackElementsOptions: StripeElementsOptions = useMemo(
+    () => ({
+      appearance: {
+        theme: "night",
+        variables: {
+          colorPrimary: "#00c853",
+          colorBackground: "#1a1a1a",
+          colorText: "#ffffff",
+          colorDanger: "#ef4444",
+          fontFamily: "sans-serif",
+          borderRadius: "12px",
+        },
+      },
+    }),
+    [],
+  );
 
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between mb-12 border-b border-white/10 pb-6">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold">
-            Secure Checkout
-          </h1>
-          <div className="flex items-center gap-2 text-green-500 text-sm font-bold uppercase tracking-wider">
-            <FaLock />
-            <span className="hidden md:inline">256-Bit SSL Encrypted</span>
+    <div className="min-h-screen bg-black text-white pt-20 mobile-page-offset pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
+            <FaShieldAlt className="text-accent" />
+            <span className="text-sm text-gray-300">Secure Checkout</span>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          <div className="lg:col-span-8">
-            {checkoutCartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-                <p className="text-sm uppercase tracking-widest font-bold text-gray-400 mb-2">
-                  Checkout Unavailable
-                </p>
-                <p>Your bag is empty.</p>
-              </div>
-            ) : requiresAuthenticatedCheckout && !isAuthenticated ? (
-              <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                <p className="text-sm uppercase tracking-widest font-bold text-gray-300 mb-3">
-                  Login Required
-                </p>
-                <p className="text-center max-w-lg mb-6">
-                  Digital purchases are account-bound for secure download
-                  access. Please sign in to continue checkout.
-                </p>
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">
+            Finalise Your Order
+          </h1>
+          <p className="text-gray-400 text-lg">
+            {hasPhysicalItems
+              ? "Enter your details and complete payment to start processing your order."
+              : "Complete payment to receive your digital purchase instantly."}
+          </p>
+          {requiresAuthenticatedCheckout && !isAuthenticated && (
+            <div className="mt-6 rounded-2xl border border-brand-500/30 bg-brand-500/10 px-5 py-4 text-sm text-gray-200">
+              Digital purchases require an account so we can attach downloads to your order history.
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   to="/login"
                   state={{ from: { pathname: "/checkout" } }}
-                  className="px-6 py-3 bg-brand-500 text-black font-bold rounded-xl hover:bg-white transition-colors"
+                  className="rounded-full bg-brand-500 px-4 py-2 text-sm font-bold text-black hover:bg-white"
                 >
                   Log In to Continue
                 </Link>
+                <Link
+                  to="/register"
+                  state={{ from: { pathname: "/checkout" } }}
+                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-bold text-white hover:bg-white/10"
+                >
+                  Create Account
+                </Link>
               </div>
-            ) : (
-              <Elements
-                key={clientSecret || "draft-elements"}
-                options={clientSecret ? options : fallbackElementsOptions}
-                stripe={stripePromise}
-              >
-                <CheckoutForm
-                  initialData={profileData}
-                  shippingDetails={shippingDetails}
-                  onShippingChange={setShippingDetails}
-                  saveInfo={saveInfo}
-                  onSaveInfoChange={setSaveInfo}
-                  shippingMethod={shippingMethod}
-                  onShippingMethodChange={setShippingMethod}
-                  isUpdatingIntent={isUpdatingIntent}
-                  isPaymentReady={Boolean(clientSecret)}
-                  isAuthenticated={hasResolvedAccountEmail}
-                  accountEmail={profileData?.email ?? null}
-                />
-              </Elements>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+          <div className="lg:col-span-3">
+            {requiresAuthenticatedCheckout && !isAuthenticated ? null : (
+              <>
+                <Elements
+                  key={clientSecret || "checkout-elements-pending"}
+                  options={clientSecret ? options : fallbackElementsOptions}
+                  stripe={stripePromise}
+                >
+                  <CheckoutForm
+                    initialData={profileData}
+                    shippingDetails={shippingDetails}
+                    onShippingChange={setShippingDetails}
+                    saveInfo={saveInfo}
+                    onSaveInfoChange={setSaveInfo}
+                    shippingMethod={shippingMethod}
+                    onShippingMethodChange={setShippingMethod}
+                    isUpdatingIntent={isUpdatingIntent}
+                    isPaymentReady={Boolean(clientSecret)}
+                    isAuthenticated={hasResolvedAccountEmail}
+                    accountEmail={profileData?.email ?? null}
+                    successContext={checkoutSuccessContext}
+                  />
+                </Elements>
+              </>
             )}
             {checkoutError && (
               <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold">
                 {checkoutError}
               </div>
             )}
+            {!clientSecret && !checkoutError && !isUpdatingIntent && !(requiresAuthenticatedCheckout && !isAuthenticated) && (
+              <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm text-center">
+                {hasPhysicalItems
+                  ? "Add your delivery details to load payment options."
+                  : "Payment form is preparing. Please wait a moment."}
+              </div>
+            )}
           </div>
 
-          <div className="lg:col-span-4">
-            <div className="sticky top-32 space-y-6">
-              {/* Pass the dynamic shipping cost to your summary component! */}
-              <OrderSummary
-                isCheckoutPage={true}
-                shippingCost={calculatedShippingCost}
-                isShippingPending={isShippingCostPending}
-              />
-
-              <div className="bg-gray-900 border border-white/10 p-6 rounded-xl">
-                <div className="flex items-start gap-4">
-                  <FaShieldAlt className="text-2xl text-gray-500 mt-1" />
-                  <div>
-                    <h4 className="font-bold text-white text-sm mb-1">
-                      Purchase Protection
-                    </h4>
-                    <p className="text-xs text-gray-400 leading-relaxed">
-                      Your transaction is secured by Stripe. We do not store
-                      your credit card information on our servers.
-                    </p>
-                  </div>
-                </div>
-              </div>
+          <div className="lg:col-span-2 lg:sticky lg:top-28">
+            <OrderSummary
+              isCheckoutPage
+              shippingCost={calculatedShippingCost}
+              isShippingPending={isShippingCostPending}
+            />
+            <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
+              <FaLock /> SSL Secured • Stripe Protected
             </div>
           </div>
         </div>
