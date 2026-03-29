@@ -56,7 +56,7 @@ const ContactPage = () => {
     <div className="min-h-screen overflow-x-hidden bg-black pb-20 pt-24 text-white mobile-page-offset">
       <SEOHead
         title="Contact"
-        description="Get in touch with OpenÉire Studios for licensing, fine art print enquiries, and bespoke visual requests."
+        description={"Get in touch with Open\u00C9ire Studios for licensing, fine art print enquiries, and bespoke visual requests."}
         canonicalPath="/contact"
       />
 

@@ -49,7 +49,7 @@ const GalleryGatePage = () => {
 
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center overflow-x-hidden overflow-y-hidden bg-brand-900 px-4 py-10 mobile-page-offset sm:py-12"
+      className="relative flex min-h-screen items-center justify-center overflow-x-hidden bg-brand-900 px-4 py-10 mobile-page-offset sm:py-12"
       style={{ boxSizing: "border-box" }}
     >
       <div className="pointer-events-none absolute inset-0 opacity-5">
@@ -71,7 +71,7 @@ const GalleryGatePage = () => {
         </svg>
       </div>
 
-      <div className="relative z-10 grid w-full max-w-5xl max-w-full items-center gap-10 md:grid-cols-2 lg:gap-20">
+      <div className="relative z-10 grid w-full max-w-5xl items-center gap-10 md:grid-cols-2 lg:gap-20">
         <div className="max-w-full space-y-8 text-center md:text-left">
           <div className="inline-block">
             <span className="rounded-full border border-accent/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-accent">

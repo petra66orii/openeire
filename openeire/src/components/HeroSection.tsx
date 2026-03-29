@@ -80,7 +80,7 @@ const HeroSection: React.FC = () => {
 
   return (
     <div
-      className="relative flex items-center justify-center text-center overflow-x-hidden overflow-y-hidden"
+      className="relative flex min-h-screen items-center justify-center overflow-x-hidden text-center"
       style={{
         minHeight: "100svh",
         boxSizing: "border-box",
@@ -135,7 +135,7 @@ const HeroSection: React.FC = () => {
             </span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-2xl font-sans text-base leading-relaxed text-gray-100 drop-shadow-sm sm:text-lg md:text-xl font-light">
+          <p className="mx-auto mb-10 max-w-2xl font-sans text-base leading-relaxed text-gray-100 drop-shadow-sm font-light sm:text-lg md:text-xl">
             Stunning 4K aerial stock footage and premium art prints.{" "}
             <br className="hidden md:block" />
             Curated from the rugged coasts of Ireland and beyond.
