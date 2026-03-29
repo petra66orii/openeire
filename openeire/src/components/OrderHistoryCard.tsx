@@ -1,5 +1,6 @@
-import React from "react";
-import { OrderHistory } from "../services/api";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { OrderHistory, downloadProduct } from "../services/api";
 import { Link } from "react-router-dom";
 import { resolveMediaUrl } from "../config/backend";
 
@@ -8,14 +9,30 @@ interface OrderHistoryCardProps {
 }
 
 const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
+  const [downloadingItemId, setDownloadingItemId] = useState<number | null>(null);
   const orderDate = new Date(order.date).toLocaleDateString("en-IE", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
-  const hasDigitalItems = order.items.some(
-    (item) => item.product.product_type !== "physical",
-  );
+
+  const handleDownload = async (
+    orderItemId: number,
+    productId: number,
+    type: "photo" | "video",
+    fallbackFilename: string,
+  ) => {
+    setDownloadingItemId(orderItemId);
+    try {
+      await downloadProduct(type, productId, fallbackFilename);
+      toast.success("Download started.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not start the download. Please try again.");
+    } finally {
+      setDownloadingItemId(null);
+    }
+  };
 
   return (
     <div className="bg-black border border-white/10 rounded-xl overflow-hidden shadow-sm hover:border-white/20 transition-colors">
@@ -57,15 +74,9 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
           <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold text-right">
             Total
           </p>
-          {hasDigitalItems ? (
-            <p className="text-gray-400 font-bold text-sm">
-              Licensing handled separately
-            </p>
-          ) : (
-            <p className="text-accent font-bold text-lg">
-              {"\u20AC"}{Number(order.total_price).toFixed(2)}
-            </p>
-          )}
+          <p className="text-accent font-bold text-lg">
+            {"\u20AC"}{Number(order.total_price).toFixed(2)}
+          </p>
         </div>
       </div>
 
@@ -83,6 +94,15 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                 ? "physical"
                 : "photo";
           const productId = item.product.photo_id || item.product.id;
+          const isDigitalItem =
+            item.product.product_type === "photo" ||
+            item.product.product_type === "video";
+          const digitalType: "photo" | "video" | null =
+            item.product.product_type === "video"
+              ? "video"
+              : item.product.product_type === "photo"
+                ? "photo"
+                : null;
 
           return (
             <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
@@ -107,18 +127,36 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                 <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                   {item.product.product_type === "physical"
                     ? `${item.product.material_display} (${item.product.size_display})`
-                    : "Licensed Asset"}
+                    : "Personal Download"}
                 </p>
+                {isDigitalItem && item.personal_terms_version && (
+                  <p className="text-xs text-gray-500">
+                    {item.personal_terms_version}
+                  </p>
+                )}
               </div>
 
-              <div className="text-right">
-                {item.product.product_type === "physical" ? (
-                  <p className="text-white font-bold">
-                    {"\u20AC"}{Number(item.item_total).toFixed(2)}
-                  </p>
-                ) : (
-                  <p className="text-gray-400 text-sm font-bold">Licensed</p>
-                )}
+              <div className="text-right flex flex-col items-end gap-2">
+                <p className="text-white font-bold">
+                  {"\u20AC"}{Number(item.item_total).toFixed(2)}
+                </p>
+                {digitalType ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDownload(
+                        item.id,
+                        productId,
+                        digitalType,
+                        `${item.product.title}.${digitalType === "video" ? "mp4" : "jpg"}`,
+                      )
+                    }
+                    disabled={downloadingItemId === item.id}
+                    className="inline-flex items-center rounded-full border border-accent/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-accent transition-colors hover:bg-accent hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {downloadingItemId === item.id ? "Preparing..." : "Download"}
+                  </button>
+                ) : null}
                 <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
               </div>
             </div>
@@ -130,3 +168,5 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
 };
 
 export default OrderHistoryCard;
+
+

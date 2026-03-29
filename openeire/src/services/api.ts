@@ -262,6 +262,9 @@ export interface OrderHistoryItem {
     sourceProductId?: number;
   } | null;
   product: GalleryItem;
+  download_url?: string | null;
+  personal_terms_version?: string | null;
+  personal_terms_url?: string | null;
 }
 
 export interface OrderHistory {
@@ -807,27 +810,54 @@ export const getShoppingBagRecommendations = async (): Promise<GalleryItem[]> =>
   return response.data;
 };
 
+const extractFilenameFromDisposition = (disposition?: string): string | null => {
+  if (!disposition) return null;
+
+  const encodedMatch = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+  if (encodedMatch?.[1]) {
+    try {
+      return decodeURIComponent(encodedMatch[1]);
+    } catch {
+      return encodedMatch[1];
+    }
+  }
+
+  const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
+  return filenameMatch?.[1] ?? null;
+};
+
+const sanitizeDownloadFilename = (filename: string): string => {
+  const sanitized = filename
+    .replace(/[\\/]+/g, "_")
+    .replace(/[\u0000-\u001f\u007f]+/g, "")
+    .trim();
+  return sanitized || "download";
+};
+
 export const downloadProduct = async (
   type: "photo" | "video",
   id: number,
-  filename: string
+  fallbackFilename: string,
 ) => {
   const response = await api.get(
     normalizeApiPath(`/products/download/${type}/${id}/`),
     {
-      responseType: 'blob', // IMPORTANT: Tells Axios this is a file, not JSON
+      responseType: 'blob',
     },
   );
 
-  // Convert Blob to downloadable URL
-  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const disposition = response.headers["content-disposition"] as string | undefined;
+  const resolvedFilename = sanitizeDownloadFilename(
+    extractFilenameFromDisposition(disposition) || fallbackFilename,
+  );
+
+  const url = window.URL.createObjectURL(response.data);
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', filename);
+  link.setAttribute('download', resolvedFilename);
   document.body.appendChild(link);
   link.click();
-  
-  // Clean up
+
   link.parentNode?.removeChild(link);
   window.URL.revokeObjectURL(url);
   return true;
@@ -859,3 +889,4 @@ export const submitLicenseRequest = async (payload: LicenseRequestPayload) => {
     throw error;
   }
 };
+
