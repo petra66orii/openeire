@@ -10,7 +10,6 @@ const GalleryGatePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // --- Handlers (Same logic as before) ---
   const handleRequestAccess = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -49,9 +48,11 @@ const GalleryGatePage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-brand-900 relative overflow-hidden mobile-page-offset">
-      {/* Background Decor (Subtle Pattern) */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
+    <div
+      className="relative flex min-h-screen items-center justify-center overflow-x-hidden bg-brand-900 px-4 py-10 mobile-page-offset sm:py-12"
+      style={{ boxSizing: "border-box" }}
+    >
+      <div className="pointer-events-none absolute inset-0 opacity-5">
         <svg width="100%" height="100%">
           <pattern
             id="gate-grid"
@@ -70,45 +71,42 @@ const GalleryGatePage = () => {
         </svg>
       </div>
 
-      <div className="max-w-5xl w-full grid md:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
-        {/* Left: Branding & Message */}
-        <div className="text-center md:text-left space-y-8">
+      <div className="relative z-10 grid w-full max-w-5xl items-center gap-10 md:grid-cols-2 lg:gap-20">
+        <div className="max-w-full space-y-8 text-center md:text-left">
           <div className="inline-block">
-            <span className="text-accent text-xs font-bold tracking-[0.2em] uppercase border border-accent/30 px-3 py-1 rounded-full">
+            <span className="rounded-full border border-accent/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-accent">
               Members Only
             </span>
           </div>
 
-          <h1 className="text-5xl lg:text-6xl font-serif font-bold text-white leading-tight">
+          <h1 className="text-4xl font-serif font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
             Private <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-100 to-accent">
+            <span className="bg-gradient-to-r from-brand-100 to-accent bg-clip-text text-transparent">
               Collection
             </span>
           </h1>
 
-          <p className="font-sans text-brand-100 text-lg leading-relaxed opacity-80 max-w-md">
+          <p className="mx-auto max-w-md text-base leading-relaxed text-brand-100 opacity-80 sm:text-lg md:mx-0">
             Our digital stock footage vault is reserved for verified creators.
             Enter your access code to view our 4K library.
           </p>
 
-          <div className="h-1 w-24 bg-accent rounded md:mx-0 mx-auto opacity-80"></div>
+          <div className="mx-auto h-1 w-24 rounded bg-accent opacity-80 md:mx-0"></div>
 
           <div className="pt-4">
             <Link
               to="/"
-              className="text-sm text-brand-100 hover:text-white underline decoration-white/30 hover:decoration-white transition-all"
+              className="text-sm text-brand-100 underline decoration-white/30 transition-all hover:text-white hover:decoration-white"
             >
               &larr; Return to Home
             </Link>
           </div>
         </div>
 
-        {/* Right: The "Vault" Form Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 lg:p-10 transform transition-all hover:scale-[1.01] border border-white/10">
-          {/* Form 1: Enter Code */}
+        <div className="w-full max-w-full rounded-2xl border border-white/10 bg-white p-6 shadow-2xl transition-all hover:scale-[1.01] sm:p-8 lg:p-10">
           <div className="mb-10 border-b border-gray-100 pb-10">
-            <h2 className="text-xl font-bold font-sans mb-6 text-brand-900 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 text-sm">
+            <h2 className="mb-6 flex items-center gap-3 text-xl font-bold font-sans text-brand-900">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-sm text-brand-700">
                 01
               </span>
               Enter Access Code
@@ -119,18 +117,18 @@ const GalleryGatePage = () => {
                 placeholder="A1B2-C3D4"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none font-mono text-center tracking-[0.3em] uppercase text-lg text-brand-900 transition-all placeholder-gray-300"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 p-4 text-center font-mono text-base uppercase tracking-[0.2em] text-brand-900 outline-none transition-all placeholder-gray-300 focus:border-transparent focus:ring-2 focus:ring-accent sm:text-lg sm:tracking-[0.3em]"
                 maxLength={9}
               />
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-brand-900 hover:bg-brand-800 text-white font-bold py-4 rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full rounded-lg bg-brand-900 py-4 font-bold text-white shadow-lg transition-all hover:bg-brand-800 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg
-                      className="animate-spin h-5 w-5 text-white"
+                      className="h-5 w-5 animate-spin text-white"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -158,35 +156,37 @@ const GalleryGatePage = () => {
             </form>
           </div>
 
-          {/* Form 2: Request Code */}
           <div>
-            <h2 className="text-xl font-bold font-sans mb-3 text-brand-900 flex items-center gap-3">
-              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-500 text-sm">
+            <h2 className="mb-3 flex items-center gap-3 text-xl font-bold font-sans text-brand-900">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm text-gray-500">
                 02
               </span>
               Request Access
             </h2>
-            <p className="text-sm text-gray-500 mb-5 ml-11 font-sans">
-              Don't have a code? We'll email you a 30-day guest pass
+            <p className="mb-5 text-sm text-gray-500 font-sans leading-relaxed sm:ml-11">
+              Don&apos;t have a code? We&apos;ll email you a 30-day guest pass
               immediately.
             </p>
-            <p className="text-xs text-gray-400 mb-5 ml-11 font-sans leading-relaxed">
+            <p className="mb-5 text-xs text-gray-400 font-sans leading-relaxed sm:ml-11">
               By requesting access, you agree to receive this gallery-pass email
               and any follow-up access-related messages for the private
               collection.
             </p>
-            <form onSubmit={handleRequestAccess} className="flex gap-3 ml-11">
+            <form
+              onSubmit={handleRequestAccess}
+              className="flex flex-col gap-3 sm:ml-11 sm:flex-row"
+            >
               <input
                 type="email"
                 placeholder="creators@studio.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-1 focus:ring-accent outline-none text-sm"
+                className="w-full flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm outline-none focus:ring-1 focus:ring-accent"
               />
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-6 py-2 border border-brand-200 text-brand-700 font-bold rounded-lg hover:bg-brand-50 hover:text-brand-900 transition-colors text-sm"
+                className="w-full rounded-lg border border-brand-200 px-6 py-3 text-sm font-bold text-brand-700 transition-colors hover:bg-brand-50 hover:text-brand-900 sm:w-auto"
               >
                 Send
               </button>
