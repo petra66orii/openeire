@@ -181,6 +181,9 @@ const CheckoutPage: React.FC = () => {
     [hasPhysicalItems, shippingDetails],
   );
   const shippingMethodKey = hasPhysicalItems ? shippingMethod : "";
+  const isShippingCostPending =
+    hasPhysicalItems &&
+    (!hasCompletePhysicalAddress(shippingDetails) || isUpdatingIntent);
 
   // 1. Fetch Profile on Mount
   useEffect(() => {
@@ -448,6 +451,7 @@ const CheckoutPage: React.FC = () => {
               <OrderSummary
                 isCheckoutPage={true}
                 shippingCost={calculatedShippingCost}
+                isShippingPending={isShippingCostPending}
               />
 
               <div className="bg-gray-900 border border-white/10 p-6 rounded-xl">

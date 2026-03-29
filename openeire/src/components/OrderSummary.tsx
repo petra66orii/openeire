@@ -25,8 +25,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const hasPhysicalItems = useMemo(() => cartHasPhysicalItems(cart), [cart]);
   const hasDigitalItems = useMemo(() => cartHasDigitalItems(cart), [cart]);
   const hasItems = cart.length > 0;
+  const isPhysicalShippingPending = hasPhysicalItems && isShippingPending;
 
-  const grandTotal = cartTotal + (hasPhysicalItems ? shippingCost : 0);
+  const grandTotal =
+    cartTotal + (hasPhysicalItems && !isPhysicalShippingPending ? shippingCost : 0);
 
   return (
     <div className="bg-gray-900 border border-white/10 p-8 rounded-2xl shadow-xl">
@@ -43,9 +45,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <span className="text-xs text-gray-500 uppercase tracking-wide mt-1">
               Not applicable
             </span>
-          ) : isShippingPending ? (
+          ) : isPhysicalShippingPending ? (
             <span className="text-xs text-gray-500 uppercase tracking-wide mt-1">
-              Calculated at checkout
+              Calculated after address
             </span>
           ) : shippingCost === 0 ? (
             <span className="text-brand-500 font-bold uppercase tracking-wider text-xs mt-1">
@@ -60,12 +62,17 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       <div className="border-t border-white/10 pt-6 mb-8">
         <div className="flex justify-between items-end">
           <span className="text-sm font-bold uppercase tracking-widest text-gray-400">
-            Total
+            {isPhysicalShippingPending ? "Current Total" : "Total"}
           </span>
           <span className="text-3xl font-serif font-bold text-white">
             {"\u20AC"}{grandTotal.toFixed(2)}
           </span>
         </div>
+        {isPhysicalShippingPending && (
+          <p className="mt-2 text-right text-xs text-gray-500">
+            Shipping will be added after delivery details are entered.
+          </p>
+        )}
       </div>
 
       {!isCheckoutPage &&
