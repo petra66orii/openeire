@@ -9,8 +9,11 @@ import { UserProfile, getCountries, Country } from "../services/api";
 import { useCart } from "../context/CartContext";
 import { FaTruck, FaCreditCard, FaBoxOpen } from "react-icons/fa";
 import { ShippingDetails } from "../types/checkout";
-
-const CHECKOUT_SUCCESS_CONTEXT_KEY = "checkoutSuccessContext";
+import {
+  CheckoutSuccessContext,
+  clearCheckoutSuccessContext,
+  writeCheckoutSuccessContext,
+} from "../utils/checkoutSuccessContext";
 
 const SHIPPING_METHODS = ["budget", "standard", "express"] as const;
 type ShippingMethod = (typeof SHIPPING_METHODS)[number];
@@ -32,12 +35,6 @@ const TRANSIT_ESTIMATES: Record<
   },
 };
 
-type CheckoutSuccessContext = {
-  hasDigitalItems: boolean;
-  hasPhysicalItems: boolean;
-  itemCount: number;
-};
-
 interface CheckoutFormProps {
   initialData?: UserProfile | null;
   shippingDetails: ShippingDetails;
@@ -46,7 +43,7 @@ interface CheckoutFormProps {
   onSaveInfoChange: (save: boolean) => void;
   shippingMethod: string;
   onShippingMethodChange: (method: string) => void;
-  isUpdatingIntent?: boolean; // New prop to indicate if intent is being updated
+  isUpdatingIntent?: boolean;
   isPaymentReady?: boolean;
   isAuthenticated?: boolean;
   accountEmail?: string | null;
@@ -114,8 +111,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         initialCountry !== "IE" &&
         initialCountry !== "US"
       ) {
-        // If they have physical items but their saved country isn't IE or US,
-        // force them to manually select a valid country.
         initialCountry = "";
       }
 
@@ -205,10 +200,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     }
 
     try {
-      sessionStorage.setItem(
-        CHECKOUT_SUCCESS_CONTEXT_KEY,
-        JSON.stringify(successContext),
-      );
+      writeCheckoutSuccessContext(successContext);
     } catch (storageError) {
       console.warn("Could not persist checkout success context", storageError);
     }
@@ -220,7 +212,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
     if (error) {
       try {
-        sessionStorage.removeItem(CHECKOUT_SUCCESS_CONTEXT_KEY);
+        clearCheckoutSuccessContext();
       } catch (storageError) {
         console.warn("Could not clear checkout success context", storageError);
       }
@@ -229,7 +221,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     setIsLoading(false);
   };
 
-  // If cart has prints, only show IE and US. Otherwise, show all.
   const displayedCountries = hasPhysicalItems
     ? countries.filter((c) => c.code === "IE" || c.code === "US")
     : countries;
@@ -259,7 +250,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       onBlurCapture={syncAutofilledValues}
       className="space-y-8"
     >
-      {/* 1. CONTACT / SHIPPING DETAILS */}
       <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
         <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
           <FaTruck className="text-accent" />
@@ -348,28 +338,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 </div>
               </div>
 
-              <div>
-                <label className={labelClass}>
-                  {shippingDetails.country === "US" ? "State" : "County"}
-                </label>
-                <input
-                  name="state"
-                  value={shippingDetails.state}
-                  onChange={handleChange}
-                  placeholder={
-                    shippingDetails.country === "US" ? "California" : "Galway"
-                  }
-                  required={requiresState}
-                  autoComplete="address-level1"
-                  className={inputClass}
-                />
-                {requiresState && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    State is required for US shipping addresses.
-                  </p>
-                )}
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className={labelClass}>Country</label>
@@ -379,170 +347,135 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     onChange={handleChange}
                     required
                     autoComplete="country"
-                    className={`${inputClass} appearance-none cursor-pointer`}
+                    className={inputClass}
                   >
-                    <option value="">Select Country...</option>
-                    {displayedCountries.map((c) => (
-                      <option key={c.code} value={c.code}>
-                        {c.name}
+                    <option value="">Select Country</option>
+                    {displayedCountries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name}
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Physical prints currently ship to IE & US only.
-                  </p>
                 </div>
                 <div>
-                  <label className={labelClass}>Phone</label>
+                  <label className={labelClass}>
+                    {requiresState ? "State" : "County / Region"}
+                  </label>
                   <input
-                    name="phone"
-                    value={shippingDetails.phone}
+                    name="state"
+                    value={shippingDetails.state}
                     onChange={handleChange}
-                    placeholder="+353..."
-                    type="tel"
-                    required
-                    autoComplete="tel"
+                    placeholder={requiresState ? "California" : "Dublin"}
+                    required={requiresState}
+                    autoComplete="address-level1"
                     className={inputClass}
                   />
                 </div>
               </div>
+
+              <div>
+                <label className={labelClass}>Phone</label>
+                <input
+                  name="phone"
+                  value={shippingDetails.phone}
+                  onChange={handleChange}
+                  placeholder="+353 1 234 5678"
+                  required
+                  autoComplete="tel"
+                  className={inputClass}
+                />
+              </div>
             </>
-          ) : (
-            <p className="text-sm text-gray-400">
-              Digital purchases are delivered after payment confirmation.
-            </p>
-          )}
+          ) : null}
         </div>
       </div>
 
-      {/* 2. SHIPPING METHOD (NEW UI) */}
       {hasPhysicalItems && (
         <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
           <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
             <FaBoxOpen className="text-accent" />
             <h2 className="text-xl font-serif font-bold text-white">
-              Delivery Speed
+              Shipping Method
             </h2>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {SHIPPING_METHODS.map((method) => (
-              <label
-                key={method}
-                className={`flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer transition-all ${
-                  shippingMethod === method
-                    ? "border-brand-500 bg-brand-500/10 shadow-[0_0_10px_rgba(0,196,0,0.2)]"
-                    : "border-white/10 hover:border-white/30"
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="shippingMethod"
-                  value={method}
-                  checked={shippingMethod === method}
-                  onChange={(e) => onShippingMethodChange(e.target.value)}
-                  className="hidden"
-                />
-                <span className="capitalize text-white font-bold mb-1">
-                  {method}
-                </span>
-                <span className="text-xs text-gray-400 text-center">
-                  {getTransitEstimate(method)}
-                </span>
-              </label>
-            ))}
+          <div className="space-y-4">
+            {SHIPPING_METHODS.map((method) => {
+              const isSelected = shippingMethod === method;
+              return (
+                <label
+                  key={method}
+                  className={`flex items-start justify-between gap-4 rounded-xl border p-4 cursor-pointer transition-all ${
+                    isSelected
+                      ? "border-brand-500 bg-brand-500/10"
+                      : "border-white/10 bg-black hover:bg-white/5"
+                  }`}
+                >
+                  <div>
+                    <div className="text-sm font-bold text-white uppercase tracking-wide">
+                      {method}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-400">
+                      {getTransitEstimate(method)}
+                    </div>
+                  </div>
+                  <input
+                    type="radio"
+                    name="shipping_method"
+                    value={method}
+                    checked={isSelected}
+                    onChange={(e) => onShippingMethodChange(e.target.value)}
+                    className="mt-1 h-4 w-4 accent-brand-500"
+                  />
+                </label>
+              );
+            })}
           </div>
-
-          <p className="mt-4 text-xs text-gray-400">
-            Note: Transit times do not include the 2-4 day custom production
-            window.
-          </p>
-          {selectedTransitCountry === "US" && shippingMethod === "standard" && (
-            <p className="mt-2 text-xs text-gray-500">
-              Some specialty items printed only in Europe can take 10-15 working
-              days to reach the US.
-            </p>
-          )}
         </div>
       )}
 
-      {/* 3. PAYMENT SECTION */}
       <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
         <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
           <FaCreditCard className="text-accent" />
           <h2 className="text-xl font-serif font-bold text-white">
-            Payment Method
+            Payment
           </h2>
         </div>
 
-        <div className="min-h-[200px]">
-          {isPaymentReady ? (
-            <PaymentElement />
-          ) : (
-            <div className="h-full min-h-[200px] rounded-xl border border-white/10 bg-black/40 flex items-center justify-center px-6 text-center text-sm text-gray-400">
-              {hasPhysicalItems
-                ? "Enter a complete shipping address to load secure payment options."
-                : "Preparing secure payment options..."}
-            </div>
-          )}
-        </div>
+        <PaymentElement />
 
-        {initialData && (
-          <div className="flex items-center mt-6 p-4 bg-black/40 rounded-lg border border-white/5">
-            <input
-              type="checkbox"
-              id="save-info"
-              checked={saveInfo}
-              onChange={(e) => onSaveInfoChange(e.target.checked)}
-              className="h-5 w-5 text-accent bg-black border-white/30 rounded focus:ring-accent focus:ring-offset-0 cursor-pointer"
-            />
-            <label
-              htmlFor="save-info"
-              className="ml-3 block text-sm text-gray-400 cursor-pointer select-none"
-            >
-              {hasPhysicalItems
-                ? "Save shipping information for future purchases"
-                : "Save contact information for future purchases"}
-            </label>
+        {errorMessage && (
+          <div className="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-bold text-red-400">
+            {errorMessage}
           </div>
         )}
+
+        <div className="mt-6 flex items-start gap-3">
+          <input
+            type="checkbox"
+            id="saveInfo"
+            checked={saveInfo}
+            onChange={(e) => onSaveInfoChange(e.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-white/20 bg-black text-brand-500 focus:ring-brand-500"
+          />
+          <label htmlFor="saveInfo" className="text-sm text-gray-400">
+            Save this information for next time.
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={!stripe || isLoading || Boolean(isUpdatingIntent) || !isPaymentReady}
+          className="mt-8 w-full rounded-xl bg-brand-500 px-8 py-4 font-bold text-black transition-all hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isLoading
+            ? "Processing..."
+            : isUpdatingIntent
+              ? "Refreshing total..."
+              : "Complete Order"}
+        </button>
       </div>
-
-      {errorMessage && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold">
-          {errorMessage}
-        </div>
-      )}
-
-      <button
-        disabled={
-          isLoading ||
-          !stripe ||
-          !elements ||
-          isUpdatingIntent ||
-          !isPaymentReady
-        }
-        className="w-full py-5 bg-brand-700 hover:bg-brand-900 text-white font-bold text-lg rounded-xl shadow-[0_0_20px_rgba(0,196,0,0.3)] transition-all transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {isLoading ? (
-          <div className="flex items-center justify-center gap-2">
-            <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full" />{" "}
-            Processing...
-          </div>
-        ) : isUpdatingIntent ? (
-          "Updating checkout..."
-        ) : !isPaymentReady ? (
-          "Enter shipping details to continue"
-        ) : (
-          "Pay Now"
-        )}
-      </button>
     </form>
   );
 };
 
 export default CheckoutForm;
-
-
-
-

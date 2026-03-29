@@ -2,34 +2,28 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { FaCheckCircle, FaDownload, FaHome, FaBoxOpen } from "react-icons/fa";
+import {
+  clearCheckoutSuccessContext,
+  CheckoutSuccessContext,
+  readCheckoutSuccessContext,
+} from "../utils/checkoutSuccessContext";
 
-const CHECKOUT_SUCCESS_CONTEXT_KEY = "checkoutSuccessContext";
-
-type CheckoutSuccessContext = {
-  hasDigitalItems: boolean;
-  hasPhysicalItems: boolean;
-  itemCount: number;
+type SuccessCard = {
+  title: string;
+  body: string;
+  icon: React.ReactNode;
+  accent: string;
 };
 
-const readCheckoutSuccessContext = (): CheckoutSuccessContext | null => {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const raw = sessionStorage.getItem(CHECKOUT_SUCCESS_CONTEXT_KEY);
-    if (!raw) return null;
-
-    const parsed = JSON.parse(raw) as Partial<CheckoutSuccessContext>;
-    return {
-      hasDigitalItems: Boolean(parsed.hasDigitalItems),
-      hasPhysicalItems: Boolean(parsed.hasPhysicalItems),
-      itemCount: Number(parsed.itemCount || 0),
-    };
-  } catch {
-    return null;
-  }
+type SuccessContent = {
+  title: string;
+  description: string;
+  cards: SuccessCard[];
+  primaryLink: string;
+  primaryLabel: string;
 };
 
-const getSuccessContent = (context: CheckoutSuccessContext | null) => {
+const getSuccessContent = (context: CheckoutSuccessContext | null): SuccessContent => {
   if (context?.hasDigitalItems && context?.hasPhysicalItems) {
     return {
       title: "Order Confirmed",
@@ -44,7 +38,7 @@ const getSuccessContent = (context: CheckoutSuccessContext | null) => {
         },
         {
           title: "Physical Prints",
-          body: "Your print order is being processed now. We’ll email tracking details once the shipment is on the way.",
+          body: "Your print order is being processed now. We'll email tracking details once the shipment is on the way.",
           icon: <FaBoxOpen className="w-4 h-4" />,
           accent: "bg-blue-500/10 text-blue-400",
         },
@@ -62,7 +56,7 @@ const getSuccessContent = (context: CheckoutSuccessContext | null) => {
       cards: [
         {
           title: "Personal Download",
-          body: "We’ve sent your personal-use download link by email. Your order history also keeps the download available inside your account.",
+          body: "We've sent your personal-use download link by email. Your order history also keeps the download available inside your account.",
           icon: <FaDownload className="w-4 h-4" />,
           accent: "bg-accent/10 text-accent",
         },
@@ -72,20 +66,38 @@ const getSuccessContent = (context: CheckoutSuccessContext | null) => {
     };
   }
 
+  if (context?.hasPhysicalItems) {
+    return {
+      title: "Payment Successful",
+      description:
+        "Thank you for your order. A receipt has been sent to your email address, and your physical prints are now being processed.",
+      cards: [
+        {
+          title: "Physical Prints",
+          body: "Your fine art prints are being prepared now. You will receive a shipping update and tracking details once they are dispatched.",
+          icon: <FaBoxOpen className="w-4 h-4" />,
+          accent: "bg-blue-500/10 text-blue-400",
+        },
+      ],
+      primaryLink: "/gallery",
+      primaryLabel: "Continue Shopping",
+    };
+  }
+
   return {
-    title: "Payment Successful",
+    title: "Order Received",
     description:
-      "Thank you for your order. A receipt has been sent to your email address, and your physical prints are now being processed.",
+      "Thank you for your purchase. Your receipt has been sent to your email address. If your order included downloads, use the link from your email or visit your account order history for the latest status.",
     cards: [
       {
-        title: "Physical Prints",
-        body: "Your fine art prints are being prepared now. You will receive a shipping update and tracking details once they are dispatched.",
-        icon: <FaBoxOpen className="w-4 h-4" />,
-        accent: "bg-blue-500/10 text-blue-400",
+        title: "Next Steps",
+        body: "Use your email receipt as the source of truth for this order. If you created an account or were already signed in, your order history will also reflect your latest purchases.",
+        icon: <FaCheckCircle className="w-4 h-4" />,
+        accent: "bg-white/10 text-white",
       },
     ],
-    primaryLink: "/gallery",
-    primaryLabel: "Continue Shopping",
+    primaryLink: "/profile",
+    primaryLabel: "Open Order History",
   };
 };
 
@@ -98,7 +110,7 @@ const CheckoutSuccessPage: React.FC = () => {
   useEffect(() => {
     clearCart();
     try {
-      sessionStorage.removeItem(CHECKOUT_SUCCESS_CONTEXT_KEY);
+      clearCheckoutSuccessContext();
     } catch {
       // Ignore storage cleanup errors; they should not block success rendering.
     }
@@ -159,4 +171,3 @@ const CheckoutSuccessPage: React.FC = () => {
 };
 
 export default CheckoutSuccessPage;
-
