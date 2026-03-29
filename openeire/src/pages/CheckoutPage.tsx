@@ -194,6 +194,13 @@ const CheckoutPage: React.FC = () => {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (!isAuthenticated || !profileData?.email) return;
+    setShippingDetails((prev) =>
+      prev.email === profileData.email ? prev : { ...prev, email: profileData.email },
+    );
+  }, [isAuthenticated, profileData?.email]);
+
   // 2. Dynamic Payment Intent Fetcher
   useEffect(() => {
     let isCancelled = false;
@@ -435,6 +442,8 @@ const CheckoutPage: React.FC = () => {
                   onShippingMethodChange={setShippingMethod}
                   isUpdatingIntent={isUpdatingIntent}
                   isPaymentReady={Boolean(clientSecret)}
+                  isAuthenticated={isAuthenticated}
+                  accountEmail={profileData?.email ?? null}
                 />
               </Elements>
             )}

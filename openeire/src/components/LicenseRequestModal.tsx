@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { FaTimes } from "react-icons/fa";
 import { submitLicenseRequest, LicenseRequestPayload } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
 interface LicenseRequestModalProps {
@@ -35,6 +36,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
   assetType,
   assetTitle,
 }) => {
+  const { isAuthenticated, user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<
     Omit<LicenseRequestPayload, "asset_id" | "asset_type">
@@ -48,10 +50,13 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    setFormData(getInitialFormData());
+    setFormData({
+      ...getInitialFormData(),
+      email: isAuthenticated ? user?.email ?? "" : "",
+    });
     setAgreements({ merch: false, ai: false });
     setIsSubmitting(false);
-  }, [isOpen]);
+  }, [isOpen, isAuthenticated, user?.email]);
 
   if (!isOpen) return null;
 
@@ -172,8 +177,15 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent outline-none"
+              readOnly={isAuthenticated}
+              aria-readonly={isAuthenticated}
+              className={`w-full bg-black border border-white/20 rounded-lg p-3 text-white focus:border-accent outline-none ${isAuthenticated ? "cursor-not-allowed opacity-80" : ""}`}
             />
+            {isAuthenticated && user?.email && (
+              <p className="text-xs text-gray-500 mt-2">
+                Signed-in license requests use your account email: {user.email}
+              </p>
+            )}
           </div>
 
           <div className="border-t border-white/10 pt-4 mt-2">

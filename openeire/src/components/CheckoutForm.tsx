@@ -40,6 +40,8 @@ interface CheckoutFormProps {
   onShippingMethodChange: (method: string) => void;
   isUpdatingIntent?: boolean; // New prop to indicate if intent is being updated
   isPaymentReady?: boolean;
+  isAuthenticated?: boolean;
+  accountEmail?: string | null;
 }
 
 const SHIPPING_FIELD_NAMES: Array<keyof ShippingDetails> = [
@@ -64,6 +66,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   onShippingMethodChange,
   isUpdatingIntent,
   isPaymentReady,
+  isAuthenticated = false,
+  accountEmail,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -262,8 +266,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 type="email"
                 required
                 autoComplete="email"
-                className={inputClass}
+                readOnly={isAuthenticated}
+                aria-readonly={isAuthenticated}
+                className={`${inputClass} ${isAuthenticated ? "cursor-not-allowed opacity-80" : ""}`}
               />
+              {isAuthenticated && accountEmail && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Signed-in purchases use your account email: {accountEmail}
+                </p>
+              )}
             </div>
           </div>
 
