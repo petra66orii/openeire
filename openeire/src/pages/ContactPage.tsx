@@ -4,7 +4,6 @@ import { sendContactMessage } from "../services/api";
 import toast from "react-hot-toast";
 import {
   FaEnvelope,
-  FaPhone,
   FaMapMarkerAlt,
   FaPaperPlane,
   FaCheckCircle,
@@ -56,7 +55,9 @@ const ContactPage = () => {
     <div className="min-h-screen overflow-x-hidden bg-black pb-20 pt-24 text-white mobile-page-offset">
       <SEOHead
         title="Contact"
-        description={"Get in touch with Open\u00C9ire Studios for licensing, fine art print enquiries, and bespoke visual requests."}
+        description={
+          "Get in touch with Open\u00C9ire Studios for licensing, fine art print enquiries, and bespoke visual requests."
+        }
         canonicalPath="/contact"
       />
 
@@ -94,30 +95,12 @@ const ContactPage = () => {
 
             <div className="group flex w-full min-w-0 max-w-full items-start gap-4 overflow-hidden rounded-2xl border border-white/10 bg-gray-900 p-6 transition-colors hover:border-brand-500/30 sm:gap-6 sm:p-8">
               <div className="shrink-0 rounded-full border border-white/10 bg-black p-4 text-brand-500 transition-colors group-hover:bg-brand-500 group-hover:text-black">
-                <FaPhone className="text-xl" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="mb-1 text-lg font-bold text-white">Call Us</h3>
-                <p className="mb-2 text-sm text-gray-400">
-                  Mon-Fri from 9am to 6pm GMT.
-                </p>
-                <a
-                  href="tel:+353123456789"
-                  className="block break-words font-mono text-sm text-brand-500 hover:underline sm:text-base"
-                >
-                  +353 (0) 12 345 6789
-                </a>
-              </div>
-            </div>
-
-            <div className="group flex w-full min-w-0 max-w-full items-start gap-4 overflow-hidden rounded-2xl border border-white/10 bg-gray-900 p-6 transition-colors hover:border-brand-500/30 sm:gap-6 sm:p-8">
-              <div className="shrink-0 rounded-full border border-white/10 bg-black p-4 text-brand-500 transition-colors group-hover:bg-brand-500 group-hover:text-black">
                 <FaMapMarkerAlt className="text-xl" />
               </div>
               <div className="min-w-0">
                 <h3 className="mb-1 text-lg font-bold text-white">Studio</h3>
                 <p className="text-sm text-gray-400">
-                  Galway, Ireland
+                  Loughrea, Co. Galway, Ireland
                   <br />
                   <span className="mt-1 block text-xs uppercase tracking-widest opacity-50">
                     By Appointment Only
@@ -151,7 +134,10 @@ const ContactPage = () => {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="relative z-10 space-y-6">
+                <form
+                  onSubmit={handleSubmit}
+                  className="relative z-10 space-y-6"
+                >
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="min-w-0">
                       <label htmlFor="name" className={labelClass}>
