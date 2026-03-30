@@ -53,9 +53,10 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     0,
     effectiveFreeShippingThreshold - physicalSubtotal,
   );
+  const hasSelectedShippingCountry = Boolean(shippingCountry?.trim());
   const countryEligibleForPromo = isFreeShippingCountryEligible(shippingCountry);
   const showFreeShippingPromo =
-    FREE_SHIPPING_PROMO_ENABLED && hasPhysicalItems;
+    FREE_SHIPPING_PROMO_ENABLED && hasPhysicalItems && !isPhysicalShippingPending;
 
   const grandTotal =
     cartTotal + (hasPhysicalItems && !isPhysicalShippingPending ? shippingCost : 0);
@@ -110,7 +111,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         )}
         {showFreeShippingPromo && !freeShippingApplied && (
           <>
-            {shippingCountry && !countryEligibleForPromo ? (
+            {!hasSelectedShippingCountry ? (
+              <p className="mt-3 text-right text-xs text-gray-500">
+                Free shipping is available for {FREE_SHIPPING_COUNTRY_LABEL} print orders over {"\u20AC"}
+                {effectiveFreeShippingThreshold.toFixed(2)}. Enter your delivery address to confirm eligibility.
+              </p>
+            ) : !countryEligibleForPromo ? (
               <p className="mt-3 text-right text-xs text-gray-500">
                 Free shipping is currently available for {FREE_SHIPPING_COUNTRY_LABEL} delivery only.
               </p>

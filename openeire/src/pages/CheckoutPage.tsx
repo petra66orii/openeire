@@ -141,7 +141,7 @@ type CreatePaymentIntentResponse = {
   clientSecret: string;
   shippingCost?: number;
   freeShippingApplied?: boolean;
-  freeShippingThreshold?: number;
+  freeShippingThreshold?: number | string | null;
 };
 
 const CheckoutPage: React.FC = () => {
@@ -159,6 +159,13 @@ const CheckoutPage: React.FC = () => {
   const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const latestIntentRequestId = useRef(0);
+
+  const resetCheckoutIntentState = () => {
+    setClientSecret("");
+    setCalculatedShippingCost(0);
+    setFreeShippingApplied(false);
+    setFreeShippingThreshold(null);
+  };
 
   const { cartItems } = useCart();
   const { isAuthenticated } = useAuth();
@@ -220,10 +227,7 @@ const CheckoutPage: React.FC = () => {
 
       if (checkoutCartItems.length === 0) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
-        setClientSecret("");
-        setCalculatedShippingCost(0);
-        setFreeShippingApplied(false);
-        setFreeShippingThreshold(null);
+        resetCheckoutIntentState();
         setCheckoutError(null);
         setIsUpdatingIntent(false);
         return;
@@ -231,10 +235,7 @@ const CheckoutPage: React.FC = () => {
 
       if (requiresAuthenticatedCheckout && !isAuthenticated) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
-        setClientSecret("");
-        setCalculatedShippingCost(0);
-        setFreeShippingApplied(false);
-        setFreeShippingThreshold(null);
+        resetCheckoutIntentState();
         setCheckoutError(null);
         setIsUpdatingIntent(false);
         return;
@@ -242,10 +243,7 @@ const CheckoutPage: React.FC = () => {
 
       if (hasPhysicalItems && !hasCompletePhysicalAddress(shippingDetails)) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
-        setClientSecret("");
-        setCalculatedShippingCost(0);
-        setFreeShippingApplied(false);
-        setFreeShippingThreshold(null);
+        resetCheckoutIntentState();
         setCheckoutError(null);
         setIsUpdatingIntent(false);
         return;
@@ -253,6 +251,7 @@ const CheckoutPage: React.FC = () => {
 
       if (isCancelled || requestId !== latestIntentRequestId.current) return;
       setIsUpdatingIntent(true);
+      setFreeShippingApplied(false);
       setCheckoutError(null);
 
       try {
@@ -334,17 +333,15 @@ const CheckoutPage: React.FC = () => {
           hasPhysicalItems ? Number(response.data.shippingCost ?? 0) : 0,
         );
         setFreeShippingApplied(Boolean(response.data.freeShippingApplied));
+        const parsedFreeShippingThreshold = Number(response.data.freeShippingThreshold);
         setFreeShippingThreshold(
-          typeof response.data.freeShippingThreshold === "number"
-            ? response.data.freeShippingThreshold
+          Number.isFinite(parsedFreeShippingThreshold)
+            ? parsedFreeShippingThreshold
             : null,
         );
       } catch (error) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
-        setClientSecret("");
-        setCalculatedShippingCost(0);
-        setFreeShippingApplied(false);
-        setFreeShippingThreshold(null);
+        resetCheckoutIntentState();
         setCheckoutError(
           getApiErrorMessage(error) ||
             "We could not prepare checkout right now. Please review your details and try again.",
