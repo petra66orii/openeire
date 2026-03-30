@@ -140,6 +140,8 @@ type CreatePaymentIntentPayload = {
 type CreatePaymentIntentResponse = {
   clientSecret: string;
   shippingCost?: number;
+  freeShippingApplied?: boolean;
+  freeShippingThreshold?: number;
 };
 
 const CheckoutPage: React.FC = () => {
@@ -151,6 +153,8 @@ const CheckoutPage: React.FC = () => {
   );
   const [shippingMethod, setShippingMethod] = useState("budget");
   const [calculatedShippingCost, setCalculatedShippingCost] = useState(0);
+  const [freeShippingApplied, setFreeShippingApplied] = useState(false);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
   const [saveInfo, setSaveInfo] = useState(true);
   const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -218,6 +222,8 @@ const CheckoutPage: React.FC = () => {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setClientSecret("");
         setCalculatedShippingCost(0);
+        setFreeShippingApplied(false);
+        setFreeShippingThreshold(null);
         setCheckoutError(null);
         setIsUpdatingIntent(false);
         return;
@@ -227,6 +233,8 @@ const CheckoutPage: React.FC = () => {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setClientSecret("");
         setCalculatedShippingCost(0);
+        setFreeShippingApplied(false);
+        setFreeShippingThreshold(null);
         setCheckoutError(null);
         setIsUpdatingIntent(false);
         return;
@@ -236,6 +244,8 @@ const CheckoutPage: React.FC = () => {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setClientSecret("");
         setCalculatedShippingCost(0);
+        setFreeShippingApplied(false);
+        setFreeShippingThreshold(null);
         setCheckoutError(null);
         setIsUpdatingIntent(false);
         return;
@@ -323,10 +333,18 @@ const CheckoutPage: React.FC = () => {
         setCalculatedShippingCost(
           hasPhysicalItems ? Number(response.data.shippingCost ?? 0) : 0,
         );
+        setFreeShippingApplied(Boolean(response.data.freeShippingApplied));
+        setFreeShippingThreshold(
+          typeof response.data.freeShippingThreshold === "number"
+            ? response.data.freeShippingThreshold
+            : null,
+        );
       } catch (error) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         setClientSecret("");
         setCalculatedShippingCost(0);
+        setFreeShippingApplied(false);
+        setFreeShippingThreshold(null);
         setCheckoutError(
           getApiErrorMessage(error) ||
             "We could not prepare checkout right now. Please review your details and try again.",
@@ -472,9 +490,12 @@ const CheckoutPage: React.FC = () => {
               isCheckoutPage
               shippingCost={calculatedShippingCost}
               isShippingPending={isShippingCostPending}
+              freeShippingApplied={freeShippingApplied}
+              freeShippingThreshold={freeShippingThreshold}
+              shippingCountry={shippingDetails.country}
             />
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
-              <FaLock /> SSL Secured • Stripe Protected
+              <FaLock /> SSL Secured - Stripe Protected
             </div>
           </div>
         </div>

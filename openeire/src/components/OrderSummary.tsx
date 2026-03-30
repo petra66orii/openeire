@@ -1,23 +1,36 @@
 import React, { useMemo } from "react";
-import { useCart } from "../context/CartContext";
+import { getCartItemUnitPrice, useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import { FaLock } from "react-icons/fa";
 import {
   cartHasDigitalItems,
   cartHasPhysicalItems,
+  isPhysicalProductType,
 } from "../utils/purchaseFlow";
+import {
+  FREE_SHIPPING_COUNTRY_LABEL,
+  FREE_SHIPPING_PROMO_ENABLED,
+  FREE_SHIPPING_THRESHOLD,
+  isFreeShippingCountryEligible,
+} from "../utils/freeShipping";
 
 interface OrderSummaryProps {
   isCheckoutPage?: boolean;
   shippingCost: number;
   isShippingPending?: boolean;
+  freeShippingApplied?: boolean;
+  freeShippingThreshold?: number | null;
+  shippingCountry?: string | null;
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   isCheckoutPage = false,
   shippingCost,
   isShippingPending = false,
+  freeShippingApplied = false,
+  freeShippingThreshold = null,
+  shippingCountry = null,
 }) => {
   const { cartItems: cart, cartTotal } = useCart();
   const { isAuthenticated } = useAuth();
@@ -26,6 +39,23 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   const hasDigitalItems = useMemo(() => cartHasDigitalItems(cart), [cart]);
   const hasItems = cart.length > 0;
   const isPhysicalShippingPending = hasPhysicalItems && isShippingPending;
+  const physicalSubtotal = useMemo(
+    () =>
+      cart.reduce((total, item) => {
+        if (!isPhysicalProductType(item.product?.product_type)) return total;
+        return total + getCartItemUnitPrice(item) * item.quantity;
+      }, 0),
+    [cart],
+  );
+  const effectiveFreeShippingThreshold =
+    freeShippingThreshold ?? FREE_SHIPPING_THRESHOLD;
+  const remainingForFreeShipping = Math.max(
+    0,
+    effectiveFreeShippingThreshold - physicalSubtotal,
+  );
+  const countryEligibleForPromo = isFreeShippingCountryEligible(shippingCountry);
+  const showFreeShippingPromo =
+    FREE_SHIPPING_PROMO_ENABLED && hasPhysicalItems;
 
   const grandTotal =
     cartTotal + (hasPhysicalItems && !isPhysicalShippingPending ? shippingCost : 0);
@@ -49,7 +79,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <span className="text-xs text-gray-500 uppercase tracking-wide mt-1">
               Calculated after address
             </span>
-          ) : shippingCost === 0 ? (
+          ) : freeShippingApplied ? (
             <span className="text-brand-500 font-bold uppercase tracking-wider text-xs mt-1">
               Free
             </span>
@@ -72,6 +102,30 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <p className="mt-2 text-right text-xs text-gray-500">
             Shipping will be added after delivery details are entered.
           </p>
+        )}
+        {showFreeShippingPromo && freeShippingApplied && (
+          <p className="mt-3 text-right text-xs font-semibold uppercase tracking-wide text-brand-500">
+            Free shipping applied for {FREE_SHIPPING_COUNTRY_LABEL} delivery.
+          </p>
+        )}
+        {showFreeShippingPromo && !freeShippingApplied && (
+          <>
+            {shippingCountry && !countryEligibleForPromo ? (
+              <p className="mt-3 text-right text-xs text-gray-500">
+                Free shipping is currently available for {FREE_SHIPPING_COUNTRY_LABEL} delivery only.
+              </p>
+            ) : remainingForFreeShipping > 0 ? (
+              <p className="mt-3 text-right text-xs text-gray-500">
+                Spend {"\u20AC"}{remainingForFreeShipping.toFixed(2)} more on prints to qualify
+                for free shipping in {FREE_SHIPPING_COUNTRY_LABEL}.
+              </p>
+            ) : (
+              <p className="mt-3 text-right text-xs text-gray-500">
+                This print order can qualify for free shipping in {FREE_SHIPPING_COUNTRY_LABEL}
+                once delivery details are confirmed.
+              </p>
+            )}
+          </>
         )}
       </div>
 
