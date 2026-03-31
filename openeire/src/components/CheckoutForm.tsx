@@ -61,6 +61,7 @@ interface CheckoutPaymentSectionProps {
   successContext: CheckoutSuccessContext;
   errorMessage: string | null;
   setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  registerSubmitHandler: (handler: (() => Promise<void>) | null) => void;
 }
 
 const SHIPPING_FIELD_NAMES: Array<keyof ShippingDetails> = [
@@ -85,12 +86,13 @@ const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
   successContext,
   errorMessage,
   setErrorMessage,
+  registerSubmitHandler,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handlePaymentSubmit = async () => {
+  const handlePaymentSubmit = useCallback(async () => {
     if (!isPaymentReady) {
       setErrorMessage("Complete shipping details to load payment options.");
       return;
@@ -140,7 +142,21 @@ const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
       setErrorMessage(error.message || "An unexpected error occurred.");
     }
     setIsLoading(false);
-  };
+  }, [
+    elements,
+    hasPhysicalItems,
+    isPaymentReady,
+    isUpdatingIntent,
+    setErrorMessage,
+    shippingDetails,
+    stripe,
+    successContext,
+  ]);
+
+  useEffect(() => {
+    registerSubmitHandler(() => handlePaymentSubmit);
+    return () => registerSubmitHandler(null);
+  }, [handlePaymentSubmit, registerSubmitHandler]);
 
   return (
     <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
@@ -181,8 +197,7 @@ const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
       </div>
 
       <button
-        type="button"
-        onClick={handlePaymentSubmit}
+        type="submit"
         disabled={!stripe || isLoading || Boolean(isUpdatingIntent) || !isPaymentReady}
         className="mt-8 w-full rounded-xl bg-brand-500 px-8 py-4 font-bold text-black transition-all hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
       >
@@ -213,6 +228,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 }) => {
   const { hasPhysicalItems } = useCart();
   const formRef = useRef<HTMLFormElement | null>(null);
+  const paymentSubmitHandlerRef = useRef<(() => Promise<void>) | null>(null);
 
   const [countries, setCountries] = useState<Country[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -291,6 +307,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     });
   }, [onShippingChange]);
 
+  const registerPaymentSubmitHandler = useCallback(
+    (handler: (() => Promise<void>) | null) => {
+      paymentSubmitHandlerRef.current = handler;
+    },
+    [],
+  );
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -325,7 +348,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   return (
     <form
       ref={formRef}
-      onSubmit={(event) => event.preventDefault()}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!isStripeContextAvailable) return;
+        void paymentSubmitHandlerRef.current?.();
+      }}
       onBlurCapture={syncAutofilledValues}
       className="space-y-8"
     >
@@ -523,6 +550,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           successContext={successContext}
           errorMessage={errorMessage}
           setErrorMessage={setErrorMessage}
+          registerSubmitHandler={registerPaymentSubmitHandler}
         />
       ) : (
         <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
