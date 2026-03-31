@@ -154,7 +154,7 @@ const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
   ]);
 
   useEffect(() => {
-    registerSubmitHandler(() => handlePaymentSubmit);
+    registerSubmitHandler(handlePaymentSubmit);
     return () => registerSubmitHandler(null);
   }, [handlePaymentSubmit, registerSubmitHandler]);
 

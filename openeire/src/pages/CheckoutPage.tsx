@@ -290,7 +290,7 @@ const CheckoutPage: React.FC = () => {
               }
 
               return {
-                product_id: item.product.id,
+                product_id: variantId,
                 product_type: "physical",
                 quantity: item.quantity,
                 options: {
