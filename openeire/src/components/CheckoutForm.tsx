@@ -48,6 +48,20 @@ interface CheckoutFormProps {
   isAuthenticated?: boolean;
   accountEmail?: string | null;
   successContext: CheckoutSuccessContext;
+  isStripeContextAvailable?: boolean;
+}
+
+interface CheckoutPaymentSectionProps {
+  hasPhysicalItems: boolean;
+  shippingDetails: ShippingDetails;
+  saveInfo: boolean;
+  onSaveInfoChange: (save: boolean) => void;
+  isUpdatingIntent?: boolean;
+  isPaymentReady?: boolean;
+  successContext: CheckoutSuccessContext;
+  errorMessage: string | null;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  registerSubmitHandler: (handler: (() => Promise<void>) | null) => void;
 }
 
 const SHIPPING_FIELD_NAMES: Array<keyof ShippingDetails> = [
@@ -62,6 +76,141 @@ const SHIPPING_FIELD_NAMES: Array<keyof ShippingDetails> = [
   "postal_code",
 ];
 
+const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
+  hasPhysicalItems,
+  shippingDetails,
+  saveInfo,
+  onSaveInfoChange,
+  isUpdatingIntent,
+  isPaymentReady,
+  successContext,
+  errorMessage,
+  setErrorMessage,
+  registerSubmitHandler,
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePaymentSubmit = useCallback(async () => {
+    if (!isPaymentReady) {
+      setErrorMessage("Complete shipping details to load payment options.");
+      return;
+    }
+    if (!stripe || !elements) return;
+
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    const confirmParams: ConfirmPaymentData = {
+      return_url: `${window.location.origin}/checkout-success`,
+      receipt_email: shippingDetails.email,
+    };
+
+    if (hasPhysicalItems) {
+      confirmParams.shipping = {
+        name: shippingDetails.name,
+        phone: shippingDetails.phone,
+        address: {
+          line1: shippingDetails.line1,
+          line2: shippingDetails.line2,
+          city: shippingDetails.city,
+          state: shippingDetails.state,
+          country: shippingDetails.country,
+          postal_code: shippingDetails.postal_code,
+        },
+      };
+    }
+
+    try {
+      writeCheckoutSuccessContext(successContext);
+    } catch (storageError) {
+      console.warn("Could not persist checkout success context", storageError);
+    }
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams,
+    });
+
+    if (error) {
+      try {
+        clearCheckoutSuccessContext();
+      } catch (storageError) {
+        console.warn("Could not clear checkout success context", storageError);
+      }
+      setErrorMessage(error.message || "An unexpected error occurred.");
+    }
+    setIsLoading(false);
+  }, [
+    elements,
+    hasPhysicalItems,
+    isPaymentReady,
+    isUpdatingIntent,
+    setErrorMessage,
+    shippingDetails,
+    stripe,
+    successContext,
+  ]);
+
+  useEffect(() => {
+    registerSubmitHandler(() => handlePaymentSubmit);
+    return () => registerSubmitHandler(null);
+  }, [handlePaymentSubmit, registerSubmitHandler]);
+
+  return (
+    <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
+      <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+        <FaCreditCard className="text-accent" />
+        <h2 className="text-xl font-serif font-bold text-white">
+          Payment
+        </h2>
+      </div>
+
+      {isPaymentReady ? (
+        <PaymentElement />
+      ) : (
+        <div className="rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-gray-400">
+          {hasPhysicalItems
+            ? "Enter your delivery details to load secure payment options."
+            : "Secure payment options are loading. Please wait a moment."}
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-bold text-red-400">
+          {errorMessage}
+        </div>
+      )}
+
+      <div className="mt-6 flex items-start gap-3">
+        <input
+          type="checkbox"
+          id="saveInfo"
+          checked={saveInfo}
+          onChange={(e) => onSaveInfoChange(e.target.checked)}
+          className="mt-1 h-4 w-4 rounded border-white/20 bg-black text-brand-500 focus:ring-brand-500"
+        />
+        <label htmlFor="saveInfo" className="text-sm text-gray-400">
+          Save this information for next time.
+        </label>
+      </div>
+
+      <button
+        type="submit"
+        disabled={!stripe || isLoading || Boolean(isUpdatingIntent) || !isPaymentReady}
+        className="mt-8 w-full rounded-xl bg-brand-500 px-8 py-4 font-bold text-black transition-all hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        {isLoading
+          ? "Processing..."
+          : isUpdatingIntent
+            ? "Refreshing total..."
+            : "Complete Order"}
+      </button>
+    </div>
+  );
+};
+
 const CheckoutForm: React.FC<CheckoutFormProps> = ({
   initialData,
   shippingDetails,
@@ -75,14 +224,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   isAuthenticated = false,
   accountEmail,
   successContext,
+  isStripeContextAvailable = false,
 }) => {
-  const stripe = useStripe();
-  const elements = useElements();
   const { hasPhysicalItems } = useCart();
   const formRef = useRef<HTMLFormElement | null>(null);
+  const paymentSubmitHandlerRef = useRef<(() => Promise<void>) | null>(null);
 
   const [countries, setCountries] = useState<Country[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -159,6 +307,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     });
   }, [onShippingChange]);
 
+  const registerPaymentSubmitHandler = useCallback(
+    (handler: (() => Promise<void>) | null) => {
+      paymentSubmitHandlerRef.current = handler;
+    },
+    [],
+  );
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -166,59 +321,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     const fieldName = e.target.name as keyof ShippingDetails;
     const fieldValue = e.target.value;
     onShippingChange((prev) => ({ ...prev, [fieldName]: fieldValue }));
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!isPaymentReady) {
-      setErrorMessage("Complete shipping details to load payment options.");
-      return;
-    }
-    if (!stripe || !elements) return;
-
-    setIsLoading(true);
-    setErrorMessage(null);
-
-    const confirmParams: ConfirmPaymentData = {
-      return_url: `${window.location.origin}/checkout-success`,
-      receipt_email: shippingDetails.email,
-    };
-
-    if (hasPhysicalItems) {
-      confirmParams.shipping = {
-        name: shippingDetails.name,
-        phone: shippingDetails.phone,
-        address: {
-          line1: shippingDetails.line1,
-          line2: shippingDetails.line2,
-          city: shippingDetails.city,
-          state: shippingDetails.state,
-          country: shippingDetails.country,
-          postal_code: shippingDetails.postal_code,
-        },
-      };
-    }
-
-    try {
-      writeCheckoutSuccessContext(successContext);
-    } catch (storageError) {
-      console.warn("Could not persist checkout success context", storageError);
-    }
-
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams,
-    });
-
-    if (error) {
-      try {
-        clearCheckoutSuccessContext();
-      } catch (storageError) {
-        console.warn("Could not clear checkout success context", storageError);
-      }
-      setErrorMessage(error.message || "An unexpected error occurred.");
-    }
-    setIsLoading(false);
   };
 
   const displayedCountries = hasPhysicalItems
@@ -246,7 +348,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   return (
     <form
       ref={formRef}
-      onSubmit={handleSubmit}
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!isStripeContextAvailable) return;
+        void paymentSubmitHandlerRef.current?.();
+      }}
       onBlurCapture={syncAutofilledValues}
       className="space-y-8"
     >
@@ -433,47 +539,41 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </div>
       )}
 
-      <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
-        <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
-          <FaCreditCard className="text-accent" />
-          <h2 className="text-xl font-serif font-bold text-white">
-            Payment
-          </h2>
-        </div>
-
-        <PaymentElement />
-
-        {errorMessage && (
-          <div className="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-bold text-red-400">
-            {errorMessage}
+      {isStripeContextAvailable ? (
+        <CheckoutPaymentSection
+          hasPhysicalItems={hasPhysicalItems}
+          shippingDetails={shippingDetails}
+          saveInfo={saveInfo}
+          onSaveInfoChange={onSaveInfoChange}
+          isUpdatingIntent={isUpdatingIntent}
+          isPaymentReady={isPaymentReady}
+          successContext={successContext}
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+          registerSubmitHandler={registerPaymentSubmitHandler}
+        />
+      ) : (
+        <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
+          <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+            <FaCreditCard className="text-accent" />
+            <h2 className="text-xl font-serif font-bold text-white">
+              Payment
+            </h2>
           </div>
-        )}
 
-        <div className="mt-6 flex items-start gap-3">
-          <input
-            type="checkbox"
-            id="saveInfo"
-            checked={saveInfo}
-            onChange={(e) => onSaveInfoChange(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-white/20 bg-black text-brand-500 focus:ring-brand-500"
-          />
-          <label htmlFor="saveInfo" className="text-sm text-gray-400">
-            Save this information for next time.
-          </label>
+          <div className="rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-gray-400">
+            {hasPhysicalItems
+              ? "Enter your delivery details to load secure payment options."
+              : "Secure payment options are loading. Please wait a moment."}
+          </div>
+
+          {errorMessage && (
+            <div className="mt-6 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-bold text-red-400">
+              {errorMessage}
+            </div>
+          )}
         </div>
-
-        <button
-          type="submit"
-          disabled={!stripe || isLoading || Boolean(isUpdatingIntent) || !isPaymentReady}
-          className="mt-8 w-full rounded-xl bg-brand-500 px-8 py-4 font-bold text-black transition-all hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isLoading
-            ? "Processing..."
-            : isUpdatingIntent
-              ? "Refreshing total..."
-              : "Complete Order"}
-        </button>
-      </div>
+      )}
     </form>
   );
 };

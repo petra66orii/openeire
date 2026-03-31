@@ -4,10 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import axios from "axios";
-import {
-  isPhysicalCartOptions,
-  useCart,
-} from "../context/CartContext";
+import { isPhysicalCartOptions, useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { getProfile, UserProfile, api } from "../services/api";
 import CheckoutForm from "../components/CheckoutForm";
@@ -20,13 +17,8 @@ import {
   isDigitalProductType,
   isPhysicalProductType,
 } from "../utils/purchaseFlow";
-import {
-  CheckoutSuccessContext,
-} from "../utils/checkoutSuccessContext";
-import {
-  EMPTY_SHIPPING_DETAILS,
-  ShippingDetails,
-} from "../types/checkout";
+import { CheckoutSuccessContext } from "../utils/checkoutSuccessContext";
+import { EMPTY_SHIPPING_DETAILS, ShippingDetails } from "../types/checkout";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -48,7 +40,9 @@ const flattenApiErrors = (value: unknown, path = ""): string[] => {
   return [];
 };
 
-const hasCompletePhysicalAddress = (shippingDetails: ShippingDetails): boolean => {
+const hasCompletePhysicalAddress = (
+  shippingDetails: ShippingDetails,
+): boolean => {
   const requiredBaseFields = [
     shippingDetails.name,
     shippingDetails.email,
@@ -65,8 +59,10 @@ const hasCompletePhysicalAddress = (shippingDetails: ShippingDetails): boolean =
 
   if (!hasBase) return false;
   if (shippingDetails.country === "US") {
-    return typeof shippingDetails.state === "string" &&
-      shippingDetails.state.trim().length > 0;
+    return (
+      typeof shippingDetails.state === "string" &&
+      shippingDetails.state.trim().length > 0
+    );
   }
 
   return true;
@@ -154,7 +150,9 @@ const CheckoutPage: React.FC = () => {
   const [shippingMethod, setShippingMethod] = useState("budget");
   const [calculatedShippingCost, setCalculatedShippingCost] = useState(0);
   const [freeShippingApplied, setFreeShippingApplied] = useState(false);
-  const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | null>(null);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<
+    number | null
+  >(null);
   const [saveInfo, setSaveInfo] = useState(true);
   const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -169,14 +167,23 @@ const CheckoutPage: React.FC = () => {
 
   const { cartItems } = useCart();
   const { isAuthenticated } = useAuth();
-  const hasPhysicalItems = useMemo(() => cartHasPhysicalItems(cartItems), [cartItems]);
-  const hasDigitalItems = useMemo(() => cartHasDigitalItems(cartItems), [cartItems]);
+  const hasPhysicalItems = useMemo(
+    () => cartHasPhysicalItems(cartItems),
+    [cartItems],
+  );
+  const hasDigitalItems = useMemo(
+    () => cartHasDigitalItems(cartItems),
+    [cartItems],
+  );
   const checkoutCartItems = useMemo(() => cartItems, [cartItems]);
   const checkoutSuccessContext = useMemo<CheckoutSuccessContext>(
     () => ({
       hasDigitalItems,
       hasPhysicalItems,
-      itemCount: checkoutCartItems.reduce((total, item) => total + item.quantity, 0),
+      itemCount: checkoutCartItems.reduce(
+        (total, item) => total + item.quantity,
+        0,
+      ),
     }),
     [checkoutCartItems, hasDigitalItems, hasPhysicalItems],
   );
@@ -202,7 +209,9 @@ const CheckoutPage: React.FC = () => {
   const isShippingCostPending =
     hasPhysicalItems &&
     (!hasCompletePhysicalAddress(shippingDetails) || isUpdatingIntent);
-  const hasResolvedAccountEmail = Boolean(isAuthenticated && profileData?.email);
+  const hasResolvedAccountEmail = Boolean(
+    isAuthenticated && profileData?.email,
+  );
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -215,7 +224,9 @@ const CheckoutPage: React.FC = () => {
   useEffect(() => {
     if (!isAuthenticated || !profileData?.email) return;
     setShippingDetails((prev) =>
-      prev.email === profileData.email ? prev : { ...prev, email: profileData.email },
+      prev.email === profileData.email
+        ? prev
+        : { ...prev, email: profileData.email },
     );
   }, [isAuthenticated, profileData?.email]);
 
@@ -255,50 +266,52 @@ const CheckoutPage: React.FC = () => {
       setCheckoutError(null);
 
       try {
-        const simplifiedCart: CheckoutCartItemPayload[] = checkoutCartItems.map((item) => {
-          const productType = item.product.product_type;
-          if (
-            !isPhysicalProductType(productType) &&
-            !isDigitalProductType(productType)
-          ) {
-            throw new Error(
-              "One or more bag items have an unsupported product type. Remove and re-add the item.",
-            );
-          }
-
-          if (isPhysicalProductType(productType)) {
-            const rawVariantId = isPhysicalCartOptions(item.options)
-              ? item.options.variantId
-              : Number(item.product.id);
-            const variantId = Number(rawVariantId);
-            if (!Number.isFinite(variantId) || variantId <= 0) {
+        const simplifiedCart: CheckoutCartItemPayload[] = checkoutCartItems.map(
+          (item) => {
+            const productType = item.product.product_type;
+            if (
+              !isPhysicalProductType(productType) &&
+              !isDigitalProductType(productType)
+            ) {
               throw new Error(
-                "One or more print options are invalid. Remove and re-add the item.",
+                "One or more bag items have an unsupported product type. Remove and re-add the item.",
               );
+            }
+
+            if (isPhysicalProductType(productType)) {
+              const rawVariantId = isPhysicalCartOptions(item.options)
+                ? item.options.variantId
+                : Number(item.product.id);
+              const variantId = Number(rawVariantId);
+              if (!Number.isFinite(variantId) || variantId <= 0) {
+                throw new Error(
+                  "One or more print options are invalid. Remove and re-add the item.",
+                );
+              }
+
+              return {
+                product_id: item.product.id,
+                product_type: "physical",
+                quantity: item.quantity,
+                options: {
+                  material: isPhysicalCartOptions(item.options)
+                    ? item.options.material
+                    : undefined,
+                  size: isPhysicalCartOptions(item.options)
+                    ? item.options.size
+                    : undefined,
+                  variantId,
+                },
+              };
             }
 
             return {
               product_id: item.product.id,
-              product_type: "physical",
+              product_type: productType,
               quantity: item.quantity,
-              options: {
-                material: isPhysicalCartOptions(item.options)
-                  ? item.options.material
-                  : undefined,
-                size: isPhysicalCartOptions(item.options)
-                  ? item.options.size
-                  : undefined,
-                variantId,
-              },
             };
-          }
-
-          return {
-            product_id: item.product.id,
-            product_type: productType,
-            quantity: item.quantity,
-          };
-        });
+          },
+        );
 
         const payload: CreatePaymentIntentPayload = {
           cart: simplifiedCart,
@@ -333,7 +346,9 @@ const CheckoutPage: React.FC = () => {
           hasPhysicalItems ? Number(response.data.shippingCost ?? 0) : 0,
         );
         setFreeShippingApplied(Boolean(response.data.freeShippingApplied));
-        const parsedFreeShippingThreshold = Number(response.data.freeShippingThreshold);
+        const parsedFreeShippingThreshold = Number(
+          response.data.freeShippingThreshold,
+        );
         setFreeShippingThreshold(
           Number.isFinite(parsedFreeShippingThreshold)
             ? parsedFreeShippingThreshold
@@ -386,23 +401,6 @@ const CheckoutPage: React.FC = () => {
     [clientSecret],
   );
 
-  const fallbackElementsOptions: StripeElementsOptions = useMemo(
-    () => ({
-      appearance: {
-        theme: "night",
-        variables: {
-          colorPrimary: "#00c853",
-          colorBackground: "#1a1a1a",
-          colorText: "#ffffff",
-          colorDanger: "#ef4444",
-          fontFamily: "sans-serif",
-          borderRadius: "12px",
-        },
-      },
-    }),
-    [],
-  );
-
   return (
     <div className="min-h-screen bg-black text-white pt-20 mobile-page-offset pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -421,7 +419,8 @@ const CheckoutPage: React.FC = () => {
           </p>
           {requiresAuthenticatedCheckout && !isAuthenticated && (
             <div className="mt-6 rounded-2xl border border-brand-500/30 bg-brand-500/10 px-5 py-4 text-sm text-gray-200">
-              Digital purchases require an account so we can attach downloads to your order history.
+              Digital purchases require an account so we can attach downloads to
+              your order history.
               <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   to="/login"
@@ -444,42 +443,62 @@ const CheckoutPage: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
           <div className="lg:col-span-3">
-            {requiresAuthenticatedCheckout && !isAuthenticated ? null : (
-              <>
-                <Elements
-                  key={clientSecret || "checkout-elements-pending"}
-                  options={clientSecret ? options : fallbackElementsOptions}
-                  stripe={stripePromise}
-                >
-                  <CheckoutForm
-                    initialData={profileData}
-                    shippingDetails={shippingDetails}
-                    onShippingChange={setShippingDetails}
-                    saveInfo={saveInfo}
-                    onSaveInfoChange={setSaveInfo}
-                    shippingMethod={shippingMethod}
-                    onShippingMethodChange={setShippingMethod}
-                    isUpdatingIntent={isUpdatingIntent}
-                    isPaymentReady={Boolean(clientSecret)}
-                    isAuthenticated={hasResolvedAccountEmail}
-                    accountEmail={profileData?.email ?? null}
-                    successContext={checkoutSuccessContext}
-                  />
-                </Elements>
-              </>
+            {requiresAuthenticatedCheckout &&
+            !isAuthenticated ? null : clientSecret ? (
+              <Elements
+                key={clientSecret}
+                options={options}
+                stripe={stripePromise}
+              >
+                <CheckoutForm
+                  initialData={profileData}
+                  shippingDetails={shippingDetails}
+                  onShippingChange={setShippingDetails}
+                  saveInfo={saveInfo}
+                  onSaveInfoChange={setSaveInfo}
+                  shippingMethod={shippingMethod}
+                  onShippingMethodChange={setShippingMethod}
+                  isUpdatingIntent={isUpdatingIntent}
+                  isPaymentReady={Boolean(clientSecret)}
+                  isAuthenticated={hasResolvedAccountEmail}
+                  accountEmail={profileData?.email ?? null}
+                  successContext={checkoutSuccessContext}
+                  isStripeContextAvailable={true}
+                />
+              </Elements>
+            ) : (
+              <CheckoutForm
+                initialData={profileData}
+                shippingDetails={shippingDetails}
+                onShippingChange={setShippingDetails}
+                saveInfo={saveInfo}
+                onSaveInfoChange={setSaveInfo}
+                shippingMethod={shippingMethod}
+                onShippingMethodChange={setShippingMethod}
+                isUpdatingIntent={isUpdatingIntent}
+                isPaymentReady={false}
+                isAuthenticated={hasResolvedAccountEmail}
+                accountEmail={profileData?.email ?? null}
+                successContext={checkoutSuccessContext}
+                isStripeContextAvailable={false}
+              />
             )}
             {checkoutError && (
               <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold">
                 {checkoutError}
               </div>
             )}
-            {!clientSecret && !checkoutError && !(requiresAuthenticatedCheckout && !isAuthenticated) && (
-              <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm text-center">
-                {hasPhysicalItems
-                  ? isUpdatingIntent ? "Updating checkout totals and payment options..." : "Add your delivery details to load payment options."
-                  : "Payment form is preparing. Please wait a moment."}
-              </div>
-            )}
+            {!clientSecret &&
+              !checkoutError &&
+              !(requiresAuthenticatedCheckout && !isAuthenticated) && (
+                <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm text-center">
+                  {hasPhysicalItems
+                    ? isUpdatingIntent
+                      ? "Updating checkout totals and payment options..."
+                      : "Add your delivery details to load payment options."
+                    : "Payment form is preparing. Please wait a moment."}
+                </div>
+              )}
           </div>
 
           <div className="lg:col-span-2 lg:sticky lg:top-28">

@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import logoImage from "../assets/full-logo-white.png";
+import { FREE_SHIPPING_PROMO_ENABLED, FREE_SHIPPING_THRESHOLD } from "../utils/freeShipping";
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, logout } = useAuth(); // Removed unused 'logout' if not using, but keeping for safety
@@ -58,6 +59,11 @@ const Navbar: React.FC = () => {
     };
   }, [showBanner, isMobileMenuOpen, scrolled, location.pathname]);
 
+  const formattedFreeShippingThreshold = FREE_SHIPPING_THRESHOLD.toLocaleString("en-IE", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+
   // --- DYNAMIC STYLES ---
 
   // 1. Background: Transparent on top of home, Glass/Dark everywhere else
@@ -79,7 +85,7 @@ const Navbar: React.FC = () => {
       className="fixed top-0 left-0 w-full z-50 flex flex-col transition-all duration-300"
     >
       {/* 1. Announcement Bar */}
-      {showBanner && (
+      {showBanner && FREE_SHIPPING_PROMO_ENABLED && (
         <div className="bg-dark text-white text-xs font-medium py-2 px-4 relative transition-all duration-300 ease-in-out">
           <div className="container mx-auto flex justify-center items-center text-center">
             <p className="tracking-wide">
@@ -87,7 +93,7 @@ const Navbar: React.FC = () => {
               <span className="opacity-90 ml-1">
                 on all physical orders over{" "}
               </span>
-              <span className="font-bold text-white ml-1">{"\u20AC"}120</span>
+              <span className="font-bold text-white ml-1">{"\u20AC"}{formattedFreeShippingThreshold}</span>
 
               <Link
                 to="/gallery/physical"
