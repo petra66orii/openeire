@@ -473,10 +473,10 @@ const CheckoutPage: React.FC = () => {
                 {checkoutError}
               </div>
             )}
-            {!clientSecret && !checkoutError && !isUpdatingIntent && !(requiresAuthenticatedCheckout && !isAuthenticated) && (
+            {!clientSecret && !checkoutError && !(requiresAuthenticatedCheckout && !isAuthenticated) && (
               <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm text-center">
                 {hasPhysicalItems
-                  ? "Add your delivery details to load payment options."
+                  ? isUpdatingIntent ? "Updating checkout totals and payment options..." : "Add your delivery details to load payment options."
                   : "Payment form is preparing. Please wait a moment."}
               </div>
             )}
