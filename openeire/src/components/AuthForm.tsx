@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { registerUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { getRegistrationToastErrorMessage } from "../utils/toast";
 
 interface FormData {
   first_name: string;
@@ -50,15 +51,7 @@ const AuthForm: React.FC = () => {
       navigate("/verify-pending");
     } catch (err: any) {
       console.error("Registration error:", err);
-      let errorMsg = "Registration failed. Please check your details.";
-
-      if (err && typeof err === "object" && !Array.isArray(err)) {
-        const errorKeys = Object.keys(err);
-        if (errorKeys.length > 0 && Array.isArray(err[errorKeys[0]])) {
-          errorMsg = `${errorKeys[0]}: ${err[errorKeys[0]][0]}`;
-        }
-      }
-      toast.error(errorMsg);
+      toast.error(getRegistrationToastErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -180,3 +173,4 @@ const AuthForm: React.FC = () => {
 };
 
 export default AuthForm;
+

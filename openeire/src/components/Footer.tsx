@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { newsletterSignup } from "../services/api";
 import toast from "react-hot-toast";
+import { getNewsletterToastErrorMessage } from "../utils/toast";
 import { FaFacebook, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import logoImage from "../assets/full-logo-white.png";
 
@@ -17,7 +18,7 @@ const Footer: React.FC = () => {
       toast.success("Welcome to the community! \uD83C\uDDEE\uD83C\uDDEA");
       setEmail("");
     } catch (err: any) {
-      toast.error(err.email?.[0] || "Failed to subscribe. Please try again.");
+      toast.error(getNewsletterToastErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -204,3 +205,4 @@ const SocialLink: React.FC<{
 };
 
 export default Footer;
+

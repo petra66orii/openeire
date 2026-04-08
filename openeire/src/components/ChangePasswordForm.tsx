@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { changePassword } from "../services/api";
 import toast from "react-hot-toast";
+import { getPasswordChangeToastErrorMessage } from "../utils/toast";
 
 const ChangePasswordForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -32,11 +33,7 @@ const ChangePasswordForm: React.FC = () => {
       toast.success(response.message || "Password changed successfully!");
       setFormData({ old_password: "", new_password: "", confirm_password: "" });
     } catch (err: any) {
-      const errorMsg =
-        err.response?.data?.old_password?.[0] ||
-        err.response?.data?.new_password?.[0] ||
-        "Failed to change password. Please check your current password.";
-      toast.error(errorMsg);
+      toast.error(getPasswordChangeToastErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -117,3 +114,4 @@ const ChangePasswordForm: React.FC = () => {
 };
 
 export default ChangePasswordForm;
+

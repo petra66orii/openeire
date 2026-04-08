@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { FaTimes } from "react-icons/fa";
 import { submitLicenseRequest, LicenseRequestPayload } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { getLicenseRequestToastErrorMessage } from "../utils/toast";
 
 interface LicenseRequestModalProps {
   isOpen: boolean;
@@ -108,7 +109,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
       );
       handleClose();
     } catch (error) {
-      toast.error("Failed to submit request. Please try again.");
+      toast.error(getLicenseRequestToastErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -369,3 +370,4 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
 };
 
 export default LicenseRequestModal;
+

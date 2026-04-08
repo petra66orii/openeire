@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import {
+  getGalleryAccessRequestToastErrorMessage,
+  getGalleryAccessVerifyToastErrorMessage,
+} from "../utils/toast";
 import { requestGalleryAccess, verifyGalleryAccess } from "../services/api";
 
 const GalleryGatePage = () => {
@@ -18,7 +22,7 @@ const GalleryGatePage = () => {
       toast.success("Access code sent! Please check your email.");
       setEmail("");
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to send code.");
+      toast.error(getGalleryAccessRequestToastErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -41,7 +45,7 @@ const GalleryGatePage = () => {
         navigate(from, { replace: true });
       }
     } catch (error: any) {
-      toast.error("Invalid or expired code.");
+      toast.error(getGalleryAccessVerifyToastErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -199,3 +203,4 @@ const GalleryGatePage = () => {
 };
 
 export default GalleryGatePage;
+

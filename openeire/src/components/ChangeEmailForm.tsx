@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { changeEmail } from "../services/api";
 import toast from "react-hot-toast";
+import { getEmailChangeToastErrorMessage } from "../utils/toast";
 import { FaCheckCircle } from "react-icons/fa";
 
 const ChangeEmailForm: React.FC = () => {
@@ -29,11 +30,7 @@ const ChangeEmailForm: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setStatus("idle");
-      const errorMessage =
-        err.response?.data?.error ||
-        err.response?.data?.detail ||
-        "Failed to update email. Please check your password.";
-      toast.error(errorMessage);
+      toast.error(getEmailChangeToastErrorMessage(err));
     }
   };
 
@@ -120,3 +117,4 @@ const ChangeEmailForm: React.FC = () => {
 };
 
 export default ChangeEmailForm;
+

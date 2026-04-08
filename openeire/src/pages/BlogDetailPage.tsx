@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+﻿import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   getBlogPostDetail,
@@ -11,6 +11,7 @@ import {
 import CommentList from "../components/CommentList";
 import CommentForm from "../components/CommentForm";
 import { toast } from "react-hot-toast";
+import { getBlogLikeToastErrorMessage, getCommentToastErrorMessage } from "../utils/toast";
 import { useAuth } from "../context/AuthContext";
 import SocialShareButtons from "../components/SocialShareButtons";
 import SEOHead from "../components/SEOHead";
@@ -66,7 +67,7 @@ const BlogDetailPage: React.FC = () => {
       setLiked(data.liked);
       setLikeCount(data.likes_count);
     } catch (err) {
-      toast.error("Failed to like post.");
+      toast.error(getBlogLikeToastErrorMessage(err));
       setLiked(!liked);
     }
   };
@@ -77,7 +78,7 @@ const BlogDetailPage: React.FC = () => {
       await postComment(slug, content);
       toast.success("Comment submitted for approval.");
     } catch (error: any) {
-      toast.error(error?.detail || "Failed to post comment.");
+      toast.error(getCommentToastErrorMessage(error));
     }
   };
 
@@ -237,3 +238,4 @@ const BlogDetailPage: React.FC = () => {
 };
 
 export default BlogDetailPage;
+

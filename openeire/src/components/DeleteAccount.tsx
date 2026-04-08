@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteAccount } from "../services/api"; // Verify this path matches your file structure
 import toast from "react-hot-toast";
+import { getDeleteAccountToastErrorMessage } from "../utils/toast";
 import { useAuth } from "../context/AuthContext";
 
 const DeleteAccount: React.FC = () => {
@@ -24,11 +25,7 @@ const DeleteAccount: React.FC = () => {
       navigate("/");
     } catch (err: any) {
       console.error(err);
-      toast.error(
-        err.response?.data?.password?.[0] ||
-          err.response?.data?.detail ||
-          "Failed to delete account. Check your password."
-      );
+      toast.error(getDeleteAccountToastErrorMessage(err));
       setLoading(false);
     }
   };
@@ -131,3 +128,4 @@ const DeleteAccount: React.FC = () => {
 };
 
 export default DeleteAccount;
+
