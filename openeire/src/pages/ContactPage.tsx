@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import SEOHead from "../components/SEOHead";
 import { sendContactMessage } from "../services/api";
 import toast from "react-hot-toast";

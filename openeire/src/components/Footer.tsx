@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { newsletterSignup } from "../services/api";
 import toast from "react-hot-toast";

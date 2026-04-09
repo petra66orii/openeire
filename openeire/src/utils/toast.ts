@@ -1,4 +1,4 @@
-﻿import axios from "axios";
+import axios from "axios";
 import toast, { ToastOptions } from "react-hot-toast";
 
 export const toastInfo = (
@@ -19,6 +19,7 @@ interface ToastErrorOptions {
     match: string | RegExp;
     message: string;
   }>;
+  networkMessage?: string;
 }
 
 type UnknownRecord = Record<string, unknown>;

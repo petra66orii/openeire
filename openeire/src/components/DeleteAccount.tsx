@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteAccount } from "../services/api"; // Verify this path matches your file structure
 import toast from "react-hot-toast";

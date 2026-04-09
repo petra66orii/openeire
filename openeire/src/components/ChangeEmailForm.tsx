@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { changeEmail } from "../services/api";
 import toast from "react-hot-toast";
 import { getEmailChangeToastErrorMessage } from "../utils/toast";
