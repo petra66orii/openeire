@@ -21,15 +21,21 @@ export interface IubendaConsentFormConfig {
   legalNoticeIdentifiers?: string[];
 }
 
+interface RegisteredFormEntry {
+  formElement: HTMLElement;
+  submitElement: HTMLElement;
+  config: IubendaConsentFormConfig;
+}
+
 declare global {
   interface Window {
     _iub?: {
-      cons_instructions?: Array<[string, Record<string, unknown>]>;
+      cons_instructions?: Array<[string, Record<string, unknown>, Record<string, unknown>?]>;
     };
   }
 }
 
-const registeredFormIds = new Set<string>();
+const registeredForms = new Map<string, RegisteredFormEntry>();
 const CONSENT_SCRIPT_SRC = "https://cdn.iubenda.com/cons/iubenda_cons.js";
 const DEFAULT_LEGAL_NOTICE_IDENTIFIERS = ["privacy_policy", "cookie_policy"];
 
@@ -46,6 +52,9 @@ const buildFieldMap = (subject: SubjectFieldMap, preferences?: PreferenceFieldMa
   }
   return map;
 };
+
+const getLegalNotices = (legalNoticeIdentifiers: string[]) =>
+  legalNoticeIdentifiers.map((identifier) => ({ identifier }));
 
 export const bootstrapIubendaConsentDatabase = () => {
   if (!IUBENDA_CONSENT_DATABASE_ENABLED || !IUBENDA_CONSENT_PUBLIC_API_KEY || typeof window === "undefined") {
@@ -73,41 +82,87 @@ export const bootstrapIubendaConsentDatabase = () => {
   document.head.appendChild(script);
 };
 
-export const registerIubendaConsentForm = ({
-  formId,
-  submitButtonId,
-  subject,
-  preferences,
-  legalNoticeIdentifiers = DEFAULT_LEGAL_NOTICE_IDENTIFIERS,
-}: IubendaConsentFormConfig) => {
+export const registerIubendaConsentForm = (config: IubendaConsentFormConfig) => {
+  if (!IUBENDA_CONSENT_DATABASE_ENABLED || typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  bootstrapIubendaConsentDatabase();
+
+  const formElement = document.getElementById(config.formId);
+  const submitElement = document.getElementById(config.submitButtonId);
+
+  if (!formElement || !submitElement) {
+    return () => undefined;
+  }
+
+  const existingEntry = registeredForms.get(config.formId);
+  if (
+    existingEntry &&
+    existingEntry.formElement === formElement &&
+    existingEntry.submitElement === submitElement
+  ) {
+    return () => {
+      const latestEntry = registeredForms.get(config.formId);
+      if (
+        latestEntry &&
+        latestEntry.formElement === formElement &&
+        latestEntry.submitElement === submitElement
+      ) {
+        registeredForms.delete(config.formId);
+      }
+    };
+  }
+
+  registeredForms.set(config.formId, {
+    formElement,
+    submitElement,
+    config,
+  });
+
+  return () => {
+    const latestEntry = registeredForms.get(config.formId);
+    if (
+      latestEntry &&
+      latestEntry.formElement === formElement &&
+      latestEntry.submitElement === submitElement
+    ) {
+      registeredForms.delete(config.formId);
+    }
+  };
+};
+
+export const submitIubendaConsentForm = (formId: string) => {
   if (!IUBENDA_CONSENT_DATABASE_ENABLED || typeof window === "undefined") {
     return;
   }
 
   bootstrapIubendaConsentDatabase();
 
-  if (registeredFormIds.has(formId)) {
+  const entry = registeredForms.get(formId);
+  if (!entry) {
     return;
   }
 
-  const form = document.getElementById(formId);
-  const submitElement = document.getElementById(submitButtonId);
-
-  if (!form || !submitElement) {
+  const currentFormElement = document.getElementById(formId) ?? entry.formElement;
+  if (!currentFormElement) {
     return;
   }
 
   const queue = ensureConsentInstructionQueue();
-  queue.push(["load", {
-    submitElement,
-    form: {
-      selector: form,
-      map: buildFieldMap(subject, preferences),
+  queue.push([
+    "submit",
+    {
+      form: {
+        selector: currentFormElement,
+        map: buildFieldMap(entry.config.subject, entry.config.preferences),
+      },
+      consent: {
+        legal_notices: getLegalNotices(
+          entry.config.legalNoticeIdentifiers ?? DEFAULT_LEGAL_NOTICE_IDENTIFIERS,
+        ),
+      },
+      writeOnLocalStorage: false,
     },
-    consent: {
-      legal_notices: legalNoticeIdentifiers.map((identifier) => ({ identifier })),
-    },
-  }]);
-
-  registeredFormIds.add(formId);
+  ]);
 };

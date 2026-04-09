@@ -3,7 +3,10 @@ import SEOHead from "../components/SEOHead";
 import { sendContactMessage } from "../services/api";
 import toast from "react-hot-toast";
 import { getContactToastErrorMessage } from "../utils/toast";
-import { registerIubendaConsentForm } from "../utils/iubendaConsent";
+import {
+  registerIubendaConsentForm,
+  submitIubendaConsentForm,
+} from "../utils/iubendaConsent";
 import {
   FaEnvelope,
   FaMapMarkerAlt,
@@ -22,7 +25,7 @@ const ContactPage = () => {
   const [status, setStatus] = useState("idle");
 
   useEffect(() => {
-    registerIubendaConsentForm({
+    return registerIubendaConsentForm({
       formId: "contact-form",
       submitButtonId: "contact-submit",
       subject: {
@@ -52,6 +55,7 @@ const ContactPage = () => {
 
     try {
       await sendContactMessage(formData);
+      submitIubendaConsentForm("contact-form");
       setStatus("success");
       toast.success("Message sent successfully!");
       setFormData({ name: "", email: "", subject: "", message: "" });

@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import { newsletterSignup } from "../services/api";
 import toast from "react-hot-toast";
 import { getNewsletterToastErrorMessage } from "../utils/toast";
-import { registerIubendaConsentForm } from "../utils/iubendaConsent";
+import {
+  registerIubendaConsentForm,
+  submitIubendaConsentForm,
+} from "../utils/iubendaConsent";
 import { FaFacebook, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import logoImage from "../assets/full-logo-white.png";
 
@@ -12,7 +15,7 @@ const Footer: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    registerIubendaConsentForm({
+    return registerIubendaConsentForm({
       formId: "newsletter-signup-form",
       submitButtonId: "newsletter-submit",
       subject: {
@@ -29,6 +32,7 @@ const Footer: React.FC = () => {
     setLoading(true);
     try {
       await newsletterSignup(email);
+      submitIubendaConsentForm("newsletter-signup-form");
       toast.success("Welcome to the community! \uD83C\uDDEE\uD83C\uDDEA");
       setEmail("");
     } catch (err: any) {
