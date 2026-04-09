@@ -105,10 +105,10 @@ const ContactPage = () => {
                   For general inquiries and licensing.
                 </p>
                 <a
-                  href="mailto:openeirestudios@gmail.com"
+                  href="mailto:contact@openeire.ie"
                   className="block break-all font-mono text-sm text-brand-500 hover:underline sm:text-base"
                 >
-                  openeirestudios@gmail.com
+                  contact@openeire.ie
                 </a>
               </div>
             </div>
