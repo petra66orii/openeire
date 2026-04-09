@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { OrderHistory, downloadProduct } from "../services/api";
+import { getDownloadToastErrorMessage } from "../utils/toast";
 import { Link } from "react-router-dom";
 import { resolveMediaUrl } from "../config/backend";
 
@@ -28,7 +29,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
       toast.success("Download started.");
     } catch (error) {
       console.error(error);
-      toast.error("Could not start the download. Please try again.");
+      toast.error(getDownloadToastErrorMessage(error));
     } finally {
       setDownloadingItemId(null);
     }
@@ -168,5 +169,6 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
 };
 
 export default OrderHistoryCard;
+
 
 

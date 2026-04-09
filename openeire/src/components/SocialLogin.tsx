@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import { api } from "../services/api";
 import toast from "react-hot-toast";
+import { getGoogleLoginToastErrorMessage } from "../utils/toast";
 import { useAuth } from "../context/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -76,10 +77,11 @@ const SocialLoginButton: React.FC<SocialLoginProps> = ({ redirectPath }) => {
         navigate(postLoginPath, { replace: true });
       } catch (err) {
         console.error("Google Login Error:", err);
-        toast.error("Failed to log in with Google.");
+        toast.error(getGoogleLoginToastErrorMessage(err));
       }
     },
-    onError: () => toast.error("Google Login Failed"),
+    onError: () =>
+      toast.error("Google sign-in was cancelled or could not be started."),
     flow: "auth-code",
   });
 
@@ -134,3 +136,4 @@ const SocialLogin: React.FC<SocialLoginProps> = ({ redirectPath }) => {
 };
 
 export default SocialLogin;
+

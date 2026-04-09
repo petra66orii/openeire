@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { UserProfile, updateProfile } from "../services/api";
 import toast from "react-hot-toast";
-import { toastInfo } from "../utils/toast";
+import { getAccountDetailsToastErrorMessage, toastInfo } from "../utils/toast";
 
 interface UpdateAccountFormProps {
   profile: UserProfile;
@@ -35,9 +35,7 @@ const UpdateAccountForm: React.FC<UpdateAccountFormProps> = ({ profile }) => {
       toast.success("Account details updated. Please log in again.");
       logout(); // Force logout for security and to refresh token with new details
     } catch (err: any) {
-      const errorMsg =
-        err.username?.[0] || err.email?.[0] || "Failed to update details.";
-      toast.error(errorMsg);
+      toast.error(getAccountDetailsToastErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -88,3 +86,4 @@ const UpdateAccountForm: React.FC<UpdateAccountFormProps> = ({ profile }) => {
 };
 
 export default UpdateAccountForm;
+

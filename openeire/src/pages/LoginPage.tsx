@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { resendVerificationEmail } from "../services/api";
 import toast from "react-hot-toast";
 import SocialLogin from "../components/SocialLogin";
+import { getLoginToastErrorMessage, getResendVerificationToastErrorMessage } from "../utils/toast";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -28,9 +29,7 @@ const LoginPage: React.FC = () => {
       toast.success("Welcome back.");
       navigate(redirectPath, { replace: true });
     } catch (err: any) {
-      toast.error(
-        err.detail || "Failed to log in. Please check your credentials.",
-      );
+      toast.error(getLoginToastErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -46,7 +45,7 @@ const LoginPage: React.FC = () => {
       const response = await resendVerificationEmail(email);
       toast.success(response.message, { id: toastId });
     } catch (err: any) {
-      toast.error(err.detail || "Failed to resend email.", { id: toastId });
+      toast.error(getResendVerificationToastErrorMessage(err), { id: toastId });
     }
   };
 
@@ -143,3 +142,5 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+
+

@@ -7,6 +7,7 @@ import {
   Country,
 } from "../services/api";
 import toast from "react-hot-toast";
+import { getProfileUpdateToastErrorMessage } from "../utils/toast";
 
 interface EditProfileFormProps {
   initialData: UserProfile;
@@ -49,7 +50,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ initialData }) => {
       await refreshUser();
       toast.success("Profile updated successfully");
     } catch (err: any) {
-      toast.error("Failed to update profile.");
+      toast.error(getProfileUpdateToastErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -213,3 +214,4 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ initialData }) => {
 };
 
 export default EditProfileForm;
+

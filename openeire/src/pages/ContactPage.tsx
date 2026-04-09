@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import SEOHead from "../components/SEOHead";
 import { sendContactMessage } from "../services/api";
 import toast from "react-hot-toast";
+import { getContactToastErrorMessage } from "../utils/toast";
 import {
   FaEnvelope,
   FaMapMarkerAlt,
@@ -42,7 +43,7 @@ const ContactPage = () => {
     } catch (err) {
       console.error(err);
       setStatus("error");
-      toast.error("Failed to send message. Please try again.");
+      toast.error(getContactToastErrorMessage(err));
     }
   };
 
@@ -255,3 +256,4 @@ const ContactPage = () => {
 };
 
 export default ContactPage;
+
