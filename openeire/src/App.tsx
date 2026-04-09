@@ -8,7 +8,6 @@ import Footer from "./components/Footer";
 import BackToTop from "./components/BackToTop";
 import Breadcrumbs from "./components/Breadcrumbs";
 import ScrollToTop from "./components/ScrollToTop";
-import DeferredIubendaLoader from "./components/DeferredIubendaLoader";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GalleryGuard from "./components/GalleryGuard";
 import HomePage from "./pages/HomePage";
@@ -17,6 +16,7 @@ import ServerErrorPage from "./pages/ServerErrorPage";
 import { BreadcrumbProvider } from "./context/BreadcrumbContext";
 import { Toaster } from "react-hot-toast";
 import { subscribeToErrorRoute } from "./utils/errorRouting";
+import { bootstrapIubendaConsentDatabase } from "./utils/iubendaConsent";
 
 // ================= LAZY IMPORTS =================
 // These are split into separate JS chunks by Vite and downloaded only when needed.
@@ -57,6 +57,10 @@ function App() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    bootstrapIubendaConsentDatabase();
+  }, []);
+
+  useEffect(() => {
     return subscribeToErrorRoute((path) => {
       if (window.location.pathname === path) return;
       navigate(path, { replace: true });
@@ -66,7 +70,6 @@ function App() {
   return (
     <>
       <BreadcrumbProvider>
-        <DeferredIubendaLoader />
         <ScrollToTop />
         <Navbar />
         <Breadcrumbs />

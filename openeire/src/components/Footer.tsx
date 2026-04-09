@@ -1,14 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { newsletterSignup } from "../services/api";
 import toast from "react-hot-toast";
 import { getNewsletterToastErrorMessage } from "../utils/toast";
+import { registerIubendaConsentForm } from "../utils/iubendaConsent";
 import { FaFacebook, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import logoImage from "../assets/full-logo-white.png";
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    registerIubendaConsentForm({
+      formId: "newsletter-signup-form",
+      submitButtonId: "newsletter-submit",
+      subject: {
+        email: "email",
+      },
+      preferences: {
+        newsletter: "newsletter_consent",
+      },
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,8 +104,20 @@ const Footer: React.FC = () => {
             <p className="text-sm text-brand-100/80 mb-4">
               Join our community for exclusive discounts and new location drops.
             </p>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <form
+              id="newsletter-signup-form"
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-3"
+            >
               <input
+                type="hidden"
+                name="newsletter_consent"
+                value="true"
+                readOnly
+              />
+              <input
+                id="newsletter-email"
+                name="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -100,6 +126,8 @@ const Footer: React.FC = () => {
                 className="w-full px-4 py-3 bg-brand-800 border border-paper rounded-lg text-white placeholder-paper/50 focus:outline-none focus:ring-1 focus:ring-accent transition-all"
               />
               <button
+                id="newsletter-submit"
+                name="submit-button"
                 type="submit"
                 disabled={loading}
                 className="w-full bg-accent hover:bg-accent-hover text-brand-900 font-bold py-3 px-4 rounded-lg transition-colors shadow-lg shadow-black/20"
@@ -114,8 +142,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-brand-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/80">
           <div className="text-center md:text-left">
             <p>
-              &copy; {new Date().getFullYear()} Open{"\u00C9"}ire Studios. All rights
-              reserved.
+              &copy; {new Date().getFullYear()} Open{"\u00C9"}ire Studios. All rights reserved.
               <span className="hidden md:inline"> {"\u2022"} </span>
               <span className="block md:inline mt-1 md:mt-0">
                 Designed with {"\u2618\uFE0F"} by
@@ -205,4 +232,3 @@ const SocialLink: React.FC<{
 };
 
 export default Footer;
-
