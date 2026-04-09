@@ -9,38 +9,7 @@ import {
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 
-const categories = [
-  {
-    id: "all",
-    label: "All Footage",
-    image: "/all-gallery-card.webp",
-  },
-  {
-    id: "ireland",
-    label: "Ireland",
-    image: "/ireland-gallery-card.webp",
-  },
-  {
-    id: "new zealand",
-    label: "New Zealand",
-    image: "/new-zealand-gallery-card.webp",
-  },
-  {
-    id: "thailand",
-    label: "Thailand",
-    image: "/thailand-gallery-card.webp",
-  },
-  {
-    id: "romania",
-    label: "Romania",
-    image: "/romania-gallery-card.webp",
-  },
-  {
-    id: "australia",
-    label: "Australia",
-    image: "/australia-gallery-card.webp",
-  },
-];
+import { GALLERY_COLLECTIONS } from "../config/galleryCollections";
 
 interface VisualCategoryHeroProps {
   activeCollection: string;
@@ -88,12 +57,12 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
         className="w-full relative z-20 py-8"
         onSlideChange={(swiper) => {
           const index = swiper.activeIndex;
-          if (categories[index]) {
-            onSelectCollection(categories[index].id);
+          if (GALLERY_COLLECTIONS[index]) {
+            onSelectCollection(GALLERY_COLLECTIONS[index].id);
           }
         }}
       >
-        {categories.map((cat) => (
+        {GALLERY_COLLECTIONS.map((cat) => (
           <SwiperSlide
             key={cat.id}
             style={{ width: "300px", height: "450px" }}
