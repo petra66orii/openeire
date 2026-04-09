@@ -475,7 +475,7 @@ const GalleryPage: React.FC = () => {
             ) : isCollectionComingSoon ? (
               <>
                 <div className="text-2xl font-serif font-bold text-white">
-                  {GALLERY_COLLECTION_LABELS[collection] ?? "This collection"} is coming
+                  {collectionLabel} is coming
                   soon!
                 </div>
                 <p className="mt-3 text-gray-400">
@@ -494,3 +494,4 @@ const GalleryPage: React.FC = () => {
 };
 
 export default GalleryPage;
+
