@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SEOHead from "../components/SEOHead";
 import { sendContactMessage } from "../services/api";
 import toast from "react-hot-toast";
 import { getContactToastErrorMessage } from "../utils/toast";
+import {
+  registerIubendaConsentForm,
+  submitIubendaConsentForm,
+} from "../utils/iubendaConsent";
 import {
   FaEnvelope,
   FaMapMarkerAlt,
@@ -19,6 +23,20 @@ const ContactPage = () => {
   });
 
   const [status, setStatus] = useState("idle");
+
+  useEffect(() => {
+    return registerIubendaConsentForm({
+      formId: "contact-form",
+      submitButtonId: "contact-submit",
+      subject: {
+        full_name: "name",
+        email: "email",
+      },
+      preferences: {
+        contact_request: "contact_request",
+      },
+    });
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -37,6 +55,7 @@ const ContactPage = () => {
 
     try {
       await sendContactMessage(formData);
+      submitIubendaConsentForm("contact-form");
       setStatus("success");
       toast.success("Message sent successfully!");
       setFormData({ name: "", email: "", subject: "", message: "" });
@@ -136,9 +155,16 @@ const ContactPage = () => {
                 </div>
               ) : (
                 <form
+                  id="contact-form"
                   onSubmit={handleSubmit}
                   className="relative z-10 space-y-6"
                 >
+                  <input
+                    type="hidden"
+                    name="contact_request"
+                    value="true"
+                    readOnly
+                  />
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div className="min-w-0">
                       <label htmlFor="name" className={labelClass}>
@@ -232,6 +258,8 @@ const ContactPage = () => {
                   </div>
 
                   <button
+                    id="contact-submit"
+                    name="submit-button"
                     type="submit"
                     disabled={status === "submitting"}
                     className="flex w-full items-center justify-center gap-3 rounded-xl bg-brand-700 py-4 text-lg font-bold text-paper shadow-lg transition-all active:scale-[0.99] hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-50"
@@ -256,4 +284,3 @@ const ContactPage = () => {
 };
 
 export default ContactPage;
-
