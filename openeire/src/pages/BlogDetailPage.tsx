@@ -111,6 +111,7 @@ const BlogDetailPage: React.FC = () => {
             : undefined
         }
         canonicalUrl={seoCanonicalUrl}
+        url={seoCanonicalUrl}
         type="article"
         appendSiteTitle={false}
       />
