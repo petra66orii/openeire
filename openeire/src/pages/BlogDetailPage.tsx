@@ -17,6 +17,7 @@ import SocialShareButtons from "../components/SocialShareButtons";
 import SEOHead from "../components/SEOHead";
 import { sanitizeRichHtml } from "../utils/sanitizeHtml";
 import { resolveMediaUrl } from "../config/backend";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import {
   FaArrowLeft,
   FaHeart,
@@ -95,18 +96,24 @@ const BlogDetailPage: React.FC = () => {
       </div>
     );
 
+  const seoTitle = post.meta_title || post.title;
+  const seoDescription = post.meta_description || post.excerpt || "";
+  const seoCanonicalUrl = post.canonical_url || buildAbsoluteSiteUrl(`/blog/${post.slug}/`);
+
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
       <SEOHead
-        title={post.title}
-        description={post.excerpt}
+        title={seoTitle}
+        description={seoDescription}
         image={
           post.featured_image
             ? resolveMediaUrl(post.featured_image)
             : undefined
         }
-        canonicalPath={`/blog/${post.slug}`}
+        canonicalUrl={seoCanonicalUrl}
+        url={seoCanonicalUrl}
         type="article"
+        appendSiteTitle={false}
       />
 
       {/* HERO SECTION */}
@@ -155,6 +162,8 @@ const BlogDetailPage: React.FC = () => {
 
         {/* CONTENT (Use prose-invert for dark mode) */}
         <article className="prose prose-invert prose-lg max-w-none text-gray-300 leading-loose prose-a:text-accent prose-headings:font-serif prose-headings:text-white prose-blockquote:border-l-accent prose-img:rounded-xl">
+          {/* Blog HTML is authored by trusted admins in Summernote and sanitized on save and render.
+              Internal links should point to public React routes like /blog/<slug>/, /licensing/, /contact/, or /footage/, not API endpoints. */}
           <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
         </article>
 
@@ -238,4 +247,3 @@ const BlogDetailPage: React.FC = () => {
 };
 
 export default BlogDetailPage;
-
