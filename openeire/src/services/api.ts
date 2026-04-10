@@ -226,6 +226,9 @@ export interface BlogPostListItem {
   author: string;
   featured_image: string | null;
   excerpt: string;
+  meta_title: string;
+  meta_description: string;
+  canonical_url: string;
   created_at: string;
   tags: string[]; 
   likes_count: number;
