@@ -17,6 +17,5 @@ export const sanitizeRichHtml = (html: string): string =>
       "meta",
       "link",
     ],
-    FORBID_ATTR: ["style"],
     ALLOW_DATA_ATTR: false,
   });
