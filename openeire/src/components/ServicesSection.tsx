@@ -1,17 +1,9 @@
 import React from "react";
-import { FaVideo, FaImage, FaGlobeAmericas } from "react-icons/fa";
+import { FaVideo, FaImage, FaGlobeEurope } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import RevealOnScroll from "./ui/RevealOnScroll";
 
 const services = [
-  {
-    icon: <FaVideo className="h-10 w-10 text-paper" />,
-    title: "4K Stock Footage",
-    description:
-      "Cinematic, color-graded aerial footage ready for your next documentary, ad, or film project.",
-    link: "/gallery/digital",
-    cta: "Browse Clips",
-  },
   {
     icon: <FaImage className="h-10 w-10 text-paper" />,
     title: "Fine Art Prints",
@@ -21,10 +13,18 @@ const services = [
     cta: "Shop Prints",
   },
   {
-    icon: <FaGlobeAmericas className="h-10 w-10 text-paper" />,
-    title: "Global Commission",
+    icon: <FaVideo className="h-10 w-10 text-paper" />,
+    title: "4K Stock Footage",
     description:
-      "Need a specific shot? We are available for custom aerial shoots across Ireland and New Zealand.",
+      "Cinematic, color-graded aerial footage ready for your next documentary, ad, or film project.",
+    link: "/gallery/digital",
+    cta: "Browse Clips",
+  },
+  {
+    icon: <FaGlobeEurope className="h-10 w-10 text-paper" />,
+    title: "National Commission",
+    description:
+      "Need a specific shot? We are available for custom aerial shoots across Ireland and Northern Ireland.",
     link: "/contact",
     cta: "Hire Us",
   },
