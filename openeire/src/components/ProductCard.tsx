@@ -140,13 +140,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     <>
       <div
         ref={cardRef}
-        className="group relative flex h-full flex-col bg-black rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-white/10"
+        className="group relative flex h-full w-full flex-col bg-black rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-white/10"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
       >
         <Link
           to={detailUrl}
-          className="block relative aspect-[4/3] overflow-hidden bg-gray-900"
+          className="block relative w-full aspect-[4/3] overflow-hidden bg-gray-900"
         >
           <img
             src={imageUrl}
