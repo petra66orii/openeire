@@ -5,10 +5,11 @@ const HeroSection: React.FC = () => {
   const [viewportWidth, setViewportWidth] = useState<number>(() =>
     typeof window === "undefined" ? 1280 : window.innerWidth,
   );
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(() =>
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(
+    () =>
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
 
   const shouldUseVideo = useMemo(
@@ -143,17 +144,17 @@ const HeroSection: React.FC = () => {
 
           <div className="flex flex-col items-center justify-center gap-4 font-sans sm:flex-row sm:gap-5">
             <Link
-              to="/gallery/digital"
+              to="/gallery/physical"
               className="w-full max-w-xs rounded-full border border-transparent bg-brand-700 px-8 py-4 font-bold text-white shadow-lg shadow-brand-700/40 transition-all hover:scale-105 hover:bg-brand-800 sm:w-auto"
             >
-              Explore Footage
+              Shop Art Prints
             </Link>
 
             <Link
-              to="/gallery/physical"
+              to="/gallery/digital"
               className="w-full max-w-xs rounded-full border border-white/40 bg-white/5 px-8 py-4 font-medium text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white/20 sm:w-auto"
             >
-              Shop Art Prints
+              Explore Stock Footage
             </Link>
           </div>
         </div>
