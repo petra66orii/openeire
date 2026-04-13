@@ -61,7 +61,7 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
         {products.map((item) => (
           <div
             key={item.id}
-            className="min-w-[280px] md:min-w-[320px] snap-start flex-shrink-0"
+            className="flex min-w-[280px] md:min-w-[320px] snap-start flex-shrink-0"
           >
             <ProductCard product={item} />
           </div>
