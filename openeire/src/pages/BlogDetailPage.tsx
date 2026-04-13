@@ -161,7 +161,7 @@ const BlogDetailPage: React.FC = () => {
         )}
 
         {/* CONTENT (Use prose-invert for dark mode) */}
-        <article className="prose prose-invert prose-lg max-w-none text-gray-300 leading-loose prose-a:text-accent prose-headings:font-serif prose-headings:text-white prose-blockquote:border-l-accent prose-img:rounded-xl">
+        <article className="blog-content">
           {/* Blog HTML is authored by trusted admins in Summernote and sanitized on save and render.
               Internal links should point to public React routes like /blog/<slug>/, /licensing/, /contact/, or /footage/, not API endpoints. */}
           <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
