@@ -140,7 +140,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     <>
       <div
         ref={cardRef}
-        className="group relative bg-black rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-white/10"
+        className="group relative flex h-full flex-col bg-black rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1 border border-white/10"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -220,13 +220,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </Link>
 
-        <div className="p-5">
+        <div className="flex flex-1 flex-col p-5">
           <Link to={detailUrl}>
-            <h3 className="text-white font-bold font-serif text-lg leading-tight mb-1 truncate hover:text-accent transition-colors">
+            <h3 className="line-clamp-2 min-h-[3.5rem] text-white font-bold font-serif text-lg leading-tight mb-1 hover:text-accent transition-colors">
               {product.title}
             </h3>
           </Link>
-          <div className="flex justify-between items-center mt-2">
+          <div className="mt-auto flex min-h-[2rem] justify-between items-center gap-3 pt-2">
             <p className="text-gray-500 text-xs uppercase tracking-wider font-bold">
               {product.collection}
             </p>
