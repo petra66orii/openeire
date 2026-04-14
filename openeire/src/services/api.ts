@@ -815,56 +815,22 @@ export const getShoppingBagRecommendations = async (): Promise<GalleryItem[]> =>
   return response.data;
 };
 
-const extractFilenameFromDisposition = (disposition?: string): string | null => {
-  if (!disposition) return null;
-
-  const encodedMatch = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
-  if (encodedMatch?.[1]) {
-    try {
-      return decodeURIComponent(encodedMatch[1]);
-    } catch {
-      return encodedMatch[1];
-    }
-  }
-
-  const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
-  return filenameMatch?.[1] ?? null;
-};
-
-const sanitizeDownloadFilename = (filename: string): string => {
-  const sanitized = filename
-    .replace(/[\\/]+/g, "_")
-    .replace(/[\u0000-\u001f\u007f]+/g, "")
-    .trim();
-  return sanitized || "download";
-};
-
 export const downloadProduct = async (
   type: "photo" | "video",
   id: number,
-  fallbackFilename: string,
+  _fallbackFilename: string,
 ) => {
-  const response = await api.get(
-    normalizeApiPath(`/products/download/${type}/${id}/`),
-    {
-      responseType: 'blob',
-    },
-  );
-
-  const disposition = response.headers["content-disposition"] as string | undefined;
-  const resolvedFilename = sanitizeDownloadFilename(
-    extractFilenameFromDisposition(disposition) || fallbackFilename,
-  );
-
-  const url = window.URL.createObjectURL(response.data);
+  const url = normalizeApiPath(`/products/download/${type}/${id}/`);
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', resolvedFilename);
+  link.rel = 'noreferrer';
+  link.style.display = 'none';
   document.body.appendChild(link);
   link.click();
 
-  link.parentNode?.removeChild(link);
-  window.URL.revokeObjectURL(url);
+  window.setTimeout(() => {
+    link.parentNode?.removeChild(link);
+  }, 0);
   return true;
 };
 
