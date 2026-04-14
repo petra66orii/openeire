@@ -819,8 +819,9 @@ export const downloadProduct = async (
   type: "photo" | "video",
   id: number,
   _fallbackFilename: string,
+  directUrl?: string | null,
 ) => {
-  const url = normalizeApiPath(`/products/download/${type}/${id}/`);
+  const url = directUrl || normalizeApiPath(`/products/download/${type}/${id}/`);
   const link = document.createElement('a');
   link.href = url;
   link.rel = 'noreferrer';

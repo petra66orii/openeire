@@ -22,10 +22,11 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
     productId: number,
     type: "photo" | "video",
     fallbackFilename: string,
+    directUrl?: string | null,
   ) => {
     setDownloadingItemId(orderItemId);
     try {
-      await downloadProduct(type, productId, fallbackFilename);
+      await downloadProduct(type, productId, fallbackFilename, directUrl);
       toast.success("Download started.");
     } catch (error) {
       console.error(error);
@@ -157,6 +158,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                           productId,
                           digitalType,
                           `${item.product.title}.${digitalType === "video" ? "mp4" : "jpg"}`,
+                          item.download_url,
                         )
                       }
                       disabled={downloadingItemId === item.id}
