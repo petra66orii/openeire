@@ -38,8 +38,9 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
   return (
     <div className="bg-black border border-white/10 rounded-xl overflow-hidden shadow-sm hover:border-white/20 transition-colors">
       {/* HEADER */}
-      <div className="bg-white/5 p-4 flex flex-wrap gap-6 justify-between items-center border-b border-white/5">
-        <div className="flex flex-wrap gap-8">
+      <div className="bg-white/5 border-b border-white/5 p-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-4 sm:gap-8">
           <div>
             <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
               Order #
@@ -69,15 +70,16 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
               </p>
             </div>
           )}
-        </div>
+          </div>
 
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold text-right">
-            Total
-          </p>
-          <p className="text-accent font-bold text-lg">
-            {"\u20AC"}{Number(order.total_price).toFixed(2)}
-          </p>
+          <div className="w-full sm:w-auto">
+            <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold sm:text-right">
+              Total
+            </p>
+            <p className="text-accent font-bold text-lg sm:text-right">
+              {"\u20AC"}{Number(order.total_price).toFixed(2)}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -106,59 +108,65 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({ order }) => {
                 : null;
 
           return (
-            <div key={item.id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
-              <Link
-                // Use photo_id for digital items when available
-                to={`/gallery/${productPath}/${productId}`}
-                className="block flex-shrink-0 w-16 h-16 bg-gray-800 rounded overflow-hidden border border-white/10"
-              >
-                <img
-                  src={imageUrl}
-                  alt={item.product.title}
-                  className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity"
-                />
-              </Link>
-
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-white truncate">
-                  {item.product.title}
-                </h4>
-
-                {/* Show material and size for physical items */}
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
-                  {item.product.product_type === "physical"
-                    ? `${item.product.material_display} (${item.product.size_display})`
-                    : "Personal Download"}
-                </p>
-                {isDigitalItem && item.personal_terms_version && (
-                  <p className="text-xs text-gray-500">
-                    {item.personal_terms_version}
-                  </p>
-                )}
-              </div>
-
-              <div className="text-right flex flex-col items-end gap-2">
-                <p className="text-white font-bold">
-                  {"\u20AC"}{Number(item.item_total).toFixed(2)}
-                </p>
-                {digitalType ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleDownload(
-                        item.id,
-                        productId,
-                        digitalType,
-                        `${item.product.title}.${digitalType === "video" ? "mp4" : "jpg"}`,
-                      )
-                    }
-                    disabled={downloadingItemId === item.id}
-                    className="inline-flex items-center rounded-full border border-accent/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-accent transition-colors hover:bg-accent hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+            <div
+              key={item.id}
+              className="py-4 first:pt-0 last:pb-0"
+            >
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <div className="flex min-w-0 flex-1 gap-4">
+                  <Link
+                    // Use photo_id for digital items when available
+                    to={`/gallery/${productPath}/${productId}`}
+                    className="block h-16 w-16 flex-shrink-0 overflow-hidden rounded border border-white/10 bg-gray-800"
                   >
-                    {downloadingItemId === item.id ? "Preparing..." : "Download"}
-                  </button>
-                ) : null}
-                <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                    <img
+                      src={imageUrl}
+                      alt={item.product.title}
+                      className="h-full w-full object-cover opacity-80 transition-opacity hover:opacity-100"
+                    />
+                  </Link>
+
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-bold text-white line-clamp-2">
+                      {item.product.title}
+                    </h4>
+
+                    <p className="mb-2 text-xs uppercase tracking-wide text-gray-500">
+                      {item.product.product_type === "physical"
+                        ? `${item.product.material_display} (${item.product.size_display})`
+                        : "Personal Download"}
+                    </p>
+                    {isDigitalItem && item.personal_terms_version && (
+                      <p className="text-xs text-gray-500">
+                        {item.personal_terms_version}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 sm:min-w-[140px] sm:flex-col sm:items-end sm:text-right">
+                  <p className="text-white font-bold">
+                    {"\u20AC"}{Number(item.item_total).toFixed(2)}
+                  </p>
+                  {digitalType ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleDownload(
+                          item.id,
+                          productId,
+                          digitalType,
+                          `${item.product.title}.${digitalType === "video" ? "mp4" : "jpg"}`,
+                        )
+                      }
+                      disabled={downloadingItemId === item.id}
+                      className="inline-flex items-center rounded-full border border-accent/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-accent transition-colors hover:bg-accent hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {downloadingItemId === item.id ? "Preparing..." : "Download"}
+                    </button>
+                  ) : null}
+                  <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                </div>
               </div>
             </div>
           );
