@@ -9,7 +9,9 @@ interface StaffRouteProps {
 const StaffRoute: React.FC<StaffRouteProps> = ({ children }) => {
   const { isAuthenticated, user, refreshUser } = useAuth();
   const location = useLocation();
-  const [isCheckingAccess, setIsCheckingAccess] = useState(false);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(
+    () => isAuthenticated && !user,
+  );
 
   useEffect(() => {
     if (!isAuthenticated || user) {

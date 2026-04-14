@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import {
   createMultipartVideoUpload,
+  isMultipartUploadCancelledError,
   type MultipartUploadProgress,
 } from "../utils/multipartVideoUpload";
 import {
@@ -105,6 +106,11 @@ const StaffVideoUploadsPage: React.FC = () => {
       setStatusMessage("Upload complete.");
       toast.success("Video uploaded successfully.");
     } catch (error) {
+      if (isMultipartUploadCancelledError(error)) {
+        setUploadError(null);
+        setStatusMessage("Upload cancelled.");
+        return;
+      }
       const message =
         error instanceof Error ? error.message : "Video upload failed.";
       setUploadError(message);
@@ -376,3 +382,4 @@ const StaffVideoUploadsPage: React.FC = () => {
 };
 
 export default StaffVideoUploadsPage;
+

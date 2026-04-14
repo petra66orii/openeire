@@ -14,6 +14,14 @@ const DEFAULT_RETRY_LIMIT = 3;
 
 const R2_CORS_ERROR_MESSAGE =
   "Upload blocked by Cloudflare R2 CORS. Allow this frontend origin on the target bucket and expose the ETag header.";
+const UPLOAD_CANCELLED_MESSAGE = "Upload cancelled.";
+
+const VIDEO_CONTENT_TYPE_BY_EXTENSION: Record<string, string> = {
+  ".mp4": "video/mp4",
+  ".mov": "video/quicktime",
+  ".webm": "video/webm",
+  ".m4v": "video/x-m4v",
+};
 
 export interface MultipartUploadProgress {
   bytesUploaded: number;
@@ -26,6 +34,13 @@ export interface MultipartUploadProgress {
 export interface MultipartUploadResult {
   upload: StartedVideoUpload;
   completion: CompletedVideoUpload;
+}
+
+export class MultipartUploadCancelledError extends Error {
+  constructor(message = UPLOAD_CANCELLED_MESSAGE) {
+    super(message);
+    this.name = "MultipartUploadCancelledError";
+  }
 }
 
 interface UploadMultipartVideoOptions {
@@ -57,20 +72,42 @@ const buildProgressSnapshot = (
   };
 };
 
-const sortCompletedParts = (
+export const sortCompletedParts = (
   completedParts: Map<number, string>,
 ): CompletedVideoUploadPart[] =>
   Array.from(completedParts.entries())
     .sort(([partA], [partB]) => partA - partB)
     .map(([part_number, etag]) => ({ part_number, etag }));
 
-const getMultipartUploadErrorMessage = (error: unknown): string => {
+export const inferVideoContentType = (file: File): string => {
+  if (file.type) {
+    return file.type;
+  }
+
+  const filename = file.name.toLowerCase();
+  const matchedExtension = Object.keys(VIDEO_CONTENT_TYPE_BY_EXTENSION).find((extension) =>
+    filename.endsWith(extension),
+  );
+
+  return matchedExtension
+    ? VIDEO_CONTENT_TYPE_BY_EXTENSION[matchedExtension]
+    : "application/octet-stream";
+};
+
+const isDirectRequestUrl = (value?: string): boolean =>
+  typeof value === "string" &&
+  (value.startsWith("http://") || value.startsWith("https://"));
+
+export const getMultipartUploadErrorMessage = (error: unknown): string => {
+  if (axios.isAxiosError(error) && error.code === "ERR_CANCELED") {
+    return UPLOAD_CANCELLED_MESSAGE;
+  }
+
   if (axios.isAxiosError(error)) {
     const requestUrl = typeof error.config?.url === "string" ? error.config.url : "";
-    const isDirectR2Request =
-      requestUrl.startsWith("http://") || requestUrl.startsWith("https://");
+    const isDirectR2Request = isDirectRequestUrl(requestUrl);
 
-    if ((error.code === "ERR_NETWORK" || !error.response) && isDirectR2Request) {
+    if (error.code === "ERR_NETWORK" && isDirectR2Request) {
       return R2_CORS_ERROR_MESSAGE;
     }
 
@@ -94,6 +131,14 @@ const getMultipartUploadErrorMessage = (error: unknown): string => {
   return "Video upload failed.";
 };
 
+const isCancellationError = (error: unknown): boolean =>
+  error instanceof MultipartUploadCancelledError ||
+  (axios.isAxiosError(error) && error.code === "ERR_CANCELED");
+
+export const isMultipartUploadCancelledError = (
+  error: unknown,
+): error is MultipartUploadCancelledError => error instanceof MultipartUploadCancelledError;
+
 export const createMultipartVideoUpload = ({
   file,
   purpose,
@@ -105,13 +150,32 @@ export const createMultipartVideoUpload = ({
   const abortController = new AbortController();
   let startedUpload: StartedVideoUpload | null = null;
   let hasCompleted = false;
+  let hasCancelled = false;
+  let abortPromise: Promise<void> | null = null;
+  let fatalError: unknown = null;
+
+  const abortMultipartUploadOnce = async () => {
+    if (!startedUpload || hasCompleted) {
+      return;
+    }
+    if (!abortPromise) {
+      abortPromise = abortVideoUpload({
+        upload_id: startedUpload.upload_id,
+        object_key: startedUpload.object_key,
+      })
+        .then(() => undefined)
+        .catch(() => undefined);
+    }
+    await abortPromise;
+  };
 
   const uploadPromise = (async (): Promise<MultipartUploadResult> => {
     onStatusChange?.("Starting upload session...");
+    const uploadContentType = inferVideoContentType(file);
 
     const upload = await requestVideoUploadStart({
       filename: file.name,
-      content_type: file.type,
+      content_type: uploadContentType,
       file_size: file.size,
       purpose,
       target_video_id: targetVideoId ?? null,
@@ -143,6 +207,8 @@ export const createMultipartVideoUpload = ({
 
       for (let attempt = 1; attempt <= retryLimit; attempt += 1) {
         try {
+          partProgress.set(partNumber, 0);
+          emitProgress();
           onStatusChange?.(
             `Uploading part ${partNumber} of ${totalParts}${
               attempt > 1 ? ` (retry ${attempt}/${retryLimit})` : ""
@@ -158,7 +224,7 @@ export const createMultipartVideoUpload = ({
           const response = await axios.put(url, chunk, {
             signal: abortController.signal,
             headers: {
-              "Content-Type": file.type || "application/octet-stream",
+              "Content-Type": uploadContentType,
             },
             onUploadProgress: (event) => {
               partProgress.set(partNumber, Math.min(event.loaded, chunk.size));
@@ -180,7 +246,7 @@ export const createMultipartVideoUpload = ({
         } catch (error) {
           lastError = error;
           if (abortController.signal.aborted) {
-            throw error;
+            throw new MultipartUploadCancelledError();
           }
           if (attempt === retryLimit) {
             break;
@@ -188,26 +254,37 @@ export const createMultipartVideoUpload = ({
         }
       }
 
-      throw lastError instanceof Error
-        ? lastError
-        : new Error(`Failed to upload part ${partNumber}.`);
+      const resolvedError =
+        lastError instanceof Error
+          ? lastError
+          : new Error(`Failed to upload part ${partNumber}.`);
+      fatalError = resolvedError;
+      abortController.abort();
+      throw resolvedError;
     };
 
-    const queue = Array.from({ length: totalParts }, (_, index) => index + 1);
-    const workerCount = Math.max(1, Math.min(upload.max_concurrency, queue.length));
+    let nextPartIndex = 0;
+    const workerCount = Math.max(1, Math.min(upload.max_concurrency, totalParts));
 
     const workers = Array.from({ length: workerCount }, async () => {
-      while (queue.length > 0) {
-        const nextPart = queue.shift();
-        if (!nextPart) {
+      while (!fatalError && !abortController.signal.aborted) {
+        const currentIndex = nextPartIndex;
+        nextPartIndex += 1;
+        if (currentIndex >= totalParts) {
           return;
         }
+        const nextPart = currentIndex + 1;
         await uploadSinglePart(nextPart);
       }
     });
 
     try {
       await Promise.all(workers);
+
+      if (hasCancelled || abortController.signal.aborted) {
+        throw new MultipartUploadCancelledError();
+      }
+
       onStatusChange?.("Finalising upload...");
 
       const completion = await completeVideoUpload({
@@ -220,35 +297,23 @@ export const createMultipartVideoUpload = ({
       onStatusChange?.("Upload complete.");
       return { upload, completion };
     } catch (error) {
-      if (startedUpload && !hasCompleted) {
-        try {
-          await abortVideoUpload({
-            upload_id: startedUpload.upload_id,
-            object_key: startedUpload.object_key,
-          });
-        } catch {
-          // Best-effort cleanup only.
-        }
+      if (hasCancelled || isCancellationError(error)) {
+        throw new MultipartUploadCancelledError();
       }
-      throw new Error(getMultipartUploadErrorMessage(error));
+
+      if (startedUpload && !hasCompleted) {
+        await abortMultipartUploadOnce();
+      }
+      throw new Error(getMultipartUploadErrorMessage(fatalError ?? error));
     }
   })();
 
   return {
     promise: uploadPromise,
     cancel: async () => {
+      hasCancelled = true;
       abortController.abort();
-
-      if (startedUpload && !hasCompleted) {
-        try {
-          await abortVideoUpload({
-            upload_id: startedUpload.upload_id,
-            object_key: startedUpload.object_key,
-          });
-        } catch {
-          // Best-effort cleanup only.
-        }
-      }
+      await abortMultipartUploadOnce();
     },
   };
 };
