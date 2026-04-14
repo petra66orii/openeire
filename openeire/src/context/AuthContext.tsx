@@ -11,6 +11,7 @@ import { loginUser, api } from "../services/api";
 interface User {
   username: string;
   email: string;
+  is_staff?: boolean;
   first_name?: string;
   last_name?: string;
   country?: string;
