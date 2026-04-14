@@ -44,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const imageUrl =
     resolveMediaUrl(rawImageUrl) || "https://via.placeholder.com/400x300?text=No+Preview";
 
-  const rawVideoFile = product.file;
+  const rawVideoFile = product.preview_video_url || product.file;
   const fullVideoUrl = resolveMediaUrl(rawVideoFile) ?? null;
   const videoUrl = shouldLoadVideo ? fullVideoUrl : null;
 

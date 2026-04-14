@@ -9,6 +9,7 @@ import BackToTop from "./components/BackToTop";
 import Breadcrumbs from "./components/Breadcrumbs";
 import ScrollToTop from "./components/ScrollToTop";
 import ProtectedRoute from "./components/ProtectedRoute";
+import StaffRoute from "./components/StaffRoute";
 import GalleryGuard from "./components/GalleryGuard";
 import HomePage from "./pages/HomePage";
 import GalleryPage from "./pages/GalleryPage";
@@ -52,6 +53,7 @@ const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const ShippingPolicy = lazy(() => import("./pages/ShippingPolicy"));
 const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const StaffVideoUploadsPage = lazy(() => import("./pages/StaffVideoUploadsPage"));
 
 function App() {
   const navigate = useNavigate();
@@ -159,6 +161,14 @@ function App() {
                   <ProtectedRoute>
                     <ProfilePage />
                   </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/staff/uploads/videos"
+                element={
+                  <StaffRoute>
+                    <StaffVideoUploadsPage />
+                  </StaffRoute>
                 }
               />
 

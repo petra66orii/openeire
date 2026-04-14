@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { UserProfile } from "../services/api";
 import EditProfileForm from "../components/EditProfileForm";
 import OrderHistoryList from "../components/OrderHistoryList";
@@ -50,6 +51,16 @@ const ProfilePage: React.FC = () => {
           <p className="text-gray-400">
             Manage your profile, orders, and preferences.
           </p>
+          {user.is_staff && (
+            <div className="mt-5">
+              <Link
+                to="/staff/uploads/videos"
+                className="inline-flex items-center rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-black transition hover:bg-white"
+              >
+                Open Staff Video Uploader
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12">

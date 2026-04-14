@@ -134,6 +134,7 @@ export interface UserProfile {
   first_name: string | null;
   last_name: string | null;
   email: string;
+  is_staff: boolean;
   default_phone_number: string | null;
   default_street_address1: string | null;
   default_street_address2: string | null;
@@ -201,6 +202,7 @@ export interface GalleryItem {
   title: string;
   preview_image?: string;
   thumbnail_image?: string;
+  preview_video_url?: string;
   collection: string;
   price: string;
   product_type: "photo" | "video" | "physical";

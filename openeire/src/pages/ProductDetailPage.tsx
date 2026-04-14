@@ -317,8 +317,10 @@ const ProductDetailPage: React.FC = () => {
     ? product.photo.preview_image || product.preview_image || ""
     : product.preview_image || product.thumbnail_image || "";
   const videoPreviewUrl =
-    isVideo && isVideoDetail(product) && typeof product.file === "string"
-      ? product.file
+    isVideo &&
+    isVideoDetail(product) &&
+    typeof (product.preview_video_url || product.file) === "string"
+      ? product.preview_video_url || product.file
       : "";
   const reviewProductId = isPhysicalNestedDetail(product)
     ? String(product.photo.id)
