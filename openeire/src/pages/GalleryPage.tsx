@@ -3,7 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { getGalleryProducts, GalleryItem } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import VisualCategoryHero from "../components/VisualCategoryHero";
-import MinimalToolbar from "../components/MinimalToolbar";
+import MinimalToolbar, { GalleryMediaFilter } from "../components/MinimalToolbar";
 import SEOHead from "../components/SEOHead";
 import {
   GALLERY_COLLECTION_LABELS,
@@ -103,6 +103,11 @@ const GalleryPage: React.FC = () => {
   const [collection, setCollection] = useState("all");
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState("date_desc");
+  const [mediaFilter, setMediaFilter] = useState<GalleryMediaFilter>(() => {
+    if (location.pathname.includes("/video")) return "videos";
+    if (location.pathname.includes("/photo")) return "photos";
+    return "all";
+  });
   const [isGridHovered, setIsGridHovered] = useState(false);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
   const [modalOwnerKey, setModalOwnerKey] = useState<string | null>(null);
@@ -135,6 +140,35 @@ const GalleryPage: React.FC = () => {
     }
     return "Browse stock footage and art prints from Open\u00C9ire Studios, with curated collections, licensing details, and gallery access options.";
   }, [collection, collectionLabel, typeLabel]);
+
+  useEffect(() => {
+    if (type !== "digital") {
+      setMediaFilter("all");
+      return;
+    }
+
+    if (location.pathname.includes("/video")) {
+      setMediaFilter("videos");
+    } else if (location.pathname.includes("/photo")) {
+      setMediaFilter("photos");
+    } else {
+      setMediaFilter("all");
+    }
+  }, [type, location.pathname]);
+
+  const displayProducts = useMemo(() => {
+    if (type !== "digital") return products;
+
+    if (mediaFilter === "photos") {
+      return products.filter((product) => product.product_type === "photo");
+    }
+
+    if (mediaFilter === "videos") {
+      return products.filter((product) => product.product_type === "video");
+    }
+
+    return products;
+  }, [products, type, mediaFilter]);
 
   const measureGridMetrics = useCallback(() => {
     if (!gridRef.current || typeof window === "undefined") return;
@@ -195,7 +229,7 @@ const GalleryPage: React.FC = () => {
     resizeObserver.observe(gridRef.current);
     resizeObserver.observe(pageRef.current);
     return () => resizeObserver.disconnect();
-  }, [measureGridMetrics, columnCount, products.length, loading]);
+  }, [measureGridMetrics, columnCount, displayProducts.length, loading]);
 
   const columnWidth = useMemo(() => {
     if (columnCount <= 0 || containerWidth <= 0) return 0;
@@ -210,7 +244,9 @@ const GalleryPage: React.FC = () => {
   );
 
   useEffect(() => {
-    const activeKeys = new Set(products.map((product) => getProductKey(product)));
+    const activeKeys = new Set(
+      displayProducts.map((product) => getProductKey(product)),
+    );
     const currentLayoutPrefix = `${layoutKey}|`;
     setMeasuredHeights((prev) => {
       let changed = false;
@@ -229,17 +265,17 @@ const GalleryPage: React.FC = () => {
 
       return changed ? next : prev;
     });
-  }, [products, layoutKey]);
+  }, [displayProducts, layoutKey]);
 
   useEffect(() => {
     if (!modalOwnerKey) return;
-    const ownerStillPresent = products.some(
+    const ownerStillPresent = displayProducts.some(
       (product) => getProductKey(product) === modalOwnerKey,
     );
     if (ownerStillPresent) return;
     setModalOwnerKey(null);
     setIsAnyModalOpen(false);
-  }, [products, modalOwnerKey]);
+  }, [displayProducts, modalOwnerKey]);
 
   const columns = useMemo<
     Array<Array<{ product: GalleryItem; index: number; productKey: string }>>
@@ -249,7 +285,7 @@ const GalleryPage: React.FC = () => {
       index: number;
       productKey: string;
     }>);
-    products.forEach((product, index) => {
+    displayProducts.forEach((product, index) => {
       grouped[index % columnCount].push({
         product,
         index,
@@ -257,7 +293,7 @@ const GalleryPage: React.FC = () => {
       });
     });
     return grouped;
-  }, [products, columnCount]);
+  }, [displayProducts, columnCount]);
 
   const estimatedCardHeight = useMemo(() => {
     const mediaHeight = columnWidth > 0 ? columnWidth * 0.75 : 240;
@@ -411,7 +447,13 @@ const GalleryPage: React.FC = () => {
       />
 
       {/* 2. MINIMAL TOOLBAR (Search & Sort) */}
-      <MinimalToolbar onSearch={setSearchTerm} onSortChange={setSortOrder} />
+      <MinimalToolbar
+        onSearch={setSearchTerm}
+        onSortChange={setSortOrder}
+        mediaFilter={mediaFilter}
+        onMediaFilterChange={setMediaFilter}
+        showMediaFilter={type === "digital"}
+      />
 
       <div
         ref={gridRef}
@@ -431,7 +473,7 @@ const GalleryPage: React.FC = () => {
         )}
 
         {/* Masonry Grid */}
-        {!loading && !error && products.length > 0 && (
+        {!loading && !error && displayProducts.length > 0 && (
           <div className="flex w-full items-start gap-8">
             {columnLayouts.map((layout, columnIndex) => (
               <div
@@ -468,7 +510,7 @@ const GalleryPage: React.FC = () => {
         )}
 
         {/* Empty State */}
-        {!loading && products.length === 0 && (
+        {!loading && displayProducts.length === 0 && (
           <div className="py-20 text-center">
             {normalizedSearchTerm ? (
               <div className="text-gray-500">No results found.</div>
@@ -483,6 +525,11 @@ const GalleryPage: React.FC = () => {
                   new releases.
                 </p>
               </>
+            ) : type === "digital" && mediaFilter !== "all" ? (
+              <div className="text-gray-500">
+                No {mediaFilter === "photos" ? "photos" : "videos"} found in this
+                selection.
+              </div>
             ) : (
               <div className="text-gray-500">No results found.</div>
             )}
