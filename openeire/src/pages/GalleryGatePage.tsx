@@ -92,7 +92,8 @@ const GalleryGatePage = () => {
 
           <p className="mx-auto max-w-md text-base leading-relaxed text-brand-100 opacity-80 sm:text-lg md:mx-0">
             Our digital stock footage vault is reserved for verified creators.
-            Enter your access code to view our 4K library.
+            Request access if you need a pass, or enter your code if you
+            already have one.
           </p>
 
           <div className="mx-auto h-1 w-24 rounded bg-accent opacity-80 md:mx-0"></div>
@@ -109,9 +110,46 @@ const GalleryGatePage = () => {
 
         <div className="w-full max-w-full rounded-2xl border border-white/10 bg-white p-6 shadow-2xl transition-all hover:scale-[1.01] sm:p-8 lg:p-10">
           <div className="mb-10 border-b border-gray-100 pb-10">
+            <h2 className="mb-3 flex items-center gap-3 text-xl font-bold font-sans text-brand-900">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm text-gray-500">
+                01
+              </span>
+              Request Access
+            </h2>
+            <p className="mb-5 text-sm text-gray-500 font-sans leading-relaxed sm:ml-11">
+              Don&apos;t have a code? We&apos;ll email you a 30-day guest pass
+              immediately.
+            </p>
+            <p className="mb-5 text-xs text-gray-400 font-sans leading-relaxed sm:ml-11">
+              By requesting access, you agree to receive this gallery-pass email
+              and any follow-up access-related messages for the private
+              collection.
+            </p>
+            <form
+              onSubmit={handleRequestAccess}
+              className="flex flex-col gap-3 sm:ml-11 sm:flex-row"
+            >
+              <input
+                type="email"
+                placeholder="creators@studio.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm outline-none focus:ring-1 focus:ring-accent"
+              />
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full rounded-lg border border-brand-200 px-6 py-3 text-sm font-bold text-brand-700 transition-colors hover:bg-brand-50 hover:text-brand-900 sm:w-auto"
+              >
+                Send
+              </button>
+            </form>
+          </div>
+
+          <div>
             <h2 className="mb-6 flex items-center gap-3 text-xl font-bold font-sans text-brand-900">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-sm text-brand-700">
-                01
+                02
               </span>
               Enter Access Code
             </h2>
@@ -156,43 +194,6 @@ const GalleryGatePage = () => {
                 ) : (
                   "Unlock Vault"
                 )}
-              </button>
-            </form>
-          </div>
-
-          <div>
-            <h2 className="mb-3 flex items-center gap-3 text-xl font-bold font-sans text-brand-900">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-sm text-gray-500">
-                02
-              </span>
-              Request Access
-            </h2>
-            <p className="mb-5 text-sm text-gray-500 font-sans leading-relaxed sm:ml-11">
-              Don&apos;t have a code? We&apos;ll email you a 30-day guest pass
-              immediately.
-            </p>
-            <p className="mb-5 text-xs text-gray-400 font-sans leading-relaxed sm:ml-11">
-              By requesting access, you agree to receive this gallery-pass email
-              and any follow-up access-related messages for the private
-              collection.
-            </p>
-            <form
-              onSubmit={handleRequestAccess}
-              className="flex flex-col gap-3 sm:ml-11 sm:flex-row"
-            >
-              <input
-                type="email"
-                placeholder="creators@studio.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm outline-none focus:ring-1 focus:ring-accent"
-              />
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full rounded-lg border border-brand-200 px-6 py-3 text-sm font-bold text-brand-700 transition-colors hover:bg-brand-50 hover:text-brand-900 sm:w-auto"
-              >
-                Send
               </button>
             </form>
           </div>

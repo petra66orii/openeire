@@ -1,10 +1,6 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  EffectCoverflow,
-  Navigation,
-  Mousewheel,
-} from "swiper/modules";
+import { EffectCoverflow, Navigation, Mousewheel } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/effect-coverflow";
@@ -26,7 +22,7 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)] z-0 pointer-events-none" />
 
       {/* Header Text */}
-      <div className="relative z-10 mt-[var(--site-header-height)] md:mt-0 text-center mb-10">
+      <div className="relative z-10 mt-20 md:mt-0 text-center mb-10">
         <h2 className="text-white font-serif text-4xl md:text-5xl font-bold mb-3 tracking-tight drop-shadow-lg">
           Explore the World
         </h2>

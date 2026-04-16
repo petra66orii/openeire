@@ -35,7 +35,7 @@ const MinimalToolbar: React.FC<Props> = ({
   showMediaFilter = false,
 }) => {
   return (
-    <div className="container mx-auto px-4 lg:px-8 mb-12">
+    <div className="container mx-auto px-4 lg:px-8 mb-8 sm:mb-10 lg:mb-12">
       <div className="rounded-[28px] border border-white/10 bg-white/5 px-4 py-4 shadow-[0_24px_80px_rgba(0,0,0,0.38)] backdrop-blur-xl sm:px-5 sm:py-5">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0 flex-1">
