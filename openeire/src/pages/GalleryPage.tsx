@@ -1,9 +1,17 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { getGalleryProducts, GalleryItem } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import VisualCategoryHero from "../components/VisualCategoryHero";
-import MinimalToolbar, { GalleryMediaFilter } from "../components/MinimalToolbar";
+import MinimalToolbar, {
+  GalleryMediaFilter,
+} from "../components/MinimalToolbar";
 import SEOHead from "../components/SEOHead";
 import {
   GALLERY_COLLECTION_LABELS,
@@ -127,19 +135,52 @@ const GalleryPage: React.FC = () => {
   );
   const [gridTop, setGridTop] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>({});
+  const [measuredHeights, setMeasuredHeights] = useState<
+    Record<string, number>
+  >({});
   const normalizedSearchTerm = searchTerm.trim();
   const collectionLabel = GALLERY_COLLECTION_LABELS[collection] ?? "Gallery";
   const isCollectionComingSoon =
     collection !== "all" && !isGalleryCollectionAvailable(collection);
   const typeLabel =
-    type === "physical" ? "Art Prints" : type === "digital" ? "Stock Footage" : "Gallery";
+    type === "physical"
+      ? "Art Prints"
+      : type === "digital"
+        ? "Stock Footage"
+        : "Gallery";
   const galleryDescription = useMemo(() => {
     if (collection !== "all") {
       return `Browse ${collectionLabel} ${typeLabel.toLowerCase()} from Open\u00C9ire Studios, including curated visuals, licensing details, and limited releases.`;
     }
     return "Browse stock footage and art prints from Open\u00C9ire Studios, with curated collections, licensing details, and gallery access options.";
   }, [collection, collectionLabel, typeLabel]);
+
+  const mobileGalleryIntro = useMemo(() => {
+    if (type === "digital") {
+      return {
+        eyebrow: "Stock footage that sells",
+        title: "Find the shot that closes the brief.",
+        description:
+          "Use the Photos and Videos filters to cut straight to what your project needs, then open any card for licensing details and purchase options.",
+      };
+    }
+
+    if (type === "physical") {
+      return {
+        eyebrow: "Art prints with impact",
+        title: "Shop statement pieces that elevate a space.",
+        description:
+          "Scroll the collection, open any print for details, and use search to find a piece that feels ready to hang.",
+      };
+    }
+
+    return {
+      eyebrow: "Curated for buyers",
+      title: "Discover footage and prints built to stand out.",
+      description:
+        "Use search to move fast, then switch collections or filters to get straight to the format you want to license or buy.",
+    };
+  }, [type]);
 
   useEffect(() => {
     if (type !== "digital") {
@@ -280,11 +321,15 @@ const GalleryPage: React.FC = () => {
   const columns = useMemo<
     Array<Array<{ product: GalleryItem; index: number; productKey: string }>>
   >(() => {
-    const grouped = Array.from({ length: columnCount }, () => [] as Array<{
-      product: GalleryItem;
-      index: number;
-      productKey: string;
-    }>);
+    const grouped = Array.from(
+      { length: columnCount },
+      () =>
+        [] as Array<{
+          product: GalleryItem;
+          index: number;
+          productKey: string;
+        }>,
+    );
     displayProducts.forEach((product, index) => {
       grouped[index % columnCount].push({
         product,
@@ -428,13 +473,21 @@ const GalleryPage: React.FC = () => {
     return () => {
       isCurrent = false;
     };
-  }, [type, collection, normalizedSearchTerm, sortOrder, isCollectionComingSoon]);
+  }, [
+    type,
+    collection,
+    normalizedSearchTerm,
+    sortOrder,
+    isCollectionComingSoon,
+  ]);
 
   return (
     // Dark mode background for the gallery canvas
     <div ref={pageRef} className="bg-black min-h-screen pb-20">
       <SEOHead
-        title={collection === "all" ? typeLabel : `${collectionLabel} ${typeLabel}`}
+        title={
+          collection === "all" ? typeLabel : `${collectionLabel} ${typeLabel}`
+        }
         description={galleryDescription}
         canonicalPath={type === "physical" ? "/gallery/physical" : "/gallery"}
         noindex={type === "digital"}
@@ -445,6 +498,31 @@ const GalleryPage: React.FC = () => {
         onSelectCollection={setCollection}
         isPaused={isGridHovered || isAnyModalOpen}
       />
+
+      <div className="container mx-auto px-4 lg:px-8 mt-2 mb-4 lg:hidden">
+        <div className="rounded-[24px] border border-white/10 bg-white/5 px-4 py-4 shadow-[0_18px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-gray-400">
+            {mobileGalleryIntro.eyebrow}
+          </div>
+          <h2 className="mt-2 text-lg font-serif font-bold text-white">
+            {mobileGalleryIntro.title}
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-gray-300">
+            {mobileGalleryIntro.description}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-300">
+            <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1">
+              Search
+            </span>
+            <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1">
+              Filter
+            </span>
+            <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1">
+              Open cards
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* 2. MINIMAL TOOLBAR (Search & Sort) */}
       <MinimalToolbar
@@ -463,7 +541,10 @@ const GalleryPage: React.FC = () => {
       >
         {/* Loading */}
         {loading && (
-          <div className="flex justify-center py-20 min-h-[320px]" aria-live="polite">
+          <div
+            className="flex justify-center py-20 min-h-[320px]"
+            aria-live="polite"
+          >
             <div
               className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"
               aria-hidden="true"
@@ -517,8 +598,7 @@ const GalleryPage: React.FC = () => {
             ) : isCollectionComingSoon ? (
               <>
                 <div className="text-2xl font-serif font-bold text-white">
-                  {collectionLabel} is coming
-                  soon!
+                  {collectionLabel} is coming soon!
                 </div>
                 <p className="mt-3 text-gray-400">
                   We&apos;re curating this collection now. Check back soon for
@@ -527,8 +607,8 @@ const GalleryPage: React.FC = () => {
               </>
             ) : type === "digital" && mediaFilter !== "all" ? (
               <div className="text-gray-500">
-                No {mediaFilter === "photos" ? "photos" : "videos"} found in this
-                selection.
+                No {mediaFilter === "photos" ? "photos" : "videos"} found in
+                this selection.
               </div>
             ) : (
               <div className="text-gray-500">No results found.</div>
@@ -541,4 +621,3 @@ const GalleryPage: React.FC = () => {
 };
 
 export default GalleryPage;
-
