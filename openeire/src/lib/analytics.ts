@@ -53,8 +53,8 @@ const loadGtagScript = (measurementId: string): Promise<void> => {
         resolve();
       };
       script.onerror = () => {
-        console.error("Failed to load Google Analytics script:", script.src);
-        reject(new Error(`Failed to load Google Analytics script: ${script.src}`));
+        script.remove();
+        reject(new Error("Failed to load Google Analytics"));
       };
 
       if (!existingScript) {
@@ -88,10 +88,10 @@ export const initGA = (): Promise<void> => {
       });
       gaInitialized = true;
     })
-.catch((error) => {
-  console.error("GA initialisation failed:", error);
-  gaInitialized = false;
-})
+    .catch(() => {
+      // Fail quietly: analytics should never break the app.
+      gaInitialized = false;
+    })
     .finally(() => {
       gaInitPromise = null;
     });
