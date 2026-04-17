@@ -3,6 +3,7 @@ import SEOHead from "../components/SEOHead";
 import { sendContactMessage } from "../services/api";
 import toast from "react-hot-toast";
 import { getContactToastErrorMessage } from "../utils/toast";
+import { trackEvent } from "../lib/analytics";
 import {
   registerIubendaConsentForm,
   submitIubendaConsentForm,
@@ -56,6 +57,9 @@ const ContactPage = () => {
     try {
       await sendContactMessage(formData);
       submitIubendaConsentForm("contact-form");
+      trackEvent("generate_lead", {
+        form_name: "contact",
+      });
       setStatus("success");
       toast.success("Message sent successfully!");
       setFormData({ name: "", email: "", subject: "", message: "" });

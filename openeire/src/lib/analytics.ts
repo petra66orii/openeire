@@ -3,7 +3,6 @@ const GA_SCRIPT_ID = "openeire-ga-script";
 let gaInitialized = false;
 let gaInitPromise: Promise<void> | null = null;
 let gaScriptPromise: Promise<void> | null = null;
-let lastTrackedPageSignature: string | null = null;
 
 const getMeasurementId = (): string | null => {
   const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID?.trim();
@@ -106,10 +105,6 @@ export const trackPageView = (path: string, title?: string): void => {
   ensureGtagStub();
 
   const pageTitle = title ?? document.title;
-  const pageSignature = `${path}::${pageTitle}`;
-  if (pageSignature === lastTrackedPageSignature) return;
-  lastTrackedPageSignature = pageSignature;
-
   window.gtag?.("event", "page_view", {
     page_path: path,
     page_title: pageTitle,

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { getCartItemUnitPrice, useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
@@ -9,11 +9,17 @@ import {
   isPhysicalProductType,
 } from "../utils/purchaseFlow";
 import {
+  buildAnalyticsItemFromCartItem,
+  trackEcommerceEvent,
+} from "../lib/ecommerceAnalytics";
+import {
   FREE_SHIPPING_COUNTRY_LABEL,
   FREE_SHIPPING_PROMO_ENABLED,
   FREE_SHIPPING_THRESHOLD,
   isFreeShippingCountryEligible,
 } from "../utils/freeShipping";
+
+const BEGIN_CHECKOUT_TRACKING_KEY = "openeire_begin_checkout_signature";
 
 interface OrderSummaryProps {
   isCheckoutPage?: boolean;
@@ -60,6 +66,33 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   const grandTotal =
     cartTotal + (hasPhysicalItems && !isPhysicalShippingPending ? shippingCost : 0);
+
+  const handleBeginCheckout = useCallback(() => {
+    if (typeof window === "undefined") return;
+
+    const checkoutSignature = cart
+      .map((item) => `${item.cartId}:${item.quantity}`)
+      .join("|");
+    if (!checkoutSignature) return;
+
+    try {
+      if (window.sessionStorage.getItem(BEGIN_CHECKOUT_TRACKING_KEY) === checkoutSignature) {
+        return;
+      }
+      trackEcommerceEvent("begin_checkout", {
+        currency: "EUR",
+        value: cartTotal,
+        items: cart.map(buildAnalyticsItemFromCartItem),
+      });
+      window.sessionStorage.setItem(BEGIN_CHECKOUT_TRACKING_KEY, checkoutSignature);
+    } catch {
+      trackEcommerceEvent("begin_checkout", {
+        currency: "EUR",
+        value: cartTotal,
+        items: cart.map(buildAnalyticsItemFromCartItem),
+      });
+    }
+  }, [cart, cartTotal]);
 
   return (
     <div className="bg-gray-900 border border-white/10 p-8 rounded-2xl shadow-xl">
@@ -141,6 +174,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <Link
               to="/login"
               state={{ from: { pathname: "/checkout" } }}
+              onClick={handleBeginCheckout}
               className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
             >
               Log In to Checkout
@@ -148,6 +182,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           ) : (
             <Link
               to="/checkout"
+              onClick={handleBeginCheckout}
               className="block w-full text-center bg-brand-500 text-black font-bold text-lg py-4 rounded-xl hover:bg-white transition-all shadow-[0_0_20px_rgba(0,196,0,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] transform active:scale-[0.98]"
             >
               Checkout

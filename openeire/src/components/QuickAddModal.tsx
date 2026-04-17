@@ -10,6 +10,11 @@ import {
 import { PhysicalCartProduct, useCart } from "../context/CartContext";
 import { FaTimes, FaCheck, FaShoppingBag } from "react-icons/fa";
 import toast from "react-hot-toast";
+import {
+  formatAnalyticsVariantLabel,
+  toAnalyticsMoney,
+  trackEcommerceEvent,
+} from "../lib/ecommerceAnalytics";
 
 interface QuickAddModalProps {
   productId: number;
@@ -146,6 +151,27 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
       variantId: variant.id,
       sourceProductId: product.sourceProductId,
     });
+
+    const unitPrice = toAnalyticsMoney(variant.price);
+    trackEcommerceEvent("add_to_cart", {
+      currency: "EUR",
+      ...(unitPrice !== undefined ? { value: unitPrice } : {}),
+      items: [
+        {
+          item_id: String(variant.id),
+          item_name: product.product.title,
+          item_category: "physical",
+          item_category2: product.product.collection || undefined,
+          item_variant: formatAnalyticsVariantLabel(
+            variant.material_display,
+            variant.size_display,
+          ),
+          price: unitPrice,
+          quantity: 1,
+        },
+      ],
+    });
+
     toast.success("Added to Bag");
     onClose();
   };

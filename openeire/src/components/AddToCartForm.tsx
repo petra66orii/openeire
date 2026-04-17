@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import { PhysicalCartProduct, useCart } from "../context/CartContext";
+import {
+  formatAnalyticsVariantLabel,
+  toAnalyticsMoney,
+  trackEcommerceEvent,
+} from "../lib/ecommerceAnalytics";
 
 interface AddToCartFormProps {
   product: PhysicalCartProduct;
@@ -18,6 +23,26 @@ const AddToCartForm: React.FC<AddToCartFormProps> = ({ product }) => {
       type: "physical",
       variantId: Number(product.id),
       sourceProductId: Number(product.photo_id ?? product.id),
+    });
+
+    const unitPrice = toAnalyticsMoney(product.price);
+    trackEcommerceEvent("add_to_cart", {
+      currency: "EUR",
+      ...(unitPrice !== undefined ? { value: unitPrice * quantity } : {}),
+      items: [
+        {
+          item_id: String(product.id),
+          item_name: product.title,
+          item_category: "physical",
+          item_category2: product.collection || undefined,
+          item_variant: formatAnalyticsVariantLabel(
+            product.material_display,
+            product.size_display,
+          ),
+          price: unitPrice,
+          quantity,
+        },
+      ],
     });
 
     setAdded(true);

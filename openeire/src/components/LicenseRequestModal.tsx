@@ -5,6 +5,7 @@ import { submitLicenseRequest, LicenseRequestPayload } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { getLicenseRequestToastErrorMessage } from "../utils/toast";
+import { trackEvent } from "../lib/analytics";
 
 interface LicenseRequestModalProps {
   isOpen: boolean;
@@ -103,6 +104,15 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
         ...formData,
         asset_id: assetId,
         asset_type: assetType,
+      });
+      trackEvent("generate_lead", {
+        asset_id: String(assetId),
+        asset_type: assetType,
+        licence_type: "commercial",
+        territory: formData.territory,
+        exclusivity: formData.exclusivity,
+        permitted_media: formData.permitted_media,
+        duration: formData.duration,
       });
       toast.success(
         "License request submitted! We will be in touch shortly with a custom quote.",
