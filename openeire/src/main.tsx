@@ -7,6 +7,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppErrorBoundary from "./components/AppErrorBoundary";
+import { initGA } from "./lib/analytics";
 const CHUNK_RELOAD_STORAGE_KEY = "openeire:chunk-reload-attempted";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,8 @@ if (window.sessionStorage.getItem(CHUNK_RELOAD_STORAGE_KEY) === "1") {
     { once: true },
   );
 }
+
+initGA();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
