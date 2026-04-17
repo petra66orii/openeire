@@ -1,6 +1,7 @@
 const GA_SCRIPT_ID = "openeire-ga-script";
 
 let gaInitialized = false;
+let gaInitPromise: Promise<void> | null = null;
 let gaScriptPromise: Promise<void> | null = null;
 let lastTrackedPageSignature: string | null = null;
 
@@ -30,22 +31,35 @@ const loadGtagScript = (measurementId: string): Promise<void> => {
     return Promise.resolve();
   }
 
-  const existingScript = document.getElementById(GA_SCRIPT_ID);
-  if (existingScript) {
+  const existingScript = document.getElementById(GA_SCRIPT_ID) as
+    | HTMLScriptElement
+    | null;
+  if (existingScript?.dataset.loaded === "true") {
     return Promise.resolve();
   }
 
   if (!gaScriptPromise) {
     gaScriptPromise = new Promise<void>((resolve, reject) => {
-      const script = document.createElement("script");
+      const script = existingScript ?? document.createElement("script");
+
       script.id = GA_SCRIPT_ID;
       script.async = true;
       script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(
         measurementId,
       )}`;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error("Failed to load Google Analytics"));
-      document.head.appendChild(script);
+      script.dataset.loaded = "false";
+      script.onload = () => {
+        script.dataset.loaded = "true";
+        resolve();
+      };
+      script.onerror = () => {
+        script.remove();
+        reject(new Error("Failed to load Google Analytics"));
+      };
+
+      if (!existingScript) {
+        document.head.appendChild(script);
+      }
     }).catch((error) => {
       gaScriptPromise = null;
       throw error;
@@ -55,23 +69,34 @@ const loadGtagScript = (measurementId: string): Promise<void> => {
   return gaScriptPromise;
 };
 
-export const initGA = (): void => {
-  if (gaInitialized || typeof window === "undefined") return;
+export const initGA = (): Promise<void> => {
+  if (typeof window === "undefined") return Promise.resolve();
 
   const measurementId = getMeasurementId();
-  if (!measurementId) return;
+  if (!measurementId) return Promise.resolve();
+
+  if (gaInitialized) return Promise.resolve();
+  if (gaInitPromise) return gaInitPromise;
 
   ensureGtagStub();
-  gaInitialized = true;
 
-  void loadGtagScript(measurementId).catch(() => {
-    // Fail quietly: analytics should never break the app.
-  });
+  gaInitPromise = loadGtagScript(measurementId)
+    .then(() => {
+      window.gtag?.("js", new Date());
+      window.gtag?.("config", measurementId, {
+        send_page_view: false,
+      });
+      gaInitialized = true;
+    })
+    .catch(() => {
+      // Fail quietly: analytics should never break the app.
+      gaInitialized = false;
+    })
+    .finally(() => {
+      gaInitPromise = null;
+    });
 
-  window.gtag?.("js", new Date());
-  window.gtag?.("config", measurementId, {
-    send_page_view: false,
-  });
+  return gaInitPromise;
 };
 
 export const trackPageView = (path: string, title?: string): void => {

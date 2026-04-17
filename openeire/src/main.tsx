@@ -36,7 +36,7 @@ if (window.sessionStorage.getItem(CHUNK_RELOAD_STORAGE_KEY) === "1") {
   );
 }
 
-initGA();
+void initGA();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
