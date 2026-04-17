@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { FaCheckCircle, FaDownload, FaHome, FaBoxOpen } from "react-icons/fa";
 import {
@@ -7,6 +7,7 @@ import {
   CheckoutSuccessContext,
   readCheckoutSuccessContext,
 } from "../utils/checkoutSuccessContext";
+import { trackEvent } from "../lib/analytics";
 
 type SuccessCard = {
   title: string;
@@ -103,9 +104,54 @@ const getSuccessContent = (context: CheckoutSuccessContext | null): SuccessConte
 
 const CheckoutSuccessPage: React.FC = () => {
   const { clearCart } = useCart();
+  const location = useLocation();
   const [successContext] = useState<CheckoutSuccessContext | null>(() =>
     readCheckoutSuccessContext(),
   );
+  const purchaseDedupeKeyRef = useRef<string | null>(null);
+
+  const transactionId = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+    return (
+      searchParams.get("payment_intent") ||
+      successContext?.purchase?.transaction_id ||
+      null
+    );
+  }, [location.search, successContext?.purchase?.transaction_id]);
+
+  useEffect(() => {
+    const purchase = successContext?.purchase;
+    if (!purchase || !transactionId || purchase.items.length === 0) return;
+
+    const dedupeKey = `openeire:purchase:${transactionId}`;
+    if (purchaseDedupeKeyRef.current === dedupeKey) return;
+
+    try {
+      if (window.sessionStorage.getItem(dedupeKey) === "1") {
+        purchaseDedupeKeyRef.current = dedupeKey;
+        return;
+      }
+    } catch {
+      // Session storage is a best-effort dedupe guard only.
+    }
+
+    trackEvent("purchase", {
+      transaction_id: transactionId,
+      value: purchase.value,
+      currency: "EUR",
+      tax: purchase.tax ?? 0,
+      shipping: purchase.shipping ?? 0,
+      items: purchase.items,
+    });
+
+    purchaseDedupeKeyRef.current = dedupeKey;
+
+    try {
+      window.sessionStorage.setItem(dedupeKey, "1");
+    } catch {
+      // Ignore storage failures; the ref guard still prevents duplicate renders.
+    }
+  }, [successContext, transactionId]);
 
   useEffect(() => {
     clearCart();

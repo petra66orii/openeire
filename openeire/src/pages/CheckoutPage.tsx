@@ -19,6 +19,7 @@ import {
 } from "../utils/purchaseFlow";
 import { CheckoutSuccessContext } from "../utils/checkoutSuccessContext";
 import { EMPTY_SHIPPING_DETAILS, ShippingDetails } from "../types/checkout";
+import { buildAnalyticsItemFromCartItem } from "../lib/ecommerceAnalytics";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -157,6 +158,11 @@ const CheckoutPage: React.FC = () => {
   const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const latestIntentRequestId = useRef(0);
+  const checkoutAttemptIdRef = useRef<string>(
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `checkout-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+  );
 
   const resetCheckoutIntentState = () => {
     setClientSecret("");
@@ -165,7 +171,7 @@ const CheckoutPage: React.FC = () => {
     setFreeShippingThreshold(null);
   };
 
-  const { cartItems } = useCart();
+  const { cartItems, cartTotal } = useCart();
   const { isAuthenticated } = useAuth();
   const hasPhysicalItems = useMemo(
     () => cartHasPhysicalItems(cartItems),
@@ -184,8 +190,22 @@ const CheckoutPage: React.FC = () => {
         (total, item) => total + item.quantity,
         0,
       ),
+      purchase: {
+        transaction_id: checkoutAttemptIdRef.current,
+        value: cartTotal + (hasPhysicalItems ? calculatedShippingCost : 0),
+        currency: "EUR",
+        tax: 0,
+        shipping: hasPhysicalItems ? calculatedShippingCost : 0,
+        items: checkoutCartItems.map(buildAnalyticsItemFromCartItem),
+      },
     }),
-    [checkoutCartItems, hasDigitalItems, hasPhysicalItems],
+    [
+      calculatedShippingCost,
+      cartTotal,
+      checkoutCartItems,
+      hasDigitalItems,
+      hasPhysicalItems,
+    ],
   );
   const requiresAuthenticatedCheckout = hasDigitalItems;
   const physicalAddressKey = useMemo(

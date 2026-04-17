@@ -35,6 +35,11 @@ import {
   shouldShowGalleryAccessCodeUx,
 } from "../utils/purchaseFlow";
 import {
+  formatAnalyticsVariantLabel,
+  toAnalyticsMoney,
+  trackEcommerceEvent,
+} from "../lib/ecommerceAnalytics";
+import {
   FaPlay,
   FaShieldAlt,
   FaShippingFast,
@@ -97,6 +102,7 @@ const ProductDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
+  const trackedViewItemSignature = useRef<string | null>(null);
 
   // --- 3. DATA FETCHING ---
   const fetchProductDetail = useCallback(async () => {
@@ -212,6 +218,67 @@ const ProductDetailPage: React.FC = () => {
     return "0.00";
   }, [isPhysical, activePhysicalVariant]);
 
+  useEffect(() => {
+    if (!product || !resolvedType) return;
+
+    const signature = `${location.pathname}:${product.id}`;
+    if (trackedViewItemSignature.current === signature) return;
+
+    if (isPhysical) {
+      if (!activePhysicalVariant) return;
+
+      const variantPrice = toAnalyticsMoney(activePhysicalVariant.price);
+      trackedViewItemSignature.current = signature;
+      trackEcommerceEvent("view_item", {
+        currency: "EUR",
+        ...(variantPrice !== undefined ? { value: variantPrice } : {}),
+        items: [
+          {
+            item_id: String(activePhysicalVariant.id),
+            item_name: product.title,
+            item_category: "physical",
+            item_category2: product.collection || undefined,
+            item_variant: formatAnalyticsVariantLabel(
+              activePhysicalVariant.material_display,
+              activePhysicalVariant.size_display,
+            ),
+            price: variantPrice,
+            quantity: 1,
+          },
+        ],
+      });
+      return;
+    }
+
+    if (!digitalProduct || !isDigital) return;
+
+    const digitalPrice = selectedDigitalPrice > 0 ? selectedDigitalPrice : undefined;
+    trackedViewItemSignature.current = signature;
+    trackEcommerceEvent("view_item", {
+      currency: "EUR",
+      ...(digitalPrice !== undefined ? { value: digitalPrice } : {}),
+      items: [
+        {
+          item_id: String(product.id),
+          item_name: product.title,
+          item_category: product.product_type,
+          item_category2: product.collection || undefined,
+          price: digitalPrice,
+          quantity: 1,
+        },
+      ],
+    });
+  }, [
+    activePhysicalVariant,
+    digitalProduct,
+    isDigital,
+    isPhysical,
+    location.pathname,
+    product,
+    resolvedType,
+    selectedDigitalPrice,
+  ]);
+
   const activePhysicalProductForCart = useMemo<
     (GalleryItem & { product_type: "physical" }) | null
   >(() => {
@@ -254,6 +321,29 @@ const ProductDetailPage: React.FC = () => {
           : physicalProduct.photo_id ?? physicalProduct.id,
       ),
     });
+
+    const quantity = 1;
+    const variantPrice = toAnalyticsMoney(activePhysicalVariant.price);
+    trackEcommerceEvent("add_to_cart", {
+      currency: "EUR",
+      ...(variantPrice !== undefined
+        ? { value: variantPrice * quantity }
+        : {}),
+      items: [
+        {
+          item_id: String(activePhysicalVariant.id),
+          item_name: physicalProduct.title,
+          item_category: "physical",
+          item_category2: physicalProduct.collection || undefined,
+          item_variant: formatAnalyticsVariantLabel(
+            activePhysicalVariant.material_display,
+            activePhysicalVariant.size_display,
+          ),
+          price: variantPrice,
+          quantity,
+        },
+      ],
+    });
     toast.success("Added to Bag");
   };
 
@@ -275,6 +365,24 @@ const ProductDetailPage: React.FC = () => {
     addToCart(digitalProduct, 1, {
       type: "digital",
       sourceProductId: Number(digitalProduct.id),
+    });
+
+    const quantity = 1;
+    trackEcommerceEvent("add_to_cart", {
+      currency: "EUR",
+      ...(selectedDigitalPrice > 0
+        ? { value: selectedDigitalPrice * quantity }
+        : {}),
+      items: [
+        {
+          item_id: String(digitalProduct.id),
+          item_name: digitalProduct.title,
+          item_category: digitalProduct.product_type,
+          item_category2: digitalProduct.collection || undefined,
+          price: selectedDigitalPrice > 0 ? selectedDigitalPrice : undefined,
+          quantity,
+        },
+      ],
     });
 
     toast.success("Added to Bag");
