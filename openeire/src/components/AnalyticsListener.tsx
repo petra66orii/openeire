@@ -6,12 +6,23 @@ const TITLE_SETTLE_TIMEOUT_MS = 5000;
 const TITLE_POLL_INTERVAL_MS = 100;
 const PAGE_VIEW_DEDUPE_PREFIX = "openeire:page_view:";
 
+const getNavigationInstanceId = (): string => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `nav-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+};
+
 const AnalyticsListener: React.FC = () => {
   const location = useLocation();
 
   useEffect(() => {
     const fullPath = `${location.pathname}${location.search}${location.hash}`;
-    const navigationKey = location.key || fullPath;
+    const navigationKey =
+      location.key && location.key !== "default"
+        ? location.key
+        : `${fullPath}:${getNavigationInstanceId()}`;
     const dedupeKey = `${PAGE_VIEW_DEDUPE_PREFIX}${navigationKey}`;
     const initialTitle = document.title;
     let settled = false;

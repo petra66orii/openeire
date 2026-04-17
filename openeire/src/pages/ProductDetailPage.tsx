@@ -221,7 +221,9 @@ const ProductDetailPage: React.FC = () => {
   useEffect(() => {
     if (!product || !resolvedType) return;
 
-    const signature = `${location.pathname}:${product.id}`;
+    const signature = isPhysical && activePhysicalVariant
+      ? `${location.pathname}:${product.id}:${activePhysicalVariant.id}`
+      : `${location.pathname}:${product.id}`;
     if (trackedViewItemSignature.current === signature) return;
 
     if (isPhysical) {
