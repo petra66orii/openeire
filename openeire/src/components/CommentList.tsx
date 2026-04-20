@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Comment } from "../services/api";
 
 interface CommentListProps {
@@ -43,3 +43,4 @@ const CommentList: React.FC<CommentListProps> = ({ comments }) => {
 };
 
 export default CommentList;
+

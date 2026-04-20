@@ -1,4 +1,4 @@
-import axios from "axios";
+﻿import axios from "axios";
 import toast, { ToastOptions } from "react-hot-toast";
 
 export const toastInfo = (
@@ -362,3 +362,4 @@ export const getNewsletterToastErrorMessage = (error: unknown): string =>
       503: "Newsletter signup is temporarily unavailable. Please try again shortly.",
     },
   });
+

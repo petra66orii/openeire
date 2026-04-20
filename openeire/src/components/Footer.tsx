@@ -59,8 +59,9 @@ const Footer: React.FC = () => {
               />
             </Link>
             <p className="text-sm leading-relaxed text-brand-100/80 mb-6">
-              Capturing the raw beauty of Ireland and beyond. Premium aerial
-              stock footage and fine art prints for creators and collectors.
+              Capturing the raw beauty of Ireland and beyond. Premium fine art
+              prints, commercial licensing, and aerial footage for collectors
+              and creators.
             </p>
             <div className="flex space-x-4">
               <SocialLink label="Instagram" icon={<FaInstagram />} />
@@ -76,8 +77,9 @@ const Footer: React.FC = () => {
               Explore
             </h3>
             <ul className="space-y-3 text-sm">
+              <FooterLink to="/art-prints">Art Prints</FooterLink>
+              <FooterLink to="/licensing">Licensing</FooterLink>
               <FooterLink to="/gallery/digital">Stock Footage</FooterLink>
-              <FooterLink to="/gallery/physical">Art Prints</FooterLink>
               <FooterLink to="/blog">Journal</FooterLink>
               <FooterLink to="/about">Our Story</FooterLink>
             </ul>
@@ -90,8 +92,8 @@ const Footer: React.FC = () => {
             </h3>
             <ul className="space-y-3 text-sm">
               <FooterLink to="/contact">Contact Us</FooterLink>
-              <FooterLink to="/licensing">
-                Licensing Agreement (EULA)
+              <FooterLink to="/licensing/terms">
+                Licensing Terms (EULA)
               </FooterLink>
               <FooterLink to="/terms">Terms & Conditions</FooterLink>
               <FooterLink to="/privacy">Privacy & Cookie Policy</FooterLink>
@@ -166,7 +168,7 @@ const Footer: React.FC = () => {
               reproduction rights. Digital media is Rights-Managed and subject
               to strict commercial licensing terms.
               <Link
-                to="/licensing"
+                to="/licensing/terms"
                 className="ml-1 underline text-white hover:text-accent"
               >
                 View Licensing Terms

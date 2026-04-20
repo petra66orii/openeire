@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import ChangePasswordForm from "./ChangePasswordForm";
 import ChangeEmailForm from "./ChangeEmailForm";
 import DeleteAccount from "./DeleteAccount";
@@ -35,3 +35,4 @@ const SecuritySettings: React.FC = () => {
 };
 
 export default SecuritySettings;
+

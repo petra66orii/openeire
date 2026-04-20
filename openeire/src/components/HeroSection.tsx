@@ -137,24 +137,33 @@ const HeroSection: React.FC = () => {
           </h1>
 
           <p className="mx-auto mb-10 max-w-2xl font-sans text-base leading-relaxed text-gray-100 drop-shadow-sm font-light sm:text-lg md:text-xl">
-            Stunning 4K aerial stock footage and premium art prints.{" "}
+            Premium fine art prints, commercial licensing, and cinematic aerial
+            footage.{" "}
             <br className="hidden md:block" />
-            Curated from the rugged coasts of Ireland and beyond.
+            Curated from the rugged coasts of Ireland and beyond for
+            collectors, interiors, brands, agencies, and filmmakers.
           </p>
 
-          <div className="flex flex-col items-center justify-center gap-4 font-sans sm:flex-row sm:gap-5">
+          <div className="flex flex-col items-center justify-center gap-4 font-sans sm:flex-row sm:flex-wrap sm:gap-5">
             <Link
-              to="/gallery/physical"
+              to="/art-prints"
               className="w-full max-w-xs rounded-full border border-transparent bg-brand-700 px-8 py-4 font-bold text-white shadow-lg shadow-brand-700/40 transition-all hover:scale-105 hover:bg-brand-800 sm:w-auto"
             >
-              Shop Art Prints
+              Shop Fine Art Prints
             </Link>
 
             <Link
               to="/gallery/digital"
+              className="w-full max-w-xs rounded-full border border-white/20 bg-black/20 px-8 py-4 font-medium text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white/30 sm:w-auto"
+            >
+              Browse Footage
+            </Link>
+
+            <Link
+              to="/licensing"
               className="w-full max-w-xs rounded-full border border-white/40 bg-white/5 px-8 py-4 font-medium text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white/20 sm:w-auto"
             >
-              Explore Stock Footage
+              Explore Licensing
             </Link>
           </div>
         </div>

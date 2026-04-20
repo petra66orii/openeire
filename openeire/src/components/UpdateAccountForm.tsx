@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { UserProfile, updateProfile } from "../services/api";
 import toast from "react-hot-toast";
@@ -86,4 +86,5 @@ const UpdateAccountForm: React.FC<UpdateAccountFormProps> = ({ profile }) => {
 };
 
 export default UpdateAccountForm;
+
 

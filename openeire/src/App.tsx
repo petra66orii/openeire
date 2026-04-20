@@ -47,7 +47,11 @@ const BlogDetailPage = lazy(() => import("./pages/BlogDetailPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const GalleryGatePage = lazy(() => import("./pages/GalleryGatePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
-const LicensingPage = lazy(() => import("./pages/LicensingPage"));
+const ArtPrintsPage = lazy(() => import("./pages/ArtPrintsPage"));
+const LicensingOverviewPage = lazy(
+  () => import("./pages/LicensingOverviewPage"),
+);
+const LicensingTermsPage = lazy(() => import("./pages/LicensingPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const ForbiddenPage = lazy(() => import("./pages/ForbiddenPage"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
@@ -119,6 +123,7 @@ function App() {
 
               {/* PUBLIC GALLERY (Physical Products & General View) */}
               <Route path="/gallery" element={<GalleryPage />} />
+              <Route path="/art-prints" element={<ArtPrintsPage />} />
               <Route path="/gallery/physical" element={<GalleryPage />} />
               <Route
                 path="/gallery/physical/:id"
@@ -129,7 +134,8 @@ function App() {
               <Route path="/blog" element={<BlogListPage />} />
               <Route path="/blog/:slug" element={<BlogDetailPage />} />
               <Route path="/contact" element={<ContactPage />} />
-              <Route path="/licensing" element={<LicensingPage />} />
+              <Route path="/licensing" element={<LicensingOverviewPage />} />
+              <Route path="/licensing/terms" element={<LicensingTermsPage />} />
               <Route path="/terms" element={<TermsAndConditions />} />
               <Route path="/shipping" element={<ShippingPolicy />} />
               <Route path="/refunds" element={<RefundPolicy />} />

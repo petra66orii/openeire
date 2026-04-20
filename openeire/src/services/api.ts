@@ -1,4 +1,4 @@
-import axios from "axios";
+﻿import axios from "axios";
 import { emitErrorRoute } from "../utils/errorRouting";
 import { normalizeApiPath } from "../utils/apiPath";
 import { API_BASE_URL } from "../config/backend";
@@ -861,4 +861,5 @@ export const submitLicenseRequest = async (payload: LicenseRequestPayload) => {
     throw error;
   }
 };
+
 

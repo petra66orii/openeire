@@ -1,4 +1,4 @@
-const getSafeEnvValue = (value: string | undefined): string | null => {
+﻿const getSafeEnvValue = (value: string | undefined): string | null => {
   const trimmedValue = value?.trim();
   if (!trimmedValue || trimmedValue === "undefined" || trimmedValue === "null") {
     return null;
@@ -22,3 +22,4 @@ export const IUBENDA_CONSENT_PUBLIC_API_KEY = getSafeEnvValue(
 export const IUBENDA_CONSENT_DATABASE_ENABLED = Boolean(
   IUBENDA_CONSENT_PUBLIC_API_KEY,
 );
+

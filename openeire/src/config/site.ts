@@ -1,4 +1,4 @@
-export const SITE_TITLE = "OpenÉire Studios";
+﻿export const SITE_TITLE = "Open�ire Studios";
 
 export const getSiteOrigin = (): string => {
   const configured = import.meta.env.VITE_SITE_URL?.trim().replace(/\/+$/, "");
@@ -46,3 +46,4 @@ export const getCurrentCanonicalUrl = (): string => {
     ? new URL(current.pathname, `${origin}/`).toString()
     : current.toString();
 };
+

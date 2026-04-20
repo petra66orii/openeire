@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+﻿import React, { useRef } from "react";
 import { GalleryItem } from "../services/api";
 import ProductCard from "./ProductCard";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
@@ -72,3 +72,4 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
 };
 
 export default RelatedProducts;
+

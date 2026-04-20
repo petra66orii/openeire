@@ -1,9 +1,16 @@
-import React from "react";
+﻿import React from "react";
 import { FaEnvelopeOpenText } from "react-icons/fa";
+import SEOHead from "../components/SEOHead";
 
 const VerificationPendingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-black flex justify-center items-center p-4 mobile-page-offset">
+      <SEOHead
+        title="Verify Your Email"
+        description="Check your inbox to verify your OpenÉire Studios account."
+        canonicalPath="/verify-pending"
+        noindex
+      />
       <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 text-center animate-fade-in-up">
         {/* Animated Icon */}
         <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 relative group">
@@ -35,3 +42,4 @@ const VerificationPendingPage: React.FC = () => {
 };
 
 export default VerificationPendingPage;
+

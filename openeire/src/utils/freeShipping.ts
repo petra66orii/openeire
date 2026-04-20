@@ -1,4 +1,4 @@
-const normalizeEnvValue = (value: string | undefined): string | undefined => {
+﻿const normalizeEnvValue = (value: string | undefined): string | undefined => {
   if (value === undefined || value === null) return undefined;
 
   const normalized = value.trim();

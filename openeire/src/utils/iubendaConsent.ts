@@ -1,4 +1,4 @@
-import {
+﻿import {
   IUBENDA_CONSENT_DATABASE_ENABLED,
   IUBENDA_CONSENT_PUBLIC_API_KEY,
 } from "../config/iubenda";
@@ -166,3 +166,4 @@ export const submitIubendaConsentForm = (formId: string) => {
     },
   ]);
 };
+

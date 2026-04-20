@@ -1,4 +1,4 @@
-import DOMPurify from "dompurify";
+﻿import DOMPurify from "dompurify";
 
 export const sanitizeRichHtml = (html: string): string =>
   DOMPurify.sanitize(html, {

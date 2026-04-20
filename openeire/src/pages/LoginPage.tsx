@@ -1,9 +1,10 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+﻿import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { resendVerificationEmail } from "../services/api";
 import toast from "react-hot-toast";
 import SocialLogin from "../components/SocialLogin";
+import SEOHead from "../components/SEOHead";
 import { getLoginToastErrorMessage, getResendVerificationToastErrorMessage } from "../utils/toast";
 
 const LoginPage: React.FC = () => {
@@ -57,6 +58,12 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black flex flex-col justify-center items-center p-4 pt-20 mobile-page-offset">
+      <SEOHead
+        title="Log In"
+        description="Sign in to access your OpenÉire Studios account, downloads, and order history."
+        canonicalPath="/login"
+        noindex
+      />
       <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 animate-fade-in-up">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif font-bold text-white mb-2">
@@ -142,5 +149,6 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+
 
 

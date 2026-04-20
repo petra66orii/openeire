@@ -4,6 +4,7 @@ import { sendContactMessage } from "../services/api";
 import toast from "react-hot-toast";
 import { getContactToastErrorMessage } from "../utils/toast";
 import { trackEvent } from "../lib/analytics";
+import { buildBreadcrumbSchema } from "../lib/seoSchema";
 import {
   registerIubendaConsentForm,
   submitIubendaConsentForm,
@@ -78,11 +79,13 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen overflow-x-hidden bg-black pb-20 pt-24 text-white mobile-page-offset">
       <SEOHead
-        title="Contact"
-        description={
-          "Get in touch with Open\u00C9ire Studios for licensing, fine art print enquiries, and bespoke visual requests."
-        }
+        title="Contact OpenÉire Studios | Prints, Licensing & Drone Work"
+        description="Get in touch about fine art print enquiries, commercial licensing, or bespoke drone capture projects in Ireland."
         canonicalPath="/contact"
+        schema={buildBreadcrumbSchema([
+          { name: "Home", url: "https://openeire.ie/" },
+          { name: "Contact", url: "https://openeire.ie/contact" },
+        ])}
       />
 
       <div className="container mx-auto max-w-7xl px-4 lg:px-8">
@@ -91,9 +94,9 @@ const ContactPage = () => {
             Get in Touch
           </h1>
           <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-400 font-light">
-            Have a question about a specific drone shot, a custom fine art
-            print, or licensing rights? We are here to help bring your vision to
-            life.
+            Have a question about a specific print, commercial licensing
+            rights, or a custom drone shot? We are here to help bring your
+            vision to life.
           </p>
         </div>
 
@@ -106,7 +109,7 @@ const ContactPage = () => {
               <div className="min-w-0">
                 <h3 className="mb-1 text-lg font-bold text-white">Email Us</h3>
                 <p className="mb-2 text-sm text-gray-400">
-                  For general inquiries and licensing.
+                  For print enquiries, commercial licensing, and custom drone work.
                 </p>
                 <a
                   href="mailto:contact@openeire.ie"
@@ -217,8 +220,8 @@ const ContactPage = () => {
                         <option value="" disabled>
                           Select a topic...
                         </option>
-                        <option value="Stock Footage">
-                          Stock Footage Licensing
+                        <option value="Licensing">
+                          Commercial Licensing
                         </option>
                         <option value="Prints">Fine Art Prints</option>
                         <option value="Commission">

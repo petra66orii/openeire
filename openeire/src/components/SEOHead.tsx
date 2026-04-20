@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Helmet } from "react-helmet";
 import {
   SITE_TITLE,
@@ -15,8 +15,9 @@ interface SEOHeadProps {
   canonicalPath?: string;
   canonicalUrl?: string;
   noindex?: boolean;
-  type?: "website" | "article";
+  type?: "website" | "article" | "product";
   appendSiteTitle?: boolean;
+  schema?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
 const SEOHead: React.FC<SEOHeadProps> = ({
@@ -29,6 +30,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
   noindex = false,
   type = "website",
   appendSiteTitle = true,
+  schema,
 }) => {
   const resolvedTitle = appendSiteTitle ? `${title} | ${SITE_TITLE}` : title;
   const pageUrl = url ? buildAbsoluteSiteUrl(url) : getCurrentPageUrl();
@@ -58,8 +60,22 @@ const SEOHead: React.FC<SEOHeadProps> = ({
       {image ? <meta name="twitter:image" content={image} /> : null}
 
       <link rel="canonical" href={resolvedCanonicalUrl} />
+
+      {Array.isArray(schema) ? (
+        schema.map((entry, index) => (
+          <script
+            key={`structured-data-${index}`}
+            type="application/ld+json"
+          >
+            {JSON.stringify(entry)}
+          </script>
+        ))
+      ) : schema ? (
+        <script type="application/ld+json">{JSON.stringify(schema)}</script>
+      ) : null}
     </Helmet>
   );
 };
 
 export default SEOHead;
+

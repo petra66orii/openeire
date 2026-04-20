@@ -1,4 +1,4 @@
-export type ProductType = "photo" | "video" | "physical";
+﻿export type ProductType = "photo" | "video" | "physical";
 
 export const isDigitalProductType = (
   productType: string | null | undefined,
@@ -46,3 +46,4 @@ export const shouldShowGalleryAccessCodeUx = (
 ): boolean =>
   isDigitalProductType(productType) &&
   (statusCode === 401 || statusCode === 403);
+

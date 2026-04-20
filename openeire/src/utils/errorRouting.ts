@@ -1,4 +1,4 @@
-export type ErrorRoutePath = "/403" | "/500";
+﻿export type ErrorRoutePath = "/403" | "/500";
 
 const ERROR_ROUTE_EVENT = "app:error-route";
 
@@ -33,3 +33,4 @@ export const subscribeToErrorRoute = (
     window.removeEventListener(ERROR_ROUTE_EVENT, eventListener);
   };
 };
+

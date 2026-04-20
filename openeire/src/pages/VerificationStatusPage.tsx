@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { verifyEmail } from "../services/api";
 import {
@@ -7,6 +7,7 @@ import {
   FaTimesCircle,
   FaArrowRight,
 } from "react-icons/fa";
+import SEOHead from "../components/SEOHead";
 
 type Status = "verifying" | "success" | "error";
 
@@ -40,6 +41,12 @@ const VerificationStatusPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black flex justify-center items-center p-4 mobile-page-offset">
+      <SEOHead
+        title="Email Verification"
+        description="Confirm your OpenÉire Studios email verification link."
+        canonicalPath="/verify-email/confirm"
+        noindex
+      />
       <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-10 text-center animate-fade-in-up">
         {/* 1. LOADING STATE */}
         {status === "verifying" && (
@@ -101,3 +108,4 @@ const VerificationStatusPage: React.FC = () => {
 };
 
 export default VerificationStatusPage;
+

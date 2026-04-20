@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import SEOHead from "../components/SEOHead";
+import { buildBreadcrumbSchema } from "../lib/seoSchema";
 import {
   FaImage,
   FaBuilding,
@@ -246,14 +247,39 @@ const LicensingPage: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black mobile-page-offset">
       <SEOHead
-        title="Licensing & Usage Rights"
-        description={`Understanding personal, commercial (rights-managed), and editorial licensing for ${BRAND_NAME}.`}
-        canonicalPath="/licensing"
+        title="Licensing Terms & Legal Agreement"
+        description={`Read the legal licensing terms for personal, editorial, and rights-managed commercial use of aerial footage and fine art photography from ${BRAND_NAME}.`}
+        canonicalPath="/licensing/terms"
+        noindex
+        schema={buildBreadcrumbSchema([
+          { name: "Home", url: "https://openeire.ie/" },
+          { name: "Licensing", url: "https://openeire.ie/licensing" },
+          { name: "Terms", url: "https://openeire.ie/licensing/terms" },
+        ])}
       />
 
       <div className="container mx-auto px-4 lg:px-8 max-w-5xl">
+        <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-5 md:p-6">
+          <p className="text-xs uppercase tracking-[0.28em] text-accent font-semibold">
+            Need the commercial overview?
+          </p>
+          <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm leading-relaxed text-gray-300 max-w-3xl">
+              Looking for the buyer-friendly licensing overview? Start with the
+              main Licensing page, then return here when you need the legal
+              wording.
+            </p>
+            <Link
+              to="/licensing"
+              className="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Go to Licensing Overview
+            </Link>
+          </div>
+        </div>
+
         <h1 className="text-4xl md:text-5xl font-serif font-bold text-white mb-6">
-          Licensing & Usage Rights
+          Licensing Terms & Legal Agreement
         </h1>
 
         <p className="text-gray-400 text-lg leading-relaxed mb-6 max-w-3xl">
@@ -357,10 +383,10 @@ const LicensingPage: React.FC = () => {
 
               <div className="flex md:justify-end md:items-start">
                 <Link
-                  to="/gallery/digital"
+                  to="/licensing"
                   className="inline-block mt-4 px-6 py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors"
                 >
-                  Browse Footage & Request Licence
+                  Back to Licensing Overview
                 </Link>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import ErrorPageLayout from "../components/ErrorPageLayout";
 
 const NotFoundPage = () => {
@@ -28,3 +28,4 @@ const NotFoundPage = () => {
 };
 
 export default NotFoundPage;
+

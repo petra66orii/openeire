@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   createContext,
   useState,
   useContext,
@@ -149,3 +149,4 @@ export const useAuth = () => {
 };
 
 export default AuthContext;
+

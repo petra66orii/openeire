@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { FaShieldAlt, FaPlane } from "react-icons/fa";
 
 const CertsSection: React.FC = () => {
@@ -65,3 +65,4 @@ const CertsSection: React.FC = () => {
 };
 
 export default CertsSection;
+

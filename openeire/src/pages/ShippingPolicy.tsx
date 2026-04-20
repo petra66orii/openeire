@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Link } from "react-router-dom";
 import SEOHead from "../components/SEOHead";
 
@@ -155,3 +155,4 @@ const ShippingPolicy: React.FC = () => {
 };
 
 export default ShippingPolicy;
+

@@ -17,17 +17,17 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
   onSelectCollection,
 }) => {
   return (
-    <div className="relative w-full py-16 md:py-24 overflow-hidden min-h-[760px] md:min-h-[860px]">
+    <div className="relative w-full overflow-hidden py-4 min-h-[400px] sm:min-h-[470px] md:min-h-[640px] lg:min-h-[720px] md:py-24">
       {/* Background Atmosphere */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)] z-0 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)]" />
 
       {/* Header Text */}
-      <div className="relative z-10 mt-20 md:mt-0 text-center mb-10">
-        <h2 className="text-white font-serif text-4xl md:text-5xl font-bold mb-3 tracking-tight drop-shadow-lg">
-          Explore the World
+      <div className="relative z-10 mt-25 mb-5 text-center md:mt-0 md:mb-10">
+        <h2 className="mb-2 text-2xl font-serif font-bold leading-[1.02] tracking-tight text-white drop-shadow-lg sm:text-3xl md:text-5xl">
+          Browse the Collection
         </h2>
-        <p className="text-gray-400 text-xs md:text-sm uppercase tracking-[0.3em] font-sans opacity-80">
-          Swipe to Travel
+        <p className="text-[9px] uppercase tracking-[0.26em] text-gray-400 opacity-80 font-sans sm:text-xs md:text-sm">
+          Fine art prints and licensing-ready visuals
         </p>
       </div>
 
@@ -85,7 +85,7 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
         ))}
       </Swiper>
 
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent z-30 pointer-events-none"></div>
+      <div className="pointer-events-none absolute bottom-0 left-0 z-30 h-10 w-full bg-gradient-to-t from-black to-transparent md:h-32" />
     </div>
   );
 };

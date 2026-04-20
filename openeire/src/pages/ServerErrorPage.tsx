@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import ErrorPageLayout from "../components/ErrorPageLayout";
 
 const ServerErrorPage = () => {
@@ -29,3 +29,4 @@ const ServerErrorPage = () => {
 };
 
 export default ServerErrorPage;
+

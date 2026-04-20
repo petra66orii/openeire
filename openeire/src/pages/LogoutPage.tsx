@@ -1,7 +1,8 @@
-import React from "react";
+﻿import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { FaSignOutAlt, FaTimes } from "react-icons/fa";
+import SEOHead from "../components/SEOHead";
 
 const LogoutPage: React.FC = () => {
   const { logout } = useAuth();
@@ -18,6 +19,12 @@ const LogoutPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black flex justify-center items-center p-4 mobile-page-offset">
+      <SEOHead
+        title="Log Out"
+        description="Sign out of your OpenÉire Studios account."
+        canonicalPath="/logout"
+        noindex
+      />
       <div className="w-full max-w-sm bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 text-center animate-fade-in-up">
         <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
           <FaSignOutAlt className="text-2xl text-gray-400" />
@@ -51,3 +58,4 @@ const LogoutPage: React.FC = () => {
 };
 
 export default LogoutPage;
+

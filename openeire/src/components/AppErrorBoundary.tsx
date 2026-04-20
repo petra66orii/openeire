@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useLocation } from "react-router-dom";
 import ServerErrorPage from "../pages/ServerErrorPage";
 
@@ -52,3 +52,4 @@ const AppErrorBoundary: React.FC<{ children: React.ReactNode }> = ({
 };
 
 export default AppErrorBoundary;
+

@@ -1,4 +1,4 @@
-import type { AnalyticsItem } from "../lib/ecommerceAnalytics";
+﻿import type { AnalyticsItem } from "../lib/ecommerceAnalytics";
 
 export const CHECKOUT_SUCCESS_CONTEXT_KEY = "checkoutSuccessContext";
 
@@ -120,3 +120,4 @@ export const clearCheckoutSuccessContext = (): void => {
   if (typeof window === "undefined") return;
   sessionStorage.removeItem(CHECKOUT_SUCCESS_CONTEXT_KEY);
 };
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { UserProfile } from "../services/api";
 import EditProfileForm from "../components/EditProfileForm";
@@ -7,6 +7,7 @@ import SecuritySettings from "../components/SecuritySettings";
 import LikedPostsList from "../components/LikedPostsList";
 import { useAuth } from "../context/AuthContext";
 import { FaUser, FaShieldAlt, FaHistory, FaHeart } from "react-icons/fa";
+import SEOHead from "../components/SEOHead";
 
 type Tab = "profile" | "security" | "orders" | "likes";
 
@@ -42,6 +43,12 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
+      <SEOHead
+        title="My Account"
+        description="Manage your OpenÉire Studios profile, order history, downloads, and security settings."
+        canonicalPath="/profile"
+        noindex
+      />
       <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
         {/* Header */}
         <div className="mb-12 border-b border-white/10 pb-6">
@@ -118,3 +125,4 @@ const ProfilePage: React.FC = () => {
 };
 
 export default ProfilePage;
+

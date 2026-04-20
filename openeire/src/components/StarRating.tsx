@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { FaStar } from "react-icons/fa";
 
 interface StarRatingProps {
@@ -38,3 +38,4 @@ const StarRating: React.FC<StarRatingProps> = ({
 };
 
 export default StarRating;
+

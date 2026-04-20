@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = "/api/";
+﻿const DEFAULT_API_BASE_URL = "/api/";
 
 export const isAbsoluteUrl = (value: string): boolean =>
   value.startsWith("http://") || value.startsWith("https://");
@@ -66,3 +66,4 @@ export const resolveMediaUrl = (
     : mediaBaseUrl;
   return `${normalizedBase}${normalizedPath}`;
 };
+

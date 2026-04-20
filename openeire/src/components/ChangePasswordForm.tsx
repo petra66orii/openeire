@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { changePassword } from "../services/api";
 import toast from "react-hot-toast";
 import { getPasswordChangeToastErrorMessage } from "../utils/toast";
@@ -114,4 +114,5 @@ const ChangePasswordForm: React.FC = () => {
 };
 
 export default ChangePasswordForm;
+
 

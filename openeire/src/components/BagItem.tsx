@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useCart, CartItem, getCartItemUnitPrice } from "../context/CartContext";
 import { FaTrash, FaMinus, FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -113,3 +113,4 @@ const BagItem: React.FC<BagItemProps> = ({ item }) => {
 };
 
 export default BagItem;
+

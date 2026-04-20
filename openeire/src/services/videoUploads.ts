@@ -1,4 +1,4 @@
-import { api } from "./api";
+﻿import { api } from "./api";
 
 export type VideoUploadPurpose = "master" | "preview";
 
@@ -82,3 +82,4 @@ export const searchVideoUploadTargets = async (
   });
   return response.data;
 };
+

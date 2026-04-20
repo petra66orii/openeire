@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   useState,
   useEffect,
   useMemo,
@@ -17,6 +17,7 @@ import {
   GALLERY_COLLECTION_LABELS,
   isGalleryCollectionAvailable,
 } from "../config/galleryCollections";
+import { buildBreadcrumbSchema } from "../lib/seoSchema";
 
 type GalleryType = "digital" | "physical" | "all";
 
@@ -149,11 +150,51 @@ const GalleryPage: React.FC = () => {
         ? "Stock Footage"
         : "Gallery";
   const galleryDescription = useMemo(() => {
+    if (type === "physical" && collection === "all") {
+      return "Browse premium fine art prints from OpenÉire Studios for collectors, interiors, and gifts, with archival production and shipping calculated at checkout.";
+    }
+
     if (collection !== "all") {
       return `Browse ${collectionLabel} ${typeLabel.toLowerCase()} from Open\u00C9ire Studios, including curated visuals, licensing details, and limited releases.`;
     }
     return "Browse stock footage and art prints from Open\u00C9ire Studios, with curated collections, licensing details, and gallery access options.";
   }, [collection, collectionLabel, typeLabel]);
+
+  const gallerySeoTitle = useMemo(() => {
+    if (type === "physical") {
+      return collection === "all"
+        ? "Fine Art Prints Ireland | Premium Aerial Photography Artwork"
+        : `${collectionLabel} Fine Art Prints | OpenÉire Studios`;
+    }
+
+    if (type === "digital") {
+      return collection === "all"
+        ? "Stock Footage"
+        : `${collectionLabel} Stock Footage`;
+    }
+
+    return collection === "all"
+      ? "Aerial Stock Footage & Fine Art Prints"
+      : `${collectionLabel} Gallery`;
+  }, [collection, collectionLabel, type]);
+
+  const gallerySchema = useMemo(() => {
+    if (type === "digital") return undefined;
+
+    const breadcrumbItems = [
+      { name: "Home", url: "https://openeire.ie/" },
+      { name: "Art Prints", url: "https://openeire.ie/art-prints" },
+    ];
+
+    if (type === "physical") {
+      breadcrumbItems.push({
+        name: "Gallery",
+        url: "https://openeire.ie/gallery/physical",
+      });
+    }
+
+    return buildBreadcrumbSchema(breadcrumbItems);
+  }, [type]);
 
   const mobileGalleryIntro = useMemo(() => {
     if (type === "digital") {
@@ -161,16 +202,16 @@ const GalleryPage: React.FC = () => {
         eyebrow: "Stock footage that sells",
         title: "Find the shot that closes the brief.",
         description:
-          "Use the Photos and Videos filters to cut straight to what your project needs, then open any card for licensing details and purchase options.",
+          "Swipe right to filter by country and scroll down. Use the Photos and Videos filters to cut straight to what your project needs, then open any card for licensing details and purchase options.",
       };
     }
 
     if (type === "physical") {
       return {
         eyebrow: "Art prints with impact",
-        title: "Shop statement pieces that elevate a space.",
+        title: "Shop statement pieces made for interiors and collectors.",
         description:
-          "Scroll the collection, open any print for details, and use search to find a piece that feels ready to hang.",
+          "Swipe right to filter by country and scroll down. Open any print for details, and use search to find a piece that feels ready to hang. Shipping is calculated at checkout, with free shipping available on eligible Ireland print orders over €150.",
       };
     }
 
@@ -178,7 +219,7 @@ const GalleryPage: React.FC = () => {
       eyebrow: "Curated for buyers",
       title: "Discover footage and prints built to stand out.",
       description:
-        "Use search to move fast, then switch collections or filters to get straight to the format you want to license or buy.",
+        "Swipe right to filter by country and scroll down. Use search to move fast, then switch collections or filters to get straight to the format you want to license or buy.",
     };
   }, [type]);
 
@@ -485,12 +526,11 @@ const GalleryPage: React.FC = () => {
     // Dark mode background for the gallery canvas
     <div ref={pageRef} className="bg-black min-h-screen pb-20">
       <SEOHead
-        title={
-          collection === "all" ? typeLabel : `${collectionLabel} ${typeLabel}`
-        }
+        title={gallerySeoTitle}
         description={galleryDescription}
         canonicalPath={type === "physical" ? "/gallery/physical" : "/gallery"}
         noindex={type === "digital"}
+        schema={gallerySchema}
       />
       {/* 1. 3D SWIPER HERO (Controls Collection State) */}
       <VisualCategoryHero
