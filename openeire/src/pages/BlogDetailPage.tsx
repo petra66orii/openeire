@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import {
   getBlogPostDetail,
   BlogPostDetail,
@@ -18,6 +18,8 @@ import SEOHead from "../components/SEOHead";
 import { sanitizeRichHtml } from "../utils/sanitizeHtml";
 import { resolveMediaUrl } from "../config/backend";
 import { buildAbsoluteSiteUrl } from "../config/site";
+import { useBreadcrumb } from "../context/BreadcrumbContext";
+import { buildArticleSchema, buildBreadcrumbSchema } from "../lib/seoSchema";
 import {
   FaArrowLeft,
   FaHeart,
@@ -29,6 +31,7 @@ import {
 const BlogDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
+  const { setBreadcrumbTitle } = useBreadcrumb();
 
   const [post, setPost] = useState<BlogPostDetail | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -54,6 +57,11 @@ const BlogDetailPage: React.FC = () => {
         .finally(() => setLoading(false));
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (!post) return;
+    setBreadcrumbTitle(location.pathname, post.meta_title || post.title);
+  }, [location.pathname, post, setBreadcrumbTitle]);
 
   const handleLike = async () => {
     if (!slug) return;
@@ -114,6 +122,25 @@ const BlogDetailPage: React.FC = () => {
         url={seoCanonicalUrl}
         type="article"
         appendSiteTitle={false}
+        schema={[
+          buildBreadcrumbSchema([
+            { name: "Home", url: buildAbsoluteSiteUrl("/") },
+            { name: "Journal", url: buildAbsoluteSiteUrl("/blog") },
+            { name: seoTitle, url: seoCanonicalUrl },
+          ]),
+          buildArticleSchema({
+            headline: seoTitle,
+            description: seoDescription,
+            url: seoCanonicalUrl,
+            image: post.featured_image
+              ? resolveMediaUrl(post.featured_image)
+              : undefined,
+            datePublished: post.created_at,
+            dateModified: post.updated_at ?? post.created_at,
+            authorName: post.author,
+            publisherName: "OpenÉire Studios",
+          }),
+        ]}
       />
 
       {/* HERO SECTION */}

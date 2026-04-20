@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { FaCheckCircle, FaDownload, FaHome, FaBoxOpen } from "react-icons/fa";
@@ -8,6 +8,7 @@ import {
   readCheckoutSuccessContext,
 } from "../utils/checkoutSuccessContext";
 import { trackEvent } from "../lib/analytics";
+import SEOHead from "../components/SEOHead";
 
 type SuccessCard = {
   title: string;
@@ -169,6 +170,12 @@ const CheckoutSuccessPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 pt-20 mobile-page-offset">
+      <SEOHead
+        title="Order Confirmed"
+        description="Your OpenÉire Studios order was successfully processed."
+        canonicalPath="/checkout-success"
+        noindex
+      />
       <div className="max-w-2xl w-full bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 md:p-12 text-center animate-fade-in-up">
         <div className="mb-8 relative inline-block">
           <div className="absolute inset-0 bg-accent/20 rounded-full blur-xl animate-pulse"></div>
@@ -217,3 +224,4 @@ const CheckoutSuccessPage: React.FC = () => {
 };
 
 export default CheckoutSuccessPage;
+

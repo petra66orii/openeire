@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { FaSearch, FaSortAmountDown } from "react-icons/fa";
 
 export type GalleryMediaFilter = "all" | "photos" | "videos";
@@ -86,7 +86,7 @@ const MinimalToolbar: React.FC<Props> = ({
                   Media type
                 </div>
                 <p className="mt-1 text-sm text-gray-500">
-                  Narrow the stock footage gallery to stills or motion clips.
+                  Narrow the gallery to stills or motion clips.
                 </p>
               </div>
               <div className="hidden rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.22em] text-gray-400 md:block">
@@ -135,3 +135,4 @@ const MinimalToolbar: React.FC<Props> = ({
 };
 
 export default MinimalToolbar;
+

@@ -35,10 +35,20 @@ import {
   shouldShowGalleryAccessCodeUx,
 } from "../utils/purchaseFlow";
 import {
+  FREE_SHIPPING_COUNTRY_LABEL,
+  FREE_SHIPPING_PROMO_ENABLED,
+  FREE_SHIPPING_THRESHOLD,
+} from "../utils/freeShipping";
+import {
   formatAnalyticsVariantLabel,
   toAnalyticsMoney,
   trackEcommerceEvent,
 } from "../lib/ecommerceAnalytics";
+import {
+  buildBreadcrumbSchema,
+  buildProductSchema,
+  buildVisualArtworkSchema,
+} from "../lib/seoSchema";
 import {
   FaPlay,
   FaShieldAlt,
@@ -452,26 +462,67 @@ const ProductDetailPage: React.FC = () => {
   const specDuration = isVideoDetail(product)
     ? formatDuration(product.duration)
     : "N/A";
+  const physicalShippingNote = isPhysical
+    ? FREE_SHIPPING_PROMO_ENABLED
+      ? `Made to order as a premium fine art print. Shipping is calculated at checkout, and eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over \u20AC${FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.`
+      : "Made to order as a premium fine art print. Shipping is calculated at checkout."
+    : null;
 
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black mobile-page-offset">
       <SEOHead
         title={product.title}
         description={
-          isDigital
-            ? `Buy ${product.title} for personal use or request commercial licensing`
-            : `Buy ${product.title}`
+          isPhysical
+            ? `Premium fine art print of ${product.title} from OpenÉire Studios, made for collectors, interiors, and gifts.`
+            : isDigital
+              ? `Buy ${product.title} for personal use or request commercial licensing`
+              : `Buy ${product.title}`
         }
         image={imageUrl || undefined}
         canonicalPath={location.pathname}
+        type={isPhysical ? "product" : "website"}
         noindex={isDigital}
+        schema={
+          isPhysical && activePhysicalVariant
+            ? [
+                buildBreadcrumbSchema([
+                  { name: "Home", url: buildAbsoluteSiteUrl("/") },
+                  { name: "Art Prints", url: buildAbsoluteSiteUrl("/art-prints") },
+                  {
+                    name: "Gallery",
+                    url: buildAbsoluteSiteUrl("/gallery/physical"),
+                  },
+                  { name: product.title, url: buildAbsoluteSiteUrl(location.pathname) },
+                ]),
+                buildProductSchema({
+                  name: product.title,
+                  description: reviewDescription || product.title,
+                  url: buildAbsoluteSiteUrl(location.pathname),
+                  image: imageUrl || undefined,
+                  brandName: "OpenÉire Studios",
+                  price: Number.parseFloat(activePhysicalVariant.price),
+                  priceCurrency: "EUR",
+                  availability: "https://schema.org/InStock",
+                }),
+                buildVisualArtworkSchema({
+                  name: product.title,
+                  description: reviewDescription || product.title,
+                  url: buildAbsoluteSiteUrl(location.pathname),
+                  image: imageUrl || undefined,
+                  creatorName: "OpenÉire Studios",
+                  artform: "Photography",
+                }),
+              ]
+            : undefined
+        }
       />
 
       <div className="container mx-auto px-4 lg:px-8">
         {/* BREADCRUMB */}
         <nav className="text-xs uppercase tracking-widest text-gray-500 mb-8 flex items-center gap-2">
-          <Link to="/gallery" className="hover:text-accent transition-colors">
-            Gallery
+          <Link to="/art-prints" className="hover:text-accent transition-colors">
+            Art Prints
           </Link>
           <span>/</span>
           <span className="text-white truncate max-w-[200px]">
@@ -539,6 +590,12 @@ const ProductDetailPage: React.FC = () => {
                 <p className="text-gray-400 text-sm leading-relaxed mb-8 border-l-2 border-accent pl-4">
                   {reviewDescription}
                 </p>
+              )}
+
+              {physicalShippingNote && (
+                <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-relaxed text-gray-300">
+                  {physicalShippingNote}
+                </div>
               )}
 
               {/* =========================================

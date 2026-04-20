@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { ProductReview } from "../services/api";
 import StarRating from "./StarRating";
 import { FaUserCircle } from "react-icons/fa";
@@ -65,3 +65,4 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
 };
 
 export default ReviewCard;
+

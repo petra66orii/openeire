@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getTestimonials, Testimonial } from "../services/api";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -122,3 +122,4 @@ const TestimonialsCarousel: React.FC = () => {
 };
 
 export default TestimonialsCarousel;
+

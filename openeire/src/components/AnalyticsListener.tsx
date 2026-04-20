@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+﻿import React, { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { trackPageView } from "../lib/analytics";
 
@@ -90,3 +90,4 @@ const AnalyticsListener: React.FC = () => {
 };
 
 export default AnalyticsListener;
+

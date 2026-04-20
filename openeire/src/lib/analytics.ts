@@ -1,4 +1,4 @@
-const GA_SCRIPT_ID = "openeire-ga-script";
+﻿const GA_SCRIPT_ID = "openeire-ga-script";
 
 let gaInitialized = false;
 let gaInitPromise: Promise<void> | null = null;
@@ -121,3 +121,4 @@ export const trackEvent = (
   ensureGtagStub();
   window.gtag?.("event", name, params);
 };
+

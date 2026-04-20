@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
@@ -6,6 +6,7 @@ import {
   getGalleryAccessVerifyToastErrorMessage,
 } from "../utils/toast";
 import { requestGalleryAccess, verifyGalleryAccess } from "../services/api";
+import SEOHead from "../components/SEOHead";
 
 const GalleryGatePage = () => {
   const [email, setEmail] = useState("");
@@ -56,6 +57,12 @@ const GalleryGatePage = () => {
       className="relative flex min-h-screen items-center justify-center overflow-x-hidden bg-brand-900 px-4 py-10 mobile-page-offset sm:py-12"
       style={{ boxSizing: "border-box" }}
     >
+      <SEOHead
+        title="Private Collection Access"
+        description="Request access or enter your code to unlock the private OpenÉire Studios digital collection."
+        canonicalPath="/gallery-gate"
+        noindex
+      />
       <div className="pointer-events-none absolute inset-0 opacity-5">
         <svg width="100%" height="100%">
           <pattern
@@ -204,4 +211,5 @@ const GalleryGatePage = () => {
 };
 
 export default GalleryGatePage;
+
 

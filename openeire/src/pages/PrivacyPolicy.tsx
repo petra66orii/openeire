@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useLocation } from "react-router-dom";
 import SEOHead from "../components/SEOHead";
 import { IUBENDA_POLICY_EMBED_URL, IUBENDA_POLICY_URL } from "../config/iubenda";
@@ -43,3 +43,4 @@ const PrivacyPolicy: React.FC = () => {
 };
 
 export default PrivacyPolicy;
+

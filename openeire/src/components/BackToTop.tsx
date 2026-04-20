@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 
 const BackToTop: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -51,3 +51,4 @@ const BackToTop: React.FC = () => {
 };
 
 export default BackToTop;
+

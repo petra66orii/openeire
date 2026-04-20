@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 
 interface RevealProps {
   children: React.ReactNode;
@@ -55,3 +55,4 @@ const RevealOnScroll: React.FC<RevealProps> = ({
 };
 
 export default RevealOnScroll;
+

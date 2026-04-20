@@ -1,4 +1,4 @@
-export type ShippingDetails = {
+﻿export type ShippingDetails = {
   name: string;
   email: string;
   phone: string;
@@ -21,3 +21,4 @@ export const EMPTY_SHIPPING_DETAILS: ShippingDetails = {
   country: "",
   postal_code: "",
 };
+

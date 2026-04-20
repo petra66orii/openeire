@@ -1,4 +1,4 @@
-import { trackEvent } from "./analytics";
+﻿import { trackEvent } from "./analytics";
 import {
   CartItem,
   getCartItemUnitPrice,
@@ -80,3 +80,4 @@ export const buildAnalyticsItemFromCartItem = (
     quantity: item.quantity,
   });
 };
+

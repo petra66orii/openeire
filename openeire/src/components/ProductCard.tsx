@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { GalleryItem } from "../services/api";
 import QuickAddModal from "./QuickAddModal";
@@ -253,4 +253,5 @@ const ProductCard: React.FC<ProductCardProps> = ({
 };
 
 export default ProductCard;
+
 

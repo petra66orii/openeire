@@ -1,4 +1,4 @@
-export {};
+﻿export {};
 
 declare global {
   interface Window {
@@ -10,3 +10,4 @@ declare global {
     readonly VITE_GA_MEASUREMENT_ID?: string;
   }
 }
+

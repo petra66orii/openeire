@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { PhysicalCartProduct, useCart } from "../context/CartContext";
 import {
   formatAnalyticsVariantLabel,
@@ -85,3 +85,4 @@ const AddToCartForm: React.FC<AddToCartFormProps> = ({ product }) => {
 };
 
 export default AddToCartForm;
+

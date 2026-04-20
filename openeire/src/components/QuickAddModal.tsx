@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import {
   getProductDetail,
@@ -378,3 +378,4 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({
 };
 
 export default QuickAddModal;
+

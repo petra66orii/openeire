@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { confirmPasswordReset } from "../services/api";
 import { FaLockOpen } from "react-icons/fa";
+import SEOHead from "../components/SEOHead";
 
 const ConfirmPasswordResetPage: React.FC = () => {
   const [password, setPassword] = useState("");
@@ -44,6 +45,12 @@ const ConfirmPasswordResetPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black flex justify-center items-center p-4 mobile-page-offset">
+      <SEOHead
+        title="Choose New Password"
+        description="Set a new password for your OpenÉire Studios account."
+        canonicalPath="/password-reset/confirm"
+        noindex
+      />
       <div className="w-full max-w-md bg-gray-900 border border-white/10 rounded-2xl shadow-2xl p-8 animate-fade-in-up">
         <div className="text-center mb-6">
           <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -106,3 +113,4 @@ const ConfirmPasswordResetPage: React.FC = () => {
 };
 
 export default ConfirmPasswordResetPage;
+

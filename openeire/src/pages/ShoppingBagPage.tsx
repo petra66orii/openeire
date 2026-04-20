@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
 import BagItem from "../components/BagItem";
@@ -6,6 +6,7 @@ import OrderSummary from "../components/OrderSummary";
 import RelatedProducts from "../components/RelatedProducts";
 import { getShoppingBagRecommendations, GalleryItem } from "../services/api";
 import { FaShoppingBag, FaArrowRight } from "react-icons/fa";
+import SEOHead from "../components/SEOHead";
 
 const ShoppingBagPage: React.FC = () => {
   const { cartItems, hasPhysicalItems } = useCart();
@@ -35,6 +36,12 @@ const ShoppingBagPage: React.FC = () => {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8 mobile-page-offset">
+        <SEOHead
+          title="Shopping Bag"
+          description="Review your OpenÉire Studios bag before checkout."
+          canonicalPath="/bag"
+          noindex
+        />
         <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
           <FaShoppingBag className="text-3xl text-gray-500" />
         </div>
@@ -58,6 +65,12 @@ const ShoppingBagPage: React.FC = () => {
 
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20 mobile-page-offset">
+      <SEOHead
+        title="Shopping Bag"
+        description="Review your OpenÉire Studios bag and continue to secure checkout."
+        canonicalPath="/bag"
+        noindex
+      />
       <div className="container mx-auto px-4 lg:px-8">
         <h1 className="text-4xl md:text-5xl font-serif font-bold mb-12 border-b border-white/10 pb-6">
           Shopping Bag
@@ -119,3 +132,4 @@ const ShoppingBagPage: React.FC = () => {
 };
 
 export default ShoppingBagPage;
+

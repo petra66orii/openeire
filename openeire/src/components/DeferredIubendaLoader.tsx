@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 
 const IUBENDA_WIDGET_SRC =
   "https://embeds.iubenda.com/widgets/c1a64030-d117-4ceb-823e-d39815727f36.js";
@@ -89,3 +89,4 @@ const DeferredIubendaLoader = () => {
 };
 
 export default DeferredIubendaLoader;
+

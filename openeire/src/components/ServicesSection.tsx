@@ -1,5 +1,5 @@
 import React from "react";
-import { FaVideo, FaImage, FaGlobeEurope } from "react-icons/fa";
+import { FaVideo, FaImage, FaFileContract } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import RevealOnScroll from "./ui/RevealOnScroll";
 
@@ -8,25 +8,25 @@ const services = [
     icon: <FaImage className="h-10 w-10 text-paper" />,
     title: "Fine Art Prints",
     description:
-      "Bring the raw beauty of Ireland into your home. Museum-quality paper and framing options available.",
-    link: "/gallery/physical",
+      "Museum-quality aerial and landscape prints from Ireland, made for collectors, interiors, and thoughtful gifts.",
+    link: "/art-prints",
     cta: "Shop Prints",
+  },
+  {
+    icon: <FaFileContract className="h-10 w-10 text-paper" />,
+    title: "Commercial Licensing",
+    description:
+      "Rights-managed aerial footage and imagery for brands, agencies, filmmakers, and editorial projects that need a clear usage scope.",
+    link: "/licensing",
+    cta: "Explore Licensing",
   },
   {
     icon: <FaVideo className="h-10 w-10 text-paper" />,
     title: "4K Stock Footage",
     description:
-      "Cinematic, color-graded aerial footage ready for your next documentary, ad, or film project.",
+      "Cinematic aerial stock footage from Ireland and beyond, ready for documentary, brand, editorial, and commercial licensing work.",
     link: "/gallery/digital",
     cta: "Browse Clips",
-  },
-  {
-    icon: <FaGlobeEurope className="h-10 w-10 text-paper" />,
-    title: "National Commission",
-    description:
-      "Need a specific shot? We are available for custom aerial shoots across Ireland and Northern Ireland.",
-    link: "/contact",
-    cta: "Hire Us",
   },
 ];
 
@@ -41,11 +41,12 @@ const ServicesSection: React.FC = () => {
               What We Do
             </span>
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mt-3 mb-6">
-              Visual Storytelling from the Sky
+              Fine art prints, commercial licensing, and aerial footage
             </h2>
             <p className="text-gray-400 font-sans leading-relaxed">
-              Whether you need the perfect establishing shot or a centerpiece
-              for your living room, we deliver uncompromising quality.
+              Whether you need a statement print for a space, rights-managed
+              visuals for a campaign, or drone footage in Ireland, we deliver
+              uncompromising quality.
             </p>
           </div>
         </RevealOnScroll>

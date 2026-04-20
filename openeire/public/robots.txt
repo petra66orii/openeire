@@ -19,6 +19,8 @@ Disallow: /gallery/digital
 Disallow: /gallery/photo
 Disallow: /gallery/video
 Disallow: /gallery-gate
+Disallow: /staff
+Disallow: /staff/uploads
 
 Disallow: /403
 Disallow: /404

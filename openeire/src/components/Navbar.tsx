@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -147,18 +147,25 @@ const Navbar: React.FC = () => {
             {/* CENTER: Main Navigation (Desktop) */}
             <div className="hidden md:flex items-center space-x-8 font-medium text-sm tracking-wide uppercase">
               <NavLink
+                to="/art-prints"
+                className={hoverColor}
+                style={activeStyle}
+              >
+                Art Prints
+              </NavLink>
+              <NavLink
+                to="/licensing"
+                className={hoverColor}
+                style={activeStyle}
+              >
+                Licensing
+              </NavLink>
+              <NavLink
                 to="/gallery/digital"
                 className={hoverColor}
                 style={activeStyle}
               >
                 Stock Footage
-              </NavLink>
-              <NavLink
-                to="/gallery/physical"
-                className={hoverColor}
-                style={activeStyle}
-              >
-                Art Prints
               </NavLink>
               <NavLink to="/blog" className={hoverColor} style={activeStyle}>
                 Blog
@@ -282,18 +289,25 @@ const Navbar: React.FC = () => {
             <div id="mobile-nav" className="md:hidden px-4 pb-4">
               <div className="mt-4 rounded-2xl border border-white/10 bg-dark/95 backdrop-blur-md shadow-lg p-4 space-y-4">
                 <NavLink
+                  to="/art-prints"
+                  className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Art Prints
+                </NavLink>
+                <NavLink
+                  to="/licensing"
+                  className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Licensing
+                </NavLink>
+                <NavLink
                   to="/gallery/digital"
                   className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Stock Footage
-                </NavLink>
-                <NavLink
-                  to="/gallery/physical"
-                  className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Art Prints
                 </NavLink>
                 <NavLink
                   to="/blog"
@@ -357,3 +371,4 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+

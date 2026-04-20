@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { FaTimes } from "react-icons/fa";
 import { submitLicenseRequest, LicenseRequestPayload } from "../services/api";
@@ -380,4 +380,5 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
 };
 
 export default LicenseRequestModal;
+
 

@@ -1,4 +1,5 @@
-import React from "react";
+﻿import React from "react";
+import SEOHead from "./SEOHead";
 
 interface ErrorPageLayoutProps {
   statusCode: "403" | "404" | "500";
@@ -15,6 +16,11 @@ const ErrorPageLayout: React.FC<ErrorPageLayoutProps> = ({
 }) => {
   return (
     <section className="relative min-h-[70vh] overflow-hidden bg-black text-white">
+      <SEOHead
+        title={title}
+        description={message}
+        noindex
+      />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(22,163,74,0.16),transparent_55%)]" />
       <div className="relative mx-auto flex min-h-[70vh] w-full max-w-4xl flex-col items-center justify-center px-6 py-20 text-center">
         <p className="mb-4 text-xs font-bold uppercase tracking-[0.35em] text-brand-500">
@@ -33,3 +39,4 @@ const ErrorPageLayout: React.FC<ErrorPageLayoutProps> = ({
 };
 
 export default ErrorPageLayout;
+

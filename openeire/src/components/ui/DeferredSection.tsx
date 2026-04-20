@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef, useState } from "react";
+﻿import React, { Suspense, useEffect, useRef, useState } from "react";
 
 interface DeferredSectionProps {
   children: React.ReactNode;
@@ -61,3 +61,4 @@ const DeferredSection: React.FC<DeferredSectionProps> = ({
 };
 
 export default DeferredSection;
+

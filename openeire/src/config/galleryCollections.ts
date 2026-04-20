@@ -1,4 +1,4 @@
-export interface GalleryCollectionConfig {
+﻿export interface GalleryCollectionConfig {
   id: string;
   label: string;
   image: string;
@@ -53,3 +53,4 @@ export const isGalleryCollectionAvailable = (collectionId: string): boolean => {
   const collection = GALLERY_COLLECTIONS.find(({ id }) => id === collectionId);
   return collection?.isAvailable !== false;
 };
+

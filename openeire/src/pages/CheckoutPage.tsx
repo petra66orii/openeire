@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+﻿/// <reference types="vite/client" />
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
@@ -20,6 +20,7 @@ import {
 import { CheckoutSuccessContext } from "../utils/checkoutSuccessContext";
 import { EMPTY_SHIPPING_DETAILS, ShippingDetails } from "../types/checkout";
 import { buildAnalyticsItemFromCartItem } from "../lib/ecommerceAnalytics";
+import SEOHead from "../components/SEOHead";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -423,6 +424,12 @@ const CheckoutPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white pt-20 mobile-page-offset pb-24">
+      <SEOHead
+        title="Checkout"
+        description="Secure checkout for your OpenÉire Studios order."
+        canonicalPath="/checkout"
+        noindex
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
@@ -541,3 +548,4 @@ const CheckoutPage: React.FC = () => {
 };
 
 export default CheckoutPage;
+
