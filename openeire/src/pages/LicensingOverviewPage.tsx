@@ -9,6 +9,7 @@ import {
   FaFileContract,
 } from "react-icons/fa";
 import SEOHead from "../components/SEOHead";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import { buildBreadcrumbSchema } from "../lib/seoSchema";
 
 const BRAND_NAME = "OpenÉire Studios";
@@ -88,8 +89,8 @@ const LicensingOverviewPage: React.FC = () => {
         description={`Explore premium aerial footage and photography from ${BRAND_NAME} for commercial and editorial use in Ireland and beyond. Start with the asset, then request a scoped licence from its page.`}
         canonicalPath="/licensing"
         schema={buildBreadcrumbSchema([
-          { name: "Home", url: "https://openeire.ie/" },
-          { name: "Licensing", url: "https://openeire.ie/licensing" },
+          { name: "Home", url: buildAbsoluteSiteUrl("/") },
+          { name: "Licensing", url: buildAbsoluteSiteUrl("/licensing") },
         ])}
       />
 

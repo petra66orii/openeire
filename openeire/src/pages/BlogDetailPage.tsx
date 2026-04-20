@@ -1,5 +1,5 @@
-﻿import React, { useState, useEffect, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
 import {
   getBlogPostDetail,
   BlogPostDetail,
@@ -274,4 +274,3 @@ const BlogDetailPage: React.FC = () => {
 };
 
 export default BlogDetailPage;
-

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import SEOHead from "../components/SEOHead";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import { buildBreadcrumbSchema } from "../lib/seoSchema";
 import {
   FaImage,
@@ -252,9 +253,9 @@ const LicensingPage: React.FC = () => {
         canonicalPath="/licensing/terms"
         noindex
         schema={buildBreadcrumbSchema([
-          { name: "Home", url: "https://openeire.ie/" },
-          { name: "Licensing", url: "https://openeire.ie/licensing" },
-          { name: "Terms", url: "https://openeire.ie/licensing/terms" },
+          { name: "Home", url: buildAbsoluteSiteUrl("/") },
+          { name: "Licensing", url: buildAbsoluteSiteUrl("/licensing") },
+          { name: "Terms", url: buildAbsoluteSiteUrl("/licensing/terms") },
         ])}
       />
 

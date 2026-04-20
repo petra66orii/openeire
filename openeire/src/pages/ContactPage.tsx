@@ -4,6 +4,7 @@ import { sendContactMessage } from "../services/api";
 import toast from "react-hot-toast";
 import { getContactToastErrorMessage } from "../utils/toast";
 import { trackEvent } from "../lib/analytics";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import { buildBreadcrumbSchema } from "../lib/seoSchema";
 import {
   registerIubendaConsentForm,
@@ -83,8 +84,8 @@ const ContactPage = () => {
         description="Get in touch about fine art print enquiries, commercial licensing, or bespoke drone capture projects in Ireland."
         canonicalPath="/contact"
         schema={buildBreadcrumbSchema([
-          { name: "Home", url: "https://openeire.ie/" },
-          { name: "Contact", url: "https://openeire.ie/contact" },
+          { name: "Home", url: buildAbsoluteSiteUrl("/") },
+          { name: "Contact", url: buildAbsoluteSiteUrl("/contact") },
         ])}
       />
 

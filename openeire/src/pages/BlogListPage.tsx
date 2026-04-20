@@ -1,9 +1,10 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { getBlogPosts, BlogPostListItem } from "../services/api";
 import { FaCalendarAlt, FaUser, FaTag, FaHeart } from "react-icons/fa";
 import { resolveMediaUrl } from "../config/backend";
 import SEOHead from "../components/SEOHead";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import { buildBreadcrumbSchema } from "../lib/seoSchema";
 
 const BlogPostCard: React.FC<{ post: BlogPostListItem }> = ({ post }) => (
@@ -94,8 +95,8 @@ const BlogListPage: React.FC = () => {
           currentTag
             ? undefined
             : buildBreadcrumbSchema([
-                { name: "Home", url: "https://openeire.ie/" },
-                { name: "Journal", url: "https://openeire.ie/blog" },
+                { name: "Home", url: buildAbsoluteSiteUrl("/") },
+                { name: "Journal", url: buildAbsoluteSiteUrl("/blog") },
               ])
         }
       />
@@ -152,4 +153,3 @@ const BlogListPage: React.FC = () => {
 };
 
 export default BlogListPage;
-

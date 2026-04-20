@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaCheckCircle, FaShippingFast, FaPalette, FaExternalLinkAlt } from "react-icons/fa";
 import SEOHead from "../components/SEOHead";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import { buildBreadcrumbSchema } from "../lib/seoSchema";
 import {
   FREE_SHIPPING_COUNTRY_LABEL,
@@ -17,7 +18,7 @@ const SECTION_TITLE_CLASS =
 
 const ArtPrintsPage: React.FC = () => {
   const shippingNote = FREE_SHIPPING_PROMO_ENABLED
-    ? `Shipping is calculated at checkout, and eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over €${FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.`
+    ? `Shipping is calculated at checkout, and eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over \u20AC${FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.`
     : "Shipping is calculated at checkout for every bespoke print order.";
 
   return (
@@ -27,8 +28,8 @@ const ArtPrintsPage: React.FC = () => {
         description={`Discover premium fine art prints from ${BRAND_NAME}. Browse aerial photography artwork for collectors, interiors, and gifts, with bespoke production and shipping calculated at checkout.`}
         canonicalPath="/art-prints"
         schema={buildBreadcrumbSchema([
-          { name: "Home", url: "https://openeire.ie/" },
-          { name: "Art Prints", url: "https://openeire.ie/art-prints" },
+          { name: "Home", url: buildAbsoluteSiteUrl("/") },
+          { name: "Art Prints", url: buildAbsoluteSiteUrl("/art-prints") },
         ])}
       />
 
@@ -149,7 +150,14 @@ const ArtPrintsPage: React.FC = () => {
             <ul className="mt-4 space-y-3 text-sm leading-relaxed text-gray-300">
               <li>Archival-minded art prints with a premium finish.</li>
               <li>Shipping is handled separately at checkout.</li>
-              <li>Eligible {FREE_SHIPPING_COUNTRY_LABEL} orders over €{FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.</li>
+              {FREE_SHIPPING_PROMO_ENABLED ? (
+                <li>
+                  Eligible {FREE_SHIPPING_COUNTRY_LABEL} orders over {"\u20AC"}
+                  {FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.
+                </li>
+              ) : (
+                <li>Shipping is calculated at checkout for every bespoke print order.</li>
+              )}
               <li>Need help choosing? Use the contact page for a direct enquiry.</li>
             </ul>
             <Link
@@ -166,4 +174,3 @@ const ArtPrintsPage: React.FC = () => {
 };
 
 export default ArtPrintsPage;
-

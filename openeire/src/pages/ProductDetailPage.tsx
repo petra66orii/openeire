@@ -1,4 +1,4 @@
-﻿import React, {
+import React, {
   useState,
   useEffect,
   useCallback,
@@ -464,7 +464,7 @@ const ProductDetailPage: React.FC = () => {
     : "N/A";
   const physicalShippingNote = isPhysical
     ? FREE_SHIPPING_PROMO_ENABLED
-      ? `Made to order as a premium fine art print. Shipping is calculated at checkout, and eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over €${FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.`
+      ? `Made to order as a premium fine art print. Shipping is calculated at checkout, and eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over \u20AC${FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.`
       : "Made to order as a premium fine art print. Shipping is calculated at checkout."
     : null;
 
@@ -487,18 +487,18 @@ const ProductDetailPage: React.FC = () => {
           isPhysical && activePhysicalVariant
             ? [
                 buildBreadcrumbSchema([
-                  { name: "Home", url: "https://openeire.ie/" },
-                  { name: "Art Prints", url: "https://openeire.ie/art-prints" },
+                  { name: "Home", url: buildAbsoluteSiteUrl("/") },
+                  { name: "Art Prints", url: buildAbsoluteSiteUrl("/art-prints") },
                   {
                     name: "Gallery",
-                    url: "https://openeire.ie/gallery/physical",
+                    url: buildAbsoluteSiteUrl("/gallery/physical"),
                   },
-                  { name: product.title, url: `https://openeire.ie${location.pathname}` },
+                  { name: product.title, url: buildAbsoluteSiteUrl(location.pathname) },
                 ]),
                 buildProductSchema({
                   name: product.title,
                   description: reviewDescription || product.title,
-                  url: `https://openeire.ie${location.pathname}`,
+                  url: buildAbsoluteSiteUrl(location.pathname),
                   image: imageUrl || undefined,
                   brandName: "OpenÉire Studios",
                   price: Number.parseFloat(activePhysicalVariant.price),
@@ -508,7 +508,7 @@ const ProductDetailPage: React.FC = () => {
                 buildVisualArtworkSchema({
                   name: product.title,
                   description: reviewDescription || product.title,
-                  url: `https://openeire.ie${location.pathname}`,
+                  url: buildAbsoluteSiteUrl(location.pathname),
                   image: imageUrl || undefined,
                   creatorName: "OpenÉire Studios",
                   artform: "Photography",
@@ -780,5 +780,3 @@ const SpecBox = ({ label, value }: { label: string; value: string }) => (
 );
 
 export default ProductDetailPage;
-
-

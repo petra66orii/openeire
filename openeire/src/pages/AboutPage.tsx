@@ -1,7 +1,8 @@
-﻿import React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { FaCamera, FaPlane, FaMapMarkedAlt, FaAward } from "react-icons/fa";
 import SEOHead from "../components/SEOHead";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import { buildBreadcrumbSchema } from "../lib/seoSchema";
 
 const AboutPage: React.FC = () => {
@@ -12,8 +13,8 @@ const AboutPage: React.FC = () => {
         description="Meet OpenÉire Studios, an Ireland-based studio creating aerial stock footage, drone photography, and fine art prints."
         canonicalPath="/about"
         schema={buildBreadcrumbSchema([
-          { name: "Home", url: "https://openeire.ie/" },
-          { name: "About", url: "https://openeire.ie/about" },
+          { name: "Home", url: buildAbsoluteSiteUrl("/") },
+          { name: "About", url: buildAbsoluteSiteUrl("/about") },
         ])}
       />
       {/* 1. HERO SECTION (Parallax feel) */}
@@ -217,4 +218,3 @@ const AboutPage: React.FC = () => {
 };
 
 export default AboutPage;
-

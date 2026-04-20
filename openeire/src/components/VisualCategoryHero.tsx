@@ -22,7 +22,7 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_#1a1a1a_0%,_#000000_100%)]" />
 
       {/* Header Text */}
-      <div className="relative z-10 mt-25 mb-5 text-center md:mt-0 md:mb-10">
+      <div className="relative z-10 mt-24 mb-5 text-center md:mt-0 md:mb-10">
         <h2 className="mb-2 text-2xl font-serif font-bold leading-[1.02] tracking-tight text-white drop-shadow-lg sm:text-3xl md:text-5xl">
           Browse the Collection
         </h2>

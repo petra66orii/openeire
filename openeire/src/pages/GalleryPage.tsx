@@ -1,4 +1,4 @@
-﻿import React, {
+import React, {
   useState,
   useEffect,
   useMemo,
@@ -13,6 +13,7 @@ import MinimalToolbar, {
   GalleryMediaFilter,
 } from "../components/MinimalToolbar";
 import SEOHead from "../components/SEOHead";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import {
   GALLERY_COLLECTION_LABELS,
   isGalleryCollectionAvailable,
@@ -181,17 +182,17 @@ const GalleryPage: React.FC = () => {
   const gallerySchema = useMemo(() => {
     if (type === "digital") return undefined;
 
-    const breadcrumbItems = [
-      { name: "Home", url: "https://openeire.ie/" },
-      { name: "Art Prints", url: "https://openeire.ie/art-prints" },
-    ];
-
-    if (type === "physical") {
-      breadcrumbItems.push({
-        name: "Gallery",
-        url: "https://openeire.ie/gallery/physical",
-      });
-    }
+    const breadcrumbItems =
+      type === "physical"
+        ? [
+            { name: "Home", url: buildAbsoluteSiteUrl("/") },
+            { name: "Art Prints", url: buildAbsoluteSiteUrl("/art-prints") },
+            { name: "Gallery", url: buildAbsoluteSiteUrl("/gallery/physical") },
+          ]
+        : [
+            { name: "Home", url: buildAbsoluteSiteUrl("/") },
+            { name: "Gallery", url: buildAbsoluteSiteUrl("/gallery") },
+          ];
 
     return buildBreadcrumbSchema(breadcrumbItems);
   }, [type]);
