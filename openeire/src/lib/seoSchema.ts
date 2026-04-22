@@ -38,6 +38,11 @@ type VisualArtworkSchemaInput = {
   artform?: string;
 };
 
+type FAQItemInput = {
+  question: string;
+  answer: string;
+};
+
 const normalizeImages = (image?: string): string[] | undefined => {
   if (!image) return undefined;
   return [image];
@@ -159,4 +164,19 @@ export const buildVisualArtworkSchema = (
 
   return schema;
 };
+
+export const buildFAQPageSchema = (
+  items: FAQItemInput[],
+): StructuredData => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: items.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+});
 
