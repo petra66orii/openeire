@@ -122,7 +122,7 @@ const USAerialPhotographyPrintsPage: React.FC = () => {
       relevanceBullets={[
         "Available to buyers in the United States",
         "Produced to order as physical prints",
-        "Shipping is calculated at checkout",
+        shippingNote,
       ]}
       relevanceNote={
         <>

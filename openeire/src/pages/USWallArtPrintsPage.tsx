@@ -116,7 +116,7 @@ const USWallArtPrintsPage: React.FC = () => {
       relevanceBullets={[
         "Available to buyers in the United States",
         "Made-to-order physical prints",
-        "Shipping is calculated at checkout",
+        shippingNote,
       ]}
       relevanceNote={
         <>

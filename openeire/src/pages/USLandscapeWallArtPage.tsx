@@ -116,7 +116,7 @@ const USLandscapeWallArtPage: React.FC = () => {
       relevanceBullets={[
         "Available to buyers in the United States",
         "Scenic physical prints for interiors",
-        "Shipping is calculated at checkout",
+        shippingNote,
       ]}
       relevanceNote={
         <>

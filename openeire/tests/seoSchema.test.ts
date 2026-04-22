@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildArticleSchema,
   buildBreadcrumbSchema,
+  buildFAQPageSchema,
   buildProductSchema,
   buildVisualArtworkSchema,
   buildWebsiteSchema,
@@ -114,6 +115,42 @@ describe("seoSchema helpers", () => {
       "@type": "WebSite",
       name: "OpenEire Studios",
       url: "https://example.com",
+    });
+  });
+
+  it("builds faq page schema from visible questions and answers", () => {
+    expect(
+      buildFAQPageSchema([
+        {
+          question: "Do you ship to the United States?",
+          answer: "Yes. Orders follow the existing checkout flow.",
+        },
+        {
+          question: "Are these original aerial photography prints?",
+          answer: "Yes. The collection is built from original aerial imagery.",
+        },
+      ]),
+    ).toEqual({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Do you ship to the United States?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. Orders follow the existing checkout flow.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Are these original aerial photography prints?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. The collection is built from original aerial imagery.",
+          },
+        },
+      ],
     });
   });
 });

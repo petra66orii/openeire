@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import SEOHead from "../components/SEOHead";
 import { buildAbsoluteSiteUrl } from "../config/site";
-import { buildBreadcrumbSchema } from "../lib/seoSchema";
+import { buildBreadcrumbSchema, buildFAQPageSchema } from "../lib/seoSchema";
 import {
   FREE_SHIPPING_COUNTRY_LABEL,
   FREE_SHIPPING_PROMO_ENABLED,
@@ -63,19 +63,6 @@ const faqItems = [
   },
 ];
 
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqItems.map((item) => ({
-    "@type": "Question",
-    name: item.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.answer,
-    },
-  })),
-};
-
 const USFineArtPrintsPage: React.FC = () => {
   const shippingNote = FREE_SHIPPING_PROMO_ENABLED
     ? `Shipping is calculated at checkout. Current free-shipping messaging applies to eligible ${FREE_SHIPPING_COUNTRY_LABEL} orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(2)}, while United States delivery is handled through the same print-order flow.`
@@ -92,7 +79,7 @@ const USFineArtPrintsPage: React.FC = () => {
             { name: "Home", url: buildAbsoluteSiteUrl("/") },
             { name: "US Fine Art Prints", url: buildAbsoluteSiteUrl("/us/fine-art-prints") },
           ]),
-          faqSchema,
+          buildFAQPageSchema(faqItems),
         ]}
       />
 

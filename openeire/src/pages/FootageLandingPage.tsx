@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import SEOHead from "../components/SEOHead";
 import { buildAbsoluteSiteUrl } from "../config/site";
-import { buildBreadcrumbSchema } from "../lib/seoSchema";
+import { buildBreadcrumbSchema, buildFAQPageSchema } from "../lib/seoSchema";
 
 const HERO_TITLE_CLASS =
   "mt-5 max-w-3xl text-3xl font-serif font-bold leading-[1.05] text-white sm:text-4xl md:text-6xl";
@@ -147,19 +147,6 @@ const faqItems = [
   },
 ];
 
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqItems.map((item) => ({
-    "@type": "Question",
-    name: item.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.answer,
-    },
-  })),
-};
-
 const FootageLandingPage: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white pb-20">
@@ -172,7 +159,7 @@ const FootageLandingPage: React.FC = () => {
             { name: "Home", url: buildAbsoluteSiteUrl("/") },
             { name: "Footage", url: buildAbsoluteSiteUrl("/footage") },
           ]),
-          faqSchema,
+          buildFAQPageSchema(faqItems),
         ]}
       />
 
@@ -393,7 +380,7 @@ const FootageLandingPage: React.FC = () => {
           </div>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              to="/gallery/video"
+              to="/gallery/digital"
               className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 font-bold text-black transition-colors hover:bg-accent"
             >
               Browse Footage
@@ -469,7 +456,7 @@ const FootageLandingPage: React.FC = () => {
             </div>
             <div className="flex flex-col gap-3 lg:col-span-5 lg:pl-6">
               <Link
-                to="/gallery/video"
+                to="/gallery/digital"
                 className="inline-flex items-center justify-center rounded-full bg-brand-500 px-7 py-3.5 font-bold text-black text-center transition-colors hover:bg-accent"
               >
                 Browse Footage

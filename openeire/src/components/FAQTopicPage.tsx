@@ -148,9 +148,9 @@ const FAQTopicPage: React.FC<FAQTopicPageProps> = ({
               <p className="mt-4 text-sm leading-relaxed text-gray-200 md:text-base">
                 {item.answerLead}
               </p>
-              {item.answerParagraphs?.map((paragraph) => (
+              {item.answerParagraphs?.map((paragraph, index) => (
                 <p
-                  key={paragraph}
+                  key={`${item.question}-paragraph-${index}`}
                   className="mt-3 text-sm leading-relaxed text-gray-300"
                 >
                   {paragraph}
@@ -158,8 +158,11 @@ const FAQTopicPage: React.FC<FAQTopicPageProps> = ({
               ))}
               {item.bullets?.length ? (
                 <ul className="mt-4 space-y-3 text-sm leading-relaxed text-gray-300">
-                  {item.bullets.map((bullet) => (
-                    <li key={bullet} className="flex gap-3">
+                  {item.bullets.map((bullet, index) => (
+                    <li
+                      key={`${item.question}-bullet-${index}`}
+                      className="flex gap-3"
+                    >
                       <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
                       <span>{bullet}</span>
                     </li>

@@ -210,8 +210,8 @@ const USPrintLandingPage: React.FC<USPrintLandingPageProps> = ({
               ))}
             </div>
             <ul className="mt-6 space-y-3 text-sm leading-relaxed text-gray-300">
-              {relevanceBullets.map((bullet) => (
-                <li key={bullet} className="flex gap-3">
+              {relevanceBullets.map((bullet, index) => (
+                <li key={`${canonicalPath}-bullet-${index}`} className="flex gap-3">
                   <FaShippingFast className="mt-0.5 shrink-0 text-accent" />
                   <span>{bullet}</span>
                 </li>
