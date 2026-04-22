@@ -92,6 +92,7 @@ const Footer: React.FC = () => {
             </h3>
             <ul className="space-y-3 text-sm">
               <FooterLink to="/contact">Contact Us</FooterLink>
+              <FooterLink to="/faq">FAQ</FooterLink>
               <FooterLink to="/licensing/terms">
                 Licensing Terms (EULA)
               </FooterLink>

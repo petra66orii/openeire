@@ -48,6 +48,23 @@ const ContactPage = lazy(() => import("./pages/ContactPage"));
 const GalleryGatePage = lazy(() => import("./pages/GalleryGatePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ArtPrintsPage = lazy(() => import("./pages/ArtPrintsPage"));
+const FAQIndexPage = lazy(() => import("./pages/FAQIndexPage"));
+const DroneFootageLicensingFAQPage = lazy(
+  () => import("./pages/DroneFootageLicensingFAQPage"),
+);
+const DroneFootageUsageFAQPage = lazy(
+  () => import("./pages/DroneFootageUsageFAQPage"),
+);
+const ArtPrintsFAQPage = lazy(() => import("./pages/ArtPrintsFAQPage"));
+const FootageLandingPage = lazy(() => import("./pages/FootageLandingPage"));
+const USWallArtPrintsPage = lazy(() => import("./pages/USWallArtPrintsPage"));
+const USAerialPhotographyPrintsPage = lazy(
+  () => import("./pages/USAerialPhotographyPrintsPage"),
+);
+const USLandscapeWallArtPage = lazy(
+  () => import("./pages/USLandscapeWallArtPage"),
+);
+const USFineArtPrintsPage = lazy(() => import("./pages/USFineArtPrintsPage"));
 const LicensingOverviewPage = lazy(
   () => import("./pages/LicensingOverviewPage"),
 );
@@ -123,7 +140,34 @@ function App() {
 
               {/* PUBLIC GALLERY (Physical Products & General View) */}
               <Route path="/gallery" element={<GalleryPage />} />
+              <Route path="/faq" element={<FAQIndexPage />} />
+              <Route
+                path="/faq/drone-footage-licensing"
+                element={<DroneFootageLicensingFAQPage />}
+              />
+              <Route
+                path="/faq/drone-footage-usage"
+                element={<DroneFootageUsageFAQPage />}
+              />
+              <Route path="/faq/art-prints" element={<ArtPrintsFAQPage />} />
               <Route path="/art-prints" element={<ArtPrintsPage />} />
+              <Route path="/footage" element={<FootageLandingPage />} />
+              <Route
+                path="/us/fine-art-prints"
+                element={<USFineArtPrintsPage />}
+              />
+              <Route
+                path="/us/wall-art-prints"
+                element={<USWallArtPrintsPage />}
+              />
+              <Route
+                path="/us/aerial-photography-prints"
+                element={<USAerialPhotographyPrintsPage />}
+              />
+              <Route
+                path="/us/landscape-wall-art"
+                element={<USLandscapeWallArtPage />}
+              />
               <Route path="/gallery/physical" element={<GalleryPage />} />
               <Route
                 path="/gallery/physical/:id"

@@ -131,6 +131,14 @@ const LicensingOverviewPage: React.FC = () => {
               Licensing starts with the asset you want to use. From that page,
               you can request a commercial licence with your usage details.
             </p>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-gray-400">
+              Looking for available footage first? Start with{" "}
+              <Link to="/footage" className="text-accent hover:text-white">
+                the footage page
+              </Link>{" "}
+              to find the right asset, then return here to confirm the
+              licensing route.
+            </p>
 
             <div className="mt-6 flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-300">
               {[

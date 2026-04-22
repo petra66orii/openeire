@@ -1,6 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaCheckCircle, FaShippingFast, FaPalette, FaExternalLinkAlt } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaShippingFast,
+  FaPalette,
+  FaExternalLinkAlt,
+  FaHome,
+  FaGift,
+  FaBuilding,
+} from "react-icons/fa";
 import SEOHead from "../components/SEOHead";
 import { buildAbsoluteSiteUrl } from "../config/site";
 import { buildBreadcrumbSchema } from "../lib/seoSchema";
@@ -18,7 +26,9 @@ const SECTION_TITLE_CLASS =
 
 const ArtPrintsPage: React.FC = () => {
   const shippingNote = FREE_SHIPPING_PROMO_ENABLED
-    ? `Shipping is calculated at checkout, and eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over \u20AC${FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.`
+    ? `Shipping is calculated at checkout, and eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over \u20AC${FREE_SHIPPING_THRESHOLD.toFixed(
+        2,
+      )} qualify for free shipping.`
     : "Shipping is calculated at checkout for every bespoke print order.";
 
   return (
@@ -45,12 +55,14 @@ const ArtPrintsPage: React.FC = () => {
               Art prints for collectors and interiors
             </span>
             <h1 className={HERO_TITLE_CLASS}>
-              Fine art prints that feel as premium in the room as they do online.
+              Fine art prints that feel as premium in the room as they do
+              online.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-gray-300 md:text-lg">
-              OpenÉire Studios prints aerial photography as statement wall art
-              for homes, interiors, and gifting. Each piece is curated to feel
-              editorial, distinctive, and built for long-term display.
+              OpenÉire Studios turns aerial photography into statement wall art
+              for homes, interiors, and gifting. These are not generic poster
+              prints. Each piece is selected to feel editorial, distinctive, and
+              made to live well in real spaces.
             </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -93,7 +105,8 @@ const ArtPrintsPage: React.FC = () => {
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-gray-300">
               Prints are produced to order through specialist fulfilment so the
-              final piece arrives with gallery-level intent.
+              final piece arrives with gallery-level intent rather than feeling
+              like disposable wall decor.
             </p>
           </article>
 
@@ -124,7 +137,7 @@ const ArtPrintsPage: React.FC = () => {
             <p className="text-gray-400 leading-relaxed">
               If you are looking for a particular landscape, scale, or finish,
               start with the gallery and then reach out through the contact page
-              for a custom conversation.
+              for a more direct conversation about the right piece.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -135,10 +148,10 @@ const ArtPrintsPage: React.FC = () => {
                 Open the Print Gallery
               </Link>
               <Link
-                to="/licensing"
+                to="/contact"
                 className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10"
               >
-                Explore Licensing
+                Ask About a Particular Print
               </Link>
             </div>
           </div>
@@ -149,22 +162,98 @@ const ArtPrintsPage: React.FC = () => {
             </h3>
             <ul className="mt-4 space-y-3 text-sm leading-relaxed text-gray-300">
               <li>Archival-minded art prints with a premium finish.</li>
+              <li>
+                Produced as physical pieces for personal display and interiors.
+              </li>
               <li>Shipping is handled separately at checkout.</li>
               {FREE_SHIPPING_PROMO_ENABLED ? (
                 <li>
                   Eligible {FREE_SHIPPING_COUNTRY_LABEL} orders over {"\u20AC"}
-                  {FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free shipping.
+                  {FREE_SHIPPING_THRESHOLD.toFixed(2)} qualify for free
+                  shipping.
                 </li>
               ) : (
-                <li>Shipping is calculated at checkout for every bespoke print order.</li>
+                <li>
+                  Shipping is calculated at checkout for every bespoke print
+                  order.
+                </li>
               )}
-              <li>Need help choosing? Use the contact page for a direct enquiry.</li>
+              <li>
+                Need help choosing? Use the contact page for a direct enquiry.
+              </li>
             </ul>
             <Link
               to="/contact"
               className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em] text-accent transition-colors hover:text-white"
             >
               Talk to the studio <FaExternalLinkAlt className="text-xs" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="container mx-auto px-4 lg:px-8 pt-8 md:pt-20">
+        <div className="grid gap-6 md:grid-cols-3">
+          <article className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+            <FaHome className="text-2xl text-accent" />
+            <h2 className="mt-4 text-xl font-serif font-bold text-white">
+              Made for living spaces
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-gray-300">
+              Designed to sit comfortably in homes, apartments, and personal
+              spaces where atmosphere matters as much as the image itself.
+            </p>
+          </article>
+
+          <article className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+            <FaBuilding className="text-2xl text-accent" />
+            <h2 className="mt-4 text-xl font-serif font-bold text-white">
+              Strong enough for interiors
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-gray-300">
+              Pieces that work in offices, hospitality settings, and curated
+              interiors where generic wall art would feel too anonymous.
+            </p>
+          </article>
+
+          <article className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+            <FaGift className="text-2xl text-accent" />
+            <h2 className="mt-4 text-xl font-serif font-bold text-white">
+              Distinctive as a gift
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-gray-300">
+              A stronger choice than off-the-shelf decor when you want to give
+              something memorable, visual, and lasting.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="container mx-auto px-4 lg:px-8 pt-8 md:pt-20">
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-center rounded-[32px] border border-white/10 bg-gradient-to-r from-white/8 to-white/5 p-5 md:p-10">
+          <div className="lg:col-span-8">
+            <h2 className={SECTION_TITLE_CLASS}>
+              Ready to find the right piece?
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-gray-300">
+              Browse the print gallery to explore available pieces, then reach
+              out if you want help choosing the right image, scale, or finish
+              for your space.
+            </p>
+          </div>
+
+          <div className="lg:col-span-4 flex flex-col gap-3 sm:flex-row lg:flex-col lg:items-stretch">
+            <Link
+              to="/gallery/physical"
+              className="inline-flex items-center justify-center rounded-full bg-brand-500 px-7 py-3.5 font-bold text-black text-center transition-colors hover:bg-accent"
+            >
+              Browse Art Prints
+            </Link>
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-3.5 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Contact the Studio
             </Link>
           </div>
         </div>

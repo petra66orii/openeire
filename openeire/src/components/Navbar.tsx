@@ -3,7 +3,10 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import logoImage from "../assets/full-logo-white.png";
-import { FREE_SHIPPING_PROMO_ENABLED, FREE_SHIPPING_THRESHOLD } from "../utils/freeShipping";
+import {
+  FREE_SHIPPING_PROMO_ENABLED,
+  FREE_SHIPPING_THRESHOLD,
+} from "../utils/freeShipping";
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, logout } = useAuth(); // Removed unused 'logout' if not using, but keeping for safety
@@ -59,10 +62,13 @@ const Navbar: React.FC = () => {
     };
   }, [showBanner, isMobileMenuOpen, scrolled, location.pathname]);
 
-  const formattedFreeShippingThreshold = FREE_SHIPPING_THRESHOLD.toLocaleString("en-IE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
+  const formattedFreeShippingThreshold = FREE_SHIPPING_THRESHOLD.toLocaleString(
+    "en-IE",
+    {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    },
+  );
 
   // --- DYNAMIC STYLES ---
 
@@ -89,11 +95,16 @@ const Navbar: React.FC = () => {
         <div className="bg-dark text-white text-xs font-medium py-2 px-4 relative transition-all duration-300 ease-in-out">
           <div className="container mx-auto flex justify-center items-center text-center">
             <p className="tracking-wide">
-              <span className="text-accent font-bold">{"\u2728"} Free Delivery</span>
+              <span className="text-accent font-bold">
+                {"\u2728"} Free Delivery
+              </span>
               <span className="opacity-90 ml-1">
                 on all physical orders over{" "}
               </span>
-              <span className="font-bold text-white ml-1">{"\u20AC"}{formattedFreeShippingThreshold}</span>
+              <span className="font-bold text-white ml-1">
+                {"\u20AC"}
+                {formattedFreeShippingThreshold}
+              </span>
 
               <Link
                 to="/gallery/physical"
@@ -160,12 +171,8 @@ const Navbar: React.FC = () => {
               >
                 Licensing
               </NavLink>
-              <NavLink
-                to="/gallery/digital"
-                className={hoverColor}
-                style={activeStyle}
-              >
-                Stock Footage
+              <NavLink to="/footage" className={hoverColor} style={activeStyle}>
+                Footage
               </NavLink>
               <NavLink to="/blog" className={hoverColor} style={activeStyle}>
                 Blog
@@ -303,11 +310,11 @@ const Navbar: React.FC = () => {
                   Licensing
                 </NavLink>
                 <NavLink
-                  to="/gallery/digital"
+                  to="/footage"
                   className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Stock Footage
+                  Footage
                 </NavLink>
                 <NavLink
                   to="/blog"
@@ -371,4 +378,3 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-
