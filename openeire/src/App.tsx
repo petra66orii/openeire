@@ -64,6 +64,13 @@ const USAerialPhotographyPrintsPage = lazy(
 const USLandscapeWallArtPage = lazy(
   () => import("./pages/USLandscapeWallArtPage"),
 );
+const USLargeWallArtPage = lazy(() => import("./pages/USLargeWallArtPage"));
+const USWallArtForLivingRoomPage = lazy(
+  () => import("./pages/USWallArtForLivingRoomPage"),
+);
+const USWallArtForOfficePage = lazy(
+  () => import("./pages/USWallArtForOfficePage"),
+);
 const USFineArtPrintsPage = lazy(() => import("./pages/USFineArtPrintsPage"));
 const LicensingOverviewPage = lazy(
   () => import("./pages/LicensingOverviewPage"),
@@ -167,6 +174,15 @@ function App() {
               <Route
                 path="/us/landscape-wall-art"
                 element={<USLandscapeWallArtPage />}
+              />
+              <Route path="/us/large-wall-art" element={<USLargeWallArtPage />} />
+              <Route
+                path="/us/wall-art-for-living-room"
+                element={<USWallArtForLivingRoomPage />}
+              />
+              <Route
+                path="/us/wall-art-for-office"
+                element={<USWallArtForOfficePage />}
               />
               <Route path="/gallery/physical" element={<GalleryPage />} />
               <Route

@@ -10,7 +10,7 @@ import {
 
 const USWallArtPrintsPage: React.FC = () => {
   const shippingNote = FREE_SHIPPING_PROMO_ENABLED
-    ? `Shipping is calculated at checkout. Current free-shipping messaging applies to eligible ${FREE_SHIPPING_COUNTRY_LABEL} orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(2)}, while United States orders follow the same print workflow.`
+    ? `Shipping is calculated at checkout. Current free-shipping messaging applies to eligible ${FREE_SHIPPING_COUNTRY_LABEL} orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(2)}, while United States orders are handled through the same made-to-order print flow.`
     : "Shipping is calculated at checkout for each made-to-order print.";
 
   return (
@@ -24,10 +24,9 @@ const USWallArtPrintsPage: React.FC = () => {
       intro={
         <>
           Browse a curated collection of wall art prints designed for homes,
-          offices, and interior projects across the United States. This page
-          acts as the entry point into the OpenEire Studios print collection,
-          covering a range of styles including aerial, landscape, and statement
-          pieces.
+          offices, and interior projects across the United States. The
+          collection brings together aerial, landscape, and statement pieces
+          chosen for atmosphere, presence, and real-world display.
         </>
       }
       heroPrimaryCta={{
@@ -52,9 +51,9 @@ const USWallArtPrintsPage: React.FC = () => {
       angleTitle="Wall art that works in real spaces"
       angleIntro={
         <>
-          This page is centered on placement and interior use: statement wall
-          art for living rooms, offices, hospitality settings, and refined
-          spaces that need a focal piece rather than generic decoration.
+          Built around placement and interior use, this collection suits living
+          rooms, offices, hospitality settings, and refined spaces that need a
+          focal piece rather than generic decoration.
         </>
       }
       angleCards={[
@@ -92,25 +91,25 @@ const USWallArtPrintsPage: React.FC = () => {
           interiors.
         </>,
         <>
-          A clean path from this broader wall-art page into{" "}
+          If you want a more collector-led direction, continue to{" "}
           <Link
             to="/us/fine-art-prints"
             className="text-accent hover:text-white"
           >
             United States fine art prints
-          </Link>{" "}
-          when the buyer intent becomes more collector-led.
+          </Link>
+          .
         </>,
       ]}
       relevanceTitle="For United States buyers"
       relevanceParagraphs={[
         <>
           Wall art prints from OpenEire Studios are available to buyers in the
-          United States through the existing print order flow.
+          United States as made-to-order physical pieces.
         </>,
         <>
-          Orders are produced to order, with shipping handled through checkout
-          rather than through a separate manual quote by default.
+          Orders move through checkout, so shipping and order handling stay
+          clear and consistent without needing a separate quote by default.
         </>,
       ]}
       relevanceBullets={[
@@ -134,12 +133,12 @@ const USWallArtPrintsPage: React.FC = () => {
         {
           question: "Do you ship wall art prints to the United States?",
           answer:
-            "Yes. United States orders follow the existing print workflow, with shipping handled through checkout.",
+            "Yes. United States orders are available through the current print flow, with shipping handled at checkout.",
         },
         {
           question: "Are these suitable for interiors and offices?",
           answer:
-            "Yes. The collection is positioned for homes, offices, and curated spaces that need more considered wall art.",
+            "Yes. The collection is designed for homes, offices, and curated spaces that need more considered wall art.",
         },
       ]}
       ctaTitle="Ready to place the right piece?"
