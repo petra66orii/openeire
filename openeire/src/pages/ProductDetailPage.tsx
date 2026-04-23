@@ -28,6 +28,7 @@ import { useBreadcrumb } from "../context/BreadcrumbContext";
 import RelatedProducts from "../components/RelatedProducts";
 import LicenseRequestModal from "../components/LicenseRequestModal";
 import SEOHead from "../components/SEOHead";
+import { buildAbsoluteSiteUrl } from "../config/site";
 import { toastInfo } from "../utils/toast";
 import {
   isDigitalProductType,
@@ -66,7 +67,9 @@ const isVideoDetail = (item: ProductDetailItem): item is VideoDetail =>
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
-const isPhysicalNestedDetail = (item: ProductDetailItem): item is ProductDetail => {
+const isPhysicalNestedDetail = (
+  item: ProductDetailItem,
+): item is ProductDetail => {
   if (item.product_type !== "physical") return false;
   const candidate = item as unknown as { photo?: unknown };
   if (!isRecord(candidate.photo)) return false;
@@ -179,7 +182,8 @@ const ProductDetailPage: React.FC = () => {
     () =>
       variants.find(
         (variant) =>
-          variant.material === selectedMaterial && variant.size === selectedSize,
+          variant.material === selectedMaterial &&
+          variant.size === selectedSize,
       ),
     [variants, selectedMaterial, selectedSize],
   );
@@ -231,9 +235,10 @@ const ProductDetailPage: React.FC = () => {
   useEffect(() => {
     if (!product || !resolvedType) return;
 
-    const signature = isPhysical && activePhysicalVariant
-      ? `${location.pathname}:${product.id}:${activePhysicalVariant.id}`
-      : `${location.pathname}:${product.id}`;
+    const signature =
+      isPhysical && activePhysicalVariant
+        ? `${location.pathname}:${product.id}:${activePhysicalVariant.id}`
+        : `${location.pathname}:${product.id}`;
     if (trackedViewItemSignature.current === signature) return;
 
     if (isPhysical) {
@@ -264,7 +269,8 @@ const ProductDetailPage: React.FC = () => {
 
     if (!digitalProduct || !isDigital) return;
 
-    const digitalPrice = selectedDigitalPrice > 0 ? selectedDigitalPrice : undefined;
+    const digitalPrice =
+      selectedDigitalPrice > 0 ? selectedDigitalPrice : undefined;
     trackedViewItemSignature.current = signature;
     trackEcommerceEvent("view_item", {
       currency: "EUR",
@@ -299,7 +305,7 @@ const ProductDetailPage: React.FC = () => {
       ? Number(physicalProduct.photo.id)
       : Number(physicalProduct.photo_id ?? physicalProduct.id);
     const previewImage = isPhysicalNestedDetail(physicalProduct)
-      ? physicalProduct.photo.preview_image ?? physicalProduct.preview_image
+      ? (physicalProduct.photo.preview_image ?? physicalProduct.preview_image)
       : physicalProduct.preview_image;
 
     return {
@@ -330,7 +336,7 @@ const ProductDetailPage: React.FC = () => {
       sourceProductId: Number(
         isPhysicalNestedDetail(physicalProduct)
           ? physicalProduct.photo.id
-          : physicalProduct.photo_id ?? physicalProduct.id,
+          : (physicalProduct.photo_id ?? physicalProduct.id),
       ),
     });
 
@@ -338,9 +344,7 @@ const ProductDetailPage: React.FC = () => {
     const variantPrice = toAnalyticsMoney(activePhysicalVariant.price);
     trackEcommerceEvent("add_to_cart", {
       currency: "EUR",
-      ...(variantPrice !== undefined
-        ? { value: variantPrice * quantity }
-        : {}),
+      ...(variantPrice !== undefined ? { value: variantPrice * quantity } : {}),
       items: [
         {
           item_id: String(activePhysicalVariant.id),
@@ -449,10 +453,10 @@ const ProductDetailPage: React.FC = () => {
     product.product_type === "physical" ? "photo" : product.product_type;
   const reviewDescription = isPhysicalNestedDetail(product)
     ? product.photo.description
-    : product.description ?? "";
+    : (product.description ?? "");
   const relatedProducts = isPhysicalNestedDetail(product)
     ? product.photo.related_products
-    : product.related_products ?? [];
+    : (product.related_products ?? []);
   const specResolution =
     isVideoDetail(product) && product.resolution
       ? product.resolution
@@ -488,12 +492,18 @@ const ProductDetailPage: React.FC = () => {
             ? [
                 buildBreadcrumbSchema([
                   { name: "Home", url: buildAbsoluteSiteUrl("/") },
-                  { name: "Art Prints", url: buildAbsoluteSiteUrl("/art-prints") },
+                  {
+                    name: "Art Prints",
+                    url: buildAbsoluteSiteUrl("/art-prints"),
+                  },
                   {
                     name: "Gallery",
                     url: buildAbsoluteSiteUrl("/gallery/physical"),
                   },
-                  { name: product.title, url: buildAbsoluteSiteUrl(location.pathname) },
+                  {
+                    name: product.title,
+                    url: buildAbsoluteSiteUrl(location.pathname),
+                  },
                 ]),
                 buildProductSchema({
                   name: product.title,
@@ -521,7 +531,10 @@ const ProductDetailPage: React.FC = () => {
       <div className="container mx-auto px-4 lg:px-8">
         {/* BREADCRUMB */}
         <nav className="text-xs uppercase tracking-widest text-gray-500 mb-8 flex items-center gap-2">
-          <Link to="/art-prints" className="hover:text-accent transition-colors">
+          <Link
+            to="/art-prints"
+            className="hover:text-accent transition-colors"
+          >
             Art Prints
           </Link>
           <span>/</span>
@@ -649,7 +662,8 @@ const ProductDetailPage: React.FC = () => {
                         Total
                       </span>
                       <span className="text-4xl font-serif font-bold text-white">
-                        {"\u20AC"}{displayPrice}
+                        {"\u20AC"}
+                        {displayPrice}
                       </span>
                     </div>
 
@@ -700,7 +714,8 @@ const ProductDetailPage: React.FC = () => {
                         Total
                       </span>
                       <span className="text-4xl font-serif font-bold text-white">
-                        {"\u20AC"}{selectedDigitalPrice.toFixed(2)}
+                        {"\u20AC"}
+                        {selectedDigitalPrice.toFixed(2)}
                       </span>
                     </div>
 
