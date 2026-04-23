@@ -10,7 +10,7 @@ import {
 
 const USLandscapeWallArtPage: React.FC = () => {
   const shippingNote = FREE_SHIPPING_PROMO_ENABLED
-    ? `Shipping is calculated at checkout. Current free-shipping messaging applies to eligible ${FREE_SHIPPING_COUNTRY_LABEL} orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(2)}, while United States orders move through the same print workflow.`
+    ? `Shipping is calculated at checkout. Current free-shipping messaging applies to eligible ${FREE_SHIPPING_COUNTRY_LABEL} orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(2)}, while United States orders are handled through the same made-to-order print flow.`
     : "Shipping is calculated at checkout for each made-to-order print.";
 
   return (
@@ -50,9 +50,8 @@ const USLandscapeWallArtPage: React.FC = () => {
       angleTitle="Landscape character, not just decoration"
       angleIntro={
         <>
-          This page is built around scenic intent first. The emphasis is on
-          coastlines, countryside, atmosphere, and prints that give a room a
-          stronger sense of place.
+          The focus here is on coastlines, countryside, atmosphere, and prints
+          that give a room a stronger sense of place.
         </>
       }
       angleCards={[
@@ -76,8 +75,8 @@ const USLandscapeWallArtPage: React.FC = () => {
       premiumIntro={
         <>
           These landscape prints are not treated as generic filler imagery. The
-          work is curated for mood, visual restraint, and how scenery actually
-          lands in a real interior.
+          work is curated for mood, visual restraint, and how scenery sits in a
+          real interior.
         </>
       }
       premiumPoints={[
@@ -87,14 +86,14 @@ const USLandscapeWallArtPage: React.FC = () => {
         </>,
         <>A more premium alternative to mass-market scenic wall decor.</>,
         <>
-          A natural path into{" "}
+          For the wider collection, continue to{" "}
           <Link
             to="/us/fine-art-prints"
             className="text-accent hover:text-white"
           >
             United States fine art prints
           </Link>{" "}
-          or directly into{" "}
+          or go straight into the{" "}
           <Link to="/gallery/physical" className="text-accent hover:text-white">
             print gallery
           </Link>
@@ -105,12 +104,11 @@ const USLandscapeWallArtPage: React.FC = () => {
       relevanceParagraphs={[
         <>
           Landscape wall art prints are available to buyers in the United States
-          through the current print order flow.
+          as made-to-order physical pieces.
         </>,
         <>
-          The process stays simple: made-to-order prints, checkout-based
-          shipping, and no extra promises beyond what the site currently
-          supports.
+          Orders move through checkout, so shipping and order handling stay
+          simple and consistent.
         </>,
       ]}
       relevanceBullets={[

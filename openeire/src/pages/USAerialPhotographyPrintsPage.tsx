@@ -10,7 +10,7 @@ import {
 
 const USAerialPhotographyPrintsPage: React.FC = () => {
   const shippingNote = FREE_SHIPPING_PROMO_ENABLED
-    ? `Shipping is calculated at checkout. Current free-shipping messaging applies to eligible ${FREE_SHIPPING_COUNTRY_LABEL} orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(2)}, while United States delivery uses the same print-order flow.`
+    ? `Shipping is calculated at checkout. Current free-shipping messaging applies to eligible ${FREE_SHIPPING_COUNTRY_LABEL} orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(2)}, while United States orders are handled through the same made-to-order print flow.`
     : "Shipping is calculated at checkout for each made-to-order print.";
 
   return (
@@ -54,8 +54,8 @@ const USAerialPhotographyPrintsPage: React.FC = () => {
       angleIntro={
         <>
           The aerial perspective is the differentiator here. These prints are
-          for buyers who specifically want height, scale, geometry, and a point
-          of view that standard landscape photography cannot offer.
+          for buyers who want height, scale, geometry, and a point of view that
+          standard landscape photography cannot offer.
         </>
       }
       angleCards={[
@@ -93,7 +93,7 @@ const USAerialPhotographyPrintsPage: React.FC = () => {
           photographic character.
         </>,
         <>
-          A natural route into{" "}
+          For the wider collection, continue to the{" "}
           <Link to="/art-prints" className="text-accent hover:text-white">
             art prints page
           </Link>{" "}
@@ -103,20 +103,19 @@ const USAerialPhotographyPrintsPage: React.FC = () => {
             className="text-accent hover:text-white"
           >
             United States fine art prints
-          </Link>{" "}
-          when you want the wider collection context.
+          </Link>
+          .
         </>,
       ]}
       relevanceTitle="Ordering from the United States"
       relevanceParagraphs={[
         <>
           Aerial photography prints are available to buyers in the United States
-          through the same print workflow used across the collection.
+          as made-to-order physical pieces.
         </>,
         <>
-          Orders remain tied to the existing checkout flow, so delivery and
-          order handling stay grounded in the same process used across the print
-          range.
+          Orders move through checkout, so shipping and order handling stay
+          straightforward and consistent.
         </>,
       ]}
       relevanceBullets={[
@@ -148,7 +147,7 @@ const USAerialPhotographyPrintsPage: React.FC = () => {
       ctaTitle="Ready to explore the aerial collection?"
       ctaText={
         <>
-          Go straight into{" "}
+          Go straight into the{" "}
           <Link to="/gallery/physical" className="text-accent hover:text-white">
             print gallery
           </Link>
