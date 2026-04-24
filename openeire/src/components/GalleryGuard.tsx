@@ -1,29 +1,28 @@
-﻿import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const GalleryGuard = () => {
-  // 1. Check local storage for the ticket
-  const storedSession = localStorage.getItem("gallery_access");
+  const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
 
-  if (!storedSession) {
-    // No ticket? Go to the Gate.
-    return <Navigate to="/gallery-gate" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/gallery-gate" state={{ from: location }} replace />;
   }
 
-  // 2. Check expiration (Optional but recommended)
-  const { expiresAt } = JSON.parse(storedSession);
-  const now = new Date();
-  const expiration = new Date(expiresAt);
-
-  if (now > expiration) {
-    // Ticket expired? Clear it and kick them out.
-    localStorage.removeItem("gallery_access");
-    return <Navigate to="/gallery-gate" replace />;
+  if (!user) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center text-sm font-medium uppercase tracking-[0.2em] text-gray-500">
+        Checking access...
+      </div>
+    );
   }
 
-  // 3. Valid ticket? Let them in.
+  if (!user.can_access_gallery) {
+    return <Navigate to="/gallery-gate" state={{ from: location }} replace />;
+  }
+
   return <Outlet />;
 };
 
 export default GalleryGuard;
-

@@ -1,7 +1,7 @@
-﻿import React, { useState } from "react";
-import { registerUser } from "../services/api";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { registerUser } from "../services/api";
 import { getRegistrationToastErrorMessage } from "../utils/toast";
 
 interface FormData {
@@ -13,7 +13,15 @@ interface FormData {
   confirmPassword: string;
 }
 
-const AuthForm: React.FC = () => {
+interface AuthFormProps {
+  initialEmail?: string;
+  redirectPath?: string;
+}
+
+const AuthForm: React.FC<AuthFormProps> = ({
+  initialEmail = "",
+  redirectPath,
+}) => {
   const [formData, setFormData] = useState<FormData>({
     first_name: "",
     last_name: "",
@@ -24,6 +32,14 @@ const AuthForm: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!initialEmail) return;
+    setFormData((current) => {
+      if (current.email === initialEmail) return current;
+      return { ...current, email: initialEmail };
+    });
+  }, [initialEmail]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,7 +64,13 @@ const AuthForm: React.FC = () => {
         password: formData.password,
       });
       toast.success("Registration successful! Please check your email.");
-      navigate("/verify-pending");
+      navigate("/verify-pending", {
+        state: {
+          email: formData.email,
+          fromGalleryGate: redirectPath === "/gallery-gate",
+          from: redirectPath ? { pathname: redirectPath } : undefined,
+        },
+      });
     } catch (err: any) {
       console.error("Registration error:", err);
       toast.error(getRegistrationToastErrorMessage(err));
@@ -64,7 +86,7 @@ const AuthForm: React.FC = () => {
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row">
         <div className="w-full">
           <label htmlFor="first_name" className={labelClass}>
             First Name
@@ -163,7 +185,7 @@ const AuthForm: React.FC = () => {
 
       <button
         type="submit"
-        className="w-full py-3 bg-brand-500 text-paper font-bold rounded-lg hover:bg-brand-700 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full rounded-lg bg-brand-500 py-3 font-bold text-paper shadow-lg transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={loading}
       >
         {loading ? "Creating Account..." : "Create Account"}
@@ -173,5 +195,3 @@ const AuthForm: React.FC = () => {
 };
 
 export default AuthForm;
-
-
