@@ -7,6 +7,10 @@
   useCallback,
 } from "react";
 import { loginUser, api } from "../services/api";
+import {
+  clearPendingGalleryCode,
+  clearPendingGalleryRedirect,
+} from "../utils/galleryAccessFlow";
 
 interface User {
   username: string;
@@ -15,7 +19,7 @@ interface User {
   first_name?: string;
   last_name?: string;
   country?: string;
-  // Add other fields you expect
+  can_access_gallery?: boolean;
 }
 
 interface AuthState {
@@ -68,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
     }
+    localStorage.removeItem("gallery_access");
 
     const storedToken = getSessionAccessToken();
 
@@ -88,6 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.setItem("refreshToken", response.refresh);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("gallery_access");
 
     setAccessToken(response.access);
     await refreshUser(); // Load user data immediately
@@ -102,6 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     sessionStorage.setItem("refreshToken", data.refresh);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("gallery_access");
     setAccessToken(data.access);
 
     if (data.user) {
@@ -114,8 +121,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("gallery_access");
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
+    clearPendingGalleryCode();
+    clearPendingGalleryRedirect();
     setAccessToken(null);
     setUser(null);
   };
