@@ -18,7 +18,12 @@ import {
   setRequestedGalleryEmail,
 } from "../utils/galleryAccessFlow";
 
-type GateState = "A" | "B" | "C" | "D" | "E";
+type GateState =
+  | "loggedOutStart"
+  | "loggedOutRequested"
+  | "readyToVerify"
+  | "emailMismatch"
+  | "alreadyApproved";
 
 const normalizeEmail = (value: string): string => value.trim().toLowerCase();
 
@@ -33,14 +38,17 @@ const GalleryGatePage = () => {
   const [isRequestingCode, setIsRequestingCode] = useState(false);
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);
 
+  const locationRedirect =
+    (location.state as { from?: { pathname?: string } } | undefined)?.from
+      ?.pathname ?? "";
   const pendingRedirect =
-    getPendingGalleryRedirect() ||
-    ((location.state as { from?: { pathname?: string } } | undefined)?.from
-      ?.pathname ?? "/gallery/digital");
+    locationRedirect || getPendingGalleryRedirect() || "/gallery/digital";
   const accountEmail = normalizeEmail(user?.email ?? "");
   const hasGalleryAccess = Boolean(user?.can_access_gallery);
   const emailsMatch =
-    Boolean(requestedEmail) && Boolean(accountEmail) && requestedEmail === accountEmail;
+    Boolean(requestedEmail) &&
+    Boolean(accountEmail) &&
+    requestedEmail === accountEmail;
 
   useEffect(() => {
     localStorage.removeItem("gallery_access");
@@ -56,18 +64,28 @@ const GalleryGatePage = () => {
     }
   }, [accountEmail]);
 
+  useEffect(() => {
+    if (locationRedirect) {
+      setPendingGalleryRedirect(locationRedirect);
+    }
+  }, [locationRedirect]);
+
   const gateState: GateState = useMemo(() => {
-    if (hasGalleryAccess) return "E";
-    if (!isAuthenticated && !requestedEmail) return "A";
-    if (!isAuthenticated && requestedEmail) return "B";
-    if (isAuthenticated && requestedEmail && !emailsMatch) return "D";
-    return "C";
+    if (hasGalleryAccess) return "alreadyApproved";
+    if (!isAuthenticated && !requestedEmail) return "loggedOutStart";
+    if (!isAuthenticated && requestedEmail) return "loggedOutRequested";
+    if (isAuthenticated && requestedEmail && !emailsMatch) {
+      return "emailMismatch";
+    }
+    return "readyToVerify";
   }, [emailsMatch, hasGalleryAccess, isAuthenticated, requestedEmail]);
 
   const handleRequestAccess = async (emailOverride?: string) => {
     const emailToUse = normalizeEmail(emailOverride ?? requestEmail);
     if (!emailToUse) {
-      toast.error("Enter the email address you want to use for private gallery access.");
+      toast.error(
+        "Enter the email address you want to use for private gallery access.",
+      );
       return;
     }
 
@@ -79,8 +97,8 @@ const GalleryGatePage = () => {
       setRequestEmail(emailToUse);
       setPendingGalleryRedirect(pendingRedirect);
       toast.success("Access code sent. Check your inbox for the next step.");
-      if (gateState === "D") {
-        toast.success("We’ve sent a fresh code for the signed-in account.");
+      if (gateState === "emailMismatch") {
+        toast.success("We've sent a fresh code for the signed-in account.");
       }
     } catch (error: any) {
       toast.error(getGalleryAccessRequestToastErrorMessage(error));
@@ -119,8 +137,10 @@ const GalleryGatePage = () => {
       return;
     }
 
-    if (gateState === "D") {
-      toast.error("This signed-in email does not match the email where your code was sent.");
+    if (gateState === "emailMismatch") {
+      toast.error(
+        "This signed-in email does not match the email where your code was sent.",
+      );
       return;
     }
 
@@ -153,7 +173,7 @@ const GalleryGatePage = () => {
   };
 
   const renderPrimaryPanel = () => {
-    if (gateState === "E") {
+    if (gateState === "alreadyApproved") {
       return (
         <div className="space-y-5">
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
@@ -177,7 +197,7 @@ const GalleryGatePage = () => {
       );
     }
 
-    if (gateState === "D") {
+    if (gateState === "emailMismatch") {
       return (
         <div className="space-y-5">
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
@@ -189,9 +209,14 @@ const GalleryGatePage = () => {
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
               Your code was requested for{" "}
-              <span className="font-semibold text-brand-900">{requestedEmail}</span>,
-              but you are currently signed in as{" "}
-              <span className="font-semibold text-brand-900">{accountEmail}</span>.
+              <span className="font-semibold text-brand-900">
+                {requestedEmail}
+              </span>
+              , but you are currently signed in as{" "}
+              <span className="font-semibold text-brand-900">
+                {accountEmail}
+              </span>
+              .
             </p>
           </div>
 
@@ -215,7 +240,7 @@ const GalleryGatePage = () => {
       );
     }
 
-    if (gateState === "B") {
+    if (gateState === "loggedOutRequested") {
       return (
         <div className="space-y-5">
           <div className="rounded-xl border border-brand-200 bg-brand-50/70 p-5">
@@ -226,11 +251,13 @@ const GalleryGatePage = () => {
               Use the same email to keep going
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
-              You’re continuing a gallery access request for{" "}
-              <span className="font-semibold text-brand-900">{requestedEmail}</span>.
-              Sign in or create your account with this same email, then return
-              here to unlock the gallery. If you need another code, you can send
-              a fresh one below.
+              You're continuing a gallery access request for{" "}
+              <span className="font-semibold text-brand-900">
+                {requestedEmail}
+              </span>
+              . Sign in or create your account with this same email, then
+              return here to unlock the gallery. If you need another code, you
+              can send a fresh one below.
             </p>
           </div>
 
@@ -270,7 +297,7 @@ const GalleryGatePage = () => {
       );
     }
 
-    if (gateState === "C") {
+    if (gateState === "readyToVerify") {
       return (
         <div className="space-y-6">
           <div className="rounded-xl border border-brand-200 bg-brand-50/70 p-5">
@@ -301,7 +328,11 @@ const GalleryGatePage = () => {
 
           {!requestedEmail && (
             <p className="text-center text-sm text-gray-500">
-              We’ll send the code to <span className="font-semibold text-brand-900">{accountEmail}</span>.
+              We'll send the code to{" "}
+              <span className="font-semibold text-brand-900">
+                {accountEmail}
+              </span>
+              .
             </p>
           )}
 
@@ -346,8 +377,9 @@ const GalleryGatePage = () => {
             Request your access code
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-gray-600">
-            Use the email you plan to use for your account. You’ll sign in or
-            create that account next, then enter your emailed code to unlock the gallery.
+            Use the email you plan to use for your account. You'll sign in or
+            create that account next, then enter your emailed code to unlock
+            the gallery.
           </p>
         </div>
 
@@ -401,7 +433,7 @@ const GalleryGatePage = () => {
     >
       <SEOHead
         title="Private Collection Access"
-        description="Request access, sign in with the same email, and unlock the private OpenEire Studios digital collection."
+        description="Request access, sign in with the same email, and unlock the private Open\u00C9ire Studios digital collection."
         canonicalPath="/gallery-gate"
         noindex
       />
@@ -463,11 +495,10 @@ const GalleryGatePage = () => {
         </div>
 
         <div className="w-full max-w-full rounded-2xl border border-white/10 bg-white p-6 shadow-2xl transition-all hover:scale-[1.01] sm:p-8 lg:p-10">
-          {requestedEmail && gateState !== "E" && (
+          {requestedEmail && gateState !== "alreadyApproved" && (
             <div className="mb-6 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3 text-sm text-brand-900">
-              Using{" "}
-              <span className="font-semibold">{requestedEmail}</span>{" "}
-              for gallery access
+              Using <span className="font-semibold">{requestedEmail}</span> for
+              gallery access
             </div>
           )}
           {renderPrimaryPanel()}

@@ -21,7 +21,7 @@ const VerificationPendingPage: React.FC = () => {
     <div className="mobile-page-offset flex min-h-screen items-center justify-center bg-black p-4">
       <SEOHead
         title="Verify Your Email"
-        description="Check your inbox to verify your OpenÉire Studios account."
+        description="Check your inbox to verify your Open\u00C9ire Studios account."
         canonicalPath="/verify-pending"
         noindex
       />
@@ -37,7 +37,7 @@ const VerificationPendingPage: React.FC = () => {
 
         <p className="mb-6 leading-relaxed text-gray-400">
           {isGalleryIntent
-            ? "We’ve sent a secure verification link so you can finish setting up your account and unlock the private gallery."
+            ? "We've sent a secure verification link so you can finish setting up your account and unlock the private gallery."
             : "Thank you for registering. We have sent a secure verification link to your email address. Please click the link to activate your account."}
         </p>
 
@@ -57,9 +57,9 @@ const VerificationPendingPage: React.FC = () => {
         <div className="rounded-lg border border-white/5 bg-black/40 p-4 text-xs text-gray-500">
           <p>
             Didn&apos;t receive an email? Check your spam folder or{" "}
-            <button className="font-bold text-accent hover:underline">
+            <Link to="/contact" className="font-bold text-accent hover:underline">
               contact support
-            </button>
+            </Link>
             .
           </p>
         </div>

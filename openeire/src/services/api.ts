@@ -24,7 +24,7 @@ const getRequestPath = (url?: string): string => {
   return normalizeApiPath(url);
 };
 
-const isGalleryAccessScopedPath = (requestPath: string): boolean =>
+export const isGalleryAccessScopedPath = (requestPath: string): boolean =>
   requestPath.startsWith("photos/") ||
   requestPath.startsWith("videos/") ||
   requestPath.startsWith("gallery/");
