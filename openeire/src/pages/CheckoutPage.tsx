@@ -272,7 +272,7 @@ const CheckoutPage: React.FC = () => {
       if (!isStripeConfigured) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         resetCheckoutIntentState();
-        setCheckoutError(STRIPE_CONFIGURATION_ERROR);
+        setCheckoutError(null);
         setIsUpdatingIntent(false);
         return;
       }
