@@ -27,17 +27,34 @@ interface RegisteredFormEntry {
   config: IubendaConsentFormConfig;
 }
 
+type IubendaConsentGrantedCallback = () => void;
+
+type IubendaCookieCallback = (...args: unknown[]) => void;
+
+interface IubendaCookieCallbacks {
+  onReady?: IubendaCookieCallback;
+  onConsentGiven?: IubendaCookieCallback;
+  onConsentRead?: IubendaCookieCallback;
+}
+
+interface IubendaCookieConfiguration {
+  callback?: IubendaCookieCallbacks;
+}
+
 declare global {
   interface Window {
     _iub?: {
       cons_instructions?: Array<[string, Record<string, unknown>, Record<string, unknown>?]>;
+      csConfiguration?: IubendaCookieConfiguration;
     };
   }
 }
 
 const registeredForms = new Map<string, RegisteredFormEntry>();
+const consentGrantedListeners = new Set<IubendaConsentGrantedCallback>();
 const CONSENT_SCRIPT_SRC = "https://cdn.iubenda.com/cons/iubenda_cons.js";
 const DEFAULT_LEGAL_NOTICE_IDENTIFIERS = ["privacy_policy", "cookie_policy"];
+const IUBENDA_CALLBACK_BRIDGE_MARKER = "__openeireCallbackBridgeInstalled";
 
 const ensureConsentInstructionQueue = () => {
   window._iub = window._iub || {};
@@ -55,6 +72,93 @@ const buildFieldMap = (subject: SubjectFieldMap, preferences?: PreferenceFieldMa
 
 const getLegalNotices = (legalNoticeIdentifiers: string[]) =>
   legalNoticeIdentifiers.map((identifier) => ({ identifier }));
+
+const composeCallback = (
+  originalCallback: IubendaCookieCallback | undefined,
+  nextCallback: IubendaCookieCallback,
+): IubendaCookieCallback => {
+  return (...args: unknown[]) => {
+    originalCallback?.(...args);
+    nextCallback(...args);
+  };
+};
+
+const notifyConsentGranted = () => {
+  for (const callback of consentGrantedListeners) {
+    callback();
+  }
+};
+
+const hasStoredIubendaConsent = (): boolean => {
+  if (typeof document === "undefined") return false;
+
+  return document.cookie
+    .split(";")
+    .map((cookie) => cookie.trim())
+    .some(
+      (cookie) =>
+        cookie.startsWith("_iub_cs-") || cookie.startsWith("_iub_cs-s"),
+    );
+};
+
+const attachIubendaCookieCallbacks = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const cookieConfiguration = window._iub?.csConfiguration;
+  if (!cookieConfiguration) {
+    return false;
+  }
+
+  const callbacks = cookieConfiguration.callback ?? {};
+  if ((callbacks as Record<string, unknown>)[IUBENDA_CALLBACK_BRIDGE_MARKER]) {
+    return true;
+  }
+
+  callbacks.onReady = composeCallback(callbacks.onReady, (consent) => {
+    if (consent === true) {
+      notifyConsentGranted();
+    }
+  });
+  callbacks.onConsentGiven = composeCallback(callbacks.onConsentGiven, () => {
+    notifyConsentGranted();
+  });
+  callbacks.onConsentRead = composeCallback(callbacks.onConsentRead, () => {
+    notifyConsentGranted();
+  });
+  (callbacks as Record<string, unknown>)[IUBENDA_CALLBACK_BRIDGE_MARKER] = true;
+  cookieConfiguration.callback = callbacks;
+
+  return true;
+};
+
+export const shouldDeferGAUntilIubendaConsent = (): boolean => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return Boolean(window._iub?.csConfiguration) && !hasStoredIubendaConsent();
+};
+
+export const registerIubendaConsentGrantedCallback = (
+  callback: IubendaConsentGrantedCallback,
+) => {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  consentGrantedListeners.add(callback);
+  attachIubendaCookieCallbacks();
+
+  if (hasStoredIubendaConsent()) {
+    callback();
+  }
+
+  return () => {
+    consentGrantedListeners.delete(callback);
+  };
+};
 
 export const bootstrapIubendaConsentDatabase = () => {
   if (!IUBENDA_CONSENT_DATABASE_ENABLED || !IUBENDA_CONSENT_PUBLIC_API_KEY || typeof window === "undefined") {
@@ -80,6 +184,8 @@ export const bootstrapIubendaConsentDatabase = () => {
   script.async = true;
   script.type = "text/javascript";
   document.head.appendChild(script);
+
+  attachIubendaCookieCallbacks();
 };
 
 export const registerIubendaConsentForm = (config: IubendaConsentFormConfig) => {

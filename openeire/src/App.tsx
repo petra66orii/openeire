@@ -18,7 +18,12 @@ import ServerErrorPage from "./pages/ServerErrorPage";
 import { BreadcrumbProvider } from "./context/BreadcrumbContext";
 import { Toaster } from "react-hot-toast";
 import { subscribeToErrorRoute } from "./utils/errorRouting";
-import { bootstrapIubendaConsentDatabase } from "./utils/iubendaConsent";
+import {
+  bootstrapIubendaConsentDatabase,
+  registerIubendaConsentGrantedCallback,
+  shouldDeferGAUntilIubendaConsent,
+} from "./utils/iubendaConsent";
+import { initGA } from "./lib/analytics";
 
 // ================= LAZY IMPORTS =================
 // These are split into separate JS chunks by Vite and downloaded only when needed.
@@ -89,6 +94,18 @@ function App() {
 
   useEffect(() => {
     bootstrapIubendaConsentDatabase();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = registerIubendaConsentGrantedCallback(() => {
+      void initGA();
+    });
+
+    if (!shouldDeferGAUntilIubendaConsent()) {
+      void initGA();
+    }
+
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
