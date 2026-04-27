@@ -97,11 +97,14 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = registerIubendaConsentGrantedCallback(() => {
-      void initGA();
-    });
+    const shouldDefer = shouldDeferGAUntilIubendaConsent();
+    const unsubscribe = shouldDefer
+      ? registerIubendaConsentGrantedCallback(() => {
+          void initGA();
+        })
+      : () => undefined;
 
-    if (!shouldDeferGAUntilIubendaConsent()) {
+    if (!shouldDefer) {
       void initGA();
     }
 

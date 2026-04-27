@@ -55,6 +55,25 @@ const consentGrantedListeners = new Set<IubendaConsentGrantedCallback>();
 const CONSENT_SCRIPT_SRC = "https://cdn.iubenda.com/cons/iubenda_cons.js";
 const DEFAULT_LEGAL_NOTICE_IDENTIFIERS = ["privacy_policy", "cookie_policy"];
 const IUBENDA_CALLBACK_BRIDGE_MARKER = "__openeireCallbackBridgeInstalled";
+const ANALYTICS_CONSENT_KEYS = new Set([
+  "analytics",
+  "analytics_storage",
+  "measurement",
+  "measurements",
+  "performance",
+  "statistics",
+  "statistical",
+]);
+const CONSENT_CONTAINER_KEYS = [
+  "consents",
+  "preferences",
+  "purposes",
+  "purposeConsents",
+  "categories",
+  "services",
+] as const;
+let analyticsConsentGranted = false;
+let callbackBridgeRetryId: number | null = null;
 
 const ensureConsentInstructionQueue = () => {
   window._iub = window._iub || {};
@@ -83,22 +102,132 @@ const composeCallback = (
   };
 };
 
+const markAnalyticsConsentGranted = () => {
+  analyticsConsentGranted = true;
+};
+
 const notifyConsentGranted = () => {
+  markAnalyticsConsentGranted();
   for (const callback of consentGrantedListeners) {
     callback();
   }
 };
 
-const hasStoredIubendaConsent = (): boolean => {
-  if (typeof document === "undefined") return false;
+const getIubendaConsentCookieValues = (): string[] => {
+  if (typeof document === "undefined") return [];
 
   return document.cookie
     .split(";")
     .map((cookie) => cookie.trim())
-    .some(
+    .filter(
       (cookie) =>
         cookie.startsWith("_iub_cs-") || cookie.startsWith("_iub_cs-s"),
-    );
+    )
+    .map((cookie) => cookie.split("=").slice(1).join("="))
+    .filter((value) => value.length > 0);
+};
+
+const safeJsonParse = (value: string): unknown | null => {
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    return null;
+  }
+};
+
+const decodeConsentCookieValue = (rawValue: string): unknown | null => {
+  const candidates = [rawValue];
+
+  try {
+    candidates.push(decodeURIComponent(rawValue));
+  } catch {
+    // Ignore malformed cookie values.
+  }
+
+  for (const candidate of candidates) {
+    const parsed = safeJsonParse(candidate);
+    if (parsed !== null) {
+      return parsed;
+    }
+  }
+
+  return null;
+};
+
+const extractAnalyticsConsentFromValue = (value: unknown): boolean | null => {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const nested = extractAnalyticsConsentFromValue(item);
+      if (nested !== null) {
+        return nested;
+      }
+    }
+    return null;
+  }
+
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  for (const [key, nestedValue] of Object.entries(record)) {
+    const normalizedKey = key.trim().toLowerCase();
+    if (ANALYTICS_CONSENT_KEYS.has(normalizedKey)) {
+      const nested = extractAnalyticsConsentFromValue(nestedValue);
+      if (nested !== null) {
+        return nested;
+      }
+    }
+  }
+
+  for (const containerKey of CONSENT_CONTAINER_KEYS) {
+    if (!(containerKey in record)) continue;
+    const nested = extractAnalyticsConsentFromValue(record[containerKey]);
+    if (nested !== null) {
+      return nested;
+    }
+  }
+
+  if ("consent" in record) {
+    const nested = extractAnalyticsConsentFromValue(record.consent);
+    if (nested !== null) {
+      return nested;
+    }
+  }
+
+  return null;
+};
+
+const hasStoredIubendaAnalyticsConsent = (): boolean => {
+  if (analyticsConsentGranted) {
+    return true;
+  }
+
+  const cookieValues = getIubendaConsentCookieValues();
+  if (cookieValues.length === 0) {
+    return false;
+  }
+
+  return cookieValues.some((cookieValue) => {
+    const parsed = decodeConsentCookieValue(cookieValue);
+    return extractAnalyticsConsentFromValue(parsed) === true;
+  });
+};
+
+const extractConsentGrantedFromCallbackArgs = (args: unknown[]): boolean => {
+  for (const arg of args) {
+    const nested = extractAnalyticsConsentFromValue(arg);
+    if (nested === true) {
+      return true;
+    }
+  }
+
+  return hasStoredIubendaAnalyticsConsent();
 };
 
 const attachIubendaCookieCallbacks = () => {
@@ -116,16 +245,20 @@ const attachIubendaCookieCallbacks = () => {
     return true;
   }
 
-  callbacks.onReady = composeCallback(callbacks.onReady, (consent) => {
-    if (consent === true) {
+  callbacks.onReady = composeCallback(callbacks.onReady, (...args) => {
+    if (extractConsentGrantedFromCallbackArgs(args)) {
       notifyConsentGranted();
     }
   });
-  callbacks.onConsentGiven = composeCallback(callbacks.onConsentGiven, () => {
-    notifyConsentGranted();
+  callbacks.onConsentGiven = composeCallback(callbacks.onConsentGiven, (...args) => {
+    if (extractConsentGrantedFromCallbackArgs(args)) {
+      notifyConsentGranted();
+    }
   });
-  callbacks.onConsentRead = composeCallback(callbacks.onConsentRead, () => {
-    notifyConsentGranted();
+  callbacks.onConsentRead = composeCallback(callbacks.onConsentRead, (...args) => {
+    if (extractConsentGrantedFromCallbackArgs(args)) {
+      notifyConsentGranted();
+    }
   });
   (callbacks as Record<string, unknown>)[IUBENDA_CALLBACK_BRIDGE_MARKER] = true;
   cookieConfiguration.callback = callbacks;
@@ -133,12 +266,49 @@ const attachIubendaCookieCallbacks = () => {
   return true;
 };
 
+const ensureIubendaCookieCallbacksAttached = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (attachIubendaCookieCallbacks()) {
+    if (callbackBridgeRetryId !== null) {
+      window.clearInterval(callbackBridgeRetryId);
+      callbackBridgeRetryId = null;
+    }
+    return;
+  }
+
+  if (callbackBridgeRetryId !== null) {
+    return;
+  }
+
+  callbackBridgeRetryId = window.setInterval(() => {
+    if (!attachIubendaCookieCallbacks()) {
+      return;
+    }
+
+    if (callbackBridgeRetryId !== null) {
+      window.clearInterval(callbackBridgeRetryId);
+      callbackBridgeRetryId = null;
+    }
+  }, 250);
+};
+
 export const shouldDeferGAUntilIubendaConsent = (): boolean => {
   if (typeof window === "undefined") {
     return false;
   }
 
-  return Boolean(window._iub?.csConfiguration) && !hasStoredIubendaConsent();
+  return IUBENDA_CONSENT_DATABASE_ENABLED && !hasStoredIubendaAnalyticsConsent();
+};
+
+export const isAnalyticsConsentGranted = (): boolean => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return !shouldDeferGAUntilIubendaConsent();
 };
 
 export const registerIubendaConsentGrantedCallback = (
@@ -149,9 +319,9 @@ export const registerIubendaConsentGrantedCallback = (
   }
 
   consentGrantedListeners.add(callback);
-  attachIubendaCookieCallbacks();
+  ensureIubendaCookieCallbacksAttached();
 
-  if (hasStoredIubendaConsent()) {
+  if (hasStoredIubendaAnalyticsConsent()) {
     callback();
   }
 
@@ -185,7 +355,7 @@ export const bootstrapIubendaConsentDatabase = () => {
   script.type = "text/javascript";
   document.head.appendChild(script);
 
-  attachIubendaCookieCallbacks();
+  ensureIubendaCookieCallbacksAttached();
 };
 
 export const registerIubendaConsentForm = (config: IubendaConsentFormConfig) => {

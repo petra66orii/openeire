@@ -1,4 +1,6 @@
-﻿const GA_SCRIPT_ID = "openeire-ga-script";
+import { isAnalyticsConsentGranted } from "../utils/iubendaConsent";
+
+const GA_SCRIPT_ID = "openeire-ga-script";
 
 let gaInitialized = false;
 let gaInitPromise: Promise<void> | null = null;
@@ -107,6 +109,7 @@ export const initGA = (): Promise<void> => {
 export const trackPageView = (path: string, title?: string): void => {
   const measurementId = getMeasurementId();
   if (!measurementId || typeof window === "undefined") return;
+  if (!isAnalyticsConsentGranted()) return;
 
   void initGA();
   ensureGtagStub();
@@ -124,9 +127,9 @@ export const trackEvent = (
 ): void => {
   const measurementId = getMeasurementId();
   if (!measurementId || typeof window === "undefined") return;
+  if (!isAnalyticsConsentGranted()) return;
 
   void initGA();
   ensureGtagStub();
   window.gtag?.("event", name, params);
 };
-
