@@ -22,7 +22,11 @@ import { EMPTY_SHIPPING_DETAILS, ShippingDetails } from "../types/checkout";
 import { buildAnalyticsItemFromCartItem } from "../lib/ecommerceAnalytics";
 import SEOHead from "../components/SEOHead";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.trim() ?? "";
+const isStripeConfigured = stripePublicKey.length > 0;
+const stripePromise = isStripeConfigured ? loadStripe(stripePublicKey) : null;
+const STRIPE_CONFIGURATION_ERROR =
+  "Checkout is temporarily unavailable because payment configuration is incomplete. Please try again later.";
 
 const flattenApiErrors = (value: unknown, path = ""): string[] => {
   if (typeof value === "string") {
@@ -261,6 +265,14 @@ const CheckoutPage: React.FC = () => {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         resetCheckoutIntentState();
         setCheckoutError(null);
+        setIsUpdatingIntent(false);
+        return;
+      }
+
+      if (!isStripeConfigured) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
+        resetCheckoutIntentState();
+        setCheckoutError(STRIPE_CONFIGURATION_ERROR);
         setIsUpdatingIntent(false);
         return;
       }
@@ -508,6 +520,9 @@ const CheckoutPage: React.FC = () => {
                 accountEmail={profileData?.email ?? null}
                 successContext={checkoutSuccessContext}
                 isStripeContextAvailable={false}
+                paymentUnavailableMessage={
+                  isStripeConfigured ? null : STRIPE_CONFIGURATION_ERROR
+                }
               />
             )}
             {checkoutError && (

@@ -49,6 +49,7 @@ interface CheckoutFormProps {
   accountEmail?: string | null;
   successContext: CheckoutSuccessContext;
   isStripeContextAvailable?: boolean;
+  paymentUnavailableMessage?: string | null;
 }
 
 interface CheckoutPaymentSectionProps {
@@ -225,6 +226,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   accountEmail,
   successContext,
   isStripeContextAvailable = false,
+  paymentUnavailableMessage = null,
 }) => {
   const { hasPhysicalItems } = useCart();
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -252,7 +254,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       );
       if (hasExistingInput) return;
 
-      let initialCountry = initialData.default_country || "";
+      let initialCountry = initialData.country || "";
 
       if (
         hasPhysicalItems &&
@@ -539,7 +541,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </div>
       )}
 
-      {isStripeContextAvailable ? (
+      {paymentUnavailableMessage ? (
+        <div className="bg-gray-900 border border-amber-500/20 rounded-2xl p-6 md:p-8">
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm font-bold text-amber-200">
+            {paymentUnavailableMessage}
+          </div>
+        </div>
+      ) : isStripeContextAvailable ? (
         <CheckoutPaymentSection
           hasPhysicalItems={hasPhysicalItems}
           shippingDetails={shippingDetails}

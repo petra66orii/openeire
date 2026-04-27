@@ -89,7 +89,7 @@ export interface UserProfile {
   default_town: string | null;
   default_county: string | null;
   default_postcode: string | null;
-  default_country: string | null;
+  country: string | null;
 }
 
 export interface UserProfileUpdateData {
@@ -103,7 +103,7 @@ export interface UserProfileUpdateData {
   default_town?: string | null;
   default_county?: string | null;
   default_postcode?: string | null;
-  default_country?: string | null;
+  country?: string | null;
 }
 
 interface RegisterData {
@@ -235,7 +235,7 @@ export interface OrderHistory {
 
 interface ChangeEmailData {
   new_email: string;
-  password: string;
+  current_password: string;
 }
 
 interface VerifyEmailResponse {
@@ -737,7 +737,7 @@ export const sendContactMessage = async (contactData: ContactData) => {
 };
 
 export const changeEmail = async (data: ChangeEmailData) => {
-  const response = await api.post('auth/email/change', data);
+  const response = await api.put("auth/email/change/", data);
   return response.data;
 };
 

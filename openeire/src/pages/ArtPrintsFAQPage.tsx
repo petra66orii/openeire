@@ -15,13 +15,13 @@ const ArtPrintsFAQPage: React.FC = () => {
   const printFaqs: FAQEntry[] = [
     {
       question: "Do you ship fine art prints to the United States?",
-      answerLead: "Yes, prints are available to buyers in the United States.",
+      answerLead: "Yes, we ship prints to the United States.",
       answerParagraphs: [
-        "Orders still follow the current print workflow, with shipping handled through checkout rather than through a separate manual quote by default.",
+        "You can order directly through the site, and shipping is calculated at checkout based on your location and the print.",
       ],
       bridge: (
         <>
-          For the broader United States print context, visit the{" "}
+          For more details, see the{" "}
           <Link
             to="/us/fine-art-prints"
             className="text-accent hover:text-white"
@@ -32,14 +32,15 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "Yes, prints are available to buyers in the United States. Orders still follow the current print workflow, with shipping handled through checkout rather than through a separate manual quote by default. For the broader United States print context, visit /us/fine-art-prints.",
+        "Yes, prints are available in the United States. Orders can be placed directly through the site, with shipping calculated at checkout.",
     },
+
     {
       question: "What kind of prints do you sell?",
       answerLead:
-        "OpenEire Studios sells premium fine art prints based on aerial photography.",
+        "We sell premium wall art prints created from original aerial & ground photography.",
       answerParagraphs: [
-        "The collection is positioned as physical wall art for collectors, interiors, and gifting rather than generic poster merchandise.",
+        "Each piece is designed to feel like a finished artwork rather than a generic poster, with a focus on composition, atmosphere, and perspective.",
       ],
       bridge: (
         <>
@@ -47,7 +48,7 @@ const ArtPrintsFAQPage: React.FC = () => {
           <Link to="/art-prints" className="text-accent hover:text-white">
             art prints page
           </Link>{" "}
-          or open the{" "}
+          or browse the{" "}
           <Link to="/gallery/physical" className="text-accent hover:text-white">
             print gallery
           </Link>
@@ -55,18 +56,18 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "OpenEire Studios sells premium fine art prints based on aerial photography. The collection is positioned as physical wall art for collectors, interiors, and gifting rather than generic poster merchandise. Start with /art-prints or open the print gallery.",
+        "OpenEire Studios sells premium wall art prints created from original aerial photography, designed as finished artworks rather than generic posters.",
     },
+
     {
       question: "Are these original aerial photography prints?",
-      answerLead:
-        "Yes. The print collection is built around original aerial photography curated by OpenEire Studios.",
+      answerLead: "Yes — every print comes from original aerial photography.",
       answerParagraphs: [
-        "That is part of what separates the collection from more generic wall art marketplaces.",
+        "The collection is built from work captured and curated by OpenEire Studios, not sourced from stock libraries.",
       ],
       bridge: (
         <>
-          If you want the collection overview, go to the{" "}
+          You can explore the full collection on the{" "}
           <Link to="/art-prints" className="text-accent hover:text-white">
             art prints page
           </Link>
@@ -74,18 +75,18 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "Yes. The print collection is built around original aerial photography curated by OpenEire Studios. That is part of what separates the collection from more generic wall art marketplaces. If you want the collection overview, go to /art-prints.",
+        "Yes. All prints are based on original aerial photography created and curated by OpenEire Studios.",
     },
+
     {
       question: "Are prints suitable for gifting?",
-      answerLead:
-        "Yes. The collection is designed to work well as a more distinctive gift choice.",
+      answerLead: "Yes, they work very well as a gift.",
       answerParagraphs: [
-        "The overall positioning is premium and interior-led, which makes the prints better suited to thoughtful gifting than off-the-shelf decor.",
+        "Because the prints are more distinctive and design-led, they tend to feel more considered than standard wall decor.",
       ],
       bridge: (
         <>
-          If you need help choosing a piece, use the{" "}
+          If you're unsure what to choose, use the{" "}
           <Link to="/contact" className="text-accent hover:text-white">
             contact page
           </Link>
@@ -93,14 +94,14 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "Yes. The collection is designed to work well as a more distinctive gift choice. The overall positioning is premium and interior-led, which makes the prints better suited to thoughtful gifting than off-the-shelf decor. If you need help choosing a piece, use /contact.",
+        "Yes. These prints are well suited for gifting because they offer a more distinctive and design-led alternative to standard wall decor.",
     },
+
     {
       question: "What sizes or formats are available?",
-      answerLead:
-        "Available sizes and formats depend on the specific print listing.",
+      answerLead: "Sizes and formats vary depending on the individual print.",
       answerParagraphs: [
-        "This FAQ page does not invent fixed dimensions because product pages remain the source of truth for the options attached to each piece.",
+        "Each product page shows the exact options available for that piece, including dimensions and format.",
       ],
       bridge: (
         <>
@@ -108,41 +109,41 @@ const ArtPrintsFAQPage: React.FC = () => {
           <Link to="/gallery/physical" className="text-accent hover:text-white">
             print gallery
           </Link>{" "}
-          for the current print options.
+          to see current options.
         </>
       ),
       schemaAnswer:
-        "Available sizes and formats depend on the specific print listing. This FAQ page does not invent fixed dimensions because product pages remain the source of truth for the options attached to each piece. Browse /gallery/physical for the current print options.",
+        "Sizes and formats vary by print. Each product page shows the available options for that specific piece.",
     },
+
     {
       question: "Are prints framed?",
-      answerLead:
-        "Framing should be treated as product-specific rather than assumed across the whole collection.",
+      answerLead: "Framing depends on the specific print you choose.",
       answerParagraphs: [
-        "Where framing or presentation details matter, the listing itself or a direct enquiry is the safest source of truth.",
+        "Some prints may be available with framing options, while others are supplied unframed.",
       ],
       bridge: (
         <>
-          If you need certainty before ordering, ask through the{" "}
+          Check the product listing or{" "}
           <Link to="/contact" className="text-accent hover:text-white">
-            contact page
-          </Link>
-          .
+            get in touch
+          </Link>{" "}
+          if you need to confirm before ordering.
         </>
       ),
       schemaAnswer:
-        "Framing should be treated as product-specific rather than assumed across the whole collection. Where framing or presentation details matter, the listing itself or a direct enquiry is the safest source of truth. If you need certainty before ordering, ask through /contact.",
+        "Framing depends on the individual print. Check the product listing or contact the studio for confirmation.",
     },
+
     {
       question: "Are these limited edition?",
-      answerLead:
-        "Do not assume every print is a limited edition unless the specific product says so.",
+      answerLead: "Some prints may be limited, but not all are.",
       answerParagraphs: [
-        "The collection is premium, but edition status should come from the individual print details rather than a blanket site-wide claim.",
+        "If a print is a limited edition, it will be clearly stated on the product page.",
       ],
       bridge: (
         <>
-          The best next step is to inspect the listing in the{" "}
+          The best way to check is directly in the{" "}
           <Link to="/gallery/physical" className="text-accent hover:text-white">
             print gallery
           </Link>
@@ -150,33 +151,34 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "Do not assume every print is a limited edition unless the specific product says so. The collection is premium, but edition status should come from the individual print details rather than a blanket site-wide claim. The best next step is to inspect the listing in the print gallery.",
+        "Some prints may be limited edition. This is specified on the individual product page where applicable.",
     },
+
     {
       question: "How is shipping handled for print orders?",
-      answerLead: "Shipping is handled through the current checkout flow.",
+      answerLead: "Shipping is handled during checkout.",
       answerParagraphs: [shippingAnswer],
       bridge: (
         <>
-          For a more specific print enquiry, continue to the{" "}
+          If you have a specific question, use the{" "}
           <Link to="/contact" className="text-accent hover:text-white">
             contact page
           </Link>
           .
         </>
       ),
-      schemaAnswer: `Shipping is handled through the current checkout flow. ${shippingAnswer} For a more specific print enquiry, continue to /contact.`,
+      schemaAnswer: `Shipping is handled during checkout. ${shippingAnswer}`,
     },
+
     {
       question: "When is shipping calculated for print orders?",
-      answerLead:
-        "Shipping is calculated during checkout rather than shown as a fixed site-wide price in advance.",
+      answerLead: "Shipping is calculated at checkout.",
       answerParagraphs: [
-        "That keeps the order flow tied to the actual print options and delivery details attached to the piece you are buying.",
+        "The final cost depends on the print, size, and delivery location.",
       ],
       bridge: (
         <>
-          If you want to browse available pieces first, open the{" "}
+          You can browse prints first in the{" "}
           <Link to="/gallery/physical" className="text-accent hover:text-white">
             print gallery
           </Link>
@@ -184,25 +186,24 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "Shipping is calculated during checkout rather than shown as a fixed site-wide price in advance. That keeps the order flow tied to the actual print options and delivery details attached to the piece you are buying. If you want to browse available pieces first, open /gallery/physical.",
+        "Shipping is calculated at checkout based on the print, size, and delivery location.",
     },
+
     {
       question: `Do you offer free shipping in ${FREE_SHIPPING_COUNTRY_LABEL}?`,
       answerLead: FREE_SHIPPING_PROMO_ENABLED
-        ? `Yes. Eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(
+        ? `Yes. Orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(
             2,
-          )} qualify for free shipping under the current offer.`
-        : `There is no active free-shipping promotion for ${FREE_SHIPPING_COUNTRY_LABEL} at the moment.`,
+          )} qualify for free shipping in ${FREE_SHIPPING_COUNTRY_LABEL}.`
+        : `There is no active free shipping offer at the moment.`,
       answerParagraphs: FREE_SHIPPING_PROMO_ENABLED
-        ? [
-            "The current threshold is handled through the existing checkout flow, so the order details still remain the source of truth at purchase time.",
-          ]
+        ? ["The discount is applied automatically during checkout."]
         : [
-            "Shipping is still handled through checkout, where the current delivery cost is confirmed during the order flow.",
+            "Shipping costs are shown during checkout before you complete your order.",
           ],
       bridge: (
         <>
-          For the current print-buying flow, start with the{" "}
+          You can start browsing on the{" "}
           <Link to="/art-prints" className="text-accent hover:text-white">
             art prints page
           </Link>
@@ -210,43 +211,21 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer: FREE_SHIPPING_PROMO_ENABLED
-        ? `Yes. Eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(
+        ? `Orders over EUR ${FREE_SHIPPING_THRESHOLD.toFixed(
             2,
-          )} qualify for free shipping under the current offer. The current threshold is handled through the existing checkout flow, so the order details still remain the source of truth at purchase time. For the current print-buying flow, start with /art-prints.`
-        : `There is no active free-shipping promotion for ${FREE_SHIPPING_COUNTRY_LABEL} at the moment. Shipping is still handled through checkout, where the current delivery cost is confirmed during the order flow. For the current print-buying flow, start with /art-prints.`,
+          )} qualify for free shipping in ${FREE_SHIPPING_COUNTRY_LABEL}.`
+        : `There is no active free shipping promotion at the moment.`,
     },
-    {
-      question: "Do you ship art prints internationally?",
-      answerLead:
-        "Yes, international buyers can order prints where the current checkout and fulfilment flow supports delivery.",
-      answerParagraphs: [
-        "The site keeps shipping tied to the actual checkout process rather than making blanket promises that may vary by destination.",
-      ],
-      bridge: (
-        <>
-          If you are buying from the United States, visit the{" "}
-          <Link
-            to="/us/fine-art-prints"
-            className="text-accent hover:text-white"
-          >
-            United States fine art prints page
-          </Link>
-          .
-        </>
-      ),
-      schemaAnswer:
-        "Yes, international buyers can order prints where the current checkout and fulfilment flow supports delivery. The site keeps shipping tied to the actual checkout process rather than making blanket promises that may vary by destination. If you are buying from the United States, visit /us/fine-art-prints.",
-    },
+
     {
       question: "How long does print fulfilment usually take?",
-      answerLead:
-        "Fulfilment timing depends on the specific order rather than being treated as a fixed promise across the whole collection.",
+      answerLead: "Fulfilment time depends on the print and delivery location.",
       answerParagraphs: [
-        "Because prints are produced through the current print workflow, the safest expectation-setting comes from the order flow itself or a direct enquiry where timing matters.",
+        "Most orders are produced and shipped within a few working days, with delivery times depending on the shipping method.",
       ],
       bridge: (
         <>
-          If timing is important before you order, use the{" "}
+          If timing matters, use the{" "}
           <Link to="/contact" className="text-accent hover:text-white">
             contact page
           </Link>
@@ -254,26 +233,27 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "Fulfilment timing depends on the specific order rather than being treated as a fixed promise across the whole collection. Because prints are produced through the current print workflow, the safest expectation-setting comes from the order flow itself or a direct enquiry where timing matters. If timing is important before you order, use /contact.",
+        "Fulfilment time depends on the print and delivery location. Most orders are produced within a few working days.",
     },
+
     {
       question: "What should I do if I need help before ordering?",
       answerLead:
-        "Use the contact page if you want help choosing a print or clarifying ordering details before checkout.",
+        "You can contact the studio directly before placing an order.",
       answerParagraphs: [
-        "That is the best route when the decision depends on the piece itself, presentation questions, or delivery confidence before purchase.",
+        "This is the best option if you need help choosing a piece or want clarity on sizing, framing, or delivery.",
       ],
       bridge: (
         <>
-          Go straight to the{" "}
+          Go to the{" "}
           <Link to="/contact" className="text-accent hover:text-white">
             contact page
           </Link>{" "}
-          if you want a direct conversation.
+          to get in touch.
         </>
       ),
       schemaAnswer:
-        "Use the contact page if you want help choosing a print or clarifying ordering details before checkout. That is the best route when the decision depends on the piece itself, presentation questions, or delivery confidence before purchase. Go straight to /contact if you want a direct conversation.",
+        "Use the contact page if you need help choosing a print or clarifying details before ordering.",
     },
   ];
 
