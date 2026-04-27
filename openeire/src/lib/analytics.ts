@@ -1,4 +1,6 @@
-﻿const GA_SCRIPT_ID = "openeire-ga-script";
+import { isAnalyticsConsentGranted } from "../utils/iubendaConsent";
+
+const GA_SCRIPT_ID = "openeire-ga-script";
 
 let gaInitialized = false;
 let gaInitPromise: Promise<void> | null = null;
@@ -39,7 +41,11 @@ const loadGtagScript = (measurementId: string): Promise<void> => {
 
   if (!gaScriptPromise) {
     gaScriptPromise = new Promise<void>((resolve, reject) => {
-      const script = existingScript ?? document.createElement("script");
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      const script = document.createElement("script");
 
       script.id = GA_SCRIPT_ID;
       script.async = true;
@@ -52,13 +58,12 @@ const loadGtagScript = (measurementId: string): Promise<void> => {
         resolve();
       };
       script.onerror = () => {
-        console.error("Failed to load Google Analytics script:", script.src);
+        script.dataset.loaded = "error";
+        console.warn("Failed to load Google Analytics script:", script.src);
         reject(new Error(`Failed to load Google Analytics script: ${script.src}`));
       };
 
-      if (!existingScript) {
-        document.head.appendChild(script);
-      }
+      document.head.appendChild(script);
     }).catch((error) => {
       gaScriptPromise = null;
       throw error;
@@ -87,10 +92,13 @@ export const initGA = (): Promise<void> => {
       });
       gaInitialized = true;
     })
-.catch((error) => {
-  console.error("GA initialisation failed:", error);
-  gaInitialized = false;
-})
+    .catch((error) => {
+      console.warn(
+        "GA initialisation deferred after script load failure; it will retry on later navigation or events.",
+        error,
+      );
+      gaInitialized = false;
+    })
     .finally(() => {
       gaInitPromise = null;
     });
@@ -101,7 +109,9 @@ export const initGA = (): Promise<void> => {
 export const trackPageView = (path: string, title?: string): void => {
   const measurementId = getMeasurementId();
   if (!measurementId || typeof window === "undefined") return;
+  if (!isAnalyticsConsentGranted()) return;
 
+  void initGA();
   ensureGtagStub();
 
   const pageTitle = title ?? document.title;
@@ -117,8 +127,9 @@ export const trackEvent = (
 ): void => {
   const measurementId = getMeasurementId();
   if (!measurementId || typeof window === "undefined") return;
+  if (!isAnalyticsConsentGranted()) return;
 
+  void initGA();
   ensureGtagStub();
   window.gtag?.("event", name, params);
 };
-
