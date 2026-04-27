@@ -7,7 +7,7 @@ import { FaCheckCircle } from "react-icons/fa";
 const ChangeEmailForm: React.FC = () => {
   const [formData, setFormData] = useState({
     new_email: "",
-    password: "",
+    current_password: "",
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
 
@@ -26,7 +26,7 @@ const ChangeEmailForm: React.FC = () => {
       await changeEmail(formData);
       setStatus("success");
       toast.success("Verification email sent!");
-      setFormData({ new_email: "", password: "" });
+      setFormData({ new_email: "", current_password: "" });
     } catch (err: any) {
       console.error(err);
       setStatus("idle");
@@ -85,7 +85,7 @@ const ChangeEmailForm: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="password" className={labelClass}>
+          <label htmlFor="current_password" className={labelClass}>
             Current Password{" "}
             <span className="text-[10px] text-gray-600 normal-case ml-1">
               (Required)
@@ -93,10 +93,10 @@ const ChangeEmailForm: React.FC = () => {
           </label>
           <input
             type="password"
-            name="password"
-            id="password"
+            name="current_password"
+            id="current_password"
             required
-            value={formData.password}
+            value={formData.current_password}
             onChange={handleChange}
             className={inputClass}
           />

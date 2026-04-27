@@ -73,7 +73,7 @@ interface CartContextType {
   itemCount: number;
   cartTotal: number;
   clearCart: () => void;
-  hasPhysicalItems?: boolean;
+  hasPhysicalItems: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);

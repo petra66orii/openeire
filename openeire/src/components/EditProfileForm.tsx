@@ -18,7 +18,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ initialData }) => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [formData, setFormData] = useState({
     ...initialData,
-    default_country: initialData.default_country || "",
+    country: initialData.country || "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +41,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ initialData }) => {
     // Clean data for Django
     const payload = {
       ...formData,
-      country: formData.default_country || null,
+      country: formData.country || null,
       phone_number: formData.default_phone_number || null,
     };
 
@@ -183,8 +183,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ initialData }) => {
             <div>
               <label className={labelClass}>Country</label>
               <select
-                name="default_country"
-                value={formData.default_country || ""}
+                name="country"
+                value={formData.country || ""}
                 onChange={handleChange}
                 className={`${inputClass} appearance-none cursor-pointer`}
               >

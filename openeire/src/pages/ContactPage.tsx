@@ -214,6 +214,7 @@ const ContactPage = () => {
                       <select
                         name="subject"
                         id="subject"
+                        required
                         value={formData.subject}
                         onChange={handleChange}
                         className={`${inputClass} appearance-none cursor-pointer`}

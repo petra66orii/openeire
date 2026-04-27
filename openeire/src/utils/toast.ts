@@ -259,7 +259,7 @@ export const getPasswordChangeToastErrorMessage = (error: unknown): string =>
 export const getEmailChangeToastErrorMessage = (error: unknown): string =>
   getToastErrorMessage(error, {
     fallback: "Could not update your email right now. Please try again.",
-    fieldPriority: ["new_email", "password", "detail", "non_field_errors"],
+    fieldPriority: ["new_email", "current_password", "detail", "non_field_errors"],
     statusMessages: {
       401: "Please confirm your current password and try again.",
       429: "Too many email change attempts. Please wait a moment and try again.",
@@ -279,7 +279,7 @@ export const getProfileUpdateToastErrorMessage = (error: unknown): string =>
       "default_town",
       "default_county",
       "default_postcode",
-      "default_country",
+      "country",
       "detail",
       "non_field_errors",
     ],
