@@ -94,15 +94,29 @@ function App() {
   const [hasCompactViewport, setHasCompactViewport] = useState(false);
 
   useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    ) {
+      return;
+    }
+
     const mediaQuery = window.matchMedia("(max-width: 768px)");
     const syncViewport = () => {
       setHasCompactViewport(mediaQuery.matches);
     };
 
     syncViewport();
-    mediaQuery.addEventListener("change", syncViewport);
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", syncViewport);
+      return () => {
+        mediaQuery.removeEventListener("change", syncViewport);
+      };
+    }
+
+    mediaQuery.addListener(syncViewport);
     return () => {
-      mediaQuery.removeEventListener("change", syncViewport);
+      mediaQuery.removeListener(syncViewport);
     };
   }, []);
 

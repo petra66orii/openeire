@@ -144,7 +144,10 @@ export const buildProductSchema = (input: ProductSchemaInput): StructuredData =>
   }
 
   if (input.image) {
-    schema.image = normalizeImages(input.image);
+    const normalizedImages = normalizeImages(input.image);
+    if (normalizedImages) {
+      schema.image = normalizedImages;
+    }
   }
 
   if (typeof input.price === "number" && Number.isFinite(input.price)) {
@@ -181,7 +184,10 @@ export const buildVisualArtworkSchema = (
   }
 
   if (input.image) {
-    schema.image = normalizeImages(input.image);
+    const normalizedImages = normalizeImages(input.image);
+    if (normalizedImages) {
+      schema.image = normalizedImages;
+    }
   }
 
   return schema;

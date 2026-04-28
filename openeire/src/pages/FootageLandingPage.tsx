@@ -309,7 +309,7 @@ const FootageLandingPage: React.FC = () => {
       <section className="container mx-auto px-4 lg:px-8 pt-8 md:pt-20">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
           <div className="space-y-6 lg:col-span-7">
-            <h2 className={SECTION_TITLE_CLASS}>Why choose OpenEire footage</h2>
+            <h2 className={SECTION_TITLE_CLASS}>Why choose OpenÉire footage</h2>
             <p className="text-gray-400 leading-relaxed">
               OpenÉire Studios positions aerial footage as premium source
               material for serious use. The goal here is not to overwhelm you
