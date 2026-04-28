@@ -75,7 +75,7 @@ const USLargeWallArtPage: React.FC = () => {
       premiumTitle="Statement pieces with a more considered finish"
       premiumIntro={
         <>
-          OpenEire Studios approaches large wall art as physical artwork for
+          OpenÉire Studios approaches large wall art as physical artwork for
           real interiors, not oversized filler. The emphasis stays on curation,
           composition, and how a piece feels once it owns the room.
         </>
@@ -107,7 +107,7 @@ const USLargeWallArtPage: React.FC = () => {
       relevanceTitle="Buying large wall art in the United States"
       relevanceParagraphs={[
         <>
-          Large wall art from OpenEire Studios is available to buyers in the
+          Large wall art from OpenÉire Studios is available to buyers in the
           United States as made-to-order physical pieces.
         </>,
         <>

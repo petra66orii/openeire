@@ -1,6 +1,7 @@
 ﻿import React from "react";
 import { Helmet } from "react-helmet";
 import {
+  DEFAULT_SOCIAL_IMAGE_PATH,
   SITE_TITLE,
   buildAbsoluteSiteUrl,
   getCurrentCanonicalUrl,
@@ -34,6 +35,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({
 }) => {
   const resolvedTitle = appendSiteTitle ? `${title} | ${SITE_TITLE}` : title;
   const pageUrl = url ? buildAbsoluteSiteUrl(url) : getCurrentPageUrl();
+  const resolvedImage = buildAbsoluteSiteUrl(image || DEFAULT_SOCIAL_IMAGE_PATH);
   const resolvedCanonicalUrl = canonicalUrl
     ? buildAbsoluteSiteUrl(canonicalUrl)
     : canonicalPath
@@ -44,20 +46,23 @@ const SEOHead: React.FC<SEOHeadProps> = ({
     <Helmet>
       <title>{resolvedTitle}</title>
       <meta name="description" content={description} />
-      <meta name="robots" content={noindex ? "noindex, follow" : "index, follow"} />
+      <meta
+        name="robots"
+        content={noindex ? "noindex, follow" : "index, follow, max-image-preview:large"}
+      />
 
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content={SITE_TITLE} />
       <meta property="og:url" content={pageUrl} />
       <meta property="og:title" content={resolvedTitle} />
       <meta property="og:description" content={description} />
-      {image ? <meta property="og:image" content={image} /> : null}
+      <meta property="og:image" content={resolvedImage} />
 
-      <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:url" content={pageUrl} />
       <meta name="twitter:title" content={resolvedTitle} />
       <meta name="twitter:description" content={description} />
-      {image ? <meta name="twitter:image" content={image} /> : null}
+      <meta name="twitter:image" content={resolvedImage} />
 
       <link rel="canonical" href={resolvedCanonicalUrl} />
 

@@ -3,6 +3,7 @@ import {
   buildArticleSchema,
   buildBreadcrumbSchema,
   buildFAQPageSchema,
+  buildOrganizationSchema,
   buildProductSchema,
   buildVisualArtworkSchema,
   buildWebsiteSchema,
@@ -70,6 +71,37 @@ describe("seoSchema helpers", () => {
     });
   });
 
+  it("normalizes product image arrays and omits empty image arrays", () => {
+    expect(
+      buildProductSchema({
+        name: "Cliffs at Dusk",
+        description: "Premium aerial print",
+        url: "https://example.com/gallery/physical/cliffs-at-dusk",
+        brandName: "OpenEire Studios",
+        image: [
+          "https://example.com/images/cliffs-1.jpg",
+          "",
+          "https://example.com/images/cliffs-2.jpg",
+        ],
+      }),
+    ).toMatchObject({
+      image: [
+        "https://example.com/images/cliffs-1.jpg",
+        "https://example.com/images/cliffs-2.jpg",
+      ],
+    });
+
+    expect(
+      buildProductSchema({
+        name: "Empty images",
+        description: "No usable images",
+        url: "https://example.com/gallery/physical/empty-images",
+        brandName: "OpenEire Studios",
+        image: [],
+      }),
+    ).not.toHaveProperty("image");
+  });
+
   it("builds article and artwork schema with the required base fields", () => {
     expect(
       buildArticleSchema({
@@ -115,6 +147,50 @@ describe("seoSchema helpers", () => {
       "@type": "WebSite",
       name: "OpenEire Studios",
       url: "https://example.com",
+    });
+  });
+
+  it("builds organization and website schema with optional brand metadata", () => {
+    expect(
+      buildOrganizationSchema({
+        type: "OnlineStore",
+        name: "OpenÉire Studios",
+        alternateName: "OpenEire Studios",
+        url: "https://openeire.ie",
+        logo: "https://openeire.ie/logo.png",
+        description: "Premium aerial photography and licensing.",
+        contactEmail: "studio@openeire.ie",
+        sameAs: ["https://instagram.com/openeirestudios"],
+      }),
+    ).toEqual({
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      name: "OpenÉire Studios",
+      alternateName: "OpenEire Studios",
+      url: "https://openeire.ie",
+      logo: "https://openeire.ie/logo.png",
+      description: "Premium aerial photography and licensing.",
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          email: "studio@openeire.ie",
+        },
+      ],
+      sameAs: ["https://instagram.com/openeirestudios"],
+    });
+
+    expect(
+      buildWebsiteSchema({
+        name: "OpenÉire Studios",
+        alternateName: "OpenEire Studios",
+        url: "https://openeire.ie",
+      }),
+    ).toEqual({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "OpenÉire Studios",
+      alternateName: "OpenEire Studios",
+      url: "https://openeire.ie",
     });
   });
 

@@ -16,7 +16,7 @@ const ShippingPolicy: React.FC = () => {
           <strong>Last Updated: March 2026</strong>
         </p>
         <p>
-          At OpenEire Studios, we deliver our premium media in two formats:
+          At OpenÉire Studios, we deliver our premium media in two formats:
           digital vault delivery for commercial licences and digital downloads,
           and physical print delivery for bespoke, museum-quality art prints.
           We currently ship physical prints exclusively to Ireland and the United
@@ -120,7 +120,7 @@ const ShippingPolicy: React.FC = () => {
           duties that apply at delivery.
         </li>
         <li>
-          OpenEire Studios is not responsible for delays caused by customs
+          OpenÉire Studios is not responsible for delays caused by customs
           processing.
         </li>
       </ul>

@@ -1,4 +1,9 @@
-export const SITE_TITLE = "OpenÉire Studios";
+export const SITE_TITLE = "Open\u00c9ire Studios";
+export const SITE_TITLE_ASCII = "OpenEire Studios";
+export const SITE_DESCRIPTION =
+  "Premium aerial photography, fine art prints, commercial licensing, and curated visual assets from Ireland.";
+export const SITE_CONTACT_EMAIL = "studio@openeire.ie";
+export const DEFAULT_SOCIAL_IMAGE_PATH = "/hero-poster.jpg";
 
 export const getSiteOrigin = (): string => {
   const configured = import.meta.env.VITE_SITE_URL?.trim().replace(/\/+$/, "");

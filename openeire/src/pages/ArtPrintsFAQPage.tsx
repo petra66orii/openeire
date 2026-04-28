@@ -56,14 +56,14 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "OpenEire Studios sells premium wall art prints created from original aerial photography, designed as finished artworks rather than generic posters.",
+        "OpenÉire Studios sells premium wall art prints created from original aerial photography, designed as finished artworks rather than generic posters.",
     },
 
     {
       question: "Are these original aerial photography prints?",
       answerLead: "Yes — every print comes from original aerial photography.",
       answerParagraphs: [
-        "The collection is built from work captured and curated by OpenEire Studios, not sourced from stock libraries.",
+        "The collection is built from work captured and curated by OpenÉire Studios, not sourced from stock libraries.",
       ],
       bridge: (
         <>
@@ -75,7 +75,7 @@ const ArtPrintsFAQPage: React.FC = () => {
         </>
       ),
       schemaAnswer:
-        "Yes. All prints are based on original aerial photography created and curated by OpenEire Studios.",
+        "Yes. All prints are based on original aerial photography created and curated by OpenÉire Studios.",
     },
 
     {

@@ -136,7 +136,7 @@ const USAerialPhotographyPrintsPage: React.FC = () => {
         {
           question: "Are these original aerial photography prints?",
           answer:
-            "Yes. The collection is built around original aerial photography curated by OpenEire Studios.",
+            "Yes. The collection is built around original aerial photography curated by OpenÉire Studios.",
         },
         {
           question: "What makes aerial wall art different?",

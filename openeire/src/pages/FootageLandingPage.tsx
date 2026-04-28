@@ -151,7 +151,7 @@ const FootageLandingPage: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white pb-20">
       <SEOHead
-        title="Drone Footage Ireland | Licensed Aerial Footage | OpenEire Studios"
+        title="Drone Footage Ireland | Licensed Aerial Footage | OpenÉire Studios"
         description="Browse licensed drone footage from Ireland for commercial, editorial, and creative use. Premium aerial video with clear licensing options."
         canonicalPath="/footage"
         schema={[
@@ -309,9 +309,9 @@ const FootageLandingPage: React.FC = () => {
       <section className="container mx-auto px-4 lg:px-8 pt-8 md:pt-20">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
           <div className="space-y-6 lg:col-span-7">
-            <h2 className={SECTION_TITLE_CLASS}>Why choose OpenEire footage</h2>
+            <h2 className={SECTION_TITLE_CLASS}>Why choose OpenÉire footage</h2>
             <p className="text-gray-400 leading-relaxed">
-              OpenEire Studios positions aerial footage as premium source
+              OpenÉire Studios positions aerial footage as premium source
               material for serious use. The goal here is not to overwhelm you
               with legal detail before you have even found the right shot. It is
               to help you find footage that feels location-specific, cinematic,

@@ -72,7 +72,7 @@ const USWallArtForOfficePage: React.FC = () => {
       premiumTitle="Professional interiors still deserve real artwork"
       premiumIntro={
         <>
-          OpenEire Studios positions office wall art as a design decision, not
+          OpenÉire Studios positions office wall art as a design decision, not
           an afterthought. The collection is curated for environments that want
           visual distinction without tipping into generic decor.
         </>
@@ -107,7 +107,7 @@ const USWallArtForOfficePage: React.FC = () => {
       relevanceTitle="Wall art for offices and workspaces in the United States"
       relevanceParagraphs={[
         <>
-          Office wall art from OpenEire Studios is available to buyers in the
+          Office wall art from OpenÉire Studios is available to buyers in the
           United States through the same print ordering flow used across the
           collection.
         </>,

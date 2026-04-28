@@ -21,7 +21,7 @@ type ProductSchemaInput = {
   name: string;
   description: string;
   url: string;
-  image?: string;
+  image?: string | string[];
   brandName: string;
   sku?: string;
   price?: number;
@@ -33,7 +33,7 @@ type VisualArtworkSchemaInput = {
   name: string;
   description: string;
   url: string;
-  image?: string;
+  image?: string | string[];
   creatorName: string;
   artform?: string;
 };
@@ -43,32 +43,54 @@ type FAQItemInput = {
   answer: string;
 };
 
-const normalizeImages = (image?: string): string[] | undefined => {
+const normalizeImages = (
+  image?: string | string[],
+): string[] | undefined => {
   if (!image) return undefined;
-  return [image];
+  const images = Array.isArray(image) ? image : [image];
+  const cleaned = images.filter(Boolean);
+  return cleaned.length ? cleaned : undefined;
 };
 
 export const buildOrganizationSchema = (input: {
+  type?: "Organization" | "OnlineStore";
   name: string;
+  alternateName?: string;
   url: string;
   logo?: string;
   description?: string;
+  contactEmail?: string;
+  sameAs?: string[];
 }): StructuredData => ({
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": input.type ?? "Organization",
   name: input.name,
+  ...(input.alternateName ? { alternateName: input.alternateName } : {}),
   url: input.url,
   ...(input.logo ? { logo: input.logo } : {}),
   ...(input.description ? { description: input.description } : {}),
+  ...(input.contactEmail
+    ? {
+        contactPoint: [
+          {
+            "@type": "ContactPoint",
+            email: input.contactEmail,
+          },
+        ],
+      }
+    : {}),
+  ...(input.sameAs?.length ? { sameAs: input.sameAs } : {}),
 });
 
 export const buildWebsiteSchema = (input: {
   name: string;
+  alternateName?: string;
   url: string;
 }): StructuredData => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: input.name,
+  ...(input.alternateName ? { alternateName: input.alternateName } : {}),
   url: input.url,
 });
 
@@ -122,7 +144,10 @@ export const buildProductSchema = (input: ProductSchemaInput): StructuredData =>
   }
 
   if (input.image) {
-    schema.image = normalizeImages(input.image);
+    const normalizedImages = normalizeImages(input.image);
+    if (normalizedImages) {
+      schema.image = normalizedImages;
+    }
   }
 
   if (typeof input.price === "number" && Number.isFinite(input.price)) {
@@ -159,7 +184,10 @@ export const buildVisualArtworkSchema = (
   }
 
   if (input.image) {
-    schema.image = normalizeImages(input.image);
+    const normalizedImages = normalizeImages(input.image);
+    if (normalizedImages) {
+      schema.image = normalizedImages;
+    }
   }
 
   return schema;

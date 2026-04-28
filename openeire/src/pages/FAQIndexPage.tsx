@@ -36,8 +36,8 @@ const FAQIndexPage: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white pb-20">
       <SEOHead
-        title="FAQ | OpenEire Studios"
-        description="Browse buyer FAQs about drone footage licensing, drone footage usage, and fine art prints from OpenEire Studios."
+        title="FAQ | OpenÉire Studios"
+        description="Browse buyer FAQs about drone footage licensing, drone footage usage, and fine art prints from OpenÉire Studios."
         canonicalPath="/faq"
         appendSiteTitle={false}
         schema={buildBreadcrumbSchema([
