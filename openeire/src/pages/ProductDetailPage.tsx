@@ -28,7 +28,7 @@ import { useBreadcrumb } from "../context/BreadcrumbContext";
 import RelatedProducts from "../components/RelatedProducts";
 import LicenseRequestModal from "../components/LicenseRequestModal";
 import SEOHead from "../components/SEOHead";
-import { buildAbsoluteSiteUrl } from "../config/site";
+import { SITE_TITLE, buildAbsoluteSiteUrl } from "../config/site";
 import { toastInfo } from "../utils/toast";
 import {
   isDigitalProductType,
@@ -440,6 +440,7 @@ const ProductDetailPage: React.FC = () => {
   const imageUrl = isPhysicalNestedDetail(product)
     ? product.photo.preview_image || product.preview_image || ""
     : product.preview_image || product.thumbnail_image || "";
+  const pageImageUrl = imageUrl ? buildAbsoluteSiteUrl(imageUrl) : undefined;
   const videoPreviewUrl =
     isVideo &&
     isVideoDetail(product) &&
@@ -483,7 +484,7 @@ const ProductDetailPage: React.FC = () => {
               ? `Buy ${product.title} for personal use or request commercial licensing`
               : `Buy ${product.title}`
         }
-        image={imageUrl || undefined}
+        image={pageImageUrl}
         canonicalPath={location.pathname}
         type={isPhysical ? "product" : "website"}
         noindex={isDigital}
@@ -509,8 +510,9 @@ const ProductDetailPage: React.FC = () => {
                   name: product.title,
                   description: reviewDescription || product.title,
                   url: buildAbsoluteSiteUrl(location.pathname),
-                  image: imageUrl || undefined,
-                  brandName: "OpenÉire Studios",
+                  image: pageImageUrl,
+                  brandName: SITE_TITLE,
+                  sku: activePhysicalVariant.sku || undefined,
                   price: Number.parseFloat(activePhysicalVariant.price),
                   priceCurrency: "EUR",
                   availability: "https://schema.org/InStock",
@@ -519,8 +521,8 @@ const ProductDetailPage: React.FC = () => {
                   name: product.title,
                   description: reviewDescription || product.title,
                   url: buildAbsoluteSiteUrl(location.pathname),
-                  image: imageUrl || undefined,
-                  creatorName: "OpenÉire Studios",
+                  image: pageImageUrl,
+                  creatorName: SITE_TITLE,
                   artform: "Photography",
                 }),
               ]

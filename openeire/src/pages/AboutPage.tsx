@@ -2,24 +2,49 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaCamera, FaPlane, FaMapMarkedAlt, FaAward } from "react-icons/fa";
 import SEOHead from "../components/SEOHead";
-import { buildAbsoluteSiteUrl } from "../config/site";
-import { buildBreadcrumbSchema } from "../lib/seoSchema";
+import logoImage from "../assets/simple-logo-black.png";
+import {
+  SITE_CONTACT_EMAIL,
+  SITE_DESCRIPTION,
+  SITE_TITLE,
+  SITE_TITLE_ASCII,
+  buildAbsoluteSiteUrl,
+} from "../config/site";
+import {
+  buildBreadcrumbSchema,
+  buildOrganizationSchema,
+  buildWebsiteSchema,
+} from "../lib/seoSchema";
 
 const AboutPage: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white mobile-page-offset">
       <SEOHead
-        title="About OpenÉire Studios | Drone Photography & Fine Art Prints"
+        title="About Open\u00c9ire Studios | Drone Photography & Fine Art Prints"
         description="Meet OpenÉire Studios, an Ireland-based studio creating aerial stock footage, drone photography, and fine art prints."
         canonicalPath="/about"
-        schema={buildBreadcrumbSchema([
-          { name: "Home", url: buildAbsoluteSiteUrl("/") },
-          { name: "About", url: buildAbsoluteSiteUrl("/about") },
-        ])}
+        image="/doubtful_sound.webp"
+        schema={[
+          buildBreadcrumbSchema([
+            { name: "Home", url: buildAbsoluteSiteUrl("/") },
+            { name: "About", url: buildAbsoluteSiteUrl("/about") },
+          ]),
+          buildOrganizationSchema({
+            name: SITE_TITLE,
+            alternateName: SITE_TITLE_ASCII,
+            url: buildAbsoluteSiteUrl("/"),
+            logo: buildAbsoluteSiteUrl(logoImage),
+            description: SITE_DESCRIPTION,
+            contactEmail: SITE_CONTACT_EMAIL,
+          }),
+          buildWebsiteSchema({
+            name: SITE_TITLE,
+            alternateName: SITE_TITLE_ASCII,
+            url: buildAbsoluteSiteUrl("/"),
+          }),
+        ]}
       />
-      {/* 1. HERO SECTION (Parallax feel) */}
       <div className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center">
-        {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-60 scale-105 animate-slow-zoom"
           style={{
@@ -36,15 +61,15 @@ const AboutPage: React.FC = () => {
             Capturing the <br /> Spirit of the Wild
           </h1>
           <p className="text-gray-300 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200">
-            OpenÉire Studios is an Ireland-based aerial photography and stock footage studio dedicated to the raw, unspoken beauty of the Irish landscape and beyond.
+            OpenÉire Studios is an Ireland-based aerial photography and stock
+            footage studio dedicated to the raw, unspoken beauty of the Irish
+            landscape and beyond.
           </p>
         </div>
       </div>
 
-      {/* 2. THE STORY */}
       <div className="container mx-auto px-4 lg:px-8 py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-          {/* Left: Text */}
           <div className="space-y-8">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-white">
               More than just pixels. <br />
@@ -71,7 +96,6 @@ const AboutPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Image Grid */}
           <div className="grid grid-cols-2 gap-4 relative">
             <img
               src="/macro_flower.webp?auto=format&fit=crop&q=80&w=800"
@@ -84,13 +108,11 @@ const AboutPage: React.FC = () => {
               alt="Mountain Hike"
             />
 
-            {/* Decorative Element */}
             <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-accent/5 blur-3xl rounded-full"></div>
           </div>
         </div>
       </div>
 
-      {/* 3. STATS / TRUST BANNER */}
       <div className="border-y border-white/10 bg-gray-900/30 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-16">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -126,7 +148,6 @@ const AboutPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. THE PROCESS */}
       <div className="container mx-auto px-4 py-24">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-serif font-bold mb-6">
@@ -139,7 +160,6 @@ const AboutPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Step 1 */}
           <div className="bg-gray-900 border border-white/10 p-8 rounded-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
             <div className="absolute top-0 right-0 p-8 text-6xl font-serif font-bold text-white/5 group-hover:text-white/10 transition-colors">
               01
@@ -153,7 +173,6 @@ const AboutPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Step 2 */}
           <div className="bg-gray-900 border border-white/10 p-8 rounded-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
             <div className="absolute top-0 right-0 p-8 text-6xl font-serif font-bold text-white/5 group-hover:text-white/10 transition-colors">
               02
@@ -168,7 +187,6 @@ const AboutPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Step 3 */}
           <div className="bg-gray-900 border border-white/10 p-8 rounded-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-300">
             <div className="absolute top-0 right-0 p-8 text-6xl font-serif font-bold text-white/5 group-hover:text-white/10 transition-colors">
               03
@@ -184,7 +202,6 @@ const AboutPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 5. CTA SECTION */}
       <div className="relative h-[50vh] flex items-center justify-center overflow-hidden">
         <img
           src="pacific_ocean.webp?auto=format&fit=crop&q=80&w=1200"

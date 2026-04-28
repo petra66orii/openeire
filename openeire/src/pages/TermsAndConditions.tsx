@@ -16,7 +16,7 @@ const TermsAndConditions: React.FC = () => {
           <strong>Last Updated: March 2026</strong>
         </p>
         <p>
-          Welcome to OpenEire Studios. These Terms & Conditions ("Terms")
+          Welcome to OpenÉire Studios. These Terms & Conditions ("Terms")
           govern your access to and use of our website, as well as the purchase
           of any physical prints, digital downloads, or commercial media
           licenses. By accessing our website or placing an order, you agree to
@@ -28,9 +28,9 @@ const TermsAndConditions: React.FC = () => {
 
       <h2>1. About Us</h2>
       <p>
-        This website is operated by OpenEire Studios, based in Ireland.
+        This website is operated by OpenÉire Studios, based in Ireland.
         Throughout the site, the terms "we", "us", and "our" refer to
-        OpenEire Studios.
+        OpenÉire Studios.
       </p>
 
       <h2>2. Products and Services</h2>
@@ -48,10 +48,10 @@ const TermsAndConditions: React.FC = () => {
       </ol>
       <h3>Purchasing a Licence, Not Ownership</h3>
       <p>
-        When you purchase digital media from OpenEire Studios, you are
+        When you purchase digital media from OpenÉire Studios, you are
         purchasing a limited licence to use the asset, not the ownership of
         the asset itself. All copyright and intellectual property rights remain
-        the exclusive property of OpenEire Studios.
+        the exclusive property of OpenÉire Studios.
       </p>
 
       <h2>3. Intellectual Property & Strict Licensing Rules</h2>
@@ -155,7 +155,7 @@ const TermsAndConditions: React.FC = () => {
 
       <h2>7. Limitation of Liability</h2>
       <p>
-        To the maximum extent permitted by applicable law, OpenEire Studios
+        To the maximum extent permitted by applicable law, OpenÉire Studios
         shall not be liable for any indirect, incidental, special,
         consequential, or punitive damages, including without limitation loss
         of profits, data, use, goodwill, or other intangible losses, resulting
@@ -167,7 +167,7 @@ const TermsAndConditions: React.FC = () => {
 
       <h2>8. Indemnification</h2>
       <p>
-        You agree to indemnify and hold harmless OpenEire Studios and its
+        You agree to indemnify and hold harmless OpenÉire Studios and its
         affiliates, partners, and employees from any claim or demand, including
         reasonable legal fees, made by any third party due to or arising out of
         your breach of these Terms, your violation of any law, or your misuse
@@ -178,7 +178,7 @@ const TermsAndConditions: React.FC = () => {
       <p>
         These Terms and any separate agreements whereby we provide services
         shall be governed by and construed in accordance with the laws of
-        Ireland and applicable European Union law. OpenEire Studios reserves
+        Ireland and applicable European Union law. OpenÉire Studios reserves
         the right to pursue enforcement and remedies for copyright infringement
         in the jurisdiction where the infringement occurs and/or where the
         licensee is established.

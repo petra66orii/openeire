@@ -75,7 +75,7 @@ const USWallArtForLivingRoomPage: React.FC = () => {
       premiumTitle="Curated prints for rooms people actually live in"
       premiumIntro={
         <>
-          OpenEire Studios treats living room wall art as part of the interior
+          OpenÉire Studios treats living room wall art as part of the interior
           composition. The collection is made for buyers who want a more refined
           answer than generic decor or trend-led poster sets.
         </>
@@ -110,7 +110,7 @@ const USWallArtForLivingRoomPage: React.FC = () => {
       relevanceTitle="Wall art for living spaces in the United States"
       relevanceParagraphs={[
         <>
-          Living room wall art from OpenEire Studios is available to buyers in
+          Living room wall art from OpenÉire Studios is available to buyers in
           the United States as made-to-order physical prints.
         </>,
         <>

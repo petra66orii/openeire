@@ -16,7 +16,7 @@ const RefundPolicy: React.FC = () => {
           <strong>Last Updated: March 2026</strong>
         </p>
         <p>
-          OpenEire Studios sells two distinct product types: digital media
+          OpenÉire Studios sells two distinct product types: digital media
           licences and physical art prints. Because these products are fulfilled
           differently, the refund and return rules are different as well. Nothing
           in this policy affects your statutory rights under Irish or European
@@ -41,7 +41,7 @@ const RefundPolicy: React.FC = () => {
       <p>
         Under EU consumer law, customers generally have a 14-day right to
         cancel online purchases. By purchasing a digital download from
-        OpenEire Studios, you explicitly consent to immediate digital delivery
+        OpenÉire Studios, you explicitly consent to immediate digital delivery
         and acknowledge that you lose that withdrawal right once download
         access begins.
       </p>

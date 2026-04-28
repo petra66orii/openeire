@@ -54,7 +54,7 @@ const faqItems = [
   {
     question: "Are these original aerial photography prints?",
     answer:
-      "Yes. The collection centers on original aerial photography curated by OpenEire Studios rather than generic stock wall art.",
+      "Yes. The collection centers on original aerial photography curated by OpenÉire Studios rather than generic stock wall art.",
   },
   {
     question: "Are prints suitable for collectors and interior spaces?",
@@ -71,7 +71,7 @@ const USFineArtPrintsPage: React.FC = () => {
   return (
     <div className="bg-black min-h-screen text-white pb-20">
       <SEOHead
-        title="Fine Art Landscape Prints USA | Aerial Wall Art | OpenEire Studios"
+        title="Fine Art Landscape Prints USA | Aerial Wall Art | OpenÉire Studios"
         description="Premium aerial fine art prints shipped to the United States. Landscape wall art from Ireland in curated formats for collectors, interiors, and distinctive spaces."
         canonicalPath="/us/fine-art-prints"
         schema={[
@@ -101,7 +101,7 @@ const USFineArtPrintsPage: React.FC = () => {
               Fine Art Prints for Collectors and Interiors in the United States
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-relaxed text-gray-300 md:text-lg">
-              Discover premium aerial wall art from OpenEire Studios, available
+              Discover premium aerial wall art from OpenÉire Studios, available
               to buyers in the United States. These fine art prints are made for
               interiors, collectors, and gift buyers who want landscape artwork
               with atmosphere rather than generic decor.
@@ -248,7 +248,7 @@ const USFineArtPrintsPage: React.FC = () => {
       <section className="container mx-auto px-4 lg:px-8 pt-8 md:pt-20">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
           <div className="space-y-5 lg:col-span-7">
-            <h2 className={SECTION_TITLE_CLASS}>Why choose OpenEire Studios</h2>
+            <h2 className={SECTION_TITLE_CLASS}>Why choose OpenÉire Studios</h2>
             <div className="space-y-4">
               <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 p-5">
                 <FaMapMarkedAlt className="mt-0.5 shrink-0 text-accent" />

@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense, lazy } from "react";
+import React, { useEffect, Suspense, lazy, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
 // ================= SYNC IMPORTS =================
@@ -91,6 +91,20 @@ const StaffVideoUploadsPage = lazy(() => import("./pages/StaffVideoUploadsPage")
 
 function App() {
   const navigate = useNavigate();
+  const [hasCompactViewport, setHasCompactViewport] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
+    const syncViewport = () => {
+      setHasCompactViewport(mediaQuery.matches);
+    };
+
+    syncViewport();
+    mediaQuery.addEventListener("change", syncViewport);
+    return () => {
+      mediaQuery.removeEventListener("change", syncViewport);
+    };
+  }, []);
 
   useEffect(() => {
     bootstrapIubendaConsentDatabase();
@@ -126,7 +140,11 @@ function App() {
         <Navbar />
         <Breadcrumbs />
         <main className="flex-grow">
-          <Toaster position="bottom-center" toastOptions={{ duration: 3000 }} />
+          <Toaster
+            position="bottom-center"
+            containerStyle={hasCompactViewport ? { bottom: 96 } : undefined}
+            toastOptions={{ duration: 3000 }}
+          />
 
           {/* ================= SUSPENSE BOUNDARY ================= */}
           {/* While Vite downloads a lazy-loaded page, this fallback UI is shown */}

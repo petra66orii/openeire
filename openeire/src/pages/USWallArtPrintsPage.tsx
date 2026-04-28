@@ -76,7 +76,7 @@ const USWallArtPrintsPage: React.FC = () => {
       premiumTitle="Premium positioning for interiors"
       premiumIntro={
         <>
-          OpenEire Studios wall art prints are meant to feel intentional in the
+          OpenÉire Studios wall art prints are meant to feel intentional in the
           room. The collection is curated for buyers who want artwork that can
           hold space visually, not simply cover it.
         </>
@@ -104,7 +104,7 @@ const USWallArtPrintsPage: React.FC = () => {
       relevanceTitle="For United States buyers"
       relevanceParagraphs={[
         <>
-          Wall art prints from OpenEire Studios are available to buyers in the
+          Wall art prints from OpenÉire Studios are available to buyers in the
           United States as made-to-order physical pieces.
         </>,
         <>
