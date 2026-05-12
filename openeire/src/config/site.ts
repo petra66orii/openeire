@@ -11,6 +11,9 @@ const normalizeConfiguredUrl = (value?: string): string | null => {
   if (!trimmed) return null;
   try {
     const normalized = new URL(trimmed);
+    if (normalized.protocol !== "http:" && normalized.protocol !== "https:") {
+      return null;
+    }
     return normalized.toString();
   } catch {
     return null;

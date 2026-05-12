@@ -17,6 +17,7 @@ interface VisualCategoryHeroProps {
 
 const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
   activeCollection,
+  isPaused,
   onSelectCollection,
   onScrollToGallery,
 }) => {
@@ -37,13 +38,15 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
 
       <Swiper
         effect={"coverflow"}
-        grabCursor={true}
+        grabCursor={!isPaused}
         centeredSlides={true}
         slidesPerView={"auto"}
         initialSlide={0}
         loop={false} // Keeps the deck stable
         rewind={true}
-        slideToClickedSlide={true}
+        slideToClickedSlide={!isPaused}
+        allowTouchMove={!isPaused}
+        simulateTouch={!isPaused}
         speed={450}
         coverflowEffect={{
           rotate: 0,
@@ -52,10 +55,11 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
           modifier: 1.5,
           slideShadows: false,
         }}
-        mousewheel={{ forceToAxis: true }}
+        mousewheel={isPaused ? false : { forceToAxis: true }}
         modules={[EffectCoverflow, Navigation, Mousewheel]}
         className="w-full relative z-20 py-8"
         onSlideChange={(swiper) => {
+          if (isPaused) return;
           const index = swiper.activeIndex;
           if (GALLERY_COLLECTIONS[index]) {
             onSelectCollection(GALLERY_COLLECTIONS[index].id);
@@ -68,6 +72,7 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
             style={{ width: "300px", height: "450px" }}
             className="rounded-2xl overflow-hidden relative shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 bg-gray-900 group"
             onClick={() => {
+              if (isPaused) return;
               if (activeCollection === cat.id) {
                 onScrollToGallery();
                 return;
