@@ -1,4 +1,5 @@
 import React from "react";
+import { FaArrowDown } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCoverflow, Navigation, Mousewheel } from "swiper/modules";
 
@@ -11,10 +12,14 @@ interface VisualCategoryHeroProps {
   activeCollection: string;
   onSelectCollection: (id: string) => void;
   isPaused: boolean;
+  onScrollToGallery: () => void;
 }
 
 const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
+  activeCollection,
+  isPaused,
   onSelectCollection,
+  onScrollToGallery,
 }) => {
   return (
     <div className="relative w-full overflow-hidden py-4 min-h-[400px] sm:min-h-[470px] md:min-h-[640px] lg:min-h-[720px] md:py-24">
@@ -33,13 +38,15 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
 
       <Swiper
         effect={"coverflow"}
-        grabCursor={true}
+        grabCursor={!isPaused}
         centeredSlides={true}
         slidesPerView={"auto"}
         initialSlide={0}
         loop={false} // Keeps the deck stable
         rewind={true}
-        slideToClickedSlide={true}
+        slideToClickedSlide={!isPaused}
+        allowTouchMove={!isPaused}
+        simulateTouch={!isPaused}
         speed={450}
         coverflowEffect={{
           rotate: 0,
@@ -48,10 +55,11 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
           modifier: 1.5,
           slideShadows: false,
         }}
-        mousewheel={{ forceToAxis: true }}
+        mousewheel={isPaused ? false : { forceToAxis: true }}
         modules={[EffectCoverflow, Navigation, Mousewheel]}
         className="w-full relative z-20 py-8"
         onSlideChange={(swiper) => {
+          if (isPaused) return;
           const index = swiper.activeIndex;
           if (GALLERY_COLLECTIONS[index]) {
             onSelectCollection(GALLERY_COLLECTIONS[index].id);
@@ -63,6 +71,14 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
             key={cat.id}
             style={{ width: "300px", height: "450px" }}
             className="rounded-2xl overflow-hidden relative shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 bg-gray-900 group"
+            onClick={() => {
+              if (isPaused) return;
+              if (activeCollection === cat.id) {
+                onScrollToGallery();
+                return;
+              }
+              onSelectCollection(cat.id);
+            }}
           >
             <img
               src={cat.image}
@@ -84,6 +100,18 @@ const VisualCategoryHero: React.FC<VisualCategoryHeroProps> = ({
           </SwiperSlide>
         ))}
       </Swiper>
+
+      <div className="relative z-30 mt-5 flex justify-center px-4 md:mt-8">
+        <button
+          type="button"
+          onClick={onScrollToGallery}
+          aria-label="Scroll to gallery"
+          className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/55 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-white backdrop-blur-md transition-colors hover:border-accent/60 hover:text-accent"
+        >
+          <span>Scroll to gallery</span>
+          <FaArrowDown className="text-[10px]" />
+        </button>
+      </div>
 
       <div className="pointer-events-none absolute bottom-0 left-0 z-30 h-10 w-full bg-gradient-to-t from-black to-transparent md:h-32" />
     </div>

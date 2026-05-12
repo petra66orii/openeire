@@ -2,10 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaCamera, FaPlane, FaMapMarkedAlt, FaAward } from "react-icons/fa";
 import SEOHead from "../components/SEOHead";
-import logoImage from "../assets/simple-logo-black.png";
 import {
+  ORGANIZATION_LOGO_PATH,
   SITE_CONTACT_EMAIL,
   SITE_DESCRIPTION,
+  SITE_SOCIAL_SAME_AS,
   SITE_TITLE,
   SITE_TITLE_ASCII,
   buildAbsoluteSiteUrl,
@@ -33,9 +34,10 @@ const AboutPage: React.FC = () => {
             name: SITE_TITLE,
             alternateName: SITE_TITLE_ASCII,
             url: buildAbsoluteSiteUrl("/"),
-            logo: buildAbsoluteSiteUrl(logoImage),
+            logo: buildAbsoluteSiteUrl(ORGANIZATION_LOGO_PATH),
             description: SITE_DESCRIPTION,
             contactEmail: SITE_CONTACT_EMAIL,
+            sameAs: SITE_SOCIAL_SAME_AS,
           }),
           buildWebsiteSchema({
             name: SITE_TITLE,

@@ -1,18 +1,26 @@
-﻿import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 import { GalleryItem } from "../services/api";
 import ProductCard from "./ProductCard";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 interface RelatedProductsProps {
   products: GalleryItem[];
 }
 
-const RelatedProducts: React.FC<RelatedProductsProps> = ({
-  products,
-}) => {
+const RelatedProducts: React.FC<RelatedProductsProps> = ({ products }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const visibleProducts = useMemo(
+    () =>
+      products.filter(
+        (item) =>
+          item.product_type === "physical" || Boolean(user?.can_access_gallery),
+      ),
+    [products, user?.can_access_gallery],
+  );
 
-  if (!products || products.length === 0) return null;
+  if (!visibleProducts.length) return null;
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -33,34 +41,32 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
           You Might Also Like
         </h3>
 
-        {/* Navigation Buttons */}
         <div className="hidden md:flex gap-3">
           <button
             onClick={() => scroll("left")}
             className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors"
-            aria-label="Scroll Left"
+            aria-label="Scroll left"
           >
             <FaChevronLeft className="mr-0.5" />
           </button>
           <button
             onClick={() => scroll("right")}
             className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors"
-            aria-label="Scroll Right"
+            aria-label="Scroll right"
           >
             <FaChevronRight className="ml-0.5" />
           </button>
         </div>
       </div>
 
-      {/* Carousel Container */}
       <div
         ref={scrollContainerRef}
         className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        {products.map((item) => (
+        {visibleProducts.map((item) => (
           <div
-            key={item.id}
+            key={`${item.product_type}-${item.id}`}
             className="flex w-[280px] md:w-[320px] snap-start flex-shrink-0"
           >
             <ProductCard product={item} />
@@ -72,4 +78,3 @@ const RelatedProducts: React.FC<RelatedProductsProps> = ({
 };
 
 export default RelatedProducts;
-

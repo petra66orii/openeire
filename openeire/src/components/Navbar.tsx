@@ -151,7 +151,7 @@ const Navbar: React.FC = () => {
                 width={380}
                 height={200}
                 decoding="async"
-                className="text-white h-16 w-auto transition-all"
+                className="text-white h-[4.4rem] md:h-[4.8rem] w-auto transition-all"
               />
             </Link>
 

@@ -55,8 +55,7 @@ const ArtPrintsPage: React.FC = () => {
               Art prints for collectors and interiors
             </span>
             <h1 className={HERO_TITLE_CLASS}>
-              Fine art prints that feel as premium in the room as they do
-              online.
+              Fine art prints that feel premium.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-gray-300 md:text-lg">
               OpenÉire Studios turns aerial photography into statement wall art

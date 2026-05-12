@@ -411,6 +411,27 @@ const GalleryPage: React.FC = () => {
     [layoutKey],
   );
 
+  const scrollToGalleryGrid = useCallback(() => {
+    if (!gridRef.current || typeof window === "undefined") return;
+    const headerOffset =
+      parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          "--site-header-height",
+        ),
+        10,
+      ) || 0;
+    const targetTop =
+      gridRef.current.getBoundingClientRect().top +
+      window.scrollY -
+      headerOffset -
+      16;
+
+    window.scrollTo({
+      top: Math.max(targetTop, 0),
+      behavior: "smooth",
+    });
+  }, []);
+
   const columnLayouts = useMemo(
     () =>
       columns.map((column) => {
@@ -502,7 +523,11 @@ const GalleryPage: React.FC = () => {
         }
       } catch (err) {
         if (!isCurrent || galleryRequestIdRef.current !== requestId) return;
-        console.error("Gallery Error:", err);
+        if (err instanceof Error) {
+          console.error("Gallery Error:", err.message);
+        } else {
+          console.error("Gallery Error:", err);
+        }
         setError("Failed to load products.");
       } finally {
         if (!isCurrent || galleryRequestIdRef.current !== requestId) return;
@@ -538,6 +563,7 @@ const GalleryPage: React.FC = () => {
         activeCollection={collection}
         onSelectCollection={setCollection}
         isPaused={isGridHovered || isAnyModalOpen}
+        onScrollToGallery={scrollToGalleryGrid}
       />
 
       <div className="container mx-auto px-4 lg:px-8 mt-2 mb-4 lg:hidden">
@@ -576,6 +602,7 @@ const GalleryPage: React.FC = () => {
 
       <div
         ref={gridRef}
+        id="gallery-grid"
         className="container mx-auto px-4 lg:px-8 relative z-10"
         onMouseEnter={() => setIsGridHovered(true)}
         onMouseLeave={() => setIsGridHovered(false)}

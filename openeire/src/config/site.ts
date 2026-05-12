@@ -4,6 +4,35 @@ export const SITE_DESCRIPTION =
   "Premium aerial photography, fine art prints, commercial licensing, and curated visual assets from Ireland.";
 export const SITE_CONTACT_EMAIL = "studio@openeire.ie";
 export const DEFAULT_SOCIAL_IMAGE_PATH = "/hero-poster.jpg";
+export const ORGANIZATION_LOGO_PATH = "/favicon-32x32-black.png";
+
+const normalizeConfiguredUrl = (value?: string): string | null => {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  try {
+    const normalized = new URL(trimmed);
+    if (normalized.protocol !== "http:" && normalized.protocol !== "https:") {
+      return null;
+    }
+    return normalized.toString();
+  } catch {
+    return null;
+  }
+};
+
+export const SITE_SOCIAL_INSTAGRAM_URL = normalizeConfiguredUrl(
+  import.meta.env.VITE_SITE_SOCIAL_INSTAGRAM_URL,
+);
+export const SITE_SOCIAL_YOUTUBE_URL = normalizeConfiguredUrl(
+  import.meta.env.VITE_SITE_SOCIAL_YOUTUBE_URL,
+);
+export const SITE_SOCIAL_LINKS = {
+  instagram: SITE_SOCIAL_INSTAGRAM_URL,
+  youtube: SITE_SOCIAL_YOUTUBE_URL,
+} as const;
+export const SITE_SOCIAL_SAME_AS = Object.values(SITE_SOCIAL_LINKS).filter(
+  (value): value is string => Boolean(value),
+);
 
 export const getSiteOrigin = (): string => {
   const configured = import.meta.env.VITE_SITE_URL?.trim().replace(/\/+$/, "");

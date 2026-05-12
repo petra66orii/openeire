@@ -653,8 +653,23 @@ export const getGalleryProducts = async (
     });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw error.response.data;
+    if (axios.isAxiosError(error)) {
+      const statusCode = error.response?.status;
+      const responseData = error.response?.data;
+      const requestPath = error.config?.url || "gallery/";
+
+      if (
+        typeof responseData === "string" &&
+        responseData.includes("<!DOCTYPE html>")
+      ) {
+        throw new Error(
+          `Gallery request failed with status ${statusCode ?? "unknown"} for ${requestPath}. Check that the gallery API is available.`,
+        );
+      }
+
+      if (error.response) {
+        throw error.response.data;
+      }
     }
     throw error;
   }
