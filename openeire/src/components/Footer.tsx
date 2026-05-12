@@ -7,8 +7,9 @@ import {
   registerIubendaConsentForm,
   submitIubendaConsentForm,
 } from "../utils/iubendaConsent";
-import { FaFacebook, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
+import { FaInstagram, FaYoutube } from "react-icons/fa";
 import logoImage from "../assets/full-logo-white.png";
+import { SITE_SOCIAL_LINKS } from "../config/site";
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -63,11 +64,17 @@ const Footer: React.FC = () => {
               prints, commercial licensing, and aerial footage for collectors
               and creators.
             </p>
-            <div className="flex space-x-4">
-              <SocialLink label="Instagram" icon={<FaInstagram />} />
-              <SocialLink label="Facebook" icon={<FaFacebook />} />
-              <SocialLink label="YouTube" icon={<FaYoutube />} />
-              <SocialLink label="Twitter" icon={<FaTwitter />} />
+            <div className="mt-1 flex space-x-4">
+              <SocialLink
+                href={SITE_SOCIAL_LINKS.instagram}
+                label="Instagram"
+                icon={<FaInstagram />}
+              />
+              <SocialLink
+                href={SITE_SOCIAL_LINKS.youtube}
+                label="YouTube"
+                icon={<FaYoutube />}
+              />
             </div>
           </div>
 
@@ -199,7 +206,7 @@ const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({
 );
 
 const SocialLink: React.FC<{
-  href?: string;
+  href?: string | null;
   label: string;
   icon: React.ReactNode;
 }> = ({
@@ -207,17 +214,15 @@ const SocialLink: React.FC<{
   label,
   icon,
 }) => {
-  const isConfiguredLink = typeof href === "string" && href.trim() !== "" && href !== "#";
   const sharedClassName =
-    "h-10 w-10 rounded-full bg-brand-800 flex items-center justify-center text-white transition-all duration-300";
+    "flex h-11 w-11 items-center justify-center rounded-full bg-brand-800 text-lg text-white transition-all duration-300";
 
-  if (!isConfiguredLink) {
+  if (!href) {
     return (
       <span
-        aria-label={`${label} link coming soon`}
-        title={`${label} coming soon`}
-        aria-disabled="true"
-        className={`${sharedClassName} cursor-not-allowed opacity-60`}
+        aria-label={`${label} URL not configured yet`}
+        title={`${label} URL not configured yet`}
+        className={`${sharedClassName} opacity-70`}
       >
         {icon}
       </span>

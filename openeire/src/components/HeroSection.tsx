@@ -104,20 +104,14 @@ const HeroSection: React.FC = () => {
             Your browser does not support the video tag.
           </video>
         ) : (
-          <picture>
-            <source
-              srcSet="/hero-poster-mobile.jpg"
-              media="(max-width: 767px)"
-            />
-            <img
-              src="/hero-poster.jpg"
-              alt=""
-              aria-hidden="true"
-              fetchPriority="high"
-              decoding="async"
-              className="absolute top-0 left-0 h-full w-full object-cover"
-            />
-          </picture>
+          <img
+            src="/hero-poster.jpg"
+            alt=""
+            aria-hidden="true"
+            fetchPriority="high"
+            decoding="async"
+            className="absolute top-0 left-0 h-full w-full object-cover"
+          />
         )}
         <div className="absolute inset-0 bg-dark-900/40 mix-blend-multiply"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
