@@ -1,6 +1,16 @@
 import { isAnalyticsConsentGranted } from "../utils/iubendaConsent";
 
 const GA_SCRIPT_ID = "openeire-ga-script";
+const DENIED_CONSENT = {
+  analytics_storage: "denied",
+  ad_storage: "denied",
+  ad_user_data: "denied",
+  ad_personalization: "denied",
+} as const;
+const GRANTED_CONSENT = {
+  ...DENIED_CONSENT,
+  analytics_storage: "granted",
+} as const;
 
 let gaInitialized = false;
 let gaInitPromise: Promise<void> | null = null;
@@ -39,6 +49,33 @@ const loadGtagScript = (measurementId: string): Promise<void> => {
     return Promise.resolve();
   }
 
+  if (existingScript && existingScript.dataset.loaded !== "error") {
+    if (!gaScriptPromise) {
+      gaScriptPromise = new Promise<void>((resolve, reject) => {
+        const handleLoad = () => {
+          existingScript.dataset.loaded = "true";
+          resolve();
+        };
+        const handleError = () => {
+          existingScript.dataset.loaded = "error";
+          reject(
+            new Error(
+              `Failed to load Google Analytics script: ${existingScript.src}`,
+            ),
+          );
+        };
+
+        existingScript.addEventListener("load", handleLoad, { once: true });
+        existingScript.addEventListener("error", handleError, { once: true });
+      }).catch((error) => {
+        gaScriptPromise = null;
+        throw error;
+      });
+    }
+
+    return gaScriptPromise;
+  }
+
   if (!gaScriptPromise) {
     gaScriptPromise = new Promise<void>((resolve, reject) => {
       if (existingScript) {
@@ -73,6 +110,14 @@ const loadGtagScript = (measurementId: string): Promise<void> => {
   return gaScriptPromise;
 };
 
+export const updateAnalyticsConsent = (granted: boolean): void => {
+  if (typeof window === "undefined") return;
+  if (!getMeasurementId()) return;
+
+  ensureGtagStub();
+  window.gtag?.("consent", "update", granted ? GRANTED_CONSENT : DENIED_CONSENT);
+};
+
 export const initGA = (): Promise<void> => {
   if (typeof window === "undefined") return Promise.resolve();
 
@@ -83,13 +128,10 @@ export const initGA = (): Promise<void> => {
   if (gaInitPromise) return gaInitPromise;
 
   ensureGtagStub();
+  updateAnalyticsConsent(isAnalyticsConsentGranted());
 
   gaInitPromise = loadGtagScript(measurementId)
     .then(() => {
-      window.gtag?.("js", new Date());
-      window.gtag?.("config", measurementId, {
-        send_page_view: false,
-      });
       gaInitialized = true;
     })
     .catch((error) => {

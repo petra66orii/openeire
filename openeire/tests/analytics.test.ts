@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const GA_SCRIPT_ID = "openeire-ga-script";
@@ -5,10 +7,13 @@ let restoreMeasurementId: (() => void) | null = null;
 
 const loadAnalyticsModule = async (measurementId?: string) => {
   vi.resetModules();
+  vi.doMock("../src/utils/iubendaConsent", () => ({
+    isAnalyticsConsentGranted: () => true,
+  }));
 
   const env = import.meta.env as Record<string, string | undefined>;
   const previousMeasurementId = env.VITE_GA_MEASUREMENT_ID;
-  env.VITE_GA_MEASUREMENT_ID = measurementId;
+  env.VITE_GA_MEASUREMENT_ID = measurementId ?? "";
 
   const module = await import("../src/lib/analytics");
   const restore = () => {
@@ -48,7 +53,7 @@ describe("analytics helper", () => {
     expect(document.getElementById(GA_SCRIPT_ID)).toBeNull();
   });
 
-  it("loads gtag only once and sends the expected config payload", async () => {
+  it("loads gtag only once when no bootstrap tag exists", async () => {
     const { module } = await loadAnalyticsModule("G-TEST123");
     const { initGA } = module;
     const appendSpy = vi
@@ -66,9 +71,11 @@ describe("analytics helper", () => {
     await initGA();
 
     expect(appendSpy).toHaveBeenCalledTimes(1);
-    expect(gtagSpy).toHaveBeenCalledWith("js", expect.any(Date));
-    expect(gtagSpy).toHaveBeenCalledWith("config", "G-TEST123", {
-      send_page_view: false,
+    expect(gtagSpy).toHaveBeenCalledWith("consent", "update", {
+      analytics_storage: "granted",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
     });
   });
 
@@ -96,12 +103,40 @@ describe("analytics helper", () => {
     await initGA();
 
     expect(appendSpy).toHaveBeenCalledTimes(2);
-    expect(gtagSpy).toHaveBeenCalledWith("config", "G-RETRY1", {
-      send_page_view: false,
+    expect(gtagSpy).toHaveBeenCalledWith("consent", "update", {
+      analytics_storage: "granted",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
     });
   });
 
-  it("deduplicates repeated page_view events for the same path and title", async () => {
+  it("reuses the bootstrap tag from index.html without appending a duplicate", async () => {
+    const bootstrapScript = document.createElement("script");
+    bootstrapScript.id = GA_SCRIPT_ID;
+    bootstrapScript.src = "https://www.googletagmanager.com/gtag/js?id=G-BOOTSTRAP1";
+    bootstrapScript.dataset.loaded = "true";
+    document.head.appendChild(bootstrapScript);
+
+    const { module } = await loadAnalyticsModule("G-BOOTSTRAP1");
+    const { initGA } = module;
+    const appendSpy = vi.spyOn(document.head, "appendChild");
+    const gtagSpy = vi.fn();
+    window.gtag = gtagSpy;
+    window.dataLayer = [];
+
+    await initGA();
+
+    expect(appendSpy).not.toHaveBeenCalled();
+    expect(gtagSpy).toHaveBeenCalledWith("consent", "update", {
+      analytics_storage: "granted",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+  });
+
+  it("forwards page_view events with the current path and title", async () => {
     const { module } = await loadAnalyticsModule("G-PAGEVIEW1");
     const { trackPageView } = module;
     const gtagSpy = vi.fn();
@@ -112,14 +147,22 @@ describe("analytics helper", () => {
     trackPageView("/gallery/video/12?ref=home#details", "Video Detail | OpenEire");
     trackPageView("/gallery/video/13?ref=home#details", "Video Detail | OpenEire");
 
-    expect(gtagSpy).toHaveBeenCalledTimes(2);
-    expect(gtagSpy).toHaveBeenNthCalledWith(1, "event", "page_view", {
+    const pageViewCalls = gtagSpy.mock.calls.filter(
+      (call) => call[0] === "event" && call[1] === "page_view",
+    );
+
+    expect(pageViewCalls).toHaveLength(3);
+    expect(pageViewCalls[0]).toEqual(["event", "page_view", {
       page_path: "/gallery/video/12?ref=home#details",
       page_title: "Video Detail | OpenEire",
-    });
-    expect(gtagSpy).toHaveBeenNthCalledWith(2, "event", "page_view", {
+    }]);
+    expect(pageViewCalls[1]).toEqual(["event", "page_view", {
+      page_path: "/gallery/video/12?ref=home#details",
+      page_title: "Video Detail | OpenEire",
+    }]);
+    expect(pageViewCalls[2]).toEqual(["event", "page_view", {
       page_path: "/gallery/video/13?ref=home#details",
       page_title: "Video Detail | OpenEire",
-    });
+    }]);
   });
 });

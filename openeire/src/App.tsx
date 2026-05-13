@@ -23,7 +23,7 @@ import {
   registerIubendaConsentGrantedCallback,
   shouldDeferGAUntilIubendaConsent,
 } from "./utils/iubendaConsent";
-import { initGA } from "./lib/analytics";
+import { initGA, updateAnalyticsConsent } from "./lib/analytics";
 
 // ================= LAZY IMPORTS =================
 // These are split into separate JS chunks by Vite and downloaded only when needed.
@@ -128,11 +128,13 @@ function App() {
     const shouldDefer = shouldDeferGAUntilIubendaConsent();
     const unsubscribe = shouldDefer
       ? registerIubendaConsentGrantedCallback(() => {
+          updateAnalyticsConsent(true);
           void initGA();
         })
       : () => undefined;
 
     if (!shouldDefer) {
+      updateAnalyticsConsent(true);
       void initGA();
     }
 
