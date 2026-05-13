@@ -4,7 +4,7 @@ export const SITE_DESCRIPTION =
   "Premium aerial photography, fine art prints, commercial licensing, and curated visual assets from Ireland.";
 export const SITE_CONTACT_EMAIL = "studio@openeire.ie";
 export const DEFAULT_SOCIAL_IMAGE_PATH = "/hero-poster.jpg";
-export const ORGANIZATION_LOGO_PATH = "/favicon-32x32-black.png";
+export const ORGANIZATION_LOGO_PATH = "/android-chrome-512x512-dark.png";
 
 const normalizeConfiguredUrl = (value?: string): string | null => {
   const trimmed = value?.trim();
