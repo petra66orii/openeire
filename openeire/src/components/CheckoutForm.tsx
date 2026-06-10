@@ -4,7 +4,10 @@ import {
   useElements,
   PaymentElement,
 } from "@stripe/react-stripe-js";
-import { ConfirmPaymentData } from "@stripe/stripe-js";
+import {
+  ConfirmPaymentData,
+  StripePaymentElementOptions,
+} from "@stripe/stripe-js";
 import { UserProfile, getCountries, Country } from "../services/api";
 import { useCart } from "../context/CartContext";
 import { FaTruck, FaCreditCard, FaBoxOpen } from "react-icons/fa";
@@ -92,6 +95,45 @@ const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
+  const paymentElementOptions = React.useMemo<StripePaymentElementOptions>(
+    () => ({
+      defaultValues: {
+        billingDetails: {
+          name: shippingDetails.name || undefined,
+          email: shippingDetails.email || undefined,
+          phone: shippingDetails.phone || undefined,
+          ...(hasPhysicalItems
+            ? {
+                address: {
+                  line1: shippingDetails.line1 || undefined,
+                  line2: shippingDetails.line2 || undefined,
+                  city: shippingDetails.city || undefined,
+                  state: shippingDetails.state || undefined,
+                  country: shippingDetails.country || undefined,
+                  postal_code: shippingDetails.postal_code || undefined,
+                },
+              }
+            : {}),
+        },
+      },
+      fields: {
+        billingDetails: {
+          name: "auto",
+          // Email is already collected in the checkout form and sent via receipt_email.
+          email: "never",
+          // Physical checkout collects phone above; digital checkout does not.
+          phone: hasPhysicalItems ? "never" : "auto",
+          address: hasPhysicalItems ? "if_required" : "auto",
+        },
+      },
+      wallets: {
+        applePay: "auto",
+        googlePay: "auto",
+        link: "auto",
+      },
+    }),
+    [hasPhysicalItems, shippingDetails],
+  );
 
   const handlePaymentSubmit = useCallback(async () => {
     if (!isPaymentReady) {
@@ -169,7 +211,7 @@ const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
       </div>
 
       {isPaymentReady ? (
-        <PaymentElement />
+        <PaymentElement options={paymentElementOptions} />
       ) : (
         <div className="rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-gray-400">
           {hasPhysicalItems
