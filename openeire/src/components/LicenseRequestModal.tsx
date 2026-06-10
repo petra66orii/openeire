@@ -64,6 +64,29 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
     );
   }, [isOpen, isAuthenticated, user?.email]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const scrollY = window.scrollY;
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalBodyPosition = document.body.style.position;
+    const originalBodyTop = document.body.style.top;
+    const originalBodyWidth = document.body.style.width;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.body.style.position = originalBodyPosition;
+      document.body.style.top = originalBodyTop;
+      document.body.style.width = originalBodyWidth;
+      window.scrollTo({ top: scrollY, behavior: "auto" });
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const shouldLockEmail = Boolean(isAuthenticated && user?.email);
@@ -115,7 +138,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
         duration: formData.duration,
       });
       toast.success(
-        "License request submitted! We will be in touch shortly with a custom quote.",
+        "Licence request submitted! We will be in touch shortly with a custom quote.",
       );
       handleClose();
     } catch (error) {
@@ -126,20 +149,28 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in overflow-y-auto pt-20 pb-20">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="commercial-license-modal-title"
+    >
       <div
         className="inset-0 bg-black/80 backdrop-blur-sm fixed"
         onClick={handleClose}
       ></div>
       <div
-        className="relative bg-gray-900 border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl my-auto"
+        className="relative my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-gray-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-white/10 bg-gray-900 sticky top-0 z-10">
           <div>
-            <h2 className="text-xl font-serif font-bold text-white">
-              Request Commercial License
+            <h2
+              id="commercial-license-modal-title"
+              className="text-xl font-serif font-bold text-white"
+            >
+              Request Commercial Licence
             </h2>
             <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">
               For: {assetTitle}
@@ -147,14 +178,18 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
           </div>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="shrink-0 text-gray-400 transition-colors hover:text-white"
+            aria-label="Close commercial licence request"
           >
             <FaTimes className="text-xl" />
           </button>
         </div>
 
         {/* FORM */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5 overflow-y-auto overscroll-contain p-6"
+        >
           {/* Section 1: Client Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -200,14 +235,14 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
             />
             {shouldLockEmail && user?.email && (
               <p className="text-xs text-gray-500 mt-2">
-                Signed-in license requests use your account email: {user.email}
+                Signed-in licence requests use your account email: {user.email}
               </p>
             )}
           </div>
 
           <div className="border-t border-white/10 pt-4 mt-2">
             <h3 className="text-sm font-bold text-white mb-4">
-              License Schedule Details
+              Licence Schedule Details
             </h3>
           </div>
 
@@ -336,8 +371,8 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
                 className="mt-1 w-4 h-4 rounded border-gray-600 text-accent focus:ring-accent bg-black"
               />
               <span className="text-xs text-gray-300 leading-relaxed">
-                I understand this is a digital license, not a transfer of
-                ownership. This license strictly prohibits using the asset as
+                I understand this is a digital licence, not a transfer of
+                ownership. This licence strictly prohibits using the asset as
                 the primary value component of physical merchandise or
                 Print-on-Demand (POD) products for resale.
               </span>
@@ -368,7 +403,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
                   : "bg-white text-black hover:bg-gray-200 active:scale-[0.98]"
               }`}
             >
-              {isSubmitting ? "Submitting..." : "Submit License Request"}
+              {isSubmitting ? "Submitting..." : "Submit Licence Request"}
             </button>
           </div>
         </form>
