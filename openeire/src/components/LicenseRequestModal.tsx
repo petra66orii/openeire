@@ -138,7 +138,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
         duration: formData.duration,
       });
       toast.success(
-        "License request submitted! We will be in touch shortly with a custom quote.",
+        "Licence request submitted! We will be in touch shortly with a custom quote.",
       );
       handleClose();
     } catch (error) {
@@ -170,7 +170,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
               id="commercial-license-modal-title"
               className="text-xl font-serif font-bold text-white"
             >
-              Request Commercial License
+              Request Commercial Licence
             </h2>
             <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">
               For: {assetTitle}
@@ -235,14 +235,14 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
             />
             {shouldLockEmail && user?.email && (
               <p className="text-xs text-gray-500 mt-2">
-                Signed-in license requests use your account email: {user.email}
+                Signed-in licence requests use your account email: {user.email}
               </p>
             )}
           </div>
 
           <div className="border-t border-white/10 pt-4 mt-2">
             <h3 className="text-sm font-bold text-white mb-4">
-              License Schedule Details
+              Licence Schedule Details
             </h3>
           </div>
 
@@ -371,8 +371,8 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
                 className="mt-1 w-4 h-4 rounded border-gray-600 text-accent focus:ring-accent bg-black"
               />
               <span className="text-xs text-gray-300 leading-relaxed">
-                I understand this is a digital license, not a transfer of
-                ownership. This license strictly prohibits using the asset as
+                I understand this is a digital licence, not a transfer of
+                ownership. This licence strictly prohibits using the asset as
                 the primary value component of physical merchandise or
                 Print-on-Demand (POD) products for resale.
               </span>
@@ -403,7 +403,7 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
                   : "bg-white text-black hover:bg-gray-200 active:scale-[0.98]"
               }`}
             >
-              {isSubmitting ? "Submitting..." : "Submit License Request"}
+              {isSubmitting ? "Submitting..." : "Submit Licence Request"}
             </button>
           </div>
         </form>

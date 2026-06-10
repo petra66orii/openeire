@@ -207,7 +207,7 @@ export const getGoogleLoginToastErrorMessage = (error: unknown): string =>
 export const getLicenseRequestToastErrorMessage = (error: unknown): string =>
   getToastErrorMessage(error, {
     fallback:
-      "Could not submit your license request. Please review the form and try again.",
+      "Could not submit your licence request. Please review the form and try again.",
     fieldPriority: [
       "email",
       "client_name",
@@ -220,7 +220,8 @@ export const getLicenseRequestToastErrorMessage = (error: unknown): string =>
     ],
     statusMessages: {
       429: "You've reached the request limit for now. Please try again later.",
-      503: "License requests are temporarily unavailable. Please try again shortly.",
+      503:
+        "Licence requests are temporarily unavailable. Please try again shortly.",
     },
   });
 
