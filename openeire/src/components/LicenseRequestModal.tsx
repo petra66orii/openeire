@@ -64,6 +64,29 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
     );
   }, [isOpen, isAuthenticated, user?.email]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const scrollY = window.scrollY;
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalBodyPosition = document.body.style.position;
+    const originalBodyTop = document.body.style.top;
+    const originalBodyWidth = document.body.style.width;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.body.style.position = originalBodyPosition;
+      document.body.style.top = originalBodyTop;
+      document.body.style.width = originalBodyWidth;
+      window.scrollTo({ top: scrollY, behavior: "auto" });
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const shouldLockEmail = Boolean(isAuthenticated && user?.email);
@@ -126,19 +149,27 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in overflow-y-auto pt-20 pb-20">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="commercial-license-modal-title"
+    >
       <div
         className="inset-0 bg-black/80 backdrop-blur-sm fixed"
         onClick={handleClose}
       ></div>
       <div
-        className="relative bg-gray-900 border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl my-auto"
+        className="relative my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-gray-900 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-white/10 bg-gray-900 sticky top-0 z-10">
           <div>
-            <h2 className="text-xl font-serif font-bold text-white">
+            <h2
+              id="commercial-license-modal-title"
+              className="text-xl font-serif font-bold text-white"
+            >
               Request Commercial License
             </h2>
             <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">
@@ -147,14 +178,18 @@ const LicenseRequestModal: React.FC<LicenseRequestModalProps> = ({
           </div>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="shrink-0 text-gray-400 transition-colors hover:text-white"
+            aria-label="Close commercial licence request"
           >
             <FaTimes className="text-xl" />
           </button>
         </div>
 
         {/* FORM */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5 overflow-y-auto overscroll-contain p-6"
+        >
           {/* Section 1: Client Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

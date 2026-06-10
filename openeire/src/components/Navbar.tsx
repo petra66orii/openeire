@@ -144,19 +144,19 @@ const Navbar: React.FC = () => {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between">
             {/* LEFT: Logo */}
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex shrink-0 items-center">
               <img
                 src={logoImage}
                 alt={"Open\u00C9ire Studios Logo"}
                 width={380}
                 height={200}
                 decoding="async"
-                className="text-white h-[4.4rem] md:h-[4.8rem] w-auto transition-all"
+                className="h-[4.15rem] w-auto shrink-0 text-white transition-all lg:h-[4.4rem] xl:h-[4.8rem]"
               />
             </Link>
 
             {/* CENTER: Main Navigation (Desktop) */}
-            <div className="hidden md:flex items-center space-x-8 font-medium text-sm tracking-wide uppercase">
+            <div className="hidden lg:flex items-center space-x-8 font-medium text-sm tracking-wide uppercase">
               <NavLink
                 to="/art-prints"
                 className={hoverColor}
@@ -218,7 +218,7 @@ const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-                className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/10 text-white hover:bg-white/10 transition-all"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white transition-all hover:bg-white/10 lg:hidden"
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-nav"
@@ -253,7 +253,7 @@ const Navbar: React.FC = () => {
               </button>
 
               {/* User Menu */}
-              <div className="hidden md:flex items-center space-x-4 text-sm font-medium">
+              <div className="hidden lg:flex items-center space-x-4 text-sm font-medium">
                 {isAuthenticated ? (
                   <>
                     <NavLink
@@ -293,7 +293,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Menu Panel */}
           {isMobileMenuOpen && (
-            <div id="mobile-nav" className="md:hidden px-4 pb-4">
+            <div id="mobile-nav" className="px-4 pb-4 lg:hidden">
               <div className="mt-4 rounded-2xl border border-white/10 bg-dark/95 backdrop-blur-md shadow-lg p-4 space-y-4">
                 <NavLink
                   to="/art-prints"

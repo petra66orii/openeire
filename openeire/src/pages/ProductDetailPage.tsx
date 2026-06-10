@@ -474,7 +474,7 @@ const ProductDetailPage: React.FC = () => {
     : null;
 
   return (
-    <div className="bg-black min-h-screen text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black mobile-page-offset">
+    <div className="bg-black min-h-screen overflow-x-hidden text-white pt-24 pb-20 font-sans selection:bg-accent selection:text-black mobile-page-offset">
       <SEOHead
         title={product.title}
         description={
@@ -735,9 +735,18 @@ const ProductDetailPage: React.FC = () => {
                     </p>
                     <button
                       onClick={handleRequestLicense}
-                      className="w-full py-4 bg-transparent border-2 border-white/20 text-white font-bold text-lg rounded-xl hover:bg-white hover:text-black transition-all transform active:scale-[0.98] flex items-center justify-center gap-3"
+                      className="flex w-full min-w-0 items-center justify-center overflow-hidden rounded-xl border-2 border-white/20 bg-transparent px-3 py-4 text-center font-bold text-white transition-all active:scale-[0.98] hover:bg-white hover:text-black text-sm sm:px-4 sm:text-base 2xl:text-lg"
                     >
-                      <FaFileContract /> Request Commercial Licence
+                      <FaFileContract
+                        className="hidden shrink-0 2xl:block"
+                        aria-hidden="true"
+                      />
+                      <span className="block max-w-full truncate text-center whitespace-nowrap">
+                        <span className="2xl:hidden">Request Licence</span>
+                        <span className="hidden 2xl:inline">
+                          Request Commercial Licence
+                        </span>
+                      </span>
                     </button>
                   </div>
                 </div>

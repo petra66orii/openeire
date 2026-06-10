@@ -15,17 +15,19 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
   });
 
   return (
-    <div className="bg-white/5 p-6 rounded-xl border border-white/5 mb-6 backdrop-blur-sm transition-colors hover:bg-white/10">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
+    <div className="mb-6 rounded-xl border border-white/5 bg-white/5 p-4 backdrop-blur-sm transition-colors hover:bg-white/10 sm:p-6">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
           {/* User Icon Placeholder */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-black flex items-center justify-center text-gray-400">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gray-700 to-black text-gray-400">
             <FaUserCircle className="text-2xl" />
           </div>
 
-          <div>
-            <p className="font-bold text-white text-sm">{review.user}</p>
-            <div className="flex items-center gap-2 mt-0.5">
+          <div className="min-w-0">
+            <p className="break-words text-sm font-bold text-white">
+              {review.user}
+            </p>
+            <div className="mt-0.5 flex items-center gap-2">
               <div className="scale-75 origin-left">
                 <StarRating
                   rating={review.rating}
@@ -36,20 +38,20 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review }) => {
             </div>
           </div>
         </div>
-        <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+        <p className="max-w-full break-words pr-1 text-[11px] font-medium uppercase tracking-wider text-gray-500 sm:pl-4 sm:text-xs sm:text-right">
           {createdAt}
         </p>
       </div>
 
       {review.comment && (
-        <p className="text-gray-300 text-sm leading-relaxed font-sans pl-14">
+        <p className="pl-0 font-sans text-sm leading-relaxed text-gray-300 sm:pl-14">
           "{review.comment}"
         </p>
       )}
 
       {/* Admin Reply Section */}
       {review.admin_reply && (
-        <div className="mt-6 ml-14 p-4 bg-black/40 border-l-2 border-accent rounded-r-lg">
+        <div className="mt-6 rounded-r-lg border-l-2 border-accent bg-black/40 p-4 sm:ml-14">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] font-bold text-accent uppercase tracking-widest border border-accent/30 px-2 py-0.5 rounded-full">
               Official Response
