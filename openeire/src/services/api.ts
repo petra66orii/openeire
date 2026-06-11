@@ -435,16 +435,50 @@ export const getTestimonials = async (): Promise<Testimonial[]> => {
   }
 };
 
+export type NewsletterSignupPayload = {
+  email: string;
+  first_name?: string;
+  source?: string;
+};
+
+export type DiscountValidationPayload = {
+  cart: unknown[];
+  email?: string;
+  discount_code: string;
+};
+
+export type DiscountValidationResponse = {
+  code: string;
+  discountAmount: number;
+  discountPercent: number;
+  discountLabel: string;
+  eligibleSubtotal: number;
+};
+
 export const newsletterSignup = async (
-  email: string
+  payload: NewsletterSignupPayload,
 ): Promise<{ email: string }> => {
   try {
-    const response = await api.post("home/newsletter-signup/", { email });
+    const response = await api.post("home/newsletter-signup/", payload);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw error.response.data;
     }
+    throw error;
+  }
+};
+
+export const validateDiscountCode = async (
+  payload: DiscountValidationPayload,
+): Promise<DiscountValidationResponse> => {
+  try {
+    const response = await api.post<DiscountValidationResponse>(
+      "checkout/validate-discount/",
+      payload,
+    );
+    return response.data;
+  } catch (error) {
     throw error;
   }
 };

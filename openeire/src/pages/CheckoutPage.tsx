@@ -1,13 +1,19 @@
 ﻿/// <reference types="vite/client" />
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import axios from "axios";
-import { isPhysicalCartOptions, useCart } from "../context/CartContext";
+import { CartItem, isPhysicalCartOptions, useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import { getProfile, UserProfile, api } from "../services/api";
+import {
+  getProfile,
+  UserProfile,
+  api,
+  validateDiscountCode,
+} from "../services/api";
 import CheckoutForm from "../components/CheckoutForm";
+import CheckoutDiscountCard from "../components/CheckoutDiscountCard";
 import OrderSummary from "../components/OrderSummary";
 import { Link } from "react-router-dom";
 import { FaLock, FaShieldAlt } from "react-icons/fa";
@@ -137,14 +143,67 @@ type CreatePaymentIntentPayload = {
   save_info: boolean;
   shipping_details?: CheckoutShippingDetailsPayload;
   shipping_method?: string;
+  discount_code?: string;
 };
 
 type CreatePaymentIntentResponse = {
   clientSecret: string;
   shippingCost?: number;
+  discountAmount?: number;
+  discountCode?: string;
+  discountLabel?: string;
+  totalPrice?: number;
   freeShippingApplied?: boolean;
   freeShippingThreshold?: number | string | null;
 };
+
+const buildCheckoutCartPayload = (
+  cartItems: CartItem[],
+): CheckoutCartItemPayload[] =>
+  cartItems.map((item) => {
+    const productType = item.product.product_type;
+    if (
+      !isPhysicalProductType(productType) &&
+      !isDigitalProductType(productType)
+    ) {
+      throw new Error(
+        "One or more bag items have an unsupported product type. Remove and re-add the item.",
+      );
+    }
+
+    if (isPhysicalProductType(productType)) {
+      const rawVariantId = isPhysicalCartOptions(item.options)
+        ? item.options.variantId
+        : Number(item.product.id);
+      const variantId = Number(rawVariantId);
+      if (!Number.isFinite(variantId) || variantId <= 0) {
+        throw new Error(
+          "One or more print options are invalid. Remove and re-add the item.",
+        );
+      }
+
+      return {
+        product_id: variantId,
+        product_type: "physical" as const,
+        quantity: item.quantity,
+        options: {
+          material: isPhysicalCartOptions(item.options)
+            ? item.options.material
+            : undefined,
+          size: isPhysicalCartOptions(item.options)
+            ? item.options.size
+            : undefined,
+          variantId,
+        },
+      };
+    }
+
+    return {
+      product_id: item.product.id,
+      product_type: productType,
+      quantity: item.quantity,
+    };
+  });
 
 const CheckoutPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState("");
@@ -162,6 +221,12 @@ const CheckoutPage: React.FC = () => {
   const [saveInfo, setSaveInfo] = useState(true);
   const [isUpdatingIntent, setIsUpdatingIntent] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [discountCodeInput, setDiscountCodeInput] = useState("");
+  const [appliedDiscountCode, setAppliedDiscountCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountLabel, setDiscountLabel] = useState<string | null>(null);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
   const latestIntentRequestId = useRef(0);
   const checkoutAttemptIdRef = useRef<string>(
     typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
@@ -197,7 +262,10 @@ const CheckoutPage: React.FC = () => {
       ),
       purchase: {
         transaction_id: checkoutAttemptIdRef.current,
-        value: cartTotal + (hasPhysicalItems ? calculatedShippingCost : 0),
+        value:
+          cartTotal +
+          (hasPhysicalItems ? calculatedShippingCost : 0) -
+          discountAmount,
         currency: "EUR",
         tax: 0,
         shipping: hasPhysicalItems ? calculatedShippingCost : 0,
@@ -208,6 +276,7 @@ const CheckoutPage: React.FC = () => {
       calculatedShippingCost,
       cartTotal,
       checkoutCartItems,
+      discountAmount,
       hasDigitalItems,
       hasPhysicalItems,
     ],
@@ -237,6 +306,13 @@ const CheckoutPage: React.FC = () => {
   const hasResolvedAccountEmail = Boolean(
     isAuthenticated && profileData?.email,
   );
+  const normalizedDiscountInput = discountCodeInput.trim().toUpperCase();
+
+  const clearAppliedDiscount = useCallback(() => {
+    setAppliedDiscountCode("");
+    setDiscountAmount(0);
+    setDiscountLabel(null);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -254,6 +330,71 @@ const CheckoutPage: React.FC = () => {
         : { ...prev, email: profileData.email },
     );
   }, [isAuthenticated, profileData?.email]);
+
+  const handleDiscountInputChange = useCallback((value: string) => {
+    setDiscountCodeInput(value.toUpperCase());
+    setDiscountError(null);
+  }, []);
+
+  const handleApplyDiscount = useCallback(async () => {
+    if (!normalizedDiscountInput) {
+      setDiscountError("Enter a discount code.");
+      return;
+    }
+
+    const customerEmail = shippingDetails.email.trim();
+    if (!customerEmail && !hasResolvedAccountEmail) {
+      setDiscountError("Enter your email before applying a discount code.");
+      return;
+    }
+
+    setIsApplyingDiscount(true);
+    setDiscountError(null);
+    setCheckoutError(null);
+
+    try {
+      const cart = buildCheckoutCartPayload(checkoutCartItems);
+      const response = await validateDiscountCode({
+        cart,
+        email: customerEmail || undefined,
+        discount_code: normalizedDiscountInput,
+      });
+
+      setAppliedDiscountCode(response.code);
+      setDiscountAmount(Number(response.discountAmount ?? 0));
+      setDiscountLabel(response.discountLabel || null);
+      setDiscountCodeInput(response.code);
+    } catch (error) {
+      clearAppliedDiscount();
+      setDiscountError(
+        getApiErrorMessage(error) ||
+          "We could not apply that discount code right now.",
+      );
+    } finally {
+      setIsApplyingDiscount(false);
+    }
+  }, [
+    checkoutCartItems,
+    clearAppliedDiscount,
+    hasResolvedAccountEmail,
+    normalizedDiscountInput,
+    shippingDetails.email,
+  ]);
+
+  const handleRemoveDiscount = useCallback(() => {
+    clearAppliedDiscount();
+    setDiscountCodeInput("");
+    setDiscountError(null);
+    setCheckoutError(null);
+  }, [clearAppliedDiscount]);
+
+  useEffect(() => {
+    if (checkoutCartItems.length > 0) return;
+
+    clearAppliedDiscount();
+    setDiscountCodeInput("");
+    setDiscountError(null);
+  }, [checkoutCartItems.length, clearAppliedDiscount]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -299,57 +440,16 @@ const CheckoutPage: React.FC = () => {
       setCheckoutError(null);
 
       try {
-        const simplifiedCart: CheckoutCartItemPayload[] = checkoutCartItems.map(
-          (item) => {
-            const productType = item.product.product_type;
-            if (
-              !isPhysicalProductType(productType) &&
-              !isDigitalProductType(productType)
-            ) {
-              throw new Error(
-                "One or more bag items have an unsupported product type. Remove and re-add the item.",
-              );
-            }
-
-            if (isPhysicalProductType(productType)) {
-              const rawVariantId = isPhysicalCartOptions(item.options)
-                ? item.options.variantId
-                : Number(item.product.id);
-              const variantId = Number(rawVariantId);
-              if (!Number.isFinite(variantId) || variantId <= 0) {
-                throw new Error(
-                  "One or more print options are invalid. Remove and re-add the item.",
-                );
-              }
-
-              return {
-                product_id: variantId,
-                product_type: "physical",
-                quantity: item.quantity,
-                options: {
-                  material: isPhysicalCartOptions(item.options)
-                    ? item.options.material
-                    : undefined,
-                  size: isPhysicalCartOptions(item.options)
-                    ? item.options.size
-                    : undefined,
-                  variantId,
-                },
-              };
-            }
-
-            return {
-              product_id: item.product.id,
-              product_type: productType,
-              quantity: item.quantity,
-            };
-          },
-        );
+        const simplifiedCart = buildCheckoutCartPayload(checkoutCartItems);
 
         const payload: CreatePaymentIntentPayload = {
           cart: simplifiedCart,
           save_info: saveInfo,
         };
+
+        if (appliedDiscountCode) {
+          payload.discount_code = appliedDiscountCode;
+        }
 
         if (hasPhysicalItems) {
           payload.shipping_details = {
@@ -378,6 +478,9 @@ const CheckoutPage: React.FC = () => {
         setCalculatedShippingCost(
           hasPhysicalItems ? Number(response.data.shippingCost ?? 0) : 0,
         );
+        setDiscountAmount(Number(response.data.discountAmount ?? 0));
+        setDiscountLabel(response.data.discountLabel || null);
+        setAppliedDiscountCode(response.data.discountCode || "");
         setFreeShippingApplied(Boolean(response.data.freeShippingApplied));
         const parsedFreeShippingThreshold = Number(
           response.data.freeShippingThreshold,
@@ -390,10 +493,24 @@ const CheckoutPage: React.FC = () => {
       } catch (error) {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         resetCheckoutIntentState();
-        setCheckoutError(
-          getApiErrorMessage(error) ||
-            "We could not prepare checkout right now. Please review your details and try again.",
-        );
+        const apiErrorMessage = getApiErrorMessage(error);
+        const errorCode = axios.isAxiosError(error)
+          ? String(error.response?.data?.code || "")
+          : "";
+
+        if (errorCode.startsWith("DISCOUNT_")) {
+          clearAppliedDiscount();
+          setDiscountError(
+            apiErrorMessage ||
+              "That discount code could not be applied to this checkout.",
+          );
+          setCheckoutError(null);
+        } else {
+          setCheckoutError(
+            apiErrorMessage ||
+              "We could not prepare checkout right now. Please review your details and try again.",
+          );
+        }
       } finally {
         if (!isCancelled && requestId === latestIntentRequestId.current) {
           setIsUpdatingIntent(false);
@@ -411,6 +528,8 @@ const CheckoutPage: React.FC = () => {
     hasPhysicalItems,
     isAuthenticated,
     physicalAddressKey,
+    appliedDiscountCode,
+    clearAppliedDiscount,
     requiresAuthenticatedCheckout,
     saveInfo,
     shippingMethodKey,
@@ -544,6 +663,18 @@ const CheckoutPage: React.FC = () => {
           </div>
 
           <div className="lg:col-span-2 lg:sticky lg:top-28">
+            <CheckoutDiscountCard
+              value={discountCodeInput}
+              onChange={handleDiscountInputChange}
+              onApply={handleApplyDiscount}
+              onRemove={handleRemoveDiscount}
+              isApplying={isApplyingDiscount}
+              appliedCode={appliedDiscountCode || null}
+              discountAmount={discountAmount}
+              discountLabel={discountLabel}
+              errorMessage={discountError}
+              disabled={checkoutCartItems.length === 0}
+            />
             <OrderSummary
               isCheckoutPage
               shippingCost={calculatedShippingCost}
@@ -551,6 +682,8 @@ const CheckoutPage: React.FC = () => {
               freeShippingApplied={freeShippingApplied}
               freeShippingThreshold={freeShippingThreshold}
               shippingCountry={shippingDetails.country}
+              discountAmount={discountAmount}
+              discountLabel={discountLabel}
             />
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
               <FaLock /> SSL Secured - Stripe Protected
