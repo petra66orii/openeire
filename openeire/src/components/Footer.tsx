@@ -32,7 +32,7 @@ const Footer: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await newsletterSignup(email);
+      await newsletterSignup({ email, source: "footer" });
       submitIubendaConsentForm("newsletter-signup-form");
       toast.success("Welcome to the community! \uD83C\uDDEE\uD83C\uDDEA");
       setEmail("");

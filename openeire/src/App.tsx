@@ -9,6 +9,7 @@ import BackToTop from "./components/BackToTop";
 import Breadcrumbs from "./components/Breadcrumbs";
 import ScrollToTop from "./components/ScrollToTop";
 import AnalyticsListener from "./components/AnalyticsListener";
+import NewsletterSignupModal from "./components/NewsletterSignupModal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import StaffRoute from "./components/StaffRoute";
 import GalleryGuard from "./components/GalleryGuard";
@@ -306,6 +307,7 @@ function App() {
           </Suspense>
         </main>
         <BackToTop />
+        <NewsletterSignupModal />
         <Footer />
       </BreadcrumbProvider>
     </>

@@ -28,6 +28,8 @@ interface OrderSummaryProps {
   freeShippingApplied?: boolean;
   freeShippingThreshold?: number | null;
   shippingCountry?: string | null;
+  discountAmount?: number;
+  discountLabel?: string | null;
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
@@ -37,6 +39,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   freeShippingApplied = false,
   freeShippingThreshold = null,
   shippingCountry = null,
+  discountAmount = 0,
+  discountLabel = null,
 }) => {
   const { cartItems: cart, cartTotal } = useCart();
   const { isAuthenticated } = useAuth();
@@ -65,7 +69,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     FREE_SHIPPING_PROMO_ENABLED && hasPhysicalItems && !isPhysicalShippingPending;
 
   const grandTotal =
-    cartTotal + (hasPhysicalItems && !isPhysicalShippingPending ? shippingCost : 0);
+    cartTotal +
+    (hasPhysicalItems && !isPhysicalShippingPending ? shippingCost : 0) -
+    discountAmount;
 
   const handleBeginCheckout = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -121,6 +127,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <span className="text-white font-medium">{"\u20AC"}{shippingCost.toFixed(2)}</span>
           )}
         </div>
+        {discountAmount > 0 && (
+          <div className="flex justify-between text-sm text-gray-400">
+            <span>{discountLabel || "Discount"}</span>
+            <span className="font-medium text-brand-500">
+              -€{discountAmount.toFixed(2)}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-white/10 pt-6 mb-8">
