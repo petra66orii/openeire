@@ -389,6 +389,14 @@ const CheckoutPage: React.FC = () => {
   }, [clearAppliedDiscount]);
 
   useEffect(() => {
+    if (checkoutCartItems.length > 0) return;
+
+    clearAppliedDiscount();
+    setDiscountCodeInput("");
+    setDiscountError(null);
+  }, [checkoutCartItems.length, clearAppliedDiscount]);
+
+  useEffect(() => {
     let isCancelled = false;
 
     const initializeCheckout = async () => {

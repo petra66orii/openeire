@@ -39,13 +39,19 @@ const BLOCKED_PATH_PREFIXES = [
 ];
 
 const shouldBlockModalForPath = (pathname: string): boolean =>
-  BLOCKED_PATH_PREFIXES.some((prefix) =>
-    pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
+  BLOCKED_PATH_PREFIXES.some((prefix) => {
+    const normalizedPrefix = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix;
+    return (
+      pathname === normalizedPrefix ||
+      pathname.startsWith(`${normalizedPrefix}/`)
+    );
+  });
 
 const hasActiveDismissal = (): boolean => {
   if (typeof window === "undefined") return false;
-  const dismissedUntil = Number(window.localStorage.getItem(DISMISSED_UNTIL_KEY));
+  const dismissedUntil = Number(
+    window.localStorage.getItem(DISMISSED_UNTIL_KEY),
+  );
   return Number.isFinite(dismissedUntil) && dismissedUntil > Date.now();
 };
 
@@ -67,7 +73,19 @@ const NewsletterSignupModal: React.FC = () => {
     [location.pathname],
   );
 
+  const closeWithDismissal = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        DISMISSED_UNTIL_KEY,
+        String(Date.now() + DISMISS_DURATION_MS),
+      );
+    }
+    setIsOpen(false);
+  };
+
   useEffect(() => {
+    if (!isOpen || isSuccess) return;
+
     return registerIubendaConsentForm({
       formId: MODAL_FORM_ID,
       submitButtonId: MODAL_SUBMIT_ID,
@@ -78,7 +96,7 @@ const NewsletterSignupModal: React.FC = () => {
         newsletter: "newsletter_consent",
       },
     });
-  }, []);
+  }, [isOpen, isSuccess]);
 
   useEffect(() => {
     if (!isEligibleRoute) {
@@ -123,7 +141,7 @@ const NewsletterSignupModal: React.FC = () => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        setIsOpen(false);
+        closeWithDismissal();
       }
     };
 
@@ -148,16 +166,6 @@ const NewsletterSignupModal: React.FC = () => {
       window.scrollTo({ top: scrollY, behavior: "auto" });
     };
   }, [isOpen]);
-
-  const closeWithDismissal = () => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(
-        DISMISSED_UNTIL_KEY,
-        String(Date.now() + DISMISS_DURATION_MS),
-      );
-    }
-    setIsOpen(false);
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -217,14 +225,14 @@ const NewsletterSignupModal: React.FC = () => {
                   id="newsletter-signup-modal-title"
                   className="font-serif text-3xl font-bold text-white"
                 >
-                  You&apos;re in
+                  You're in
                 </h2>
                 <p className="text-base leading-relaxed text-gray-300">
                   Use code <span className="font-bold text-white">{WELCOME_CODE}</span>{" "}
                   at checkout for 10% off your first art print.
                 </p>
                 <p className="text-sm leading-relaxed text-gray-400">
-                  If Brevo email delivery is configured, we&apos;ll send the code
+                  If Brevo email delivery is configured, we'll send the code
                   there too.
                 </p>
                 <p className="text-xs uppercase tracking-[0.22em] text-gray-500">

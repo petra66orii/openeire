@@ -479,9 +479,6 @@ export const validateDiscountCode = async (
     );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw error.response.data;
-    }
     throw error;
   }
 };
