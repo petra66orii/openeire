@@ -40,7 +40,9 @@ const BLOCKED_PATH_PREFIXES = [
 
 const shouldBlockModalForPath = (pathname: string): boolean =>
   BLOCKED_PATH_PREFIXES.some((prefix) => {
-    const normalizedPrefix = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix;
+    const normalizedPrefix = prefix.endsWith("/")
+      ? prefix.slice(0, -1)
+      : prefix;
     return (
       pathname === normalizedPrefix ||
       pathname.startsWith(`${normalizedPrefix}/`)
@@ -228,12 +230,12 @@ const NewsletterSignupModal: React.FC = () => {
                   You're in
                 </h2>
                 <p className="text-base leading-relaxed text-gray-300">
-                  Use code <span className="font-bold text-white">{WELCOME_CODE}</span>{" "}
+                  Use code{" "}
+                  <span className="font-bold text-white">{WELCOME_CODE}</span>{" "}
                   at checkout for 10% off your first art print.
                 </p>
                 <p className="text-sm leading-relaxed text-gray-400">
-                  If Brevo email delivery is configured, we'll send the code
-                  there too.
+                  We've also sent the code to your inbox.
                 </p>
                 <p className="text-xs uppercase tracking-[0.22em] text-gray-500">
                   Applies to art prints only. Does not apply to shipping,

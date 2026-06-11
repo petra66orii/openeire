@@ -27,6 +27,10 @@ import { CheckoutSuccessContext } from "../utils/checkoutSuccessContext";
 import { EMPTY_SHIPPING_DETAILS, ShippingDetails } from "../types/checkout";
 import { buildAnalyticsItemFromCartItem } from "../lib/ecommerceAnalytics";
 import SEOHead from "../components/SEOHead";
+import {
+  clearPendingDiscountCode,
+  readPendingDiscountCode,
+} from "../utils/pendingDiscount";
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.trim() ?? "";
 const isStripeConfigured = stripePublicKey.length > 0;
@@ -227,6 +231,7 @@ const CheckoutPage: React.FC = () => {
   const [discountLabel, setDiscountLabel] = useState<string | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const pendingDiscountAutoApplyRef = useRef<string | null>(null);
   const latestIntentRequestId = useRef(0);
   const checkoutAttemptIdRef = useRef<string>(
     typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
@@ -307,6 +312,14 @@ const CheckoutPage: React.FC = () => {
     isAuthenticated && profileData?.email,
   );
   const normalizedDiscountInput = discountCodeInput.trim().toUpperCase();
+  const pendingDiscountCode = useMemo(() => readPendingDiscountCode(), []);
+  const checkoutCartSignature = useMemo(
+    () =>
+      checkoutCartItems
+        .map((item) => `${item.cartId}:${item.quantity}`)
+        .join("|"),
+    [checkoutCartItems],
+  );
 
   const clearAppliedDiscount = useCallback(() => {
     setAppliedDiscountCode("");
@@ -364,6 +377,7 @@ const CheckoutPage: React.FC = () => {
       setDiscountAmount(Number(response.discountAmount ?? 0));
       setDiscountLabel(response.discountLabel || null);
       setDiscountCodeInput(response.code);
+      clearPendingDiscountCode();
     } catch (error) {
       clearAppliedDiscount();
       setDiscountError(
@@ -383,10 +397,18 @@ const CheckoutPage: React.FC = () => {
 
   const handleRemoveDiscount = useCallback(() => {
     clearAppliedDiscount();
+    clearPendingDiscountCode();
     setDiscountCodeInput("");
     setDiscountError(null);
     setCheckoutError(null);
   }, [clearAppliedDiscount]);
+
+  useEffect(() => {
+    if (!pendingDiscountCode) return;
+    if (discountCodeInput.trim()) return;
+
+    setDiscountCodeInput(pendingDiscountCode);
+  }, [discountCodeInput, pendingDiscountCode]);
 
   useEffect(() => {
     if (checkoutCartItems.length > 0) return;
@@ -395,6 +417,36 @@ const CheckoutPage: React.FC = () => {
     setDiscountCodeInput("");
     setDiscountError(null);
   }, [checkoutCartItems.length, clearAppliedDiscount]);
+
+  useEffect(() => {
+    if (!pendingDiscountCode) return;
+    if (!hasPhysicalItems) return;
+    if (appliedDiscountCode === pendingDiscountCode) return;
+    if (normalizedDiscountInput !== pendingDiscountCode) return;
+
+    const customerEmail = shippingDetails.email.trim();
+    if (!customerEmail && !hasResolvedAccountEmail) return;
+
+    const attemptKey = [
+      pendingDiscountCode,
+      customerEmail || "account-email",
+      checkoutCartSignature,
+    ].join("|");
+
+    if (pendingDiscountAutoApplyRef.current === attemptKey) return;
+    pendingDiscountAutoApplyRef.current = attemptKey;
+
+    void handleApplyDiscount();
+  }, [
+    appliedDiscountCode,
+    checkoutCartSignature,
+    handleApplyDiscount,
+    hasPhysicalItems,
+    hasResolvedAccountEmail,
+    normalizedDiscountInput,
+    pendingDiscountCode,
+    shippingDetails.email,
+  ]);
 
   useEffect(() => {
     let isCancelled = false;
