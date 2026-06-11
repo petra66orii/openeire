@@ -148,6 +148,25 @@ const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
     const confirmParams: ConfirmPaymentData = {
       return_url: `${window.location.origin}/checkout-success`,
       receipt_email: shippingDetails.email,
+      payment_method_data: {
+        billing_details: {
+          name: shippingDetails.name || undefined,
+          email: shippingDetails.email || undefined,
+          phone: shippingDetails.phone || undefined,
+          ...(hasPhysicalItems
+            ? {
+                address: {
+                  line1: shippingDetails.line1 || undefined,
+                  line2: shippingDetails.line2 || undefined,
+                  city: shippingDetails.city || undefined,
+                  state: shippingDetails.state || undefined,
+                  country: shippingDetails.country || undefined,
+                  postal_code: shippingDetails.postal_code || undefined,
+                },
+              }
+            : {}),
+        },
+      },
     };
 
     if (hasPhysicalItems) {
