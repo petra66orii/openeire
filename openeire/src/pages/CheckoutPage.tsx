@@ -15,7 +15,7 @@ import {
 import CheckoutForm from "../components/CheckoutForm";
 import CheckoutDiscountCard from "../components/CheckoutDiscountCard";
 import OrderSummary from "../components/OrderSummary";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaLock, FaShieldAlt } from "react-icons/fa";
 import {
   cartHasDigitalItems,
@@ -30,6 +30,7 @@ import SEOHead from "../components/SEOHead";
 import {
   clearPendingDiscountCode,
   readPendingDiscountCode,
+  savePendingDiscountCode,
 } from "../utils/pendingDiscount";
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY?.trim() ?? "";
@@ -210,6 +211,7 @@ const buildCheckoutCartPayload = (
   });
 
 const CheckoutPage: React.FC = () => {
+  const location = useLocation();
   const [clientSecret, setClientSecret] = useState("");
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
 
@@ -231,6 +233,9 @@ const CheckoutPage: React.FC = () => {
   const [discountLabel, setDiscountLabel] = useState<string | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const [pendingDiscountCode, setPendingDiscountCode] = useState<string | null>(
+    () => readPendingDiscountCode(),
+  );
   const pendingDiscountAutoApplyRef = useRef<string | null>(null);
   const latestIntentRequestId = useRef(0);
   const checkoutAttemptIdRef = useRef<string>(
@@ -312,7 +317,6 @@ const CheckoutPage: React.FC = () => {
     isAuthenticated && profileData?.email,
   );
   const normalizedDiscountInput = discountCodeInput.trim().toUpperCase();
-  const pendingDiscountCode = useMemo(() => readPendingDiscountCode(), []);
   const checkoutCartSignature = useMemo(
     () =>
       checkoutCartItems
@@ -326,6 +330,18 @@ const CheckoutPage: React.FC = () => {
     setDiscountAmount(0);
     setDiscountLabel(null);
   }, []);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const deepLinkDiscountCode = searchParams.get("discount");
+
+    if (deepLinkDiscountCode && savePendingDiscountCode(deepLinkDiscountCode)) {
+      setPendingDiscountCode(deepLinkDiscountCode.trim().toUpperCase());
+      return;
+    }
+
+    setPendingDiscountCode(readPendingDiscountCode());
+  }, [location.search]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -378,6 +394,7 @@ const CheckoutPage: React.FC = () => {
       setDiscountLabel(response.discountLabel || null);
       setDiscountCodeInput(response.code);
       clearPendingDiscountCode();
+      setPendingDiscountCode(null);
     } catch (error) {
       clearAppliedDiscount();
       setDiscountError(
@@ -398,6 +415,7 @@ const CheckoutPage: React.FC = () => {
   const handleRemoveDiscount = useCallback(() => {
     clearAppliedDiscount();
     clearPendingDiscountCode();
+    setPendingDiscountCode(null);
     setDiscountCodeInput("");
     setDiscountError(null);
     setCheckoutError(null);

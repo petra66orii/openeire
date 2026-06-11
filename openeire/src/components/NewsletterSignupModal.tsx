@@ -235,7 +235,8 @@ const NewsletterSignupModal: React.FC = () => {
                   at checkout for 10% off your first art print.
                 </p>
                 <p className="text-sm leading-relaxed text-gray-400">
-                  We've also sent the code to your inbox.
+                  If newsletter email delivery is configured, we'll also send
+                  the code to your inbox.
                 </p>
                 <p className="text-xs uppercase tracking-[0.22em] text-gray-500">
                   Applies to art prints only. Does not apply to shipping,
