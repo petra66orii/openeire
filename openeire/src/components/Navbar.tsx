@@ -156,7 +156,7 @@ const Navbar: React.FC = () => {
             </Link>
 
             {/* CENTER: Main Navigation (Desktop) */}
-            <div className="hidden lg:flex items-center space-x-8 font-medium text-sm tracking-wide uppercase">
+            <div className="hidden lg:flex items-center gap-5 font-medium text-xs tracking-wide uppercase xl:gap-8 xl:text-sm">
               <NavLink
                 to="/art-prints"
                 className={hoverColor}
@@ -173,6 +173,13 @@ const Navbar: React.FC = () => {
               </NavLink>
               <NavLink to="/footage" className={hoverColor} style={activeStyle}>
                 Footage
+              </NavLink>
+              <NavLink
+                to="/real-estate"
+                className={hoverColor}
+                style={activeStyle}
+              >
+                Services
               </NavLink>
               <NavLink to="/blog" className={hoverColor} style={activeStyle}>
                 Blog
@@ -315,6 +322,13 @@ const Navbar: React.FC = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Footage
+                </NavLink>
+                <NavLink
+                  to="/real-estate"
+                  className={`${hoverColor} block text-sm font-semibold uppercase tracking-wide`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Services
                 </NavLink>
                 <NavLink
                   to="/blog"

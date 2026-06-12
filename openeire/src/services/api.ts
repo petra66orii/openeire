@@ -376,6 +376,39 @@ export interface LicenseRequestPayload {
   message?: string;
 }
 
+export interface RealEstateEnquiryPayload {
+  name: string;
+  email: string;
+  phone: string;
+  company_name?: string;
+  client_type: "estate_agent" | "developer" | "private_seller" | "landlord" | "other";
+  property_address: string;
+  eircode?: string;
+  county: string;
+  property_type: string;
+  preferred_package:
+    | "essential"
+    | "starter"
+    | "pro"
+    | "premium"
+    | "custom"
+    | "not_sure";
+  add_ons?: string[];
+  preferred_date?: string;
+  how_heard?:
+    | "google"
+    | "instagram"
+    | "facebook"
+    | "linkedin"
+    | "referral"
+    | "estate_agent_colleague"
+    | "openeire_website"
+    | "other"
+    | "not_sure";
+  message?: string;
+  consent_to_contact: boolean;
+}
+
 // API METHODS
 export const getOrderHistory = async (): Promise<OrderHistory[]> => {
   try {
@@ -850,6 +883,20 @@ export const submitLicenseRequest = async (payload: LicenseRequestPayload) => {
   try {
     // Adjust the URL path if your urls.py prefix is different (e.g., /api/products/license-requests/)
     const response = await api.post("license-requests/", payload);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    }
+    throw error;
+  }
+};
+
+export const submitRealEstateEnquiry = async (
+  payload: RealEstateEnquiryPayload,
+) => {
+  try {
+    const response = await api.post("real-estate/enquiries/", payload);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
