@@ -52,6 +52,7 @@ const CheckoutSuccessPage = lazy(() => import("./pages/CheckoutSuccessPage"));
 const BlogListPage = lazy(() => import("./pages/BlogListPage"));
 const BlogDetailPage = lazy(() => import("./pages/BlogDetailPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
+const RealEstatePage = lazy(() => import("./pages/RealEstatePage"));
 const GalleryGatePage = lazy(() => import("./pages/GalleryGatePage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ArtPrintsPage = lazy(() => import("./pages/ArtPrintsPage"));
@@ -251,6 +252,7 @@ function App() {
               <Route path="/blog" element={<BlogListPage />} />
               <Route path="/blog/:slug" element={<BlogDetailPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/real-estate" element={<RealEstatePage />} />
               <Route path="/licensing" element={<LicensingOverviewPage />} />
               <Route path="/licensing/terms" element={<LicensingTermsPage />} />
               <Route path="/terms" element={<TermsAndConditions />} />

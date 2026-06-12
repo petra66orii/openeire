@@ -66,12 +66,12 @@ const Footer: React.FC = () => {
             </p>
             <div className="mt-1 flex space-x-4">
               <SocialLink
-                href={SITE_SOCIAL_LINKS.instagram}
+                href={SITE_SOCIAL_LINKS.instagram ?? undefined}
                 label="Instagram"
                 icon={<FaInstagram />}
               />
               <SocialLink
-                href={SITE_SOCIAL_LINKS.youtube}
+                href={SITE_SOCIAL_LINKS.youtube ?? undefined}
                 label="YouTube"
                 icon={<FaYoutube />}
               />
@@ -87,6 +87,7 @@ const Footer: React.FC = () => {
               <FooterLink to="/art-prints">Art Prints</FooterLink>
               <FooterLink to="/licensing">Licensing</FooterLink>
               <FooterLink to="/gallery/digital">Stock Footage</FooterLink>
+              <FooterLink to="/real-estate">Services</FooterLink>
               <FooterLink to="/blog">Journal</FooterLink>
               <FooterLink to="/about">Our Story</FooterLink>
             </ul>
@@ -156,7 +157,8 @@ const Footer: React.FC = () => {
         <div className="border-t border-brand-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-brand-100/80">
           <div className="text-center md:text-left">
             <p>
-              &copy; {new Date().getFullYear()} Open{"\u00C9"}ire Studios. All rights reserved.
+              &copy; {new Date().getFullYear()} Open{"\u00C9"}ire Studios. All
+              rights reserved.
               <span className="hidden md:inline"> {"\u2022"} </span>
               <span className="block md:inline mt-1 md:mt-0">
                 Designed with {"\u2618\uFE0F"} by
@@ -206,14 +208,10 @@ const FooterLink: React.FC<{ to: string; children: React.ReactNode }> = ({
 );
 
 const SocialLink: React.FC<{
-  href?: string | null;
+  href?: string;
   label: string;
   icon: React.ReactNode;
-}> = ({
-  href,
-  label,
-  icon,
-}) => {
+}> = ({ href, label, icon }) => {
   const sharedClassName =
     "flex h-11 w-11 items-center justify-center rounded-full bg-brand-800 text-lg text-white transition-all duration-300";
 
