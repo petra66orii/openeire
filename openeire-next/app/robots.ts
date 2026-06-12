@@ -1,0 +1,26 @@
+import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/site";
+
+export default function robots(): MetadataRoute.Robots {
+  const siteUrl = getSiteUrl();
+
+  return {
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: [
+          "/checkout",
+          "/checkout-success",
+          "/profile",
+          "/staff/",
+          "/gallery/digital",
+          "/gallery/photo",
+          "/gallery/video",
+        ],
+      },
+    ],
+    sitemap: `${siteUrl}/sitemap.xml`,
+    host: siteUrl,
+  };
+}
