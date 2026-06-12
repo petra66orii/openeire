@@ -1,5 +1,5 @@
-﻿import axios from "axios";
 import toast, { ToastOptions } from "react-hot-toast";
+import { isApiError } from "../services/fetchClient";
 
 export const toastInfo = (
   message: string,
@@ -36,7 +36,7 @@ const isRecord = (value: unknown): value is UnknownRecord =>
 const getStatusAndPayload = (
   error: unknown,
 ): { status?: number; payload?: unknown } => {
-  if (axios.isAxiosError(error)) {
+  if (isApiError(error)) {
     return {
       status: error.response?.status,
       payload: error.response?.data,
@@ -113,6 +113,10 @@ export const getToastErrorMessage = (
   options: ToastErrorOptions,
 ): string => {
   const { status, payload } = getStatusAndPayload(error);
+
+  if (isApiError(error) && !error.response) {
+    return options.networkMessage ?? options.fallback;
+  }
 
   const directMessage = getStringValue(payload);
   if (directMessage) return directMessage;

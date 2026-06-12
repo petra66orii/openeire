@@ -1,4 +1,3 @@
-﻿import axios from "axios";
 import {
   abortVideoUpload,
   completeVideoUpload,
@@ -9,6 +8,7 @@ import {
   type StartedVideoUpload,
   type VideoUploadPurpose,
 } from "../services/videoUploads";
+import { isApiError } from "../services/fetchClient";
 
 const DEFAULT_RETRY_LIMIT = 3;
 
@@ -40,6 +40,35 @@ export class MultipartUploadCancelledError extends Error {
   constructor(message = UPLOAD_CANCELLED_MESSAGE) {
     super(message);
     this.name = "MultipartUploadCancelledError";
+  }
+}
+
+export class UploadPartError extends Error {
+  code?: string;
+  status?: number;
+  data?: unknown;
+  requestUrl: string;
+
+  constructor(
+    message: string,
+    {
+      code,
+      status,
+      data,
+      requestUrl,
+    }: {
+      code?: string;
+      status?: number;
+      data?: unknown;
+      requestUrl: string;
+    },
+  ) {
+    super(message);
+    this.name = "UploadPartError";
+    this.code = code;
+    this.status = status;
+    this.data = data;
+    this.requestUrl = requestUrl;
   }
 }
 
@@ -98,27 +127,149 @@ const isDirectRequestUrl = (value?: string): boolean =>
   typeof value === "string" &&
   (value.startsWith("http://") || value.startsWith("https://"));
 
+const isUploadPartError = (error: unknown): error is UploadPartError =>
+  error instanceof UploadPartError;
+
+const parseHeaderString = (headers: string): Record<string, string> =>
+  headers
+    .trim()
+    .split(/[\r\n]+/)
+    .filter(Boolean)
+    .reduce<Record<string, string>>((acc, line) => {
+      const separatorIndex = line.indexOf(":");
+      if (separatorIndex === -1) return acc;
+      const key = line.slice(0, separatorIndex).trim().toLowerCase();
+      const value = line.slice(separatorIndex + 1).trim();
+      if (key) acc[key] = value;
+      return acc;
+    }, {});
+
+const parseResponseText = (text: string): unknown => {
+  if (!text.trim()) return undefined;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
+
+const getPayloadDetail = (payload: unknown): string | null => {
+  if (typeof payload === "string" && payload.trim()) {
+    return payload.trim();
+  }
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  return (
+    (typeof record.detail === "string" && record.detail) ||
+    (typeof record.message === "string" && record.message) ||
+    null
+  );
+};
+
+const uploadPartWithProgress = ({
+  url,
+  chunk,
+  contentType,
+  signal,
+  onProgress,
+}: {
+  url: string;
+  chunk: Blob;
+  contentType: string;
+  signal: AbortSignal;
+  onProgress: (loadedBytes: number) => void;
+}): Promise<{ headers: Record<string, string> }> =>
+  new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    let settled = false;
+
+    const rejectOnce = (error: unknown) => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener("abort", abortHandler);
+      reject(error);
+    };
+
+    const resolveOnce = (value: { headers: Record<string, string> }) => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener("abort", abortHandler);
+      resolve(value);
+    };
+
+    const abortHandler = () => {
+      xhr.abort();
+      rejectOnce(new MultipartUploadCancelledError());
+    };
+
+    xhr.upload.onprogress = (event) => {
+      onProgress(Math.min(event.loaded, chunk.size));
+    };
+
+    xhr.onerror = () => {
+      rejectOnce(
+        new UploadPartError("Network request failed.", {
+          code: "ERR_NETWORK",
+          requestUrl: url,
+        }),
+      );
+    };
+
+    xhr.onabort = () => {
+      rejectOnce(new MultipartUploadCancelledError());
+    };
+
+    xhr.onload = () => {
+      const headers = parseHeaderString(xhr.getAllResponseHeaders());
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolveOnce({ headers });
+        return;
+      }
+      rejectOnce(
+        new UploadPartError(`Upload part request failed with status ${xhr.status}.`, {
+          status: xhr.status,
+          data: parseResponseText(xhr.responseText),
+          requestUrl: url,
+        }),
+      );
+    };
+
+    signal.addEventListener("abort", abortHandler, { once: true });
+    xhr.open("PUT", url);
+    xhr.setRequestHeader("Content-Type", contentType);
+    xhr.send(chunk);
+  });
+
 export const getMultipartUploadErrorMessage = (error: unknown): string => {
-  if (axios.isAxiosError(error) && error.code === "ERR_CANCELED") {
+  if (
+    error instanceof MultipartUploadCancelledError ||
+    (isUploadPartError(error) && error.code === "ERR_CANCELED")
+  ) {
     return UPLOAD_CANCELLED_MESSAGE;
   }
 
-  if (axios.isAxiosError(error)) {
-    const requestUrl = typeof error.config?.url === "string" ? error.config.url : "";
+  if (isUploadPartError(error)) {
+    const requestUrl = error.requestUrl;
     const isDirectR2Request = isDirectRequestUrl(requestUrl);
 
     if (error.code === "ERR_NETWORK" && isDirectR2Request) {
       return R2_CORS_ERROR_MESSAGE;
     }
 
-    if (error.response?.status === 403 && isDirectR2Request) {
+    if (error.status === 403 && isDirectR2Request) {
       return R2_CORS_ERROR_MESSAGE;
     }
 
-    const detail =
-      (typeof error.response?.data?.detail === "string" && error.response.data.detail) ||
-      (typeof error.response?.data?.message === "string" && error.response.data.message);
+    const detail = getPayloadDetail(error.data);
+    if (detail) {
+      return detail;
+    }
+  }
 
+  if (isApiError(error)) {
+    const detail = getPayloadDetail(error.response?.data);
     if (detail) {
       return detail;
     }
@@ -133,7 +284,8 @@ export const getMultipartUploadErrorMessage = (error: unknown): string => {
 
 const isCancellationError = (error: unknown): boolean =>
   error instanceof MultipartUploadCancelledError ||
-  (axios.isAxiosError(error) && error.code === "ERR_CANCELED");
+  (isApiError(error) && error.code === "ERR_CANCELED") ||
+  (isUploadPartError(error) && error.code === "ERR_CANCELED");
 
 export const isMultipartUploadCancelledError = (
   error: unknown,
@@ -221,18 +373,18 @@ export const createMultipartVideoUpload = ({
             part_number: partNumber,
           });
 
-          const response = await axios.put(url, chunk, {
+          const response = await uploadPartWithProgress({
+            url,
+            chunk,
+            contentType: uploadContentType,
             signal: abortController.signal,
-            headers: {
-              "Content-Type": uploadContentType,
-            },
-            onUploadProgress: (event) => {
-              partProgress.set(partNumber, Math.min(event.loaded, chunk.size));
+            onProgress: (loadedBytes) => {
+              partProgress.set(partNumber, loadedBytes);
               emitProgress();
             },
           });
 
-          const etagHeader = response.headers.etag || response.headers.ETag;
+          const etagHeader = response.headers.etag;
           const etag = String(etagHeader || "").trim();
           if (!etag) {
             throw new Error(`Missing ETag for uploaded part ${partNumber}.`);

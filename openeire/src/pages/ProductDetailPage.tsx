@@ -6,7 +6,6 @@ import React, {
   useRef,
 } from "react";
 import { useParams, useLocation, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   GalleryItem,
   getProductDetail,
@@ -19,6 +18,7 @@ import {
   ReviewProductType,
   VideoDetail,
 } from "../services/api";
+import { isApiError } from "../services/fetchClient";
 import ReviewForm from "../components/ReviewForm";
 import ProductReviewList from "../components/ProductReviewList";
 import { useCart } from "../context/CartContext";
@@ -128,7 +128,7 @@ const ProductDetailPage: React.FC = () => {
       setBreadcrumbTitle(location.pathname, data.title);
     } catch (err) {
       if (
-        axios.isAxiosError(err) &&
+        isApiError(err) &&
         shouldShowGalleryAccessCodeUx(type, err.response?.status)
       ) {
         toastInfo("Please re-enter your gallery access code.");

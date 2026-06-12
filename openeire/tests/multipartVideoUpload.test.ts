@@ -1,7 +1,7 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import axios from "axios";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   MultipartUploadCancelledError,
+  UploadPartError,
   createMultipartVideoUpload,
   getMultipartUploadErrorMessage,
   inferVideoContentType,
@@ -13,17 +13,6 @@ import {
   requestVideoUploadStart,
 } from "../src/services/videoUploads";
 
-vi.mock("axios", () => ({
-  default: {
-    put: vi.fn(),
-    isAxiosError: (error: unknown) =>
-      typeof error === "object" &&
-      error !== null &&
-      "isAxiosError" in error &&
-      (error as { isAxiosError?: boolean }).isAxiosError === true,
-  },
-}));
-
 vi.mock("../src/services/videoUploads", () => ({
   requestVideoUploadStart: vi.fn(),
   requestVideoUploadPartUrl: vi.fn(),
@@ -31,9 +20,36 @@ vi.mock("../src/services/videoUploads", () => ({
   abortVideoUpload: vi.fn(),
 }));
 
+class PendingUploadXMLHttpRequest {
+  static instances: PendingUploadXMLHttpRequest[] = [];
+
+  upload = {
+    onprogress: null as ((event: ProgressEvent) => void) | null,
+  };
+  status = 200;
+  responseText = "";
+  onload: ((event: ProgressEvent) => void) | null = null;
+  onerror: ((event: ProgressEvent) => void) | null = null;
+  onabort: ((event: ProgressEvent) => void) | null = null;
+
+  open = vi.fn();
+  setRequestHeader = vi.fn();
+  send = vi.fn();
+  getAllResponseHeaders = vi.fn(() => 'ETag: "etag-1"\r\n');
+  abort = vi.fn(() => {
+    this.onabort?.({} as ProgressEvent);
+  });
+
+  constructor() {
+    PendingUploadXMLHttpRequest.instances.push(this);
+  }
+}
+
 describe("multipartVideoUpload helpers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
+    PendingUploadXMLHttpRequest.instances = [];
   });
 
   it("sorts completed parts by ascending part number", () => {
@@ -58,21 +74,20 @@ describe("multipartVideoUpload helpers", () => {
   });
 
   it("maps direct R2 network failures to the CORS guidance message", () => {
-    const message = getMultipartUploadErrorMessage({
-      isAxiosError: true,
-      code: "ERR_NETWORK",
-      config: { url: "https://r2.example.com/upload-part" },
-    });
+    const message = getMultipartUploadErrorMessage(
+      new UploadPartError("Network request failed.", {
+        code: "ERR_NETWORK",
+        requestUrl: "https://r2.example.com/upload-part",
+      }),
+    );
 
     expect(message).toContain("Cloudflare R2 CORS");
   });
 
   it("maps cancelled uploads to an explicit cancellation message", () => {
-    const message = getMultipartUploadErrorMessage({
-      isAxiosError: true,
-      code: "ERR_CANCELED",
-      config: { url: "https://r2.example.com/upload-part" },
-    });
+    const message = getMultipartUploadErrorMessage(
+      new MultipartUploadCancelledError(),
+    );
 
     expect(message).toBe("Upload cancelled.");
   });
@@ -81,9 +96,12 @@ describe("multipartVideoUpload helpers", () => {
 describe("createMultipartVideoUpload", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
+    PendingUploadXMLHttpRequest.instances = [];
   });
 
   it("aborts only once and rejects with MultipartUploadCancelledError on cancel", async () => {
+    vi.stubGlobal("XMLHttpRequest", PendingUploadXMLHttpRequest);
     vi.mocked(requestVideoUploadStart).mockResolvedValue({
       upload_id: "upload-123",
       object_key: "previews/videos/fanore-beach.mp4",
@@ -99,26 +117,6 @@ describe("createMultipartVideoUpload", () => {
       success: true,
       status: "aborted",
     });
-    vi.mocked(axios.put).mockImplementation(
-      (_url, _chunk, config?: { signal?: AbortSignal }) =>
-        new Promise((_resolve, reject) => {
-          if (config?.signal?.aborted) {
-            reject({
-              isAxiosError: true,
-              code: "ERR_CANCELED",
-              config: { url: "https://r2.example.com/upload-part" },
-            });
-            return;
-          }
-          config?.signal?.addEventListener("abort", () => {
-            reject({
-              isAxiosError: true,
-              code: "ERR_CANCELED",
-              config: { url: "https://r2.example.com/upload-part" },
-            });
-          });
-        }),
-    );
 
     const file = new File(["preview-video"], "preview.mp4", { type: "video/mp4" });
     const task = createMultipartVideoUpload({
@@ -127,11 +125,15 @@ describe("createMultipartVideoUpload", () => {
     });
 
     await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
 
     const cancelPromise = task.cancel();
     await expect(task.promise).rejects.toBeInstanceOf(MultipartUploadCancelledError);
     await cancelPromise;
 
+    expect(PendingUploadXMLHttpRequest.instances).toHaveLength(1);
+    expect(PendingUploadXMLHttpRequest.instances[0].abort).toHaveBeenCalledTimes(1);
     expect(abortVideoUpload).toHaveBeenCalledTimes(1);
   });
 });

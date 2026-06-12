@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ApiError } from "../src/services/fetchClient";
 import { getLoginToastErrorMessage, getToastErrorMessage } from "../src/utils/toast";
 describe("toast error helpers", () => {
   it("uses detail matchers before returning raw backend detail", () => {
@@ -65,12 +66,13 @@ describe("toast error helpers", () => {
     );
     expect(message).toBe("Too many requests. Please wait a moment and try again.");
   });
-  it("uses the configured fallback for axios network errors without a response", () => {
+  it("uses the configured fallback for network errors without a response", () => {
     const message = getToastErrorMessage(
-      {
-        isAxiosError: true,
-        message: "Network Error",
-      },
+      new ApiError({
+        message: "Network request failed.",
+        request: { method: "GET", url: "/api/auth/login/" },
+        code: "ERR_NETWORK",
+      }),
       {
         fallback: "We couldn't reach the server. Please try again.",
       },
