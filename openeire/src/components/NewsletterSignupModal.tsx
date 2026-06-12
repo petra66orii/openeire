@@ -24,6 +24,7 @@ const BLOCKED_PATH_PREFIXES = [
   "/logout",
   "/register",
   "/profile",
+  "/real-estate",
   "/request-password-reset",
   "/password-reset/confirm",
   "/verify-pending",
