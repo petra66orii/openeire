@@ -1,9 +1,8 @@
-﻿/// <reference types="vite/client" />
+/// <reference types="vite/client" />
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { loadStripe, StripeElementsOptions } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import axios from "axios";
 import { CartItem, isPhysicalCartOptions, useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -12,6 +11,7 @@ import {
   api,
   validateDiscountCode,
 } from "../services/api";
+import { isApiError } from "../services/fetchClient";
 import CheckoutForm from "../components/CheckoutForm";
 import CheckoutDiscountCard from "../components/CheckoutDiscountCard";
 import OrderSummary from "../components/OrderSummary";
@@ -57,6 +57,9 @@ const flattenApiErrors = (value: unknown, path = ""): string[] => {
   return [];
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
 const hasCompletePhysicalAddress = (
   shippingDetails: ShippingDetails,
 ): boolean => {
@@ -86,14 +89,15 @@ const hasCompletePhysicalAddress = (
 };
 
 const getApiErrorMessage = (error: unknown): string | null => {
-  if (!axios.isAxiosError(error)) return null;
+  if (!isApiError(error)) return null;
 
   const data = error.response?.data;
   if (typeof data === "string") return data;
-  if (typeof data?.detail === "string") return data.detail;
-  if (typeof data?.error === "string") return data.error;
-  if (typeof data?.message === "string") return data.message;
-  if (Array.isArray(data?.non_field_errors)) {
+  if (!isRecord(data)) return null;
+  if (typeof data.detail === "string") return data.detail;
+  if (typeof data.error === "string") return data.error;
+  if (typeof data.message === "string") return data.message;
+  if (Array.isArray(data.non_field_errors)) {
     const firstError = data.non_field_errors.find(
       (entry: unknown) => typeof entry === "string",
     );
@@ -564,9 +568,11 @@ const CheckoutPage: React.FC = () => {
         if (isCancelled || requestId !== latestIntentRequestId.current) return;
         resetCheckoutIntentState();
         const apiErrorMessage = getApiErrorMessage(error);
-        const errorCode = axios.isAxiosError(error)
-          ? String(error.response?.data?.code || "")
-          : "";
+        const errorPayload = isApiError(error) ? error.response?.data : null;
+        const errorCode =
+          isRecord(errorPayload) && typeof errorPayload.code === "string"
+            ? errorPayload.code
+            : "";
 
         if (errorCode.startsWith("DISCOUNT_")) {
           clearAppliedDiscount();

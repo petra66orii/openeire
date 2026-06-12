@@ -1,4 +1,4 @@
-﻿import DOMPurify from "dompurify";
+import DOMPurify from "dompurify";
 
 export const sanitizeRichHtml = (html: string): string =>
   DOMPurify.sanitize(html, {
@@ -17,5 +17,6 @@ export const sanitizeRichHtml = (html: string): string =>
       "meta",
       "link",
     ],
+    FORBID_ATTR: ["style"],
     ALLOW_DATA_ATTR: false,
   });

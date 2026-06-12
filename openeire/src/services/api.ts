@@ -1,15 +1,11 @@
-﻿import axios from "axios";
 import { emitErrorRoute } from "../utils/errorRouting";
 import { normalizeApiPath } from "../utils/apiPath";
-import { API_BASE_URL } from "../config/backend";
-
-// Create an Axios instance for our API
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import {
+  api as fetchApi,
+  isApiError,
+  type ApiRequestConfig,
+  type ApiResponse,
+} from "./fetchClient";
 
 const getRequestPath = (url?: string): string => {
   if (!url) return "";
@@ -35,46 +31,54 @@ const shouldSkipForbiddenRouteRedirect = (requestPath: string): boolean =>
 const shouldHandleGlobalErrorRoute = (method?: string): boolean =>
   (method ?? "get").toLowerCase() === "get";
 
-// --- UNIFIED INTERCEPTOR ---
-// This handles BOTH User Authentication and Gallery Access
-api.interceptors.request.use(
-  (config) => {
-    const token = sessionStorage.getItem("accessToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+const handleGlobalApiError = (error: unknown, method?: string): void => {
+  if (!isApiError(error) || !shouldHandleGlobalErrorRoute(method)) {
+    return;
+  }
 
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
+  const statusCode = error.response?.status;
+  const requestPath = getRequestPath(error.request.url);
+  if (statusCode === 403 && !shouldSkipForbiddenRouteRedirect(requestPath)) {
+    emitErrorRoute("/403");
+  } else if (typeof statusCode === "number" && statusCode >= 500) {
+    emitErrorRoute("/500");
+  }
+};
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (axios.isAxiosError(error)) {
-      const method = error.config?.method;
-      if (!shouldHandleGlobalErrorRoute(method)) {
-        return Promise.reject(error);
-      }
+const withGlobalErrorRoute = async <T>(
+  method: string,
+  request: () => Promise<ApiResponse<T>>,
+): Promise<ApiResponse<T>> => {
+  try {
+    return await request();
+  } catch (error) {
+    handleGlobalApiError(error, method);
+    throw error;
+  }
+};
 
-      const statusCode = error.response?.status;
-      const requestPath = getRequestPath(error.config?.url);
-      if (
-        statusCode === 403 &&
-        !shouldSkipForbiddenRouteRedirect(requestPath)
-      ) {
-        emitErrorRoute("/403");
-      } else if (typeof statusCode === "number" && statusCode >= 500) {
-        emitErrorRoute("/500");
-      }
-    }
-
-    return Promise.reject(error);
-  },
-);
+export const api = {
+  get: <T = unknown>(path: string, config?: ApiRequestConfig) =>
+    withGlobalErrorRoute("get", () => fetchApi.get<T>(path, config)),
+  post: <T = unknown>(
+    path: string,
+    data?: unknown,
+    config?: ApiRequestConfig,
+  ) => withGlobalErrorRoute("post", () => fetchApi.post<T>(path, data, config)),
+  put: <T = unknown>(
+    path: string,
+    data?: unknown,
+    config?: ApiRequestConfig,
+  ) => withGlobalErrorRoute("put", () => fetchApi.put<T>(path, data, config)),
+  patch: <T = unknown>(
+    path: string,
+    data?: unknown,
+    config?: ApiRequestConfig,
+  ) =>
+    withGlobalErrorRoute("patch", () => fetchApi.patch<T>(path, data, config)),
+  delete: <T = unknown>(path: string, config?: ApiRequestConfig) =>
+    withGlobalErrorRoute("delete", () => fetchApi.delete<T>(path, config)),
+};
 
 // --- TYPES ---
 export interface UserProfile {
@@ -415,7 +419,7 @@ export const getOrderHistory = async (): Promise<OrderHistory[]> => {
     const response = await api.get("checkout/order-history/");
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -434,7 +438,7 @@ export const registerUser = async (
     return response.data;
   } catch (error) {
     // This is crucial for handling errors from the backend
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       // The backend will send error details in error.response.data
       throw error.response.data;
     }
@@ -449,7 +453,7 @@ export const changePassword = async (
     const response = await api.put("auth/password/change/", data);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -461,7 +465,7 @@ export const getTestimonials = async (): Promise<Testimonial[]> => {
     const response = await api.get<Testimonial[]>("home/testimonials/");
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -495,7 +499,7 @@ export const newsletterSignup = async (
     const response = await api.post("home/newsletter-signup/", payload);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -526,7 +530,7 @@ export const getBlogPosts = async (
     const response = await api.get<PaginatedResponse<BlogPostListItem>>(url);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -542,7 +546,7 @@ export const getBlogPostDetail = async (
     const response = await api.get<BlogPostDetail>(`blog/${slug}/`);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -554,7 +558,7 @@ export const toggleBlogLike = async (slug: string): Promise<LikeResponse> => {
     const response = await api.post<LikeResponse>(`blog/${slug}/like/`);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -569,7 +573,7 @@ export const getComments = async (postSlug: string): Promise<Comment[]> => {
     );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -588,7 +592,7 @@ export const postComment = async (
     );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -605,7 +609,7 @@ export const verifyEmail = async (
     );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -617,7 +621,7 @@ export const loginUser = async (data: LoginData): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>("auth/login/", data);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -631,7 +635,7 @@ export const requestPasswordReset = async (
     const response = await api.post("auth/password/reset/", { email });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -651,7 +655,7 @@ export const confirmPasswordReset = async (
     });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -663,7 +667,7 @@ export const getProfile = async (): Promise<UserProfile> => {
     const response = await api.get<UserProfile>("auth/profile/");
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -677,7 +681,7 @@ export const updateProfile = async (
     const response = await api.patch<UserProfile>("auth/profile/", profileData);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -696,7 +700,7 @@ export const resendVerificationEmail = async (
     const response = await api.post("auth/resend-verification/", { email });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -720,10 +724,10 @@ export const getGalleryProducts = async (
     });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
+    if (isApiError(error)) {
       const statusCode = error.response?.status;
       const responseData = error.response?.data;
-      const requestPath = error.config?.url || "gallery/";
+      const requestPath = error.request.url || "gallery/";
 
       if (
         typeof responseData === "string" &&
@@ -782,7 +786,7 @@ export const submitProductReview = async (
     );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -799,7 +803,7 @@ export const getProductReviews = async (
     );
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -811,7 +815,7 @@ export const sendContactMessage = async (contactData: ContactData) => {
     const response = await api.post("home/contact/", contactData);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -872,7 +876,7 @@ export const getLikedBlogPosts = async (): Promise<PaginatedResponse<BlogPostLis
     const response = await api.get<PaginatedResponse<BlogPostListItem>>('blog/liked/');
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -885,7 +889,7 @@ export const submitLicenseRequest = async (payload: LicenseRequestPayload) => {
     const response = await api.post("license-requests/", payload);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
@@ -899,7 +903,7 @@ export const submitRealEstateEnquiry = async (
     const response = await api.post("real-estate/enquiries/", payload);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isApiError(error) && error.response) {
       throw error.response.data;
     }
     throw error;
