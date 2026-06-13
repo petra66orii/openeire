@@ -10,7 +10,7 @@ const navItems = [
 
 export function Navbar() {
   return (
-    <header className="border-b border-white/10 bg-black/70">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl">
       <nav
         aria-label="Main navigation"
         className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5"
