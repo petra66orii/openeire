@@ -1,5 +1,5 @@
-import { buildPageMetadata } from "@/lib/seo/metadata";
 import { PlaceholderPage } from "@/components/PlaceholderPage";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildPageMetadata({
   title: "Blog | OpenÉire Studios",
