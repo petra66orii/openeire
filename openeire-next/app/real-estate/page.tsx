@@ -72,7 +72,7 @@ const faqs = [
 
 export default function RealEstatePage() {
   return (
-    <div className="min-h-screen bg-black pb-20 text-white">
+    <div className="page-top-offset min-h-screen bg-black pb-20 text-white">
       <JsonLd
         data={{
           "@context": "https://schema.org",

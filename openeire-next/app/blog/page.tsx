@@ -99,7 +99,7 @@ export default async function BlogPage({
   }
 
   return (
-    <div className="mobile-page-offset min-h-screen bg-black pb-20 pt-36 text-white">
+    <div className="page-top-offset min-h-screen bg-black pb-20 text-white">
       {!currentTag ? (
         <JsonLd
           data={[

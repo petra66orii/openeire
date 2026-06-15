@@ -42,7 +42,7 @@ export function HeroSection({
         style={{ backgroundImage: `url("${image}")` }}
       />
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_55%),linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.82)_100%)]" />
-      <div className="container relative z-10 mx-auto px-4 pb-8 pt-[calc(var(--site-header-height,0px)+0.75rem)] sm:pt-[calc(var(--site-header-height,0px)+1rem)] md:pb-20 md:pt-28 lg:px-8">
+      <div className="page-top-offset container relative z-10 mx-auto px-4 pb-8 md:pb-20 lg:px-8">
         <div className="max-w-4xl">
           <p className="inline-flex rounded-full border border-accent/30 bg-black/45 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">
             {eyebrow}

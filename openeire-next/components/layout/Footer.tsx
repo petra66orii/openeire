@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { FaInstagram, FaYoutube } from "react-icons/fa";
 
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -78,13 +79,13 @@ export function Footer() {
                 href={process.env.NEXT_PUBLIC_SITE_SOCIAL_INSTAGRAM_URL}
                 label="Instagram"
               >
-                <span aria-hidden="true">IG</span>
+                <FaInstagram className="h-6 w-6" aria-hidden="true" />
               </SocialLink>
               <SocialLink
                 href={process.env.NEXT_PUBLIC_SITE_SOCIAL_YOUTUBE_URL}
                 label="YouTube"
               >
-                <span aria-hidden="true">YT</span>
+                <FaYoutube className="h-6 w-6" aria-hidden="true" />
               </SocialLink>
             </div>
           </div>
