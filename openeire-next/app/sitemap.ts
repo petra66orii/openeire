@@ -8,7 +8,6 @@ const staticPublicRoutes = [
   "/footage",
   "/real-estate",
   "/us",
-  "/blog",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

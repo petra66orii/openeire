@@ -1,29 +1,103 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-50: #f0fdf4;
+  --color-brand-100: #dcfce7;
+  --color-brand-500: #16a34a;
+  --color-brand-700: #15803d;
+  --color-brand-900: #064e3b;
+
+  --color-accent: #ffc400;
+  --color-accent-hover: #e6b000;
+
+  --color-dark: #1a1a1a;
+  --color-paper: #fafaf9;
+
+  --font-sans: "Montserrat", sans-serif;
+  --font-serif: "Merriweather", serif;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply border border-white/20 bg-white/10 shadow-xl backdrop-blur-md;
+  }
+
+  .text-gradient-gold {
+    @apply bg-linear-to-r from-white via-accent to-white bg-clip-text text-transparent;
+  }
+
+  .hero-motion-video {
+    display: none;
+  }
+
+  .hero-motion-poster {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .hero-motion-video {
+    display: block;
+  }
+
+  .hero-motion-poster {
+    display: none;
+  }
+}
+
 :root {
-  --oe-bg: #050505;
-  --oe-surface: #111513;
-  --oe-text: #f7f4ec;
-  --oe-muted: #b7b8b2;
-  --oe-green: #16a34a;
-  --oe-gold: #f6c600;
+  --site-header-height: 0px;
 }
 
 html {
-  background: var(--oe-bg);
-  color: var(--oe-text);
+  background: var(--color-paper);
 }
 
 body {
+  @apply bg-paper font-sans text-dark antialiased;
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(22, 163, 74, 0.16), transparent 34rem),
-    var(--oe-bg);
-  color: var(--oe-text);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-serif;
 }
 
 a {
-  color: inherit;
   text-decoration: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-page-offset {
+    padding-top: calc(var(--site-header-height, 0px) + 1rem);
+  }
 }
