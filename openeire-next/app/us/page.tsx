@@ -69,7 +69,7 @@ const trustCards = [
 
 export default function USPage() {
   return (
-    <div className="min-h-screen bg-black pb-20 text-white">
+    <div className="page-top-offset min-h-screen bg-black pb-20 text-white">
       <JsonLd
         data={buildOrganizationJsonLd({
           name: SITE_NAME,

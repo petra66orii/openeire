@@ -106,7 +106,7 @@ export default async function BlogDetailPage({
 
   if (failedToLoad) {
     return (
-      <div className="mobile-page-offset flex min-h-screen items-center justify-center bg-black px-4 pt-36 pb-24 text-center text-white">
+      <div className="page-top-offset flex min-h-screen items-center justify-center bg-black px-4 pb-24 text-center text-white">
         <div className="max-w-xl rounded-2xl border border-white/10 bg-gray-900/50 p-8">
           <h1 className="font-serif text-3xl font-bold">
             This story is unavailable right now.
@@ -141,7 +141,7 @@ export default async function BlogDetailPage({
   );
 
   return (
-    <div className="mobile-page-offset min-h-screen bg-black pb-20 pt-36 text-white">
+    <div className="page-top-offset min-h-screen bg-black pb-20 text-white">
       <JsonLd
         data={[
           buildBreadcrumbJsonLd([
