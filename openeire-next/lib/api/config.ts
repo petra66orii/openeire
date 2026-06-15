@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = "/api/";
+const DEFAULT_API_BASE_URL = "https://api.openeire.ie/api/";
 
 export const isAbsoluteUrl = (value: string): boolean =>
   value.startsWith("http://") || value.startsWith("https://");
