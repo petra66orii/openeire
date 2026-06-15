@@ -11,6 +11,7 @@ import { PUBLIC_IMAGES } from "@/lib/assets";
 import { REAL_ESTATE_PACKAGES } from "@/lib/realEstate";
 import { SITE_NAME, buildAbsoluteUrl } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { FaCamera, FaCube, FaVideo } from "react-icons/fa";
 
 export const metadata = buildPageMetadata({
   title: "Real Estate Photography & Drone Video in Connacht | OpenÉire Studios",
@@ -21,14 +22,17 @@ export const metadata = buildPageMetadata({
 
 const services = [
   {
+    icon: <FaCamera />,
     title: "Interior and exterior photography",
     text: "Professionally edited property photography for portals, brochures, websites, and social media campaigns.",
   },
   {
+    icon: <FaVideo />,
     title: "Aerial video",
     text: "Drone video for standout listings, rural properties, waterfront homes, new builds, and social-first property campaigns.",
   },
   {
+    icon: <FaCube />,
     title: "3D virtual tours",
     text: "Hosted, shareable virtual tours for premium listings and buyers who need a stronger remote viewing experience.",
   },
@@ -68,7 +72,7 @@ const faqs = [
 
 export default function RealEstatePage() {
   return (
-    <>
+    <div className="min-h-screen bg-black pb-20 text-white">
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -132,6 +136,6 @@ export default function RealEstatePage() {
           { href: "/licensing", label: "Review Licensing", variant: "secondary" },
         ]}
       />
-    </>
+    </div>
   );
 }

@@ -16,6 +16,13 @@ import {
 } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildOrganizationJsonLd } from "@/lib/seo/jsonLd";
+import {
+  FaBuilding,
+  FaCheckCircle,
+  FaHome,
+  FaMapMarkedAlt,
+  FaRegImage,
+} from "react-icons/fa";
 
 export const metadata = buildPageMetadata({
   title: "OpenÉire Studios for US Collectors | Irish Aerial Wall Art",
@@ -26,14 +33,17 @@ export const metadata = buildPageMetadata({
 
 const routes = [
   {
+    icon: <FaRegImage />,
     title: "Fine art prints USA",
     text: "A focused route for US collectors looking for premium aerial landscape prints from Ireland and beyond.",
   },
   {
+    icon: <FaHome />,
     title: "Wall art for living rooms",
     text: "Irish aerial wall art positioned for warm, personal spaces where atmosphere and scale matter.",
   },
   {
+    icon: <FaBuilding />,
     title: "Wall art for offices",
     text: "Premium landscape and aerial prints for professional interiors, reception areas, and workspaces.",
   },
@@ -41,14 +51,17 @@ const routes = [
 
 const trustCards = [
   {
+    icon: <FaMapMarkedAlt />,
     title: "Irish aerial perspective",
     text: "OpenÉire Studios is rooted in aerial photography and a careful visual language shaped by Ireland's coastlines, landscapes, and atmosphere.",
   },
   {
+    icon: <FaCheckCircle />,
     title: "Premium print intent",
     text: "The collection is positioned for buyers who want statement pieces rather than generic wall decor.",
   },
   {
+    icon: <FaRegImage />,
     title: "Clear buying paths",
     text: "US visitors can browse print-focused pages by intent, from fine art prints to large wall art and room-specific collections.",
   },
@@ -56,17 +69,15 @@ const trustCards = [
 
 export default function USPage() {
   return (
-    <>
+    <div className="min-h-screen bg-black pb-20 text-white">
       <JsonLd
-        data={
-          buildOrganizationJsonLd({
-            name: SITE_NAME,
-            alternateName: SITE_NAME_ASCII,
-            url: buildAbsoluteUrl("/"),
-            logo: buildAbsoluteUrl(ORGANIZATION_LOGO_PATH),
-            description: SITE_DESCRIPTION,
-          })
-        }
+        data={buildOrganizationJsonLd({
+          name: SITE_NAME,
+          alternateName: SITE_NAME_ASCII,
+          url: buildAbsoluteUrl("/"),
+          logo: buildAbsoluteUrl(ORGANIZATION_LOGO_PATH),
+          description: SITE_DESCRIPTION,
+        })}
       />
       <HeroSection
         eyebrow="For US collectors and interiors"
@@ -75,7 +86,11 @@ export default function USPage() {
         image={PUBLIC_IMAGES.thaiSunset}
         actions={[
           { href: "/us/fine-art-prints", label: "Explore Fine Art Prints" },
-          { href: "/art-prints", label: "Browse Print Collection", variant: "secondary" },
+          {
+            href: "/art-prints",
+            label: "Browse Print Collection",
+            variant: "secondary",
+          },
         ]}
       />
       <PageSection
@@ -103,10 +118,18 @@ export default function USPage() {
         description="Browse fine art prints, wall art, aerial photography prints, and room-specific collection pages created for US search intent."
         actions={[
           { href: "/us/fine-art-prints", label: "Fine Art Prints USA" },
-          { href: "/us/wall-art-prints", label: "Wall Art Prints", variant: "secondary" },
-          { href: "/us/large-wall-art", label: "Large Wall Art", variant: "secondary" },
+          {
+            href: "/us/wall-art-prints",
+            label: "Wall Art Prints",
+            variant: "secondary",
+          },
+          {
+            href: "/us/large-wall-art",
+            label: "Large Wall Art",
+            variant: "secondary",
+          },
         ]}
       />
-    </>
+    </div>
   );
 }
