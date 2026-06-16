@@ -1,10 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { GalleryProductCard } from "@/components/gallery/GalleryProductCard";
+import { ProductMediaPreview } from "@/components/gallery/ProductMediaPreview";
 import { SpecBox } from "@/components/gallery/SpecBox";
+import { ShareControls } from "@/components/share/ShareControls";
 import { getPublicPhysicalProduct } from "@/lib/api/gallery";
 import {
   formatEuro,
@@ -192,18 +193,8 @@ export default async function PhysicalProductPage({
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-20">
           <div className="lg:col-span-8">
             <div className="sticky top-32">
-              <div className="group relative mx-auto w-fit overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl">
-                {imageUrl ? (
-                  <img
-                    src={imageUrl}
-                    alt={product.title}
-                    className="block h-auto max-h-[75vh] w-auto max-w-full shadow-lg"
-                  />
-                ) : (
-                  <div className="flex aspect-[4/3] min-h-[320px] w-full items-center justify-center bg-gray-900 px-8 text-center text-gray-500">
-                    Preview image unavailable
-                  </div>
-                )}
+              <div className="relative mx-auto w-fit overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl">
+                <ProductMediaPreview imageUrl={imageUrl} title={product.title} />
               </div>
 
               <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 md:grid-cols-4">
@@ -316,6 +307,8 @@ export default async function PhysicalProductPage({
                 ))}
               </div>
             ) : null}
+
+            <ShareControls title={product.title} url={canonical} />
           </div>
         </div>
 

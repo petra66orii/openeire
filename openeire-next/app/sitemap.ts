@@ -11,6 +11,7 @@ const staticPublicRoutes = [
   "/real-estate",
   "/us",
   "/blog",
+  "/contact",
   "/gallery/physical",
 ];
 

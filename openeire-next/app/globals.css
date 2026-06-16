@@ -108,6 +108,13 @@ a {
   }
 }
 
+/* Keep the iubenda preferences button clear of our back-to-top control. */
+.iubenda-tp-btn.iubenda-cs-preferences-link {
+  left: 16px !important;
+  right: auto !important;
+  bottom: 16px !important;
+}
+
 .blog-content {
   @apply max-w-none text-gray-300;
 }

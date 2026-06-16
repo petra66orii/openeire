@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
+import { Providers } from "@/components/Providers";
 import { buildDefaultMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildDefaultMetadata();
@@ -22,11 +24,17 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <div className="flex min-h-screen flex-col">
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
+        <Script
+          src="https://embeds.iubenda.com/widgets/b39f0cd0-25d9-49f2-9306-1258615676f2.js"
+          strategy="afterInteractive"
+        />
+        <Providers>
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );
