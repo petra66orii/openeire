@@ -1,4 +1,5 @@
 import { JsonLd } from "@/components/JsonLd";
+import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
 import {
   CardGrid,
   CtaBand,
@@ -132,10 +133,11 @@ export default function RealEstatePage() {
         title="Ready to plan a property shoot?"
         description="Send the property address, preferred package, and any access or timing notes so the shoot can be scoped safely and clearly."
         actions={[
-          { href: "/contact", label: "Request a Property Shoot" },
+          { href: "#enquiry", label: "Request a Property Shoot" },
           { href: "/licensing", label: "Review Licensing", variant: "secondary" },
         ]}
       />
+      <RealEstateEnquiryForm />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { FaInstagram, FaYoutube } from "react-icons/fa";
+import { FooterNewsletterSignup } from "@/components/newsletter/FooterNewsletterSignup";
 
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -122,21 +123,7 @@ export function Footer() {
             <p className="mb-4 text-sm text-brand-100/80">
               Join our community for exclusive discounts and new location drops.
             </p>
-            <form className="flex flex-col gap-3">
-              <input
-                id="newsletter-email"
-                name="email"
-                type="email"
-                placeholder="email@example.com"
-                className="w-full rounded-lg border border-paper bg-brand-800 px-4 py-3 text-white placeholder-paper/50 transition-all focus:outline-none focus:ring-1 focus:ring-accent"
-              />
-              <button
-                type="button"
-                className="w-full rounded-lg bg-accent px-4 py-3 font-bold text-brand-900 shadow-lg shadow-black/20 transition-colors hover:bg-accent-hover"
-              >
-                Subscribe
-              </button>
-            </form>
+            <FooterNewsletterSignup />
           </div>
         </div>
 
