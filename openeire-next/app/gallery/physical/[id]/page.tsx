@@ -7,11 +7,7 @@ import { ProductMediaPreview } from "@/components/gallery/ProductMediaPreview";
 import { SpecBox } from "@/components/gallery/SpecBox";
 import { ShareControls } from "@/components/share/ShareControls";
 import { getPublicPhysicalProduct } from "@/lib/api/gallery";
-import {
-  formatEuro,
-  getLowestVariant,
-  splitTags,
-} from "@/lib/gallery/format";
+import { formatEuro, getLowestVariant, splitTags } from "@/lib/gallery/format";
 import { resolveMediaUrl } from "@/lib/media";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/jsonLd";
 import { buildAbsoluteUrl, getSiteUrl, SITE_NAME } from "@/lib/site";
@@ -174,7 +170,10 @@ export default async function PhysicalProductPage({
 
       <div className="container mx-auto px-4 lg:px-8">
         <nav className="mb-8 flex items-center gap-2 text-xs uppercase tracking-widest text-gray-500">
-          <Link href="/art-prints" className="transition-colors hover:text-accent">
+          <Link
+            href="/art-prints"
+            className="transition-colors hover:text-accent"
+          >
             Art Prints
           </Link>
           <span>/</span>
@@ -185,16 +184,17 @@ export default async function PhysicalProductPage({
             Gallery
           </Link>
           <span>/</span>
-          <span className="max-w-[200px] truncate text-white">
-            {product.title}
-          </span>
+          <span className="max-w-50 truncate text-white">{product.title}</span>
         </nav>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-20">
           <div className="lg:col-span-8">
             <div className="sticky top-32">
               <div className="relative mx-auto w-fit overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl">
-                <ProductMediaPreview imageUrl={imageUrl} title={product.title} />
+                <ProductMediaPreview
+                  imageUrl={imageUrl}
+                  title={product.title}
+                />
               </div>
 
               <div className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 md:grid-cols-4">

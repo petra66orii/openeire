@@ -175,7 +175,7 @@ export function NewsletterSignupModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center p-4 sm:items-center sm:p-6"
+      className="fixed inset-0 z-80 flex items-end justify-center p-4 sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="newsletter-signup-modal-title"
@@ -215,8 +215,8 @@ export function NewsletterSignupModal() {
                   at checkout for 10% off your first art print.
                 </p>
                 <p className="text-sm leading-relaxed text-gray-400">
-                  If newsletter email delivery is configured, we&apos;ll also send
-                  the code to your inbox.
+                  If newsletter email delivery is configured, we&apos;ll also
+                  send the code to your inbox.
                 </p>
                 <p className="text-xs uppercase tracking-[0.22em] text-gray-500">
                   Applies to art prints only. Does not apply to shipping,
