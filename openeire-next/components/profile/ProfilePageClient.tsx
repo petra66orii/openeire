@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
-  FaEnvelope,
   FaHistory,
   FaIdBadge,
   FaImages,
@@ -14,11 +12,19 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { AccountSecurityPanel } from "@/components/profile/AccountSecurityPanel";
+import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 import { useToast } from "@/components/ui/ToastProvider";
 import { normalizeAuthErrorMessage } from "@/lib/api/auth";
 import type { UserProfile } from "@/types/auth";
 
-type AccountSection = "profile" | "orders" | "downloads" | "licences" | "gallery";
+type AccountSection =
+  | "profile"
+  | "security"
+  | "orders"
+  | "downloads"
+  | "licences"
+  | "gallery";
 
 const accountSections: Array<{
   id: AccountSection;
@@ -29,9 +35,16 @@ const accountSections: Array<{
 }> = [
   {
     id: "profile",
-    label: "Profile",
-    description: "Account details and default contact information.",
+    label: "Profile & Shipping",
+    description: "Edit account details and default delivery information.",
     icon: FaUser,
+    available: true,
+  },
+  {
+    id: "security",
+    label: "Security",
+    description: "Password and account deletion controls.",
+    icon: FaShieldAlt,
     available: true,
   },
   {
@@ -64,11 +77,6 @@ const accountSections: Array<{
   },
 ];
 
-const formatValue = (value?: string | null) => {
-  const trimmed = value?.trim();
-  return trimmed || "Not provided";
-};
-
 const getDisplayName = (profile: UserProfile) => {
   const fullName = [profile.first_name, profile.last_name]
     .map((value) => value?.trim())
@@ -76,25 +84,6 @@ const getDisplayName = (profile: UserProfile) => {
     .join(" ");
   return fullName || profile.username || profile.email || "Your account";
 };
-
-function ProfileField({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | null;
-}) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-black/30 p-4">
-      <dt className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
-        {label}
-      </dt>
-      <dd className="break-words text-sm font-semibold text-white">
-        {formatValue(value)}
-      </dd>
-    </div>
-  );
-}
 
 function AccountSectionButton({
   section,
@@ -137,6 +126,44 @@ function AccountSectionButton({
   );
 }
 
+function AccountStatusCards({ user }: { user: UserProfile }) {
+  return (
+    <section aria-labelledby="account-status" className="pt-2">
+      <h3 id="account-status" className="mb-4 font-serif text-2xl font-bold text-white">
+        Account Status
+      </h3>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+            Account type
+          </p>
+          <p className="text-sm font-semibold text-white">
+            {user.is_staff ? "Staff" : "Customer"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+            Email verification
+          </p>
+          <p className="text-sm font-semibold text-white">
+            Not exposed by the profile endpoint
+          </p>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-black/30 p-4 md:col-span-2">
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+            Digital gallery access
+          </p>
+          <p className="text-sm font-semibold text-white">
+            {user.can_access_gallery
+              ? "Access granted"
+              : "No active gallery access on this account"}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function ProfilePageClient() {
   const router = useRouter();
   const { showToast } = useToast();
@@ -145,22 +172,26 @@ export function ProfilePageClient() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
+  const handleProfileRefresh = async () => {
     setProfileError(null);
-    try {
-      await refreshUser();
-      showToast("Profile refreshed.", "success");
-    } catch (error) {
-      setProfileError(normalizeAuthErrorMessage(error, "Could not refresh your profile."));
-    } finally {
-      setIsRefreshing(false);
+    const refreshed = await refreshUser();
+    if (!refreshed) {
+      throw new Error("Could not refresh your profile.");
     }
   };
 
-  const handleResendVerification = async () => {
-    setProfileError(null);
-    showToast("Your email is already verified.", "success");
+  const handleRefreshClick = async () => {
+    setIsRefreshing(true);
+    try {
+      await handleProfileRefresh();
+      showToast("Profile refreshed.", "success");
+    } catch (error) {
+      setProfileError(
+        normalizeAuthErrorMessage(error, "Could not refresh your profile."),
+      );
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleLogout = () => {
@@ -188,8 +219,8 @@ export function ProfilePageClient() {
             My Account
           </h1>
           <p className="max-w-2xl text-gray-400">
-            Manage your OpenÉire Studios profile and prepare for orders,
-            downloads, licences, and gallery access as those areas migrate.
+            Manage your OpenÉire Studios profile, security settings, and future
+            account areas as they migrate.
           </p>
           {user.is_staff ? (
             <div className="mt-5">
@@ -236,7 +267,7 @@ export function ProfilePageClient() {
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <button
                     type="button"
-                    onClick={handleRefresh}
+                    onClick={handleRefreshClick}
                     disabled={isRefreshing}
                     className="rounded-lg border border-white/15 px-4 py-3 text-sm font-bold uppercase tracking-widest text-gray-300 transition-colors hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -260,112 +291,20 @@ export function ProfilePageClient() {
               ) : null}
 
               {activeSection === "profile" ? (
-                <div className="space-y-8">
-                  <section aria-labelledby="profile-overview">
-                    <h3
-                      id="profile-overview"
-                      className="mb-4 font-serif text-2xl font-bold text-white"
-                    >
-                      Profile Information
-                    </h3>
-                    <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      <ProfileField label="Username" value={user.username} />
-                      <ProfileField label="Email" value={user.email} />
-                      <ProfileField label="First name" value={user.first_name} />
-                      <ProfileField label="Last name" value={user.last_name} />
-                      <ProfileField
-                        label="Phone"
-                        value={user.default_phone_number}
-                      />
-                      <ProfileField label="Country" value={user.country} />
-                    </dl>
-                  </section>
-
-                  <section aria-labelledby="account-status">
-                    <h3
-                      id="account-status"
-                      className="mb-4 font-serif text-2xl font-bold text-white"
-                    >
-                      Account Status
-                    </h3>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      <div className="rounded-xl border border-white/10 bg-black/30 p-4">
-                        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
-                          Account type
-                        </p>
-                        <p className="text-sm font-semibold text-white">
-                          {user.is_staff ? "Staff" : "Customer"}
-                        </p>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-black/30 p-4">
-                        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
-                          Email verification
-                        </p>
-                        <p className="text-sm font-semibold text-white">
-                          Not exposed by the profile endpoint
-                        </p>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-black/30 p-4 md:col-span-2">
-                        <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
-                          Digital gallery access
-                        </p>
-                        <p className="text-sm font-semibold text-white">
-                          {user.can_access_gallery
-                            ? "Access granted"
-                            : "No active gallery access on this account"}
-                        </p>
-                      </div>
-                    </div>
-                  </section>
-
-                  <section aria-labelledby="default-shipping">
-                    <h3
-                      id="default-shipping"
-                      className="mb-4 font-serif text-2xl font-bold text-white"
-                    >
-                      Default Contact & Shipping
-                    </h3>
-                    <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      <ProfileField
-                        label="Address line 1"
-                        value={user.default_street_address1}
-                      />
-                      <ProfileField
-                        label="Address line 2"
-                        value={user.default_street_address2}
-                      />
-                      <ProfileField label="Town / City" value={user.default_town} />
-                      <ProfileField label="County / State" value={user.default_county} />
-                      <ProfileField label="Postcode" value={user.default_postcode} />
-                    </dl>
-                  </section>
-
-                  <section aria-labelledby="account-actions">
-                    <h3
-                      id="account-actions"
-                      className="mb-4 font-serif text-2xl font-bold text-white"
-                    >
-                      Account Actions
-                    </h3>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      <button
-                        type="button"
-                        onClick={handleResendVerification}
-                        className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/5 px-5 py-4 text-sm font-bold text-white transition-colors hover:border-accent/50 hover:text-accent"
-                      >
-                        <FaEnvelope aria-hidden="true" />
-                        Email Already Verified
-                      </button>
-                      <Link
-                        href="/request-password-reset"
-                        className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/5 px-5 py-4 text-sm font-bold text-white transition-colors hover:border-accent/50 hover:text-accent"
-                      >
-                        <FaKey aria-hidden="true" />
-                        Reset Password
-                      </Link>
-                    </div>
-                  </section>
+                <div className="space-y-10">
+                  <ProfileEditForm
+                    profile={user}
+                    onSaved={handleProfileRefresh}
+                    onSuccess={(message) => showToast(message, "success")}
+                  />
+                  <AccountStatusCards user={user} />
                 </div>
+              ) : null}
+
+              {activeSection === "security" ? (
+                <AccountSecurityPanel
+                  currentEmail={user.email}
+                />
               ) : null}
             </div>
           </main>

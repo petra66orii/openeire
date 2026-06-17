@@ -14,6 +14,24 @@ export interface UserProfile {
   can_access_gallery?: boolean;
 }
 
+export interface Country {
+  code: string;
+  name: string;
+}
+
+export interface ProfileUpdatePayload {
+  username: string;
+  first_name?: string;
+  last_name?: string;
+  default_phone_number?: string | null;
+  default_street_address1?: string | null;
+  default_street_address2?: string | null;
+  default_town?: string | null;
+  default_county?: string | null;
+  default_postcode?: string | null;
+  country?: string | null;
+}
+
 export interface LoginPayload {
   username: string;
   password: string;
@@ -63,6 +81,15 @@ export interface PasswordResetConfirmPayload {
   password: string;
   confirm_password: string;
   token: string;
+}
+
+export interface ChangePasswordPayload {
+  old_password: string;
+  new_password: string;
+}
+
+export interface DeleteAccountPayload {
+  password: string;
 }
 
 export interface ApiErrorResponse {
