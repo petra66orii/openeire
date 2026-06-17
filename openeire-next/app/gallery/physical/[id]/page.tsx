@@ -5,8 +5,10 @@ import { JsonLd } from "@/components/JsonLd";
 import { GalleryProductCard } from "@/components/gallery/GalleryProductCard";
 import { ProductMediaPreview } from "@/components/gallery/ProductMediaPreview";
 import { SpecBox } from "@/components/gallery/SpecBox";
+import { ProductReviews } from "@/components/reviews/ProductReviews";
 import { ShareControls } from "@/components/share/ShareControls";
 import { getPublicPhysicalProduct } from "@/lib/api/gallery";
+import { getProductReviews } from "@/lib/api/reviews";
 import { formatEuro, getLowestVariant, splitTags } from "@/lib/gallery/format";
 import { resolveMediaUrl } from "@/lib/media";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/jsonLd";
@@ -117,6 +119,20 @@ export default async function PhysicalProductPage({
   const tags = splitTags(product.tags);
   const canonical = buildAbsoluteUrl(getProductPath(product.id));
   const absoluteImage = imageUrl ? buildAbsoluteUrl(imageUrl) : undefined;
+  let reviewsFailed = false;
+  const approvedReviews = await getProductReviews("photo", product.id, {
+    cache: "no-store",
+  }).catch(() => {
+    reviewsFailed = true;
+    return [];
+  });
+  const averageRating =
+    product.average_rating === null || product.average_rating === undefined
+      ? 0
+      : Number(product.average_rating);
+  const reviewCount = Number(product.review_count ?? 0);
+  const hasRealRating =
+    Number.isFinite(averageRating) && averageRating > 0 && reviewCount > 0;
 
   return (
     <div className="page-top-offset min-h-screen overflow-x-hidden bg-black pb-20 font-sans text-white selection:bg-accent selection:text-black">
@@ -139,6 +155,34 @@ export default async function PhysicalProductPage({
               "@type": "Brand",
               name: SITE_NAME,
             },
+            ...(hasRealRating
+              ? {
+                  aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: averageRating.toFixed(1),
+                    reviewCount,
+                  },
+                }
+              : {}),
+            ...(approvedReviews.length
+              ? {
+                  review: approvedReviews.map((review) => ({
+                    "@type": "Review",
+                    author: {
+                      "@type": "Person",
+                      name: review.user,
+                    },
+                    datePublished: review.created_at,
+                    reviewBody: review.comment || undefined,
+                    reviewRating: {
+                      "@type": "Rating",
+                      ratingValue: review.rating,
+                      bestRating: 5,
+                      worstRating: 1,
+                    },
+                  })),
+                }
+              : {}),
             ...(lowestVariant
               ? {
                   sku: lowestVariant.sku || undefined,
@@ -311,6 +355,13 @@ export default async function PhysicalProductPage({
             <ShareControls title={product.title} url={canonical} />
           </div>
         </div>
+
+        <ProductReviews
+          productType="photo"
+          productId={product.id}
+          initialReviews={approvedReviews}
+          initialLoadError={reviewsFailed}
+        />
 
         {product.related_products?.length ? (
           <section className="mt-20">
