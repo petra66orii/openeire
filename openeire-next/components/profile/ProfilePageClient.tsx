@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AccountSecurityPanel } from "@/components/profile/AccountSecurityPanel";
+import { OrderHistorySection } from "@/components/profile/OrderHistorySection";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 import { useToast } from "@/components/ui/ToastProvider";
 import { normalizeAuthErrorMessage } from "@/lib/api/auth";
@@ -50,9 +51,9 @@ const accountSections: Array<{
   {
     id: "orders",
     label: "Orders",
-    description: "Future home for art print and digital order history.",
+    description: "Review completed art print and digital purchases.",
     icon: FaHistory,
-    available: false,
+    available: true,
   },
   {
     id: "downloads",
@@ -305,6 +306,10 @@ export function ProfilePageClient() {
                 <AccountSecurityPanel
                   currentEmail={user.email}
                 />
+              ) : null}
+
+              {activeSection === "orders" ? (
+                <OrderHistorySection />
               ) : null}
             </div>
           </main>
