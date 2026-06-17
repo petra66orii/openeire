@@ -39,6 +39,17 @@ export const normalizeAuthErrorMessage = (
       "username",
       "password",
       "confirm_password",
+      "old_password",
+      "new_password",
+      "current_password",
+      "new_email",
+      "default_phone_number",
+      "default_street_address1",
+      "default_street_address2",
+      "default_town",
+      "default_county",
+      "default_postcode",
+      "country",
       "non_field_errors",
     ]) {
       const value = record[key];
