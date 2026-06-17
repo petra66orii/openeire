@@ -29,7 +29,7 @@ export function ProductMediaPreview({
 
   if (!imageUrl) {
     return (
-      <div className="flex aspect-[4/3] min-h-[320px] w-full items-center justify-center bg-gray-900 px-8 text-center text-gray-500">
+      <div className="flex aspect-4/3 min-h-80 w-full items-center justify-center bg-gray-900 px-8 text-center text-gray-500">
         Preview image unavailable
       </div>
     );
@@ -57,7 +57,7 @@ export function ProductMediaPreview({
 
       {isOpen ? (
         <div
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/90 p-4"
+          className="fixed inset-0 z-90 flex items-center justify-center bg-black/90 p-4"
           role="dialog"
           aria-modal="true"
           aria-label={`${title} image preview`}

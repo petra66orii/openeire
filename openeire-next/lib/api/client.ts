@@ -1,4 +1,10 @@
 import { API_BASE_URL, isAbsoluteUrl } from "@/lib/api/config";
+import {
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  updateAccessToken,
+} from "@/lib/auth/tokenStorage";
 import { getSiteUrl } from "@/lib/site";
 
 export interface ApiResponse<T = unknown> {
@@ -15,6 +21,9 @@ export interface ApiRequestConfig {
   data?: unknown;
   body?: BodyInit | null;
   accessToken?: string | null;
+  skipAuthRefresh?: boolean;
+  retryOnAuthRefresh?: boolean;
+  _retry?: boolean;
   cache?: RequestCache;
   next?: NextFetchRequestConfig;
 }
@@ -110,6 +119,29 @@ const isBodyInit = (value: unknown): value is BodyInit =>
   (typeof ReadableStream !== "undefined" && value instanceof ReadableStream) ||
   typeof value === "string";
 
+const SAFE_AUTH_REFRESH_RETRY_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+const canRetryAfterAuthRefresh = (
+  method: string,
+  config: ApiRequestConfig,
+): boolean =>
+  Boolean(
+    config.retryOnAuthRefresh ||
+      SAFE_AUTH_REFRESH_RETRY_METHODS.has(method.toUpperCase()),
+  );
+
+const isRefreshPayload = (
+  value: unknown,
+): value is { access: string; refresh?: string } => {
+  if (!value || typeof value !== "object") return false;
+  const payload = value as { access?: unknown; refresh?: unknown };
+  return (
+    typeof payload.access === "string" &&
+    payload.access.length > 0 &&
+    (payload.refresh === undefined || typeof payload.refresh === "string")
+  );
+};
+
 const createRequestBody = (
   data: unknown,
   explicitBody: BodyInit | null | undefined,
@@ -139,8 +171,13 @@ const request = async <T>(
     config.body,
   );
 
-  if (config.accessToken) {
-    headers.set("Authorization", `Bearer ${config.accessToken}`);
+  const browserAccessToken =
+    typeof window !== "undefined" ? getAccessToken() : null;
+  const accessToken =
+    config.accessToken !== undefined ? config.accessToken : browserAccessToken;
+
+  if (accessToken) {
+    headers.set("Authorization", `Bearer ${accessToken}`);
   }
   if (shouldSetJsonContentType && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
@@ -163,6 +200,24 @@ const request = async <T>(
       url,
     };
 
+    if (
+      response.status === 401 &&
+      !config.skipAuthRefresh &&
+      !config._retry &&
+      typeof window !== "undefined" &&
+      accessToken &&
+      canRetryAfterAuthRefresh(method, config)
+    ) {
+      const refreshedToken = await refreshBrowserAccessToken();
+      if (refreshedToken) {
+        return request<T>(method, path, {
+          ...config,
+          accessToken: refreshedToken,
+          _retry: true,
+        });
+      }
+    }
+
     if (!response.ok) {
       throw new ApiError({
         message: getErrorMessage(data, `Request failed with status ${response.status}.`),
@@ -182,6 +237,55 @@ const request = async <T>(
       request: requestInfo,
       code: isCancelled ? "ERR_CANCELED" : "ERR_NETWORK",
     });
+  }
+};
+
+let refreshPromise: Promise<string | null> | null = null;
+
+const refreshBrowserAccessToken = async (): Promise<string | null> => {
+  const refresh = getRefreshToken();
+  if (!refresh) {
+    clearTokens();
+    return null;
+  }
+
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  refreshPromise = performRefreshRequest(refresh).finally(() => {
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
+};
+
+const performRefreshRequest = async (refresh: string): Promise<string | null> => {
+  try {
+    const url = buildUrl("auth/token/refresh/");
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+    });
+    const data = await parseResponseBody(response);
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        clearTokens();
+      }
+      return null;
+    }
+
+    if (!isRefreshPayload(data)) {
+      clearTokens();
+      return null;
+    }
+
+    updateAccessToken(data.access, data.refresh);
+    return data.access;
+  } catch {
+    return null;
   }
 };
 

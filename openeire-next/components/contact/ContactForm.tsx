@@ -53,7 +53,9 @@ export function ContactForm() {
   }, []);
 
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    event: ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
@@ -130,7 +132,7 @@ export function ContactForm() {
           <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500/5 blur-3xl" />
 
           {status === "success" ? (
-            <div className="animate-fade-in-up flex min-h-[400px] flex-col items-center justify-center text-center">
+            <div className="animate-fade-in-up flex min-h-100 flex-col items-center justify-center text-center">
               <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-brand-500/10">
                 <FaCheckCircle className="text-4xl text-brand-500" />
               </div>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const FREE_SHIPPING_PROMO_ENABLED = true;
 const FREE_SHIPPING_THRESHOLD = 180;
@@ -20,8 +21,81 @@ const navItems = [
 const isActivePath = (pathname: string, href: string) =>
   pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 
+function AuthLinks({
+  isAuthenticated,
+  isLoading,
+  variant,
+}: {
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  variant: "desktop" | "mobile";
+}) {
+  if (isLoading) {
+    return variant === "desktop" ? (
+      <div
+        className="hidden h-9 w-40 rounded-full bg-white/5 lg:block"
+        aria-hidden="true"
+      />
+    ) : (
+      <div className="space-y-3 border-t border-white/10 pt-4" aria-hidden="true">
+        <div className="h-4 w-24 rounded-full bg-white/5" />
+        <div className="h-9 w-full rounded-full bg-white/5" />
+      </div>
+    );
+  }
+
+  const links = isAuthenticated
+    ? [
+        { href: "/profile", label: "Profile", cta: false },
+        { href: "/logout", label: "Logout", cta: false },
+      ]
+    : [
+        { href: "/login", label: "Login", cta: false },
+        { href: "/register", label: "Get Started", cta: true },
+      ];
+
+  if (variant === "desktop") {
+    return (
+      <div className="hidden items-center space-x-4 text-sm font-medium lg:flex">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={
+              link.cta
+                ? "rounded-full bg-primary px-5 py-2 text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105 hover:bg-primary/90"
+                : "transition-colors hover:text-accent-hover"
+            }
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 border-t border-white/10 pt-4">
+      {links.map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className={
+            link.cta
+              ? "block rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold uppercase tracking-wide text-white"
+              : "block text-sm font-semibold uppercase tracking-wide transition-colors hover:text-accent-hover"
+          }
+        >
+          {link.label}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export function Navbar() {
   const pathname = usePathname();
+  const { isAuthenticated, isLoading } = useAuth();
   const headerRef = useRef<HTMLDivElement | null>(null);
   const [showBanner, setShowBanner] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -189,17 +263,11 @@ export function Navbar() {
                 </svg>
               </button>
 
-              <div className="hidden items-center space-x-4 text-sm font-medium lg:flex">
-                <Link href="/login" className="transition-colors hover:text-accent-hover">
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="rounded-full bg-primary px-5 py-2 text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105 hover:bg-primary/90"
-                >
-                  Get Started
-                </Link>
-              </div>
+              <AuthLinks
+                isAuthenticated={isAuthenticated}
+                isLoading={isLoading}
+                variant="desktop"
+              />
             </div>
           </div>
 
@@ -215,20 +283,11 @@ export function Navbar() {
                     {item.label}
                   </Link>
                 ))}
-                <div className="space-y-3 border-t border-white/10 pt-4">
-                  <Link
-                    href="/login"
-                    className="block text-sm font-semibold uppercase tracking-wide transition-colors hover:text-accent-hover"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="block rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold uppercase tracking-wide text-white"
-                  >
-                    Get Started
-                  </Link>
-                </div>
+                <AuthLinks
+                  isAuthenticated={isAuthenticated}
+                  isLoading={isLoading}
+                  variant="mobile"
+                />
               </div>
             </div>
           ) : null}
