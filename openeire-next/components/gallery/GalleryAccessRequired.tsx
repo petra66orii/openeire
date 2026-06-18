@@ -18,7 +18,7 @@ export function GalleryAccessRequired({
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <Link
-            href="/gallery-gate"
+            href="/gallery-gate?next=/gallery/digital"
             className="rounded-full bg-brand-700 px-6 py-3 text-sm font-bold text-paper transition-colors hover:bg-brand-900"
           >
             Request Access

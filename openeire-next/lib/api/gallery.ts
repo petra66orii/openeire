@@ -1,6 +1,7 @@
 import { api, isApiError } from "@/lib/api/client";
 import type {
   PaginatedResponse,
+  DigitalGalleryFilter,
   PublicGalleryItem,
   PublicGalleryType,
   PublicPhysicalProductDetail,
@@ -51,6 +52,39 @@ export const getPublicGalleryItems = async (
   });
 
   return asGalleryPage(response.data);
+};
+
+export const getProtectedDigitalGalleryItems = async (
+  query: Omit<GalleryQuery, "type"> & {
+    itemType?: DigitalGalleryFilter;
+    signal?: AbortSignal;
+  } = {},
+): Promise<PaginatedResponse<PublicGalleryItem>> => {
+  const response = await api.get<
+    PublicGalleryItem[] | PaginatedResponse<PublicGalleryItem>
+  >("gallery/", {
+    params: {
+      type: "digital",
+      collection:
+        !query.collection || query.collection === "all"
+          ? undefined
+          : query.collection,
+      search: query.search,
+      sort: query.sort ?? "date_desc",
+      page: query.page,
+    },
+    cache: "no-store",
+    signal: query.signal,
+    retryOnAuthRefresh: true,
+  });
+
+  const page = asGalleryPage(response.data);
+  if (!query.itemType || query.itemType === "all") return page;
+
+  return {
+    ...page,
+    results: page.results.filter((item) => item.product_type === query.itemType),
+  };
 };
 
 export const getPublicPhysicalProduct = async (

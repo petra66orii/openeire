@@ -131,7 +131,7 @@ export default function LicensingPage() {
         image={PUBLIC_IMAGES.irelandGallery}
         actions={[
           {
-            href: "/gallery/digital",
+            href: "/gallery-gate?next=/gallery/digital",
             label: "Browse Footage & Choose Your Asset",
           },
           { href: "/contact", label: "Speak to the Studio", variant: "secondary" },
@@ -197,7 +197,7 @@ export default function LicensingPage() {
         description="Start with the footage library, then open the asset page to share your usage details and get the right scope confirmed."
         actions={[
           {
-            href: "/gallery/digital",
+            href: "/gallery-gate?next=/gallery/digital",
             label: "Browse Footage & Choose Your Asset",
           },
           { href: "/contact", label: "Contact the Studio", variant: "secondary" },

@@ -96,7 +96,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <FooterLink href="/art-prints">Art Prints</FooterLink>
               <FooterLink href="/licensing">Licensing</FooterLink>
-              <FooterLink href="/gallery/digital">Stock Footage</FooterLink>
+              <FooterLink href="/gallery-gate?next=/gallery/digital">Stock Footage</FooterLink>
               <FooterLink href="/real-estate">Services</FooterLink>
               <FooterLink href="/blog">Journal</FooterLink>
               <FooterLink href="/about">Our Story</FooterLink>

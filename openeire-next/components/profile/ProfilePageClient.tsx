@@ -14,6 +14,7 @@ import {
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AccountSecurityPanel } from "@/components/profile/AccountSecurityPanel";
 import { DigitalEntitlementsSection } from "@/components/profile/DigitalEntitlementsSection";
+import { GalleryAccessPanel } from "@/components/profile/GalleryAccessPanel";
 import { OrderHistorySection } from "@/components/profile/OrderHistorySection";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -73,9 +74,9 @@ const accountSections: Array<{
   {
     id: "gallery",
     label: "Gallery Access",
-    description: "Future home for private gallery access status.",
+    description: "View and manage private gallery access status.",
     icon: FaImages,
-    available: false,
+    available: true,
   },
 ];
 
@@ -319,6 +320,10 @@ export function ProfilePageClient() {
 
               {activeSection === "licences" ? (
                 <DigitalEntitlementsSection mode="licences" />
+              ) : null}
+
+              {activeSection === "gallery" ? (
+                <GalleryAccessPanel user={user} />
               ) : null}
             </div>
           </main>

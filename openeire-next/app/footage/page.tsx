@@ -184,7 +184,10 @@ export default function FootagePage() {
         description="Browse premium aerial footage captured in Ireland for campaigns, productions, editorial projects, and creative use. This page is built for buyers who need to discover the right drone footage first, then move into licensing when the asset is right."
         image={PUBLIC_IMAGES.irelandGallery}
         actions={[
-          { href: "/gallery/digital", label: "Browse Available Footage" },
+          {
+            href: "/gallery-gate?next=/gallery/digital",
+            label: "Browse Available Footage",
+          },
           {
             href: "/licensing",
             label: "Review Licensing Options",
@@ -305,7 +308,10 @@ export default function FootagePage() {
         title="Find footage before you license"
         description="Start with the available footage library, then move into commercial or editorial licensing once the right asset is clear."
         actions={[
-          { href: "/gallery/digital", label: "Browse Footage" },
+          {
+            href: "/gallery-gate?next=/gallery/digital",
+            label: "Browse Footage",
+          },
           {
             href: "/contact",
             label: "Ask About a Footage Brief",

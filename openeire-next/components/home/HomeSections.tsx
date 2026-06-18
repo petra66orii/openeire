@@ -24,7 +24,7 @@ const services = [
     title: "4K Stock Footage",
     description:
       "Cinematic aerial stock footage from Ireland and beyond, ready for documentary, brand, editorial, and commercial licensing work.",
-    link: "/gallery/digital",
+    link: "/gallery-gate?next=/gallery/digital",
     cta: "Browse Clips",
     icon: <FaVideo className="h-10 w-10 text-paper" />,
   },
@@ -94,7 +94,7 @@ export function HomeHeroSection() {
             </Link>
 
             <Link
-              href="/gallery/digital"
+              href="/gallery-gate?next=/gallery/digital"
               className="w-full max-w-xs rounded-full border border-white/20 bg-black/20 px-8 py-4 font-medium text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white/30 sm:w-auto"
             >
               Browse Footage

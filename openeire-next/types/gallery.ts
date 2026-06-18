@@ -1,5 +1,6 @@
 export type GalleryProductType = "physical" | "photo" | "video";
 export type PublicGalleryType = "physical" | "all";
+export type DigitalGalleryFilter = "all" | "photo" | "video";
 
 export interface PaginatedResponse<T> {
   count: number;

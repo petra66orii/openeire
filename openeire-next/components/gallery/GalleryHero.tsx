@@ -13,8 +13,10 @@ const normalizeCollection = (value?: string | null): string =>
 
 export function GalleryHero({
   activeCollection,
+  galleryPath = "/gallery/physical",
 }: {
   activeCollection?: string | null;
+  galleryPath?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -38,9 +40,9 @@ export function GalleryHero({
       }
 
       const query = params.toString();
-      return query ? `/gallery/physical?${query}` : "/gallery/physical";
+      return query ? `${galleryPath}?${query}` : galleryPath;
     },
-    [searchParams],
+    [galleryPath, searchParams],
   );
 
   const selectCollection = useCallback(
