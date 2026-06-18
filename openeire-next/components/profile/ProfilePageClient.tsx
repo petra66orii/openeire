@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AccountSecurityPanel } from "@/components/profile/AccountSecurityPanel";
+import { DigitalEntitlementsSection } from "@/components/profile/DigitalEntitlementsSection";
 import { OrderHistorySection } from "@/components/profile/OrderHistorySection";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 import { useToast } from "@/components/ui/ToastProvider";
@@ -58,16 +59,16 @@ const accountSections: Array<{
   {
     id: "downloads",
     label: "Downloads",
-    description: "Future home for purchased files and fresh access links.",
+    description: "Access purchased digital photo and video files.",
     icon: FaKey,
-    available: false,
+    available: true,
   },
   {
     id: "licences",
     label: "Licences",
-    description: "Future home for personal and commercial licence records.",
+    description: "Download personal licence PDFs for digital purchases.",
     icon: FaIdBadge,
-    available: false,
+    available: true,
   },
   {
     id: "gallery",
@@ -310,6 +311,14 @@ export function ProfilePageClient() {
 
               {activeSection === "orders" ? (
                 <OrderHistorySection />
+              ) : null}
+
+              {activeSection === "downloads" ? (
+                <DigitalEntitlementsSection mode="downloads" />
+              ) : null}
+
+              {activeSection === "licences" ? (
+                <DigitalEntitlementsSection mode="licences" />
               ) : null}
             </div>
           </main>
