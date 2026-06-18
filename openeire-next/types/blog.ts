@@ -21,6 +21,11 @@ export interface BlogPostListItem {
   has_liked?: boolean;
 }
 
+export interface BlogLikeResponse {
+  liked: boolean;
+  likes_count: number;
+}
+
 export interface RelatedBlogPost {
   title: string;
   slug: string;

@@ -119,7 +119,7 @@ export default async function BlogPage({
         />
       ) : null}
 
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-4 pt-8 md:pt-10 lg:px-8">
         <div className="mb-16 text-center">
           <h1 className="mb-6 font-serif text-5xl font-bold tracking-tight md:text-7xl">
             The Journal

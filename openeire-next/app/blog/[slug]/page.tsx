@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BlogLikeButton } from "@/components/blog/BlogLikeButton";
 import { JsonLd } from "@/components/JsonLd";
 import { getPublishedBlogPostBySlug } from "@/lib/api/blog";
 import { formatBlogDisplayDate } from "@/lib/blog/dates";
@@ -12,7 +13,6 @@ import { sanitizeRichHtml } from "@/lib/sanitizeRichHtml";
 import {
   FaArrowLeft,
   FaCalendar,
-  FaRegHeart,
   FaUser,
 } from "react-icons/fa";
 
@@ -218,10 +218,11 @@ export default async function BlogDetailPage({
         </article>
 
         <div className="mt-16 flex flex-col items-center border-t border-white/10 pt-8">
-          <div className="mb-8 flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-lg font-bold text-gray-400">
-            <FaRegHeart />
-            <span>{post.likes_count} Likes</span>
-          </div>
+          <BlogLikeButton
+            slug={post.slug}
+            initialHasLiked={post.has_liked}
+            initialLikesCount={post.likes_count}
+          />
 
           <div className="text-center">
             <p className="mb-4 text-xs font-bold uppercase tracking-widest text-gray-500">
@@ -295,8 +296,8 @@ export default async function BlogDetailPage({
             Discussion
           </h2>
           <p className="text-sm leading-relaxed text-gray-400">
-            Comments and authenticated likes remain available in the current
-            React app. This server-rendered migration preserves article content,
+            Comments remain available in the current React app while this
+            server-rendered migration preserves article content, saved stories,
             sharing, and related-post discovery first.
           </p>
         </div>
