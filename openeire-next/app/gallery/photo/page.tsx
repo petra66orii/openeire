@@ -1,4 +1,4 @@
-import { GalleryAccessRequired } from "@/components/gallery/GalleryAccessRequired";
+import { PrivateGalleryAccessShell } from "@/components/gallery/PrivateGalleryAccessShell";
 
 export const metadata = {
   title: "Private Photo Gallery | OpenÉire Studios",
@@ -6,5 +6,10 @@ export const metadata = {
 };
 
 export default function PhotoGalleryPage() {
-  return <GalleryAccessRequired title="Private photo gallery" />;
+  return (
+    <PrivateGalleryAccessShell
+      title="Private photo gallery"
+      pendingTitle="Private photo gallery pending migration"
+    />
+  );
 }

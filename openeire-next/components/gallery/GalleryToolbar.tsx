@@ -10,15 +10,17 @@ export function GalleryToolbar({
   search,
   sort,
   collection,
+  actionPath = "/gallery/physical",
 }: {
   search?: string;
   sort?: string;
   collection?: string;
+  actionPath?: string;
 }) {
   return (
     <div className="container mx-auto mb-8 px-4 sm:mb-10 lg:mb-12 lg:px-8">
       <form
-        action="/gallery/physical"
+        action={actionPath}
         className="rounded-[28px] border border-white/10 bg-white/5 px-4 py-4 shadow-[0_24px_80px_rgba(0,0,0,0.38)] backdrop-blur-xl sm:px-5 sm:py-5"
       >
         <input type="hidden" name="collection" value={collection ?? ""} />
