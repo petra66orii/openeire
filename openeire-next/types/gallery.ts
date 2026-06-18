@@ -48,3 +48,31 @@ export interface PublicPhysicalProductDetail extends PublicGalleryItem {
   review_count?: number | null;
   related_products?: PublicGalleryItem[];
 }
+
+export interface ProtectedPhotoDetail extends PublicGalleryItem {
+  product_type: "photo";
+  description?: string | null;
+  tags?: string | null;
+  created_at?: string | null;
+  variants?: ProductVariant[];
+  average_rating?: number | string | null;
+  review_count?: number | null;
+  related_products?: PublicGalleryItem[];
+}
+
+export interface ProtectedVideoDetail extends PublicGalleryItem {
+  product_type: "video";
+  description?: string | null;
+  tags?: string | null;
+  created_at?: string | null;
+  duration?: number | string | null;
+  resolution?: string | null;
+  frame_rate?: string | null;
+  average_rating?: number | string | null;
+  review_count?: number | null;
+  related_products?: PublicGalleryItem[];
+}
+
+export type ProtectedDigitalDetail =
+  | ProtectedPhotoDetail
+  | ProtectedVideoDetail;
