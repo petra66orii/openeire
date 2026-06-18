@@ -1,15 +1,28 @@
-import { PrivateGalleryAccessShell } from "@/components/gallery/PrivateGalleryAccessShell";
+import { Suspense } from "react";
+import { DigitalGalleryDetailClient } from "@/components/gallery/DigitalGalleryDetailClient";
 
 export const metadata = {
   title: "Private Photo | OpenÉire Studios",
   robots: { index: false, follow: false },
 };
 
-export default function PhotoDetailGatePage() {
+export default async function PhotoDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
   return (
-    <PrivateGalleryAccessShell
-      title="Private photo"
-      pendingTitle="Private photo details pending migration"
-    />
+    <Suspense
+      fallback={
+        <div className="page-top-offset flex min-h-screen items-center justify-center bg-black px-4 pb-24 text-center text-white">
+          <div className="h-12 w-12 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+          <span className="sr-only">Loading private photo</span>
+        </div>
+      }
+    >
+      <DigitalGalleryDetailClient id={id} type="photo" />
+    </Suspense>
   );
 }

@@ -2,6 +2,9 @@ import { api, isApiError } from "@/lib/api/client";
 import type {
   PaginatedResponse,
   DigitalGalleryFilter,
+  ProtectedDigitalDetail,
+  ProtectedPhotoDetail,
+  ProtectedVideoDetail,
   PublicGalleryItem,
   PublicGalleryType,
   PublicPhysicalProductDetail,
@@ -86,6 +89,39 @@ export const getProtectedDigitalGalleryItems = async (
     results: page.results.filter((item) => item.product_type === query.itemType),
   };
 };
+
+export const getProtectedDigitalPhoto = async (
+  id: string | number,
+  options: { signal?: AbortSignal } = {},
+): Promise<ProtectedPhotoDetail> => {
+  const response = await api.get<ProtectedPhotoDetail>(`photos/${id}/`, {
+    cache: "no-store",
+    signal: options.signal,
+    retryOnAuthRefresh: true,
+  });
+  return response.data;
+};
+
+export const getProtectedDigitalVideo = async (
+  id: string | number,
+  options: { signal?: AbortSignal } = {},
+): Promise<ProtectedVideoDetail> => {
+  const response = await api.get<ProtectedVideoDetail>(`videos/${id}/`, {
+    cache: "no-store",
+    signal: options.signal,
+    retryOnAuthRefresh: true,
+  });
+  return response.data;
+};
+
+export const getProtectedDigitalDetail = async (
+  type: "photo" | "video",
+  id: string | number,
+  options: { signal?: AbortSignal } = {},
+): Promise<ProtectedDigitalDetail> =>
+  type === "video"
+    ? getProtectedDigitalVideo(id, options)
+    : getProtectedDigitalPhoto(id, options);
 
 export const getPublicPhysicalProduct = async (
   id: string | number,
