@@ -1,5 +1,6 @@
 import { api, isApiError } from "@/lib/api/client";
 import type {
+  BlogLikeResponse,
   BlogPostDetail,
   BlogPostListItem,
   PaginatedResponse,
@@ -56,4 +57,41 @@ export const getPublishedBlogPostBySlug = async (
     }
     throw error;
   }
+};
+
+export const getLikedBlogPosts = async (): Promise<
+  PaginatedResponse<BlogPostListItem>
+> => {
+  const response = await api.get<PaginatedResponse<BlogPostListItem>>(
+    "blog/liked/",
+    {
+      cache: "no-store",
+      retryOnAuthRefresh: true,
+    },
+  );
+  return response.data;
+};
+
+export const getBlogPostLikeState = async (
+  slug: string,
+): Promise<BlogLikeResponse> => {
+  const response = await api.get<BlogPostDetail>(`blog/${slug}/`, {
+    cache: "no-store",
+    retryOnAuthRefresh: true,
+  });
+  return {
+    liked: Boolean(response.data.has_liked),
+    likes_count: response.data.likes_count,
+  };
+};
+
+export const toggleBlogLike = async (
+  slug: string,
+): Promise<BlogLikeResponse> => {
+  const response = await api.post<BlogLikeResponse>(
+    `blog/${slug}/like/`,
+    undefined,
+    { retryOnAuthRefresh: true },
+  );
+  return response.data;
 };

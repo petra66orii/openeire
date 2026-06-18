@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  FaBookmark,
   FaHistory,
   FaIdBadge,
   FaImages,
@@ -17,6 +18,7 @@ import { DigitalEntitlementsSection } from "@/components/profile/DigitalEntitlem
 import { GalleryAccessPanel } from "@/components/profile/GalleryAccessPanel";
 import { OrderHistorySection } from "@/components/profile/OrderHistorySection";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
+import { SavedStoriesSection } from "@/components/profile/SavedStoriesSection";
 import { useToast } from "@/components/ui/ToastProvider";
 import { normalizeAuthErrorMessage } from "@/lib/api/auth";
 import type { UserProfile } from "@/types/auth";
@@ -27,6 +29,7 @@ type AccountSection =
   | "orders"
   | "downloads"
   | "licences"
+  | "saved"
   | "gallery";
 
 const accountSections: Array<{
@@ -69,6 +72,13 @@ const accountSections: Array<{
     label: "Licences",
     description: "Download personal licence PDFs for digital purchases.",
     icon: FaIdBadge,
+    available: true,
+  },
+  {
+    id: "saved",
+    label: "Saved Stories",
+    description: "Revisit journal articles you have liked.",
+    icon: FaBookmark,
     available: true,
   },
   {
@@ -320,6 +330,10 @@ export function ProfilePageClient() {
 
               {activeSection === "licences" ? (
                 <DigitalEntitlementsSection mode="licences" />
+              ) : null}
+
+              {activeSection === "saved" ? (
+                <SavedStoriesSection />
               ) : null}
 
               {activeSection === "gallery" ? (
