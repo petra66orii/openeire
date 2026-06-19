@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -236,11 +237,17 @@ export function ProfilePageClient() {
             account areas as they migrate.
           </p>
           {user.is_staff ? (
-            <div className="mt-5">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-bold text-accent">
                 <FaShieldAlt aria-hidden="true" />
                 Staff account
               </span>
+              <Link
+                href="/staff/uploads/videos"
+                className="inline-flex items-center rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-black transition hover:bg-white"
+              >
+                Open Staff Video Uploader
+              </Link>
             </div>
           ) : null}
         </div>
