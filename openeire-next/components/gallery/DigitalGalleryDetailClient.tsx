@@ -13,10 +13,12 @@ import {
   FaVideo,
 } from "react-icons/fa";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useCart } from "@/components/cart/CartProvider";
 import { CommercialLicenceRequestModal } from "@/components/gallery/CommercialLicenceRequestModal";
 import { DigitalGalleryCard } from "@/components/gallery/DigitalGalleryCard";
 import { ProductMediaPreview } from "@/components/gallery/ProductMediaPreview";
 import { SpecBox } from "@/components/gallery/SpecBox";
+import { useToast } from "@/components/ui/ToastProvider";
 import { isApiError } from "@/lib/api/client";
 import { getProtectedDigitalDetail } from "@/lib/api/gallery";
 import { formatEuro, getStartingPrice, splitTags } from "@/lib/gallery/format";
@@ -114,6 +116,8 @@ export function DigitalGalleryDetailClient({
   const pathname = usePathname();
   const router = useRouter();
   const { isLoading: isAuthLoading, user } = useAuth();
+  const { addToCart, isLoaded: isCartLoaded } = useCart();
+  const { showToast } = useToast();
   const [detail, setDetail] = useState<ProtectedDigitalDetail | null>(null);
   const [loadState, setLoadState] = useState<DetailLoadState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -256,6 +260,28 @@ export function DigitalGalleryDetailClient({
   const capturedDate = formatDate(detail.created_at);
   const relatedProducts = detail.related_products ?? [];
   const legalTermsHref = "https://openeire.ie/licensing/terms";
+  const handleAddToCart = () => {
+    if (!isCartLoaded) return;
+
+    addToCart({
+      product: {
+        id: detail.id,
+        title: detail.title,
+        product_type: detail.product_type,
+        price: detail.price ?? detail.starting_price ?? null,
+        starting_price: detail.starting_price ?? null,
+        preview_image: detail.preview_image ?? null,
+        thumbnail_image: detail.thumbnail_image ?? null,
+        collection: detail.collection ?? null,
+      },
+      quantity: 1,
+      options: {
+        type: "digital",
+        sourceProductId: detail.id,
+      },
+    });
+    showToast("Added to bag.", "success");
+  };
 
   return (
     <div className="page-top-offset min-h-screen overflow-x-hidden bg-black pb-20 font-sans text-white selection:bg-accent selection:text-black">
@@ -348,17 +374,13 @@ export function DigitalGalleryDetailClient({
               <div className="mt-6 grid gap-3">
                 <button
                   type="button"
-                  disabled
-                  title="Personal-use cart and checkout will be enabled when the Next checkout migration lands."
-                  className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-brand-700/60 px-5 py-4 text-sm font-bold text-paper opacity-75"
+                  onClick={handleAddToCart}
+                  disabled={!isCartLoaded}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-700 px-5 py-4 text-sm font-bold text-paper transition-all hover:bg-brand-500 active:scale-[0.98] disabled:cursor-wait disabled:bg-brand-700/60 disabled:opacity-75"
                 >
                   <FaShoppingBag aria-hidden="true" />
-                  Add to Cart
+                  {isCartLoaded ? "Add to Cart" : "Preparing Bag..."}
                 </button>
-                <p className="-mt-1 text-center text-[11px] leading-relaxed text-gray-500">
-                  Personal-use checkout for digital downloads is pending the
-                  checkout migration.
-                </p>
 
                 <button
                   type="button"
