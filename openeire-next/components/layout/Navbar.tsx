@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { CartBadge } from "@/components/cart/CartBadge";
 
 const FREE_SHIPPING_PROMO_ENABLED = true;
 const FREE_SHIPPING_THRESHOLD = 180;
@@ -236,6 +237,7 @@ export function Navbar() {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                   />
                 </svg>
+                <CartBadge />
               </Link>
 
               <button

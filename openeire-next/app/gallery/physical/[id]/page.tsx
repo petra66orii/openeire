@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
+import { PhysicalAddToCartPanel } from "@/components/cart/PhysicalAddToCartPanel";
 import { GalleryProductCard } from "@/components/gallery/GalleryProductCard";
 import { ProductMediaPreview } from "@/components/gallery/ProductMediaPreview";
 import { SpecBox } from "@/components/gallery/SpecBox";
@@ -9,11 +10,10 @@ import { ProductReviews } from "@/components/reviews/ProductReviews";
 import { ShareControls } from "@/components/share/ShareControls";
 import { getPublicPhysicalProduct } from "@/lib/api/gallery";
 import { getProductReviews } from "@/lib/api/reviews";
-import { formatEuro, getLowestVariant, splitTags } from "@/lib/gallery/format";
+import { getLowestVariant, splitTags } from "@/lib/gallery/format";
 import { resolveMediaUrl } from "@/lib/media";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/jsonLd";
 import { buildAbsoluteUrl, getSiteUrl, SITE_NAME } from "@/lib/site";
-import { FaShieldAlt, FaShippingFast } from "react-icons/fa";
 
 export const revalidate = 300;
 
@@ -115,7 +115,6 @@ export default async function PhysicalProductPage({
 
   const imageUrl = resolveMediaUrl(product.preview_image);
   const lowestVariant = getLowestVariant(product.variants);
-  const selectedPrice = formatEuro(lowestVariant?.price);
   const tags = splitTags(product.tags);
   const canonical = buildAbsoluteUrl(getProductPath(product.id));
   const absoluteImage = imageUrl ? buildAbsoluteUrl(imageUrl) : undefined;
@@ -268,70 +267,12 @@ export default async function PhysicalProductPage({
               </div>
 
               {product.variants.length ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="mb-2 block text-xs uppercase tracking-widest text-gray-500">
-                      Available print options
-                    </label>
-                    <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-                      {product.variants.map((variant) => (
-                        <div
-                          key={variant.id}
-                          className="rounded-lg border border-white/10 bg-black/40 p-3"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="font-semibold text-white">
-                                {variant.material_display}
-                              </p>
-                              <p className="text-sm text-gray-400">
-                                {variant.size_display}
-                              </p>
-                            </div>
-                            <p className="font-serif text-lg font-bold text-white">
-                              €{formatEuro(variant.price)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-8 border-t border-white/10 pt-6">
-                    <div className="mb-6 flex items-end justify-between">
-                      <span className="text-sm font-medium text-gray-400">
-                        From
-                      </span>
-                      <span className="font-serif text-4xl font-bold text-white">
-                        €{selectedPrice}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled
-                      className="flex w-full cursor-not-allowed items-center justify-center rounded-xl bg-brand-700/60 py-4 text-lg font-bold text-paper shadow-[0_0_20px_rgba(0,196,0,0.12)]"
-                    >
-                      Add to Cart
-                    </button>
-
-                    <p className="mt-4 px-4 text-center text-[11px] leading-relaxed text-gray-500">
-                      Cart and checkout actions remain in the current React
-                      storefront until the checkout migration PR. Art prints are
-                      sold for personal display only and do not include
-                      reproduction or commercial usage rights.
-                    </p>
-
-                    <div className="mt-4 flex justify-center gap-6 text-[10px] uppercase tracking-wider text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <FaShieldAlt /> Secure
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <FaShippingFast /> US & IE Ship
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <PhysicalAddToCartPanel
+                  productId={product.id}
+                  title={product.title}
+                  previewImage={product.preview_image}
+                  variants={product.variants}
+                />
               ) : (
                 <div className="rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-gray-400">
                   Print options are unavailable right now.
