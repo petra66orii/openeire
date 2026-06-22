@@ -52,14 +52,12 @@ export function OrderSummary() {
             Sign in before checkout
           </Link>
         ) : (
-          <button
-            type="button"
-            disabled
-            className="flex w-full cursor-not-allowed items-center justify-center rounded-xl bg-brand-700/60 px-5 py-4 text-sm font-bold text-paper opacity-75"
-            title="Checkout will be enabled in the next migration PR."
+          <Link
+            href="/checkout"
+            className="flex w-full items-center justify-center rounded-xl bg-brand-700 px-5 py-4 text-sm font-bold text-paper transition-colors hover:bg-brand-500"
           >
-            Checkout coming next
-          </button>
+            Continue to checkout
+          </Link>
         )}
         <p className="mt-3 text-center text-[11px] leading-relaxed text-gray-500">
           Shipping, discounts, and final totals are calculated securely by the
