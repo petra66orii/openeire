@@ -53,6 +53,12 @@ interface CheckoutFormProps {
   successContext: CheckoutSuccessContext;
   isStripeContextAvailable?: boolean;
   paymentUnavailableMessage?: string | null;
+  acceptsTerms: boolean;
+  acceptsPrivacy: boolean;
+  acceptsPersonalUse: boolean;
+  onAcceptsTermsChange: (accepted: boolean) => void;
+  onAcceptsPrivacyChange: (accepted: boolean) => void;
+  onAcceptsPersonalUseChange: (accepted: boolean) => void;
 }
 
 interface CheckoutPaymentSectionProps {
@@ -169,21 +175,6 @@ const CheckoutPaymentSection: React.FC<CheckoutPaymentSectionProps> = ({
       },
     };
 
-    if (hasPhysicalItems) {
-      confirmParams.shipping = {
-        name: shippingDetails.name,
-        phone: shippingDetails.phone,
-        address: {
-          line1: shippingDetails.line1,
-          line2: shippingDetails.line2,
-          city: shippingDetails.city,
-          state: shippingDetails.state,
-          country: shippingDetails.country,
-          postal_code: shippingDetails.postal_code,
-        },
-      };
-    }
-
     try {
       writeCheckoutSuccessContext(successContext);
     } catch (storageError) {
@@ -288,8 +279,17 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   successContext,
   isStripeContextAvailable = false,
   paymentUnavailableMessage = null,
+  acceptsTerms,
+  acceptsPrivacy,
+  acceptsPersonalUse,
+  onAcceptsTermsChange,
+  onAcceptsPrivacyChange,
+  onAcceptsPersonalUseChange,
 }) => {
-  const { hasPhysicalItems } = useCart();
+  const { hasPhysicalItems, cartItems } = useCart();
+  const hasDigitalItems = cartItems.some(
+    (item) => item.product.product_type === "photo" || item.product.product_type === "video",
+  );
   const formRef = useRef<HTMLFormElement | null>(null);
   const paymentSubmitHandlerRef = useRef<(() => Promise<void>) | null>(null);
 
@@ -601,6 +601,61 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           </div>
         </div>
       )}
+
+      <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8">
+        <div className="mb-6 border-b border-white/10 pb-4">
+          <h2 className="text-xl font-serif font-bold text-white">
+            Terms &amp; Acknowledgements
+          </h2>
+        </div>
+        <div className="space-y-4 text-sm text-gray-300">
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={acceptsTerms}
+              onChange={(event) => onAcceptsTermsChange(event.target.checked)}
+              className="mt-1 h-4 w-4 accent-brand-500"
+            />
+            <span>
+              I agree to the{" "}
+              <a href="/terms" className="text-accent hover:underline">
+                Terms &amp; Conditions
+              </a>
+              .
+            </span>
+          </label>
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={acceptsPrivacy}
+              onChange={(event) => onAcceptsPrivacyChange(event.target.checked)}
+              className="mt-1 h-4 w-4 accent-brand-500"
+            />
+            <span>
+              I understand how my information is handled under the{" "}
+              <a href="/privacy" className="text-accent hover:underline">
+                Privacy &amp; Cookie Policy
+              </a>
+              .
+            </span>
+          </label>
+          {hasDigitalItems ? (
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={acceptsPersonalUse}
+                onChange={(event) =>
+                  onAcceptsPersonalUseChange(event.target.checked)
+                }
+                className="mt-1 h-4 w-4 accent-brand-500"
+              />
+              <span>
+                I accept the personal-use licence terms for digital purchases.
+              </span>
+            </label>
+          ) : null}
+        </div>
+      </div>
 
       {paymentUnavailableMessage ? (
         <div className="bg-gray-900 border border-amber-500/20 rounded-2xl p-6 md:p-8">

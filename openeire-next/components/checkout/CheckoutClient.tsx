@@ -11,9 +11,13 @@ import { CheckoutDiscountCard } from "@/components/checkout/CheckoutDiscountCard
 import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary";
 import { CheckoutShippingForm } from "@/components/checkout/CheckoutShippingForm";
 import { CheckoutTerms } from "@/components/checkout/CheckoutTerms";
+import { StripePaymentSection } from "@/components/checkout/StripePaymentSection";
 import { isApiError } from "@/lib/api/client";
 import { getCheckoutCountries } from "@/lib/api/countries";
-import { validateDiscountCode } from "@/lib/api/checkout";
+import {
+  createPaymentIntent,
+  validateDiscountCode,
+} from "@/lib/api/checkout";
 import {
   buildCheckoutCartPayload,
   buildCreatePaymentIntentPayload,
@@ -23,12 +27,45 @@ import {
   hasDigitalCartItems,
   hasPhysicalCartItems,
 } from "@/lib/checkout/payload";
+import {
+  isStripeConfigured,
+  STRIPE_CONFIGURATION_ERROR,
+} from "@/lib/stripe/client";
 import type { Country } from "@/types/auth";
 import type {
   AppliedDiscount,
   CheckoutFormState,
   CheckoutReadiness,
+  PaymentIntentQuote,
 } from "@/types/checkout";
+
+interface ActiveIntentRequest {
+  id: number;
+  signature: string;
+  controller: AbortController;
+}
+
+interface CheckoutRequestIdentity {
+  signature: string;
+  id: string;
+}
+
+const createCheckoutId = (): string => {
+  const browserCrypto = globalThis.crypto;
+  if (typeof browserCrypto.randomUUID === "function") {
+    return browserCrypto.randomUUID();
+  }
+  const bytes = browserCrypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (value) => value.toString(16).padStart(2, "0"));
+  return `${hex.slice(0, 4).join("")}-${hex.slice(4, 6).join("")}-${hex.slice(6, 8).join("")}-${hex.slice(8, 10).join("")}-${hex.slice(10).join("")}`;
+};
+
+const paymentIntentIdFromClientSecret = (clientSecret: string): string => {
+  const separatorIndex = clientSecret.indexOf("_secret_");
+  return separatorIndex > 0 ? clientSecret.slice(0, separatorIndex) : "";
+};
 
 const EMPTY_FORM_STATE: CheckoutFormState = {
   contact: {
@@ -51,47 +88,92 @@ const EMPTY_FORM_STATE: CheckoutFormState = {
   acceptsPersonalUse: false,
 };
 
-const getSafeErrorText = (value: unknown): string | null => {
-  if (typeof value !== "string") return null;
+const getSafeErrorText = (value: unknown, depth = 0): string | null => {
+  if (typeof value === "string") {
+    const normalized = value.trim();
+    if (
+      !normalized ||
+      normalized.length > 300 ||
+      /<[^>]+>/.test(normalized)
+    ) {
+      return null;
+    }
+    return normalized;
+  }
 
-  const normalized = value.trim();
-  if (
-    !normalized ||
-    normalized.length > 300 ||
-    /<[^>]+>/.test(normalized)
-  ) {
+  if (depth >= 3) return null;
+
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      const message = getSafeErrorText(entry, depth + 1);
+      if (message) return message;
+    }
     return null;
   }
 
-  return normalized;
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    for (const key of ["detail", "message", "error"]) {
+      const message = getSafeErrorText(record[key], depth + 1);
+      if (message) return message;
+    }
+    for (const entry of Object.values(record)) {
+      const message = getSafeErrorText(entry, depth + 1);
+      if (message) return message;
+    }
+  }
+
+  return null;
 };
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (isApiError(error)) {
     if ((error.response?.status ?? 0) >= 500) return fallback;
 
-    const data = error.response?.data;
-    const stringMessage = getSafeErrorText(data);
-    if (stringMessage) return stringMessage;
-
-    if (data && typeof data === "object") {
-      const record = data as Record<string, unknown>;
-      for (const key of ["detail", "message", "error"]) {
-        const message = getSafeErrorText(record[key]);
-        if (message) return message;
-      }
-
-      for (const value of Object.values(record)) {
-        const message = getSafeErrorText(
-          Array.isArray(value) ? value[0] : value,
-        );
-        if (message) return message;
-      }
-    }
+    const responseMessage = getSafeErrorText(error.response?.data);
+    if (responseMessage) return responseMessage;
 
     return getSafeErrorText(error.message) ?? fallback;
   }
   return fallback;
+};
+
+const getApiErrorCode = (error: unknown): string => {
+  if (!isApiError(error) || !error.response?.data) return "";
+  const data = error.response.data;
+  if (typeof data !== "object") return "";
+  const code = (data as Record<string, unknown>).code;
+  return typeof code === "string" ? code : "";
+};
+
+const toNonNegativeNumber = (value: unknown): number | null => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+};
+
+const buildPaymentQuote = (response: {
+  shippingCost?: number;
+  discountAmount?: number;
+  discountCode?: string;
+  discountLabel?: string;
+  totalPrice?: number;
+  freeShippingApplied?: boolean;
+  freeShippingThreshold?: number | string | null;
+}): PaymentIntentQuote | null => {
+  const totalPrice = toNonNegativeNumber(response.totalPrice);
+  if (totalPrice === null) return null;
+
+  return {
+    shippingCost: toNonNegativeNumber(response.shippingCost) ?? 0,
+    discountAmount: toNonNegativeNumber(response.discountAmount) ?? 0,
+    discountCode: response.discountCode?.trim() || null,
+    discountLabel: response.discountLabel?.trim() || null,
+    totalPrice,
+    freeShippingApplied: Boolean(response.freeShippingApplied),
+    freeShippingThreshold: toNonNegativeNumber(
+      response.freeShippingThreshold,
+    ),
+  };
 };
 
 export function CheckoutClient() {
@@ -113,12 +195,60 @@ export function CheckoutClient() {
   );
   const [discountError, setDiscountError] = useState<string | null>(null);
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [paymentQuote, setPaymentQuote] = useState<PaymentIntentQuote | null>(
+    null,
+  );
+  const [intentSignature, setIntentSignature] = useState<string | null>(null);
+  const [isCreatingIntent, setIsCreatingIntent] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const prefilledProfileRef = useRef(false);
+  const intentRequestSequenceRef = useRef(0);
+  const activeIntentRequestRef = useRef<ActiveIntentRequest | null>(null);
+  const latestCheckoutSignatureRef = useRef("");
+  const checkoutRequestIdentityRef = useRef<CheckoutRequestIdentity | null>(null);
 
   const hasPhysicalItems = useMemo(() => hasPhysicalCartItems(items), [items]);
   const hasDigitalItems = useMemo(() => hasDigitalCartItems(items), [items]);
   const cartSignature = useMemo(() => getCheckoutCartSignature(items), [items]);
   const requiresAuthenticatedCheckout = hasDigitalItems;
+  const checkoutStateSignature = useMemo(
+    () =>
+      JSON.stringify({
+        cart: cartSignature,
+        contact: formState.contact,
+        shipping: hasPhysicalItems ? formState.shipping : null,
+        shippingMethod: hasPhysicalItems ? formState.shippingMethod : null,
+        saveInfo: formState.saveInfo,
+        acceptsTerms: formState.acceptsTerms,
+        acceptsPrivacy: formState.acceptsPrivacy,
+        acceptsPersonalUse: hasDigitalItems
+          ? formState.acceptsPersonalUse
+          : null,
+        discountCode: appliedDiscount?.code ?? null,
+        isAuthenticated,
+      }),
+    [
+      appliedDiscount?.code,
+      cartSignature,
+      formState,
+      hasDigitalItems,
+      hasPhysicalItems,
+      isAuthenticated,
+    ],
+  );
+  latestCheckoutSignatureRef.current = checkoutStateSignature;
+
+  const checkoutSuccessContext = useMemo(
+    () => ({
+      paymentIntentId: paymentIntentId ?? "",
+      hasDigitalItems,
+      hasPhysicalItems,
+      itemCount: items.reduce((total, item) => total + item.quantity, 0),
+    }),
+    [hasDigitalItems, hasPhysicalItems, items, paymentIntentId],
+  );
 
   useEffect(() => {
     if (isCartLoaded && items.length === 0) {
@@ -181,6 +311,40 @@ export function CheckoutClient() {
     setAppliedDiscount(null);
     setDiscountError(null);
   }, [cartSignature]);
+
+  useEffect(() => {
+    const activeRequest = activeIntentRequestRef.current;
+    if (
+      activeRequest &&
+      activeRequest.signature !== checkoutStateSignature
+    ) {
+      intentRequestSequenceRef.current += 1;
+      activeRequest.controller.abort();
+      activeIntentRequestRef.current = null;
+      setIsCreatingIntent(false);
+      setPaymentError(
+        "Your checkout details changed. Review them before preparing payment again.",
+      );
+    }
+
+    if (intentSignature && intentSignature !== checkoutStateSignature) {
+      setClientSecret(null);
+      setPaymentIntentId(null);
+      setPaymentQuote(null);
+      setIntentSignature(null);
+      setPaymentError(
+        "Your checkout details changed. Review them before preparing payment again.",
+      );
+    }
+  }, [checkoutStateSignature, intentSignature]);
+
+  useEffect(
+    () => () => {
+      activeIntentRequestRef.current?.controller.abort();
+      activeIntentRequestRef.current = null;
+    },
+    [],
+  );
 
   const readiness = useMemo<CheckoutReadiness>(() => {
     const errors: string[] = [];
@@ -287,6 +451,114 @@ export function CheckoutClient() {
     setDiscountError(null);
   }, []);
 
+  const handlePreparePayment = useCallback(async () => {
+    if (isCreatingIntent || activeIntentRequestRef.current) return;
+
+    if (!isStripeConfigured) {
+      setPaymentError(STRIPE_CONFIGURATION_ERROR);
+      return;
+    }
+
+    if (!readiness.isReady || !readiness.payload) {
+      setPaymentError("Complete the required checkout details first.");
+      return;
+    }
+
+    const requestId = ++intentRequestSequenceRef.current;
+    const requestSignature = checkoutStateSignature;
+    const controller = new AbortController();
+    activeIntentRequestRef.current = {
+      id: requestId,
+      signature: requestSignature,
+      controller,
+    };
+
+    setIsCreatingIntent(true);
+    setPaymentError(null);
+    setClientSecret(null);
+    setPaymentIntentId(null);
+    setPaymentQuote(null);
+    setIntentSignature(null);
+
+    try {
+      let requestIdentity = checkoutRequestIdentityRef.current;
+      if (!requestIdentity || requestIdentity.signature !== requestSignature) {
+        requestIdentity = {
+          signature: requestSignature,
+          id: createCheckoutId(),
+        };
+        checkoutRequestIdentityRef.current = requestIdentity;
+      }
+
+      const response = await createPaymentIntent(
+        {
+          ...readiness.payload,
+          checkout_id: requestIdentity.id,
+        },
+        controller.signal,
+      );
+      const currentRequest = activeIntentRequestRef.current;
+      if (
+        controller.signal.aborted ||
+        !currentRequest ||
+        currentRequest.id !== requestId ||
+        latestCheckoutSignatureRef.current !== requestSignature
+      ) {
+        return;
+      }
+
+      const nextClientSecret = response.clientSecret?.trim();
+      const nextPaymentIntentId =
+        response.paymentIntentId?.trim() ||
+        (nextClientSecret
+          ? paymentIntentIdFromClientSecret(nextClientSecret)
+          : "");
+      const nextQuote = buildPaymentQuote(response);
+      if (!nextClientSecret || !nextPaymentIntentId || !nextQuote) {
+        throw new Error("INVALID_PAYMENT_INTENT_RESPONSE");
+      }
+
+      if (nextQuote.discountCode) {
+        setAppliedDiscount({
+          code: nextQuote.discountCode,
+          amount: nextQuote.discountAmount,
+          label: nextQuote.discountLabel,
+          eligibleSubtotal: appliedDiscount?.eligibleSubtotal ?? null,
+        });
+        setDiscountCode(nextQuote.discountCode);
+      }
+
+      setPaymentQuote(nextQuote);
+      setPaymentIntentId(nextPaymentIntentId);
+      setIntentSignature(requestSignature);
+      setClientSecret(nextClientSecret);
+    } catch (error) {
+      if (controller.signal.aborted) return;
+
+      const message = getErrorMessage(
+        error,
+        "We could not prepare secure payment. Review your details and try again.",
+      );
+      if (getApiErrorCode(error).startsWith("DISCOUNT_")) {
+        setAppliedDiscount(null);
+        setDiscountCode("");
+        setDiscountError(message);
+      } else {
+        setPaymentError(message);
+      }
+    } finally {
+      if (activeIntentRequestRef.current?.id === requestId) {
+        activeIntentRequestRef.current = null;
+        setIsCreatingIntent(false);
+      }
+    }
+  }, [
+    appliedDiscount?.eligibleSubtotal,
+    checkoutStateSignature,
+    isCreatingIntent,
+    readiness,
+  ]);
+
   if (!isCartLoaded || isAuthLoading) {
     return (
       <div className="page-top-offset flex min-h-screen items-center justify-center bg-black px-4 pb-24 text-white">
@@ -387,25 +659,60 @@ export function CheckoutClient() {
                 </div>
               ) : null}
 
-              <div className="rounded-2xl border border-white/10 bg-gray-900 p-6 md:p-8">
-                <button
-                  type="button"
-                  disabled
-                  className="w-full cursor-not-allowed rounded-xl bg-brand-700/60 px-8 py-4 font-bold text-paper opacity-75"
-                  title="Stripe payment integration follows in PR 22."
-                >
-                  Continue to secure payment
-                </button>
-                <p className="mt-4 text-center text-xs leading-relaxed text-gray-500">
-                  PaymentIntent creation, Stripe PaymentElement and order
-                  creation remain intentionally disabled until PR 22.
-                </p>
-                {readiness.isReady && readiness.payload ? (
-                  <p className="mt-3 text-center text-xs text-brand-300">
-                    Checkout details are ready for secure payment integration.
+              {clientSecret && intentSignature ? (
+                <StripePaymentSection
+                  clientSecret={clientSecret}
+                  formState={formState}
+                  hasPhysicalItems={hasPhysicalItems}
+                  isIntentCurrent={
+                    intentSignature === checkoutStateSignature
+                  }
+                  isCheckoutBusy={isApplyingDiscount || isCreatingIntent}
+                  successContext={checkoutSuccessContext}
+                />
+              ) : (
+                <div className="rounded-2xl border border-white/10 bg-gray-900 p-6 md:p-8">
+                  <button
+                    type="button"
+                    onClick={() => void handlePreparePayment()}
+                    disabled={
+                      !readiness.isReady ||
+                      !readiness.payload ||
+                      !isStripeConfigured ||
+                      isApplyingDiscount ||
+                      isCreatingIntent
+                    }
+                    className="w-full rounded-xl bg-brand-500 px-8 py-4 font-bold text-black transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isCreatingIntent
+                      ? "Preparing secure payment..."
+                      : "Continue to secure payment"}
+                  </button>
+
+                  {!isStripeConfigured ? (
+                    <div
+                      role="alert"
+                      className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-bold text-red-300"
+                    >
+                      {STRIPE_CONFIGURATION_ERROR}
+                    </div>
+                  ) : null}
+
+                  {paymentError ? (
+                    <div
+                      role="alert"
+                      className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-bold text-red-300"
+                    >
+                      {paymentError}
+                    </div>
+                  ) : null}
+
+                  <p className="mt-4 text-center text-xs leading-relaxed text-gray-500">
+                    Totals and availability are revalidated securely by the
+                    backend before Stripe payment options load.
                   </p>
-                ) : null}
-              </div>
+                </div>
+              )}
             </div>
 
             <aside className="space-y-6 lg:col-span-2 lg:sticky lg:top-28">
@@ -420,11 +727,12 @@ export function CheckoutClient() {
                 appliedDiscount={appliedDiscount}
                 errorMessage={discountError}
                 isApplying={isApplyingDiscount}
-                disabled={!items.length}
+                disabled={!items.length || isCreatingIntent}
               />
               <CheckoutOrderSummary
                 items={items}
                 appliedDiscount={appliedDiscount}
+                paymentQuote={paymentQuote}
                 hasPhysicalItems={hasPhysicalItems}
                 hasDigitalItems={hasDigitalItems}
               />

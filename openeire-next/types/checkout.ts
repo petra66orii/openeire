@@ -63,11 +63,37 @@ export interface CheckoutShippingDetailsPayload {
 }
 
 export interface CreatePaymentIntentPayload {
+  checkout_id?: string;
   cart: CheckoutCartItemPayload[];
   save_info: boolean;
+  accepts_terms: boolean;
+  accepts_privacy: boolean;
+  accepts_personal_use: boolean;
   shipping_details?: CheckoutShippingDetailsPayload;
   shipping_method?: ShippingMethod;
   discount_code?: string;
+}
+
+export interface CreatePaymentIntentResponse {
+  clientSecret: string;
+  paymentIntentId?: string | null;
+  shippingCost?: number;
+  discountAmount?: number;
+  discountCode?: string;
+  discountLabel?: string;
+  totalPrice?: number;
+  freeShippingApplied?: boolean;
+  freeShippingThreshold?: number | string | null;
+}
+
+export interface PaymentIntentQuote {
+  shippingCost: number;
+  discountAmount: number;
+  discountCode: string | null;
+  discountLabel: string | null;
+  totalPrice: number;
+  freeShippingApplied: boolean;
+  freeShippingThreshold: number | null;
 }
 
 export interface DiscountValidationPayload {
@@ -103,3 +129,9 @@ export interface CheckoutCartSnapshot {
   hasDigitalItems: boolean;
 }
 
+export interface CheckoutSuccessContext {
+  paymentIntentId: string;
+  hasDigitalItems: boolean;
+  hasPhysicalItems: boolean;
+  itemCount: number;
+}

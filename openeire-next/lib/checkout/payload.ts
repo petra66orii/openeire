@@ -99,6 +99,11 @@ export const buildCreatePaymentIntentPayload = ({
   const payload: CreatePaymentIntentPayload = {
     cart: buildCheckoutCartPayload(sanitizedItems),
     save_info: formState.saveInfo,
+    accepts_terms: formState.acceptsTerms,
+    accepts_privacy: formState.acceptsPrivacy,
+    accepts_personal_use: hasDigitalCartItems(sanitizedItems)
+      ? formState.acceptsPersonalUse
+      : false,
   };
 
   if (discountCode) {
