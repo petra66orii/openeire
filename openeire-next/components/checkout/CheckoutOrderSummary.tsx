@@ -4,11 +4,15 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { formatCartCurrency, getCartTotal } from "@/lib/cart/pricing";
 import type { CartItem } from "@/lib/cart/types";
-import type { AppliedDiscount } from "@/types/checkout";
+import type {
+  AppliedDiscount,
+  PaymentIntentQuote,
+} from "@/types/checkout";
 
 interface CheckoutOrderSummaryProps {
   items: CartItem[];
   appliedDiscount: AppliedDiscount | null;
+  paymentQuote: PaymentIntentQuote | null;
   hasPhysicalItems: boolean;
   hasDigitalItems: boolean;
 }
@@ -22,12 +26,19 @@ const getItemTypeLabel = (item: CartItem): string => {
 export function CheckoutOrderSummary({
   items,
   appliedDiscount,
+  paymentQuote,
   hasPhysicalItems,
   hasDigitalItems,
 }: CheckoutOrderSummaryProps) {
   const subtotal = useMemo(() => getCartTotal(items), [items]);
-  const discountAmount = appliedDiscount?.amount ?? 0;
-  const estimatedTotal = Math.max(0, subtotal - discountAmount);
+  const discountAmount =
+    paymentQuote?.discountAmount ?? appliedDiscount?.amount ?? 0;
+  const shippingCost = paymentQuote?.shippingCost ?? 0;
+  const displayedTotal =
+    paymentQuote?.totalPrice ??
+    Math.max(0, subtotal + shippingCost - discountAmount);
+  const discountCode =
+    paymentQuote?.discountCode ?? appliedDiscount?.code ?? null;
 
   return (
     <section className="rounded-2xl border border-white/10 bg-gray-950/90 p-6 shadow-2xl shadow-black/30">
@@ -37,8 +48,9 @@ export function CheckoutOrderSummary({
             Order Summary
           </h2>
           <p className="mt-2 text-xs leading-relaxed text-gray-500">
-            Estimated only. Final totals are confirmed securely by the backend
-            when payment is enabled.
+            {paymentQuote
+              ? "Confirmed securely by the backend for this payment session."
+              : "Estimated only. Final totals are confirmed securely before payment."}
           </p>
         </div>
         <Link
@@ -78,12 +90,12 @@ export function CheckoutOrderSummary({
           <dd className="font-semibold text-white">{formatCartCurrency(subtotal)}</dd>
         </div>
 
-        {appliedDiscount ? (
+        {discountCode && discountAmount > 0 ? (
           <div className="flex items-center justify-between gap-4">
             <dt className="text-gray-400">
               Discount{" "}
               <span className="text-xs uppercase text-accent">
-                ({appliedDiscount.code})
+                ({discountCode})
               </span>
             </dt>
             <dd className="font-semibold text-brand-300">
@@ -95,7 +107,13 @@ export function CheckoutOrderSummary({
         <div className="flex items-center justify-between gap-4">
           <dt className="text-gray-400">Shipping</dt>
           <dd className="text-right font-semibold text-white">
-            {hasPhysicalItems ? "Calculated at payment step" : "No delivery charge"}
+            {hasPhysicalItems
+              ? paymentQuote
+                ? paymentQuote.freeShippingApplied
+                  ? "Free delivery"
+                  : formatCartCurrency(shippingCost)
+                : "Calculated at payment step"
+              : "No delivery charge"}
           </dd>
         </div>
 
@@ -108,14 +126,13 @@ export function CheckoutOrderSummary({
 
         <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-4">
           <dt className="font-serif text-lg font-bold text-white">
-            Estimated total
+            {paymentQuote ? "Total" : "Estimated total"}
           </dt>
           <dd className="font-serif text-2xl font-bold text-white">
-            {formatCartCurrency(estimatedTotal)}
+            {formatCartCurrency(displayedTotal)}
           </dd>
         </div>
       </dl>
     </section>
   );
 }
-

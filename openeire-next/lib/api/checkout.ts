@@ -1,5 +1,10 @@
 import { api } from "@/lib/api/client";
-import type { DiscountValidationPayload, DiscountValidationResponse } from "@/types/checkout";
+import type {
+  CreatePaymentIntentPayload,
+  CreatePaymentIntentResponse,
+  DiscountValidationPayload,
+  DiscountValidationResponse,
+} from "@/types/checkout";
 
 export const validateDiscountCode = async (
   payload: DiscountValidationPayload,
@@ -15,3 +20,19 @@ export const validateDiscountCode = async (
   return response.data;
 };
 
+export const createPaymentIntent = async (
+  payload: CreatePaymentIntentPayload,
+  signal?: AbortSignal,
+): Promise<CreatePaymentIntentResponse> => {
+  const response = await api.post<CreatePaymentIntentResponse>(
+    "checkout/create-payment-intent/",
+    payload,
+    {
+      cache: "no-store",
+      signal,
+      // A 401 means authentication rejected the request before intent creation.
+      retryOnAuthRefresh: true,
+    },
+  );
+  return response.data;
+};

@@ -148,11 +148,24 @@ type CheckoutShippingDetailsPayload = {
 };
 
 type CreatePaymentIntentPayload = {
+  checkout_id?: string;
   cart: CheckoutCartItemPayload[];
   save_info: boolean;
+  accepts_terms: boolean;
+  accepts_privacy: boolean;
+  accepts_personal_use: boolean;
   shipping_details?: CheckoutShippingDetailsPayload;
   shipping_method?: string;
   discount_code?: string;
+};
+
+const createCheckoutId = (): string => {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (value) => value.toString(16).padStart(2, "0"));
+  return `${hex.slice(0, 4).join("")}-${hex.slice(4, 6).join("")}-${hex.slice(6, 8).join("")}-${hex.slice(8, 10).join("")}-${hex.slice(10).join("")}`;
 };
 
 type CreatePaymentIntentResponse = {
@@ -237,10 +250,14 @@ const CheckoutPage: React.FC = () => {
   const [discountLabel, setDiscountLabel] = useState<string | null>(null);
   const [discountError, setDiscountError] = useState<string | null>(null);
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const [acceptsTerms, setAcceptsTerms] = useState(false);
+  const [acceptsPrivacy, setAcceptsPrivacy] = useState(false);
+  const [acceptsPersonalUse, setAcceptsPersonalUse] = useState(false);
   const [pendingDiscountCode, setPendingDiscountCode] = useState<string | null>(
     () => readPendingDiscountCode(),
   );
   const pendingDiscountAutoApplyRef = useRef<string | null>(null);
+  const checkoutIdentityRef = useRef<{ signature: string; id: string } | null>(null);
   const latestIntentRequestId = useRef(0);
   const checkoutAttemptIdRef = useRef<string>(
     typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
@@ -508,6 +525,18 @@ const CheckoutPage: React.FC = () => {
         return;
       }
 
+      if (
+        !acceptsTerms ||
+        !acceptsPrivacy ||
+        (hasDigitalItems && !acceptsPersonalUse)
+      ) {
+        if (isCancelled || requestId !== latestIntentRequestId.current) return;
+        resetCheckoutIntentState();
+        setCheckoutError(null);
+        setIsUpdatingIntent(false);
+        return;
+      }
+
       if (isCancelled || requestId !== latestIntentRequestId.current) return;
       setIsUpdatingIntent(true);
       setFreeShippingApplied(false);
@@ -519,6 +548,9 @@ const CheckoutPage: React.FC = () => {
         const payload: CreatePaymentIntentPayload = {
           cart: simplifiedCart,
           save_info: saveInfo,
+          accepts_terms: acceptsTerms,
+          accepts_privacy: acceptsPrivacy,
+          accepts_personal_use: hasDigitalItems ? acceptsPersonalUse : false,
         };
 
         if (appliedDiscountCode) {
@@ -541,6 +573,15 @@ const CheckoutPage: React.FC = () => {
           };
           payload.shipping_method = shippingMethod;
         }
+
+        const payloadSignature = JSON.stringify(payload);
+        if (checkoutIdentityRef.current?.signature !== payloadSignature) {
+          checkoutIdentityRef.current = {
+            signature: payloadSignature,
+            id: createCheckoutId(),
+          };
+        }
+        payload.checkout_id = checkoutIdentityRef.current.id;
 
         const response = await api.post<CreatePaymentIntentResponse>(
           "checkout/create-payment-intent/",
@@ -601,6 +642,10 @@ const CheckoutPage: React.FC = () => {
     };
   }, [
     checkoutCartItems,
+    acceptsPersonalUse,
+    acceptsPrivacy,
+    acceptsTerms,
+    hasDigitalItems,
     hasPhysicalItems,
     isAuthenticated,
     physicalAddressKey,
@@ -697,6 +742,12 @@ const CheckoutPage: React.FC = () => {
                   isAuthenticated={hasResolvedAccountEmail}
                   accountEmail={profileData?.email ?? null}
                   successContext={checkoutSuccessContext}
+                  acceptsTerms={acceptsTerms}
+                  acceptsPrivacy={acceptsPrivacy}
+                  acceptsPersonalUse={acceptsPersonalUse}
+                  onAcceptsTermsChange={setAcceptsTerms}
+                  onAcceptsPrivacyChange={setAcceptsPrivacy}
+                  onAcceptsPersonalUseChange={setAcceptsPersonalUse}
                   isStripeContextAvailable={true}
                 />
               </Elements>
@@ -714,6 +765,12 @@ const CheckoutPage: React.FC = () => {
                 isAuthenticated={hasResolvedAccountEmail}
                 accountEmail={profileData?.email ?? null}
                 successContext={checkoutSuccessContext}
+                acceptsTerms={acceptsTerms}
+                acceptsPrivacy={acceptsPrivacy}
+                acceptsPersonalUse={acceptsPersonalUse}
+                onAcceptsTermsChange={setAcceptsTerms}
+                onAcceptsPrivacyChange={setAcceptsPrivacy}
+                onAcceptsPersonalUseChange={setAcceptsPersonalUse}
                 isStripeContextAvailable={false}
                 paymentUnavailableMessage={
                   isStripeConfigured ? null : STRIPE_CONFIGURATION_ERROR
