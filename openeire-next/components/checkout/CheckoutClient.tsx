@@ -205,6 +205,7 @@ export function CheckoutClient() {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const prefilledProfileRef = useRef(false);
   const intentRequestSequenceRef = useRef(0);
+  const discountRequestSequenceRef = useRef(0);
   const activeIntentRequestRef = useRef<ActiveIntentRequest | null>(null);
   const latestCheckoutSignatureRef = useRef("");
   const checkoutRequestIdentityRef = useRef<CheckoutRequestIdentity | null>(null);
@@ -212,6 +213,18 @@ export function CheckoutClient() {
   const hasPhysicalItems = useMemo(() => hasPhysicalCartItems(items), [items]);
   const hasDigitalItems = useMemo(() => hasDigitalCartItems(items), [items]);
   const cartSignature = useMemo(() => getCheckoutCartSignature(items), [items]);
+  const discountCustomerEmail = (
+    formState.contact.email || user?.email || ""
+  )
+    .trim()
+    .toLowerCase();
+  const discountRequestSignature = JSON.stringify({
+    cart: cartSignature,
+    email: discountCustomerEmail,
+    code: discountCode.trim().toUpperCase(),
+  });
+  const latestDiscountRequestSignatureRef = useRef(discountRequestSignature);
+  latestDiscountRequestSignatureRef.current = discountRequestSignature;
   const requiresAuthenticatedCheckout = hasDigitalItems;
   const checkoutStateSignature = useMemo(
     () =>
@@ -309,9 +322,11 @@ export function CheckoutClient() {
   }, [hasPhysicalItems]);
 
   useEffect(() => {
+    discountRequestSequenceRef.current += 1;
     setAppliedDiscount(null);
     setDiscountError(null);
-  }, [cartSignature]);
+    setIsApplyingDiscount(false);
+  }, [cartSignature, discountCustomerEmail]);
 
   useEffect(() => {
     const activeRequest = activeIntentRequestRef.current;
@@ -418,6 +433,8 @@ export function CheckoutClient() {
 
     setIsApplyingDiscount(true);
     setDiscountError(null);
+    const requestId = ++discountRequestSequenceRef.current;
+    const requestSignature = discountRequestSignature;
 
     try {
       const response = await validateDiscountCode({
@@ -425,6 +442,13 @@ export function CheckoutClient() {
         email: email || user?.email || undefined,
         discount_code: normalizedCode,
       });
+
+      if (
+        requestId !== discountRequestSequenceRef.current ||
+        requestSignature !== latestDiscountRequestSignatureRef.current
+      ) {
+        return;
+      }
 
       setAppliedDiscount({
         code: response.code,
@@ -434,6 +458,12 @@ export function CheckoutClient() {
       });
       setDiscountCode(response.code);
     } catch (error) {
+      if (
+        requestId !== discountRequestSequenceRef.current ||
+        requestSignature !== latestDiscountRequestSignatureRef.current
+      ) {
+        return;
+      }
       setAppliedDiscount(null);
       setDiscountError(
         getErrorMessage(
@@ -442,9 +472,11 @@ export function CheckoutClient() {
         ),
       );
     } finally {
-      setIsApplyingDiscount(false);
+      if (requestId === discountRequestSequenceRef.current) {
+        setIsApplyingDiscount(false);
+      }
     }
-  }, [discountCode, formState.contact.email, items, user?.email]);
+  }, [discountCode, discountRequestSignature, formState.contact.email, items, user?.email]);
 
   const handleRemoveDiscount = useCallback(() => {
     setAppliedDiscount(null);

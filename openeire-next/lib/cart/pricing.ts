@@ -1,7 +1,7 @@
 import type { CartItem, CartProductSnapshot } from "@/lib/cart/types";
 
 const parsePrice = (value: unknown): number => {
-  const parsed = Number.parseFloat(String(value ?? ""));
+  const parsed = Number(value);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 };
 

@@ -13,6 +13,8 @@ const SUPPORTED_PRODUCT_TYPES = new Set<CartProductType>([
   "video",
 ]);
 
+export const MAX_CART_ITEM_QUANTITY = 100;
+
 const toPositiveInteger = (value: unknown): number | null => {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) return null;
@@ -31,9 +33,9 @@ const sanitizePrice = (value: unknown): string | number | null | undefined => {
   if (value === undefined || value === null || value === "") {
     return value as null | undefined;
   }
-  const parsed = Number.parseFloat(String(value));
+  const parsed = Number(value);
   return Number.isFinite(parsed) && parsed >= 0
-    ? (value as string | number)
+    ? parsed
     : undefined;
 };
 
@@ -116,13 +118,17 @@ export const sanitizeCartItem = (
     return null;
   }
 
-  const quantity = toPositiveInteger(value.quantity) ?? 1;
+  const quantity = Math.min(
+    toPositiveInteger(value.quantity) ?? 1,
+    MAX_CART_ITEM_QUANTITY,
+  );
   const sanitizedOptions = sanitizeOptions(value.options, product.product_type);
   if (product.product_type === "physical" && !sanitizedOptions) return null;
 
   const productId = toPositiveInteger(value.productId) ?? product.id;
-  const cartId =
-    toSafeString(value.cartId) ?? buildCartId(product, sanitizedOptions);
+  // Persisted cart IDs are untrusted and legacy clients used different JSON
+  // property ordering. Always rebuild a canonical identity from safe fields.
+  const cartId = buildCartId(product, sanitizedOptions);
 
   return {
     cartId,
@@ -138,7 +144,26 @@ export const sanitizeCartItems = (
   options: { isAuthenticated: boolean },
 ): CartItem[] => {
   if (!Array.isArray(value)) return [];
-  return value
+  const sanitizedItems = value
     .map((item) => sanitizeCartItem(item, options))
     .filter((item): item is CartItem => item !== null);
+
+  return sanitizedItems.reduce<CartItem[]>((mergedItems, item) => {
+    const existingIndex = mergedItems.findIndex(
+      (candidate) => candidate.cartId === item.cartId,
+    );
+    if (existingIndex === -1) return [...mergedItems, item];
+
+    if (item.product.product_type === "physical") {
+      const existing = mergedItems[existingIndex];
+      mergedItems[existingIndex] = {
+        ...existing,
+        quantity: Math.min(
+          existing.quantity + item.quantity,
+          MAX_CART_ITEM_QUANTITY,
+        ),
+      };
+    }
+    return mergedItems;
+  }, []);
 };
