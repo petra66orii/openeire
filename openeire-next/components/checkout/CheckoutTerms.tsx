@@ -2,10 +2,10 @@
 
 import type { CheckoutFormState } from "@/types/checkout";
 
-const LIVE_LEGAL_URLS = {
-  terms: "https://openeire.ie/terms",
-  privacy: "https://openeire.ie/privacy",
-  licensing: "https://openeire.ie/licensing/terms",
+const LEGAL_URLS = {
+  terms: "/terms",
+  privacy: "/privacy",
+  licensing: "/licensing/terms",
 } as const;
 
 interface CheckoutTermsProps {
@@ -53,7 +53,7 @@ export function CheckoutTerms({
           <span>
             I agree to the{" "}
             <a
-              href={LIVE_LEGAL_URLS.terms}
+              href={LEGAL_URLS.terms}
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent underline-offset-4 hover:underline"
@@ -74,7 +74,7 @@ export function CheckoutTerms({
           <span>
             I understand how my information is handled under the{" "}
             <a
-              href={LIVE_LEGAL_URLS.privacy}
+              href={LEGAL_URLS.privacy}
               target="_blank"
               rel="noopener noreferrer"
               className="text-accent underline-offset-4 hover:underline"
@@ -99,7 +99,7 @@ export function CheckoutTerms({
               I understand digital purchases are for personal use only unless a
               separate commercial licence is agreed.{" "}
               <a
-                href={LIVE_LEGAL_URLS.licensing}
+                href={LEGAL_URLS.licensing}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent underline-offset-4 hover:underline"

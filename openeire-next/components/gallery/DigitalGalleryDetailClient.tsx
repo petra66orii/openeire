@@ -259,7 +259,7 @@ export function DigitalGalleryDetailClient({
   const tags = splitTags(detail.tags);
   const capturedDate = formatDate(detail.created_at);
   const relatedProducts = detail.related_products ?? [];
-  const legalTermsHref = "https://openeire.ie/licensing/terms";
+  const legalTermsHref = "/licensing/terms";
   const handleAddToCart = () => {
     if (!isCartLoaded) return;
 

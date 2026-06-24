@@ -101,6 +101,56 @@ a {
   padding-top: var(--page-top-offset);
 }
 
+.legal-content {
+  @apply mx-auto max-w-5xl px-4 py-12 font-sans selection:bg-accent selection:text-black sm:px-6 lg:px-8;
+  padding-top: calc(var(--site-header-height, 0px) + 2rem);
+}
+
+.legal-content h1 {
+  @apply mb-4 font-serif text-4xl font-bold text-white;
+}
+
+.legal-content h2 {
+  @apply mb-4 mt-10 font-serif text-2xl font-bold text-white;
+}
+
+.legal-content h3 {
+  @apply mb-3 mt-6 font-serif text-xl font-semibold text-white;
+}
+
+.legal-content p {
+  @apply mb-4 text-base leading-8 text-gray-300;
+}
+
+.legal-content strong {
+  @apply font-semibold text-white;
+}
+
+.legal-content ul,
+.legal-content ol {
+  @apply mb-5 ml-6 space-y-3 text-base leading-8 text-gray-300;
+}
+
+.legal-content ul {
+  list-style: disc;
+}
+
+.legal-content ol {
+  list-style: decimal;
+}
+
+.legal-content li {
+  @apply pl-1;
+}
+
+.legal-content a {
+  @apply text-accent underline underline-offset-4 transition-colors hover:text-white;
+}
+
+.legal-content hr {
+  @apply my-8 border-white/10;
+}
+
 @media (max-width: 767px) {
   .page-top-offset,
   .mobile-page-offset {
