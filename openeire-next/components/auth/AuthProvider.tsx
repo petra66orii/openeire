@@ -22,6 +22,7 @@ import {
   migrateLegacyLocalStorageTokens,
   setTokens,
 } from "@/lib/auth/tokenStorage";
+import { clearCheckoutSuccessContext } from "@/lib/checkout/successContext";
 import type { LoginPayload, RegisterPayload, UserProfile } from "@/types/auth";
 
 interface AuthContextValue {
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     clearTokens();
+    clearCheckoutSuccessContext();
     setUser(null);
   }, []);
 
@@ -110,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (payload: LoginPayload) => {
+      clearCheckoutSuccessContext();
       const tokens = await loginUser(payload);
       if (!tokens.access || !tokens.refresh) {
         throw new Error("Malformed login response.");

@@ -131,7 +131,10 @@ export interface CheckoutCartSnapshot {
 
 export interface CheckoutSuccessContext {
   paymentIntentId: string;
+  cartSignature: string;
   hasDigitalItems: boolean;
   hasPhysicalItems: boolean;
   itemCount: number;
+  returnStatus?: "succeeded";
+  returnRecordedAt?: number;
 }

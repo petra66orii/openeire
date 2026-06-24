@@ -243,11 +243,12 @@ export function CheckoutClient() {
   const checkoutSuccessContext = useMemo(
     () => ({
       paymentIntentId: paymentIntentId ?? "",
+      cartSignature,
       hasDigitalItems,
       hasPhysicalItems,
       itemCount: items.reduce((total, item) => total + item.quantity, 0),
     }),
-    [hasDigitalItems, hasPhysicalItems, items, paymentIntentId],
+    [cartSignature, hasDigitalItems, hasPhysicalItems, items, paymentIntentId],
   );
 
   useEffect(() => {
