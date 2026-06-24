@@ -13,6 +13,10 @@ const staticPublicRoutes = [
   "/blog",
   "/contact",
   "/gallery/physical",
+  "/terms",
+  "/shipping",
+  "/refunds",
+  "/privacy",
 ];
 
 export const dynamic = "force-dynamic";
