@@ -10,7 +10,11 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { buildCartId, sanitizeCartItems } from "@/lib/cart/sanitize";
+import {
+  buildCartId,
+  MAX_CART_ITEM_QUANTITY,
+  sanitizeCartItems,
+} from "@/lib/cart/sanitize";
 import { readStoredCart, writeStoredCart } from "@/lib/cart/storage";
 import type { AddToCartInput, CartItem } from "@/lib/cart/types";
 
@@ -49,7 +53,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (input.product.product_type !== "physical" && !isAuthenticated) return;
 
       const quantity = Number.isFinite(input.quantity)
-        ? Math.max(1, Math.floor(input.quantity ?? 1))
+        ? Math.min(
+            MAX_CART_ITEM_QUANTITY,
+            Math.max(1, Math.floor(input.quantity ?? 1)),
+          )
         : 1;
       const cartId = buildCartId(input.product, input.options);
       const nextItem: CartItem = {
@@ -76,7 +83,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
           ...existing,
           quantity:
             existing.product.product_type === "physical"
-              ? existing.quantity + nextItem.quantity
+              ? Math.min(
+                  MAX_CART_ITEM_QUANTITY,
+                  existing.quantity + nextItem.quantity,
+                )
               : 1,
         };
         return sanitizeCartItems(nextItems, { isAuthenticated });
@@ -93,7 +103,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
           if (item.product.product_type !== "physical") {
             return { ...item, quantity: 1 };
           }
-          return { ...item, quantity: Math.max(0, Math.floor(quantity)) };
+          return {
+            ...item,
+            quantity: Math.min(
+              MAX_CART_ITEM_QUANTITY,
+              Math.max(0, Math.floor(quantity)),
+            ),
+          };
         })
         .filter((item) => item.quantity > 0),
     );

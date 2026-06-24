@@ -9,7 +9,7 @@ import type {
   ConfirmPaymentData,
   StripePaymentElementOptions,
 } from "@stripe/stripe-js";
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import { FaCreditCard } from "react-icons/fa";
 import {
   clearCheckoutSuccessContext,
@@ -50,6 +50,7 @@ export function StripePaymentForm({
   const elements = useElements();
   const [isElementReady, setIsElementReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const processingRef = useRef(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const paymentElementOptions = useMemo<StripePaymentElementOptions>(
@@ -92,7 +93,7 @@ export function StripePaymentForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isProcessing || isCheckoutBusy) return;
+    if (processingRef.current || isProcessing || isCheckoutBusy) return;
 
     if (!isIntentCurrent) {
       setErrorMessage(
@@ -106,6 +107,7 @@ export function StripePaymentForm({
       return;
     }
 
+    processingRef.current = true;
     setIsProcessing(true);
     setErrorMessage(null);
 
@@ -150,6 +152,7 @@ export function StripePaymentForm({
         "Payment could not be completed because of a network error. Please try again.",
       );
     } finally {
+      processingRef.current = false;
       setIsProcessing(false);
     }
   };

@@ -19,10 +19,18 @@ export const readStoredCart = (options: {
 
 export const writeStoredCart = (items: CartItem[]): void => {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  try {
+    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // Storage is optional. The in-memory cart remains usable for this session.
+  }
 };
 
 export const clearStoredCart = (): void => {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem(CART_STORAGE_KEY);
+  try {
+    window.localStorage.removeItem(CART_STORAGE_KEY);
+  } catch {
+    // Ignore browser storage restrictions.
+  }
 };
