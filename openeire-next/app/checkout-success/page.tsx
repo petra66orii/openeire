@@ -4,6 +4,7 @@ import { CheckoutSuccessClient } from "@/components/checkout/CheckoutSuccessClie
 
 export const metadata: Metadata = {
   title: "Payment Status | OpenÉire Studios",
+  description: "Review the status of your OpenÉire Studios payment submission.",
   robots: {
     index: false,
     follow: false,
