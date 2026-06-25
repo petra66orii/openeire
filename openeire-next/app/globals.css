@@ -70,8 +70,8 @@
 }
 
 :root {
-  --site-header-height: 0px;
   --page-top-offset: 7rem;
+  --site-header-height: var(--page-top-offset);
 }
 
 html {
@@ -99,6 +99,10 @@ a {
 
 .page-top-offset {
   padding-top: var(--page-top-offset);
+}
+
+.header-safe-top {
+  padding-top: calc(var(--site-header-height, var(--page-top-offset)) + 1rem);
 }
 
 .legal-content {

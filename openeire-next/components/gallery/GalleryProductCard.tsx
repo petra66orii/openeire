@@ -36,7 +36,10 @@ export function GalleryProductCard({ product }: { product: PublicGalleryItem }) 
             <p className="text-[10px] font-bold uppercase tracking-wider opacity-80">
               Price
             </p>
-            <span className="font-serif text-lg font-bold">€{displayPrice}</span>
+            <span className="font-serif text-lg font-bold">
+              From {"\u20AC"}
+              {displayPrice}
+            </span>
           </div>
           <span
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand-900 shadow-lg transition-all group-hover:scale-110 group-hover:bg-accent"

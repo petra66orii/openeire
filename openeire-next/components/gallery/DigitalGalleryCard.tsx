@@ -57,7 +57,14 @@ export function DigitalGalleryCard({ item }: { item: PublicGalleryItem }) {
               Personal use
             </p>
             <span className="font-serif text-lg font-bold">
-              {displayPrice ? `€${displayPrice}` : "View details"}
+              {displayPrice ? (
+                <>
+                  From {"\u20AC"}
+                  {displayPrice}
+                </>
+              ) : (
+                "View details"
+              )}
             </span>
           </div>
           <span

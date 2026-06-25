@@ -1,15 +1,5 @@
-import { PrivateGalleryAccessShell } from "@/components/gallery/PrivateGalleryAccessShell";
-
-export const metadata = {
-  title: "Private Photo Gallery | OpenÉire Studios",
-  robots: { index: false, follow: false },
-};
+import { redirect } from "next/navigation";
 
 export default function PhotoGalleryPage() {
-  return (
-    <PrivateGalleryAccessShell
-      title="Private photo gallery"
-      pendingTitle="Private photo gallery pending migration"
-    />
-  );
+  redirect("/gallery/digital");
 }
