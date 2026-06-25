@@ -53,3 +53,18 @@ export const buildBreadcrumbJsonLd = (
     item: item.url,
   })),
 });
+
+export const buildFaqPageJsonLd = (
+  items: Array<{ question: string; answer: string }>,
+): StructuredData => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: items.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+});

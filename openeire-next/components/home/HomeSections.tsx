@@ -1,6 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { FaFileContract, FaImage, FaShieldAlt, FaVideo } from "react-icons/fa";
+import {
+  FaFileContract,
+  FaHome,
+  FaImage,
+  FaShieldAlt,
+  FaVideo,
+} from "react-icons/fa";
 import { PUBLIC_IMAGES } from "@/lib/assets";
 
 const services = [
@@ -19,6 +25,14 @@ const services = [
     link: "/licensing",
     cta: "Explore Licensing",
     icon: <FaFileContract className="h-10 w-10 text-paper" />,
+  },
+  {
+    title: "Property Media",
+    description:
+      "Real estate photography, drone video, and 3D virtual tours for agents, developers, landlords, and private sellers across Connacht.",
+    link: "/real-estate",
+    cta: "View Real Estate Services",
+    icon: <FaHome className="h-10 w-10 text-paper" />,
   },
   {
     title: "4K Stock Footage",
@@ -123,16 +137,17 @@ export function HomeServicesSection() {
             What We Do
           </span>
           <h2 className="mb-6 mt-3 font-serif text-3xl font-bold text-white md:text-4xl">
-            Fine art prints, commercial licensing, and aerial footage
+            Fine art prints, property media, commercial licensing, and aerial
+            footage
           </h2>
           <p className="font-sans leading-relaxed text-gray-400">
             Whether you need a statement print for a space, rights-managed
-            visuals for a campaign, or drone footage in Ireland, we deliver
-            uncompromising quality.
+            visuals for a campaign, real estate media, or drone footage in
+            Ireland, we deliver uncompromising quality.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4 lg:gap-8">
           {services.map((service) => (
             <div
               key={service.title}
@@ -217,6 +232,15 @@ export function HomeCertsSection() {
               </span>
               <span className="text-[10px] uppercase tracking-widest text-accent">
                 EU Aviation Safety
+              </span>
+            </div>
+            <div className="hidden h-10 w-px bg-brand-700 md:block" />
+            <div className="flex flex-col items-center">
+              <span className="mb-1 block text-3xl font-bold text-white">
+                €6.5M
+              </span>
+              <span className="text-[10px] uppercase tracking-widest text-accent">
+                Public Liability Insurance
               </span>
             </div>
           </div>

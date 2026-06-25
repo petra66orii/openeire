@@ -1,142 +1,513 @@
 import { JsonLd } from "@/components/JsonLd";
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
-import {
-  CardGrid,
-  CtaBand,
-  HeroSection,
-  NumberedSteps,
-  PageSection,
-  TextPanel,
-} from "@/components/marketing/MarketingPage";
-import { PUBLIC_IMAGES } from "@/lib/assets";
-import { REAL_ESTATE_PACKAGES } from "@/lib/realEstate";
 import { SITE_NAME, buildAbsoluteUrl } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { FaCamera, FaCube, FaVideo } from "react-icons/fa";
+import {
+  buildBreadcrumbJsonLd,
+  buildFaqPageJsonLd,
+} from "@/lib/seo/jsonLd";
+import {
+  FaCalendarAlt,
+  FaCamera,
+  FaCheckCircle,
+  FaChevronDown,
+  FaHome,
+  FaMapMarkerAlt,
+  FaVideo,
+} from "react-icons/fa";
+
+type RealEstatePackage = {
+  key: string;
+  name: string;
+  price: string;
+  badge?: string;
+  description: string;
+  features: readonly string[];
+};
 
 export const metadata = buildPageMetadata({
   title: "Real Estate Photography & Drone Video in Connacht | OpenÉire Studios",
   description:
-    "Professional real estate photography, aerial drone video, and 3D virtual tours for estate agents, developers, and private sellers across Connacht.",
+    "Professional real estate photography, aerial drone video and 3D virtual tours for estate agents, developers and private sellers across Connacht. Clear package pricing and 24-hour delivery.",
   path: "/real-estate",
+  image: "/hero-poster.jpg",
 });
 
-const services = [
+const packages: readonly RealEstatePackage[] = [
+  {
+    key: "essential",
+    name: "Essential",
+    price: "€175 + VAT",
+    description:
+      "Recommended for smaller properties, rentals, starter listings.",
+    features: [
+      "10 professionally edited interior & exterior photographs",
+      "Full resolution delivery, print & web ready",
+      "24-hour delivery",
+      "Full commercial marketing licence for the property listing, including Daft.ie, MyHome.ie, agency websites, social media, email campaigns and print brochures",
+    ],
+  },
+  {
+    key: "starter",
+    name: "Starter",
+    price: "€229 + VAT",
+    description: "Recommended for standard 3-4 bed residential properties.",
+    features: [
+      "20 professionally edited interior & exterior photographs",
+      "Full resolution delivery, print & web ready",
+      "24-hour delivery",
+      "Full commercial marketing licence",
+    ],
+  },
+  {
+    key: "pro",
+    name: "Pro",
+    price: "€399 + VAT",
+    badge: "Recommended",
+    description:
+      "Recommended for detached homes, larger properties, new builds, agents wanting standout listings.",
+    features: [
+      "20 professionally edited interior & exterior photographs",
+      "Aerial drone video, 60-90 seconds, 4K, edited with music",
+      "Social media cuts included, portrait 9:16 and square 1:1 formatted reels",
+      "Full resolution delivery, print & web ready",
+      "24-hour delivery",
+      "Full commercial marketing licence",
+    ],
+  },
+  {
+    key: "premium",
+    name: "Premium",
+    price: "€579 + VAT",
+    description:
+      "Recommended for premium listings, larger homes, waterfront/rural properties, new developments, and properties where presentation is a major selling point.",
+    features: [
+      "20 professionally edited interior & exterior photographs",
+      "Aerial drone video, 60-90 seconds, 4K, edited with music",
+      "Social media cuts included, portrait 9:16 and square 1:1 formatted reels",
+      "3D interactive virtual tour, hosted, shareable link",
+      "Full resolution delivery, print & web ready",
+      "24-hour delivery",
+      "Full commercial marketing licence",
+    ],
+  },
+  {
+    key: "custom",
+    name: "Custom",
+    price: "POA",
+    description:
+      "For multi-property shoots, large developments, commercial properties, agricultural properties and bespoke bundles.",
+    features: [
+      "Multiple properties in a single booking",
+      "Cinematic property films",
+      "Commercial or agricultural properties",
+      "Developer packages",
+    ],
+  },
+] as const;
+
+const listingFeatures = [
   {
     icon: <FaCamera />,
-    title: "Interior and exterior photography",
-    text: "Professionally edited property photography for portals, brochures, websites, and social media campaigns.",
+    title: "Portal-ready images",
+    text: "Clean interior and exterior photography prepared for property portals, agency websites, brochures and social media.",
   },
   {
     icon: <FaVideo />,
     title: "Aerial video",
-    text: "Drone video for standout listings, rural properties, waterfront homes, new builds, and social-first property campaigns.",
+    text: "Drone video for rural homes, waterfront sites, new builds, larger properties and listings where the setting matters.",
   },
   {
-    icon: <FaCube />,
-    title: "3D virtual tours",
-    text: "Hosted, shareable virtual tours for premium listings and buyers who need a stronger remote viewing experience.",
+    icon: <FaCalendarAlt />,
+    title: "Fast delivery",
+    text: "Listing-ready files delivered within 24 hours after the shoot once the access and brief details are confirmed.",
   },
-];
+  {
+    icon: <FaHome />,
+    title: "Clear pricing",
+    text: "Transparent packages from €175 + VAT with optional add-ons only where the listing needs them.",
+  },
+  {
+    icon: <FaCheckCircle />,
+    title: "Licence included",
+    text: "Commercial marketing use is included for the property listing across portals, agency websites, social media, email campaigns and brochures.",
+  },
+] as const;
 
-const packages = REAL_ESTATE_PACKAGES.map((packageItem) => ({
-  id: packageItem.id,
-  title: `${packageItem.name} · ${packageItem.price}`,
-  text: packageItem.text,
-}));
+const addOns = [
+  {
+    label: "Additional edited stills",
+    price: "€10 + VAT per image",
+  },
+  {
+    label: "Floor plan, 2D measured",
+    price: "€75 + VAT",
+  },
+  {
+    label: "Rush same-day delivery, stills only",
+    price: "€75 + VAT",
+  },
+  {
+    label: "Extended drone video, up to 3 minutes, fully edited",
+    price: "€150 + VAT",
+  },
+  {
+    label: "Additional social media cuts, extra formats or edits",
+    price: "€50 + VAT",
+  },
+  {
+    label: "Travel supplement beyond 40 km from base",
+    price: "€0.50 + VAT per km",
+  },
+] as const;
 
-const workflow = [
-  "Send the property details, location, access notes, and preferred package.",
-  "OpenÉire Studios confirms scope, weather, drone feasibility, and shoot timing.",
-  "Photography, drone video, and virtual tour capture are completed according to the selected package.",
-  "Edited media is delivered within 24 hours after the shoot once access and brief details are confirmed.",
-];
+const processSteps = [
+  {
+    title: "1. Send us the property details",
+    text: "Choose a package and share the address, property type, preferred date and any access notes.",
+  },
+  {
+    title: "2. We review and confirm",
+    text: "We check the brief, location and any airspace requirements, then confirm the shoot date and package with you within 24 hours.",
+  },
+  {
+    title: "3. We capture and edit the media",
+    text: "Photography, drone video and virtual tour capture are completed according to the selected package.",
+  },
+  {
+    title: "4. You receive listing-ready files",
+    text: "Final media is delivered by secure download link, ready for portals, websites, social media and brochures.",
+  },
+] as const;
 
 const faqs = [
   {
-    title: "Do prices include VAT?",
-    text: "No. Prices are quoted exclusive of VAT. VAT at 23% is added at invoicing.",
+    question: "Do prices include VAT?",
+    answer:
+      "No. Prices are quoted exclusive of VAT. VAT at 23% is added at invoicing.",
   },
   {
-    title: "How quickly will I receive the media?",
-    text: "All packages are delivered within 24 hours after the shoot, once access and brief details have been provided.",
+    question: "How quickly will I receive the media?",
+    answer:
+      "All packages are delivered within 24 hours after the shoot, once access and brief details have been provided.",
   },
   {
-    title: "Can you fly the drone at every property?",
-    text: "Aerial work depends on weather, site conditions, airspace restrictions, and safe operating limits. This is reviewed before confirming the shoot.",
+    question: "Can you fly the drone at every property?",
+    answer:
+      "Aerial work depends on weather, site conditions, airspace restrictions and safe operating limits. We review this before confirming the shoot.",
   },
   {
-    title: "Can I use the photos and videos on Daft.ie and social media?",
-    text: "Yes. Packages include a commercial marketing licence for the property listing, including portals, agency websites, social media, email campaigns, and print brochures.",
+    question: "What happens if the weather is unsuitable?",
+    answer:
+      "If weather conditions fall outside safe operational limits within 48 hours of the shoot, we reschedule at no additional cost.",
+  },
+  {
+    question: "Can I use the photos and videos on Daft.ie and social media?",
+    answer:
+      "Yes. All packages include a commercial marketing licence for the property listing, including property portals, agency websites, social media, email campaigns and print brochures.",
+  },
+  {
+    question: "Do you cover all of Connacht?",
+    answer:
+      "OpenÉire Studios is based in Connacht. Standard pricing applies within 40 km of base, with a travel supplement beyond that.",
+  },
+  {
+    question: "Can you photograph multiple properties on the same day?",
+    answer:
+      "Yes. Multi-property days are available on a Custom quotation basis. Send us the property list and locations, and we’ll prepare a tailored quote.",
+  },
+] as const;
+
+const schema = [
+  buildBreadcrumbJsonLd([
+    { name: "Home", url: buildAbsoluteUrl("/") },
+    {
+      name: "Real Estate Media",
+      url: buildAbsoluteUrl("/real-estate"),
+    },
+  ]),
+  buildFaqPageJsonLd(faqs.map(({ question, answer }) => ({ question, answer }))),
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: `${SITE_NAME} Real Estate Media`,
+    url: buildAbsoluteUrl("/real-estate"),
+    image: buildAbsoluteUrl("/hero-poster.jpg"),
+    description:
+      "Professional real estate photography, aerial drone video and 3D virtual tours for estate agents, developers and private sellers across Connacht.",
+    areaServed: ["Galway", "Mayo", "Roscommon", "Sligo", "Leitrim"],
+    provider: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: buildAbsoluteUrl("/"),
+    },
   },
 ];
 
 export default function RealEstatePage() {
   return (
-    <div className="page-top-offset min-h-screen bg-black pb-20 text-white">
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "Service",
-          name: "Real estate photography and drone video",
-          provider: { "@type": "Organization", name: SITE_NAME },
-          areaServed: "Connacht, Ireland",
-          serviceType: "Property photography, aerial drone video, and 3D virtual tours",
-          url: buildAbsoluteUrl("/real-estate"),
-          description:
-            "Professional real estate media for estate agents, developers, and private sellers across Connacht.",
-        }}
-      />
-      <HeroSection
-        eyebrow="Real estate media across Connacht"
-        title="Property media built for Connacht agents"
-        description="Professional real estate photography, aerial drone video, and 3D virtual tours for estate agents, developers, landlords, and private sellers who need clear pricing and polished listing media."
-        image={PUBLIC_IMAGES.allGallery}
-        actions={[
-          { href: "/contact", label: "Request a Property Shoot" },
-          { href: "#packages", label: "View Packages", variant: "secondary" },
-        ]}
-      />
-      <PageSection
-        eyebrow="Property media"
-        title="Photography, drone video, and virtual tours"
-        description="Capture the property, its setting, and its strongest selling points with media prepared for portals, agency websites, brochures, and social campaigns."
-      >
-        <CardGrid items={services} />
-      </PageSection>
-      <PageSection
-        eyebrow="Packages"
-        title="Clear real estate media packages"
-        description="Packages are designed to make scope clear before the shoot. Custom work is available for multi-property, commercial, agricultural, and development briefs."
-      >
-        <div id="packages">
-          <CardGrid items={packages} columns={2} />
+    <div className="min-h-screen overflow-x-hidden bg-black text-white">
+      <JsonLd data={schema} />
+
+      <section className="relative isolate overflow-hidden pt-[calc(var(--site-header-height,96px)+2rem)]">
+        <div
+          className="absolute inset-0 -z-20 bg-cover bg-center opacity-35"
+          style={{ backgroundImage: "url('/hero-poster.jpg')" }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/80 via-black/80 to-black" />
+        <div className="container mx-auto grid min-h-[78vh] max-w-7xl items-center gap-12 px-4 py-20 lg:grid-cols-[1.08fr_0.92fr] lg:px-8">
+          <div className="max-w-4xl">
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-accent">
+              <FaMapMarkerAlt aria-hidden="true" />
+              Real estate media across Connacht
+            </span>
+            <h1 className="font-serif text-4xl font-bold leading-tight text-white md:text-6xl">
+              Property media built for Connacht agents — photography, drone
+              video and 3D tours with clear pricing.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-gray-300 md:text-xl">
+              One visit, listing-ready media and 24-hour delivery after the
+              shoot — for estate agents, developers and private sellers across
+              Connacht.
+            </p>
+            <p className="mt-4 max-w-2xl text-xs font-bold uppercase tracking-[0.18em] text-gray-400">
+              Interior & exterior photography • Aerial drone video • Social
+              media cuts • 3D virtual tours
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a
+                href="#enquiry"
+                className="rounded-full bg-[#16a34a] px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-[#16a34a]/20 transition hover:bg-[#15803d] focus:outline-none focus:ring-2 focus:ring-[#16a34a] focus:ring-offset-2 focus:ring-offset-black"
+              >
+                Request a Property Shoot
+              </a>
+              <a
+                href="#packages"
+                className="rounded-full border border-white/20 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white transition hover:border-[#16a34a] hover:text-[#16a34a] focus:outline-none focus:ring-2 focus:ring-[#16a34a] focus:ring-offset-2 focus:ring-offset-black"
+              >
+                View Packages
+              </a>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur md:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-gray-400">
+              Launch-ready listing media
+            </p>
+            <div className="mt-6 grid gap-4">
+              {[
+                "Photography packages from €175 + VAT",
+                "Full commercial marketing licence included",
+                "24-hour delivery after the shoot",
+                "Drone capture planned around safe operating conditions",
+                "Commercially insured with €6.5m cover",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-3">
+                  <FaCheckCircle
+                    className="mt-1 shrink-0 text-accent"
+                    aria-hidden="true"
+                  />
+                  <span className="text-sm leading-relaxed text-gray-200">
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </PageSection>
-      <PageSection title="How a property shoot works">
-        <NumberedSteps steps={workflow} />
-      </PageSection>
-      <PageSection title="Real estate media FAQ">
-        <CardGrid items={faqs} columns={2} />
-      </PageSection>
-      <PageSection title="Operational notes">
-        <TextPanel>
-          <p>
-            Drone capture is planned around safe operating conditions, weather,
-            airspace restrictions, site access, and property context. If weather
-            conditions fall outside safe operational limits within 48 hours of
-            the shoot, the shoot can be rescheduled.
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mb-10 max-w-3xl">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-accent">
+              Built for property listings
+            </p>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl">
+              Give every listing a stronger first impression.
+            </h2>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-5">
+            {listingFeatures.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-3xl border border-white/10 bg-gray-950 p-6"
+              >
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#16a34a]/15 text-xl text-[#16a34a]">
+                  {item.icon}
+                </div>
+                <h3 className="font-serif text-xl font-bold">{item.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-gray-400">
+                  {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="packages" className="scroll-mt-32 bg-gray-950 py-20">
+        <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="mb-12 max-w-3xl">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-accent">
+              Clear package pricing
+            </p>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl">
+              Choose the media package that fits the listing.
+            </h2>
+            <p className="mt-5 text-lg leading-relaxed text-gray-400">
+              All prices exclude VAT. VAT at 23% is added at invoicing. Travel
+              supplement applies beyond 40 km from base.
+            </p>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-5">
+            {packages.map((item) => (
+              <div
+                key={item.key}
+                className={`relative flex flex-col rounded-[1.75rem] border p-6 ${
+                  item.badge
+                    ? "border-[#16a34a] bg-[#16a34a]/10 shadow-2xl shadow-[#16a34a]/10"
+                    : "border-white/10 bg-black"
+                }`}
+              >
+                {item.badge ? (
+                  <span className="mb-4 inline-flex w-fit rounded-full bg-[#16a34a] px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white">
+                    {item.badge}
+                  </span>
+                ) : null}
+                <h3 className="font-serif text-2xl font-bold">{item.name}</h3>
+                <p className="mt-2 text-2xl font-black text-accent">
+                  {item.price}
+                </p>
+                <p className="mt-4 text-sm leading-relaxed text-gray-400">
+                  {item.description}
+                </p>
+                <ul className="mt-6 flex-1 space-y-3 text-sm text-gray-300">
+                  {item.features.map((feature) => (
+                    <li key={feature} className="flex gap-3">
+                      <FaCheckCircle
+                        className="mt-1 shrink-0 text-[#16a34a]"
+                        aria-hidden="true"
+                      />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`/real-estate?package=${item.key}#enquiry`}
+                  className="mt-8 rounded-full border border-white/20 px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.16em] transition hover:border-[#16a34a] hover:text-[#16a34a] focus:outline-none focus:ring-2 focus:ring-[#16a34a] focus:ring-offset-2 focus:ring-offset-black"
+                >
+                  Enquire
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-black py-20">
+        <div className="container mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
+          <div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-accent">
+              Add-ons
+            </p>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl">
+              Add only what the listing needs.
+            </h2>
+            <p className="mt-5 text-lg leading-relaxed text-gray-400">
+              Build a clean scope around the property rather than paying for
+              extras you do not need.
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {addOns.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-2xl border border-white/10 bg-gray-950 p-5"
+              >
+                <h3 className="font-bold">{item.label}</h3>
+                <p className="mt-2 text-sm text-[#16a34a]">{item.price}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {processSteps.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-3xl border border-white/10 bg-gray-950 p-7"
+              >
+                <h2 className="font-serif text-2xl font-bold">{item.title}</h2>
+                <p className="mt-3 leading-relaxed text-gray-400">
+                  {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 rounded-3xl border border-accent/20 bg-accent/10 p-6 text-sm leading-relaxed text-gray-200">
+            Aerial work is planned around weather, site conditions, airspace
+            restrictions and safe operating limits. If conditions are unsuitable
+            within 48 hours of a scheduled outdoor or aerial shoot, we will
+            reschedule at no additional cost.
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-gray-950 py-20">
+        <div className="container mx-auto max-w-5xl px-4 text-center lg:px-8">
+          <FaHome
+            className="mx-auto mb-5 text-3xl text-[#16a34a]"
+            aria-hidden="true"
+          />
+          <h2 className="font-serif text-3xl font-bold md:text-5xl">
+            Built for property teams who need clarity.
+          </h2>
+          <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-gray-400">
+            Built for estate agents, developers and private sellers who need
+            listing-ready media without unclear pricing or slow turnaround.
           </p>
-        </TextPanel>
-      </PageSection>
-      <CtaBand
-        title="Ready to plan a property shoot?"
-        description="Send the property address, preferred package, and any access or timing notes so the shoot can be scoped safely and clearly."
-        actions={[
-          { href: "#enquiry", label: "Request a Property Shoot" },
-          { href: "/licensing", label: "Review Licensing", variant: "secondary" },
-        ]}
-      />
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto grid max-w-7xl gap-12 px-4 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+          <div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-accent">
+              Questions
+            </p>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl">
+              Real estate media FAQ
+            </h2>
+          </div>
+          <div className="space-y-4">
+            {faqs.map((item) => (
+              <details
+                key={item.question}
+                className="group rounded-2xl border border-white/10 bg-gray-950 p-5"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">
+                  {item.question}
+                  <FaChevronDown
+                    className="shrink-0 text-[#16a34a] transition group-open:rotate-180"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <p className="mt-4 text-sm leading-relaxed text-gray-400">
+                  {item.answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <RealEstateEnquiryForm />
     </div>
   );

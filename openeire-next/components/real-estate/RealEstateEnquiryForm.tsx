@@ -7,7 +7,13 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { FaCheckCircle, FaPaperPlane } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaMapMarkerAlt,
+  FaPaperPlane,
+} from "react-icons/fa";
+import { useToast } from "@/components/ui/ToastProvider";
 import {
   getApiErrorMessage,
   submitRealEstateEnquiry,
@@ -16,7 +22,6 @@ import {
   registerIubendaConsentForm,
   submitIubendaConsentForm,
 } from "@/lib/iubendaConsent";
-import { useToast } from "@/components/ui/ToastProvider";
 import type {
   AddOnKey,
   ClientType,
@@ -99,28 +104,28 @@ const addOns: Array<{ key: AddOnKey; label: string; price: string }> = [
   {
     key: "additional_stills",
     label: "Additional edited stills",
-    price: "EUR10 + VAT per image",
+    price: "€10 + VAT per image",
   },
-  { key: "floor_plan", label: "Floor plan, 2D measured", price: "EUR75 + VAT" },
+  { key: "floor_plan", label: "Floor plan, 2D measured", price: "€75 + VAT" },
   {
     key: "rush_delivery",
     label: "Rush same-day delivery, stills only",
-    price: "EUR75 + VAT",
+    price: "€75 + VAT",
   },
   {
     key: "extended_drone_video",
     label: "Extended drone video, up to 3 minutes, fully edited",
-    price: "EUR150 + VAT",
+    price: "€150 + VAT",
   },
   {
     key: "additional_social_cuts",
     label: "Additional social media cuts, extra formats or edits",
-    price: "EUR50 + VAT",
+    price: "€50 + VAT",
   },
   {
     key: "travel_supplement",
     label: "Travel supplement beyond 40 km from base",
-    price: "EUR0.50 + VAT per km",
+    price: "€0.50 + VAT per km",
   },
 ];
 
@@ -206,12 +211,31 @@ export function RealEstateEnquiryForm() {
     });
   }, []);
 
+  useEffect(() => {
+    const requestedPackage = new URLSearchParams(window.location.search)
+      .get("package")
+      ?.trim();
+
+    if (requestedPackage && isOneOf(requestedPackage, packageOptions)) {
+      setFormData((current) => ({
+        ...current,
+        preferred_package: requestedPackage,
+      }));
+    }
+  }, []);
+
   const handleFieldChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    event: ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = event.target;
     setFormData((current) => ({ ...current, [name]: value }));
-    setErrors((current) => ({ ...current, [name]: undefined, submit: undefined }));
+    setErrors((current) => ({
+      ...current,
+      [name]: undefined,
+      submit: undefined,
+    }));
   };
 
   const handleConsentChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -244,7 +268,8 @@ export function RealEstateEnquiryForm() {
     for (const field of requiredFields) {
       const value = formData[field];
       if (typeof value === "string" && !value.trim()) {
-        nextErrors[field] = `${fieldLabels[field] ?? "This field"} is required.`;
+        nextErrors[field] =
+          `${fieldLabels[field] ?? "This field"} is required.`;
       }
     }
 
@@ -335,44 +360,65 @@ export function RealEstateEnquiryForm() {
   };
 
   return (
-    <section id="enquiry" className="container mx-auto max-w-5xl px-4 py-20 lg:px-8">
-      <div className="rounded-[2rem] border border-white/10 bg-gray-900/80 p-6 shadow-2xl md:p-10">
-        {status === "success" ? (
-          <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#16a34a]/15 text-[#16a34a]">
-              <FaCheckCircle className="text-4xl" aria-hidden="true" />
-            </div>
-            <h2 className="mb-4 font-serif text-3xl font-bold text-white">
-              Enquiry Sent
-            </h2>
-            <p className="max-w-xl text-gray-300">
-              Thanks for the details. OpenEire Studios will review the property
-              brief and come back to you with next steps.
+    <section id="enquiry" className="scroll-mt-32 bg-gray-950 py-20">
+      <div className="container mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[0.82fr_1.18fr] lg:px-8">
+        <div>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-accent">
+            Enquiry
+          </p>
+          <h2 className="font-serif text-3xl font-bold md:text-5xl">
+            Request a property shoot.
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-gray-400">
+            Tell us what you need and we will review the details before
+            confirming the cleanest scope for your listing.
+          </p>
+          <div className="mt-8 space-y-4 text-sm text-gray-300">
+            <p className="flex items-center gap-3">
+              <FaCalendarAlt className="text-[#16a34a]" aria-hidden="true" />
+              Preferred dates are treated as requests until confirmed.
             </p>
-            <button
-              type="button"
-              onClick={() => setStatus("idle")}
-              className="mt-8 rounded-xl border border-white/20 px-6 py-3 font-bold text-white transition hover:bg-white/10"
-            >
-              Send another enquiry
-            </button>
+            <p className="flex items-center gap-3">
+              <FaMapMarkerAlt className="text-[#16a34a]" aria-hidden="true" />
+              Serving Galway, Mayo, Roscommon, Sligo and Leitrim.
+            </p>
           </div>
-        ) : (
-          <>
-            <div className="mb-10">
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.26em] text-[#16a34a]">
-                Property shoot enquiry
-              </p>
-              <h2 className="font-serif text-3xl font-bold text-white md:text-4xl">
-                Tell us about the property
-              </h2>
-              <p className="mt-4 max-w-2xl text-gray-400">
-                Share the address, property type, preferred package, and any
-                access notes so we can scope the shoot safely and clearly.
-              </p>
-            </div>
+        </div>
 
+        <div className="rounded-[2rem] border border-white/10 bg-black p-6 shadow-2xl md:p-8">
+          {status === "success" ? (
+            <div className="flex min-h-[420px] flex-col items-center justify-center text-center">
+              <FaCheckCircle className="mb-5 text-5xl text-accent" />
+              <h3 className="font-serif text-3xl font-bold">
+                Thanks — enquiry received.
+              </h3>
+              <p className="mt-4 max-w-xl text-gray-400">
+                Thanks — we’ve received your property shoot request. We’ll
+                review the details and come back to you within 24 hours.
+              </p>
+              <button
+                type="button"
+                onClick={() => setStatus("idle")}
+                className="mt-8 rounded-full border border-white/20 px-6 py-3 text-sm font-bold uppercase tracking-[0.16em] transition hover:border-[#16a34a] hover:text-[#16a34a]"
+              >
+                Send another enquiry
+              </button>
+            </div>
+          ) : (
             <form id={FORM_ID} onSubmit={handleSubmit} className="space-y-6">
+              <input
+                type="hidden"
+                name="consent_to_contact"
+                value={formData.consent_to_contact ? "true" : "false"}
+                readOnly
+              />
+
+              {errors.submit ? (
+                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">
+                  {errors.submit}
+                </div>
+              ) : null}
+
               <div className="grid gap-5 md:grid-cols-2">
                 <Field inputId="real-estate-name" label="Name" error={errors.name}>
                   <input
@@ -381,6 +427,7 @@ export function RealEstateEnquiryForm() {
                     value={formData.name}
                     onChange={handleFieldChange}
                     className={inputClass}
+                    autoComplete="name"
                     required
                   />
                 </Field>
@@ -396,12 +443,10 @@ export function RealEstateEnquiryForm() {
                     value={formData.email}
                     onChange={handleFieldChange}
                     className={inputClass}
+                    autoComplete="email"
                     required
                   />
                 </Field>
-              </div>
-
-              <div className="grid gap-5 md:grid-cols-2">
                 <Field
                   inputId="real-estate-phone"
                   label="Phone"
@@ -414,16 +459,18 @@ export function RealEstateEnquiryForm() {
                     value={formData.phone}
                     onChange={handleFieldChange}
                     className={inputClass}
+                    autoComplete="tel"
                     required
                   />
                 </Field>
-                <Field inputId="real-estate-company" label="Company / agency">
+                <Field inputId="real-estate-company" label="Company name">
                   <input
                     id="real-estate-company"
                     name="company_name"
                     value={formData.company_name}
                     onChange={handleFieldChange}
                     className={inputClass}
+                    autoComplete="organization"
                   />
                 </Field>
               </div>
@@ -463,7 +510,7 @@ export function RealEstateEnquiryForm() {
                     className={inputClass}
                     required
                   >
-                    <option value="not_sure">Not sure yet</option>
+                    <option value="not_sure">Not sure</option>
                     <option value="essential">Essential</option>
                     <option value="starter">Starter</option>
                     <option value="pro">Pro</option>
@@ -484,6 +531,7 @@ export function RealEstateEnquiryForm() {
                   value={formData.property_address}
                   onChange={handleFieldChange}
                   className={inputClass}
+                  autoComplete="street-address"
                   required
                 />
               </Field>
@@ -496,6 +544,7 @@ export function RealEstateEnquiryForm() {
                     value={formData.eircode}
                     onChange={handleFieldChange}
                     className={inputClass}
+                    autoComplete="postal-code"
                   />
                 </Field>
                 <Field
@@ -523,18 +572,19 @@ export function RealEstateEnquiryForm() {
                     value={formData.property_type}
                     onChange={handleFieldChange}
                     className={inputClass}
+                    placeholder="House, apartment, site..."
                     required
                   />
                 </Field>
               </div>
 
               <div>
-                <p className={labelClass}>Optional add-ons</p>
+                <span className={labelClass}>Add-ons</span>
                 <div className="grid gap-3 md:grid-cols-2">
                   {addOns.map((item) => (
                     <label
                       key={item.key}
-                      className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/40 p-4 text-sm text-gray-300"
+                      className="flex cursor-pointer gap-3 rounded-2xl border border-white/10 bg-gray-950 p-4 text-sm transition hover:border-[#16a34a]/50"
                     >
                       <input
                         type="checkbox"
@@ -586,7 +636,7 @@ export function RealEstateEnquiryForm() {
                     <option value="estate_agent_colleague">
                       Estate agent colleague
                     </option>
-                    <option value="openeire_website">OpenEire website</option>
+                    <option value="openeire_website">OpenÉire website</option>
                     <option value="other">Other</option>
                     <option value="not_sure">Not sure</option>
                   </select>
@@ -617,7 +667,7 @@ export function RealEstateEnquiryForm() {
                     required
                   />
                   <span>
-                    I consent to OpenEire Studios contacting me about this
+                    I consent to OpenÉire Studios contacting me about this
                     property media enquiry.
                   </span>
                 </label>
@@ -627,12 +677,6 @@ export function RealEstateEnquiryForm() {
                   </p>
                 ) : null}
               </div>
-
-              {errors.submit ? (
-                <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                  {errors.submit}
-                </div>
-              ) : null}
 
               <button
                 id={SUBMIT_ID}
@@ -651,8 +695,8 @@ export function RealEstateEnquiryForm() {
                 )}
               </button>
             </form>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </section>
   );

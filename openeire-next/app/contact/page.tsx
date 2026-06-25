@@ -22,7 +22,7 @@ export default function ContactPage() {
         ])}
       />
 
-      <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+      <div className="container mx-auto max-w-7xl px-4 pt-10 md:pt-14 lg:px-8">
         <div className="mb-16 px-2 text-center">
           <h1 className="mb-6 font-serif text-4xl font-bold md:text-6xl">
             Get in Touch
