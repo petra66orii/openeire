@@ -28,6 +28,15 @@ import {
   hasPhysicalCartItems,
 } from "@/lib/checkout/payload";
 import {
+  clearPendingDiscountCode,
+  readPendingDiscountCode,
+  savePendingDiscountCode,
+} from "@/lib/discount/pendingDiscount";
+import {
+  buildAnalyticsItemFromCartItem,
+  trackEcommerceEvent,
+} from "@/lib/ecommerceAnalytics";
+import {
   isStripeConfigured,
   STRIPE_CONFIGURATION_ERROR,
 } from "@/lib/stripe/client";
@@ -209,6 +218,7 @@ export function CheckoutClient() {
   const activeIntentRequestRef = useRef<ActiveIntentRequest | null>(null);
   const latestCheckoutSignatureRef = useRef("");
   const checkoutRequestIdentityRef = useRef<CheckoutRequestIdentity | null>(null);
+  const autoApplyPendingDiscountRef = useRef<string | null>(null);
 
   const hasPhysicalItems = useMemo(() => hasPhysicalCartItems(items), [items]);
   const hasDigitalItems = useMemo(() => hasDigitalCartItems(items), [items]);
@@ -260,8 +270,23 @@ export function CheckoutClient() {
       hasDigitalItems,
       hasPhysicalItems,
       itemCount: items.reduce((total, item) => total + item.quantity, 0),
+      analytics: paymentQuote
+        ? {
+            value: paymentQuote.totalPrice,
+            shipping: paymentQuote.shippingCost,
+            coupon: paymentQuote.discountCode ?? undefined,
+            items: items.map(buildAnalyticsItemFromCartItem),
+          }
+        : undefined,
     }),
-    [cartSignature, hasDigitalItems, hasPhysicalItems, items, paymentIntentId],
+    [
+      cartSignature,
+      hasDigitalItems,
+      hasPhysicalItems,
+      items,
+      paymentIntentId,
+      paymentQuote,
+    ],
   );
 
   useEffect(() => {
@@ -269,6 +294,17 @@ export function CheckoutClient() {
       router.replace("/bag");
     }
   }, [isCartLoaded, items.length, router]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    savePendingDiscountCode(params.get("discount"));
+
+    const pendingDiscountCode = readPendingDiscountCode();
+    if (!pendingDiscountCode) return;
+
+    setDiscountCode(pendingDiscountCode);
+    autoApplyPendingDiscountRef.current = pendingDiscountCode;
+  }, []);
 
   useEffect(() => {
     if (!isCartLoaded || !user || prefilledProfileRef.current) return;
@@ -457,6 +493,8 @@ export function CheckoutClient() {
         eligibleSubtotal: Number(response.eligibleSubtotal ?? 0),
       });
       setDiscountCode(response.code);
+      clearPendingDiscountCode();
+      autoApplyPendingDiscountRef.current = null;
     } catch (error) {
       if (
         requestId !== discountRequestSequenceRef.current ||
@@ -465,6 +503,10 @@ export function CheckoutClient() {
         return;
       }
       setAppliedDiscount(null);
+      if (autoApplyPendingDiscountRef.current === normalizedCode) {
+        clearPendingDiscountCode();
+      }
+      autoApplyPendingDiscountRef.current = null;
       setDiscountError(
         getErrorMessage(
           error,
@@ -482,7 +524,32 @@ export function CheckoutClient() {
     setAppliedDiscount(null);
     setDiscountCode("");
     setDiscountError(null);
+    clearPendingDiscountCode();
+    autoApplyPendingDiscountRef.current = null;
   }, []);
+
+  useEffect(() => {
+    const pendingDiscountCode = autoApplyPendingDiscountRef.current;
+    if (
+      !pendingDiscountCode ||
+      appliedDiscount ||
+      isApplyingDiscount ||
+      discountCode.trim().toUpperCase() !== pendingDiscountCode ||
+      !items.length ||
+      !discountCustomerEmail
+    ) {
+      return;
+    }
+
+    void handleApplyDiscount();
+  }, [
+    appliedDiscount,
+    discountCode,
+    discountCustomerEmail,
+    handleApplyDiscount,
+    isApplyingDiscount,
+    items.length,
+  ]);
 
   const handlePreparePayment = useCallback(async () => {
     if (isCreatingIntent || activeIntentRequestRef.current) return;
@@ -565,6 +632,12 @@ export function CheckoutClient() {
       setPaymentIntentId(nextPaymentIntentId);
       setIntentSignature(requestSignature);
       setClientSecret(nextClientSecret);
+      trackEcommerceEvent("begin_checkout", {
+        value: nextQuote.totalPrice,
+        shipping: nextQuote.shippingCost,
+        coupon: nextQuote.discountCode ?? undefined,
+        items: items.map(buildAnalyticsItemFromCartItem),
+      });
     } catch (error) {
       if (controller.signal.aborted) return;
 
@@ -589,6 +662,7 @@ export function CheckoutClient() {
     appliedDiscount?.eligibleSubtotal,
     checkoutStateSignature,
     isCreatingIntent,
+    items,
     readiness,
   ]);
 

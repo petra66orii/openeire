@@ -6,6 +6,11 @@ import { useCart } from "@/components/cart/CartProvider";
 import { useToast } from "@/components/ui/ToastProvider";
 import { formatCartCurrency } from "@/lib/cart/pricing";
 import type { CartProductSnapshot } from "@/lib/cart/types";
+import {
+  formatAnalyticsVariantLabel,
+  toAnalyticsMoney,
+  trackEcommerceEvent,
+} from "@/lib/ecommerceAnalytics";
 import type { ProductVariant } from "@/types/gallery";
 
 export function PhysicalAddToCartPanel({
@@ -13,22 +18,59 @@ export function PhysicalAddToCartPanel({
   title,
   previewImage,
   variants,
+  onAdded,
 }: {
   productId: number;
   title: string;
   previewImage?: string | null;
   variants: ProductVariant[];
+  onAdded?: () => void;
 }) {
   const { addToCart, isLoaded: isCartLoaded } = useCart();
   const { showToast } = useToast();
-  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
-    variants[0]?.id ?? null,
+  const [selectedMaterial, setSelectedMaterial] = useState(
+    variants[0]?.material ?? "",
   );
+  const [selectedSize, setSelectedSize] = useState(variants[0]?.size ?? "");
 
   const selectedVariant = useMemo(
-    () => variants.find((variant) => variant.id === selectedVariantId) ?? null,
-    [selectedVariantId, variants],
+    () =>
+      variants.find(
+        (variant) =>
+          variant.material === selectedMaterial && variant.size === selectedSize,
+      ) ?? null,
+    [selectedMaterial, selectedSize, variants],
   );
+  const materials = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          variants.map((variant) => [
+            variant.material,
+            variant.material_display,
+          ]),
+        ),
+      ),
+    [variants],
+  );
+  const sizes = useMemo(
+    () =>
+      variants
+        .filter((variant) => variant.material === selectedMaterial)
+        .map((variant) => ({
+          value: variant.size,
+          label: variant.size_display,
+        })),
+    [selectedMaterial, variants],
+  );
+
+  const handleMaterialChange = (material: string) => {
+    setSelectedMaterial(material);
+    const firstMatchingVariant = variants.find(
+      (variant) => variant.material === material,
+    );
+    setSelectedSize(firstMatchingVariant?.size ?? "");
+  };
 
   const handleAddToCart = () => {
     if (!isCartLoaded) return;
@@ -58,50 +100,104 @@ export function PhysicalAddToCartPanel({
         sourceProductId: productId,
       },
     });
+    const unitPrice = toAnalyticsMoney(selectedVariant.price);
+    trackEcommerceEvent("add_to_cart", {
+      ...(unitPrice !== undefined ? { value: unitPrice } : {}),
+      items: [
+        {
+          item_id: String(selectedVariant.id),
+          item_name: title,
+          item_category: "physical",
+          item_variant: formatAnalyticsVariantLabel(
+            selectedVariant.material_display,
+            selectedVariant.size_display,
+          ),
+          price: unitPrice,
+          quantity: 1,
+        },
+      ],
+    });
     showToast("Added to bag.", "success");
+    onAdded?.();
   };
 
   return (
     <div className="space-y-4">
-      <div>
+      <div className="space-y-4">
+        <div className="relative">
+          <label
+            htmlFor="print-material"
+            className="mb-2 block text-xs uppercase tracking-widest text-gray-500"
+          >
+            Material
+          </label>
+          <select
+            id="print-material"
+            value={selectedMaterial}
+            onChange={(event) => handleMaterialChange(event.target.value)}
+            className="w-full cursor-pointer appearance-none rounded-lg border border-white/20 bg-black p-4 pr-10 text-base font-medium text-white shadow-inner outline-none transition-all hover:border-white/40 focus:border-accent focus:ring-1 focus:ring-accent"
+          >
+            {materials.map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <span className="pointer-events-none absolute bottom-4 right-4 text-gray-400">
+            <svg
+              aria-hidden="true"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M19 9l-7 7-7-7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </div>
+
+        <div className="relative">
         <label
-          htmlFor="print-option"
+          htmlFor="print-size"
           className="mb-2 block text-xs uppercase tracking-widest text-gray-500"
         >
-          Available print options
+          Size
         </label>
         <select
-          id="print-option"
-          value={selectedVariantId ?? ""}
-          onChange={(event) => setSelectedVariantId(Number(event.target.value))}
-          className="w-full rounded-xl border border-white/10 bg-black/70 px-4 py-3 text-sm font-semibold text-white outline-none transition-colors focus:border-accent"
+          id="print-size"
+          value={selectedSize}
+          onChange={(event) => setSelectedSize(event.target.value)}
+          className="w-full cursor-pointer appearance-none rounded-lg border border-white/20 bg-black p-4 pr-10 text-base font-medium text-white shadow-inner outline-none transition-all hover:border-white/40 focus:border-accent focus:ring-1 focus:ring-accent"
         >
-          {variants.map((variant) => (
-            <option key={variant.id} value={variant.id}>
-              {variant.material_display} - {variant.size_display} -{" "}
-              {formatCartCurrency(Number.parseFloat(variant.price))}
+          {sizes.map((size) => (
+            <option key={size.value} value={size.value}>
+              {size.label}
             </option>
           ))}
         </select>
-      </div>
-
-      {selectedVariant ? (
-        <div className="rounded-lg border border-white/10 bg-black/40 p-3">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="font-semibold text-white">
-                {selectedVariant.material_display}
-              </p>
-              <p className="text-sm text-gray-400">
-                {selectedVariant.size_display}
-              </p>
-            </div>
-            <p className="font-serif text-lg font-bold text-white">
-              {formatCartCurrency(Number.parseFloat(selectedVariant.price))}
-            </p>
-          </div>
+        <span className="pointer-events-none absolute bottom-4 right-4 text-gray-400">
+          <svg
+            aria-hidden="true"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19 9l-7 7-7-7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
         </div>
-      ) : null}
+      </div>
 
       <div className="mt-8 border-t border-white/10 pt-6">
         <div className="mb-6 flex items-end justify-between">

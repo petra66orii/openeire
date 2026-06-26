@@ -6,9 +6,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { CartBadge } from "@/components/cart/CartBadge";
-
-const FREE_SHIPPING_PROMO_ENABLED = true;
-const FREE_SHIPPING_THRESHOLD = 180;
+import {
+  formatFreeShippingThreshold,
+  FREE_SHIPPING_PROMO_ENABLED,
+} from "@/lib/freeShipping";
 
 const navItems = [
   { href: "/art-prints", label: "Art Prints" },
@@ -157,10 +158,7 @@ export function Navbar() {
             <p className="tracking-wide">
               <span className="font-bold text-accent">{"\u2728"} Free Delivery</span>
               <span className="ml-1 opacity-90">on all physical orders over </span>
-              <span className="ml-1 font-bold text-white">
-                {"\u20ac"}
-                {FREE_SHIPPING_THRESHOLD}
-              </span>
+              <span className="ml-1 font-bold text-white">{formatFreeShippingThreshold()}</span>
               <Link
                 href="/gallery/physical"
                 className="ml-3 hidden underline decoration-accent/50 transition-all hover:text-accent hover:decoration-accent md:inline-block"

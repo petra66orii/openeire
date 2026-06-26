@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { PhysicalAddToCartPanel } from "@/components/cart/PhysicalAddToCartPanel";
-import { GalleryProductCard } from "@/components/gallery/GalleryProductCard";
 import { ProductMediaPreview } from "@/components/gallery/ProductMediaPreview";
+import { RelatedPrintsRail } from "@/components/gallery/RelatedPrintsRail";
 import { SpecBox } from "@/components/gallery/SpecBox";
 import { ProductReviews } from "@/components/reviews/ProductReviews";
 import { ShareControls } from "@/components/share/ShareControls";
@@ -232,7 +232,7 @@ export default async function PhysicalProductPage({
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-20">
           <div className="lg:col-span-8">
-            <div className="sticky top-32">
+            <div>
               <div className="relative mx-auto w-fit overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl">
                 <ProductMediaPreview
                   imageUrl={imageUrl}
@@ -304,18 +304,7 @@ export default async function PhysicalProductPage({
           initialLoadError={reviewsFailed}
         />
 
-        {product.related_products?.length ? (
-          <section className="mt-20">
-            <h2 className="mb-8 font-serif text-2xl font-bold text-white">
-              Related Prints
-            </h2>
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {product.related_products.map((related) => (
-                <GalleryProductCard key={related.id} product={related} />
-              ))}
-            </div>
-          </section>
-        ) : null}
+        <RelatedPrintsRail products={product.related_products ?? []} />
       </div>
     </div>
   );

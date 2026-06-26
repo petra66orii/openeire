@@ -168,3 +168,34 @@ export const getAllPublicPhysicalProductsForSitemap = async (): Promise<
 
   return products;
 };
+
+export const getShoppingBagRecommendations = async (): Promise<
+  PublicGalleryItem[]
+> => {
+  try {
+    const response = await api.get<
+      PublicGalleryItem[] | PaginatedResponse<PublicGalleryItem>
+    >("products/recommendations/", {
+      cache: "no-store",
+    });
+
+    const recommendations = asGalleryPage(response.data).results.filter(
+      (item) => item.product_type === "physical",
+    );
+
+    if (recommendations.length) return recommendations;
+  } catch {
+    // Recommendations are nice-to-have; fall back to public prints below.
+  }
+
+  try {
+    const fallback = await getPublicGalleryItems({
+      type: "physical",
+      sort: "date_desc",
+    });
+
+    return fallback.results.filter((item) => item.product_type === "physical");
+  } catch {
+    return [];
+  }
+};

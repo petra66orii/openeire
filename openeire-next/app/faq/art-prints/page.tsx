@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { FAQTopicPage, type FAQEntry } from "@/components/faq/FAQTopicPage";
+import {
+  formatFreeShippingThreshold,
+  FREE_SHIPPING_COUNTRY_LABEL,
+} from "@/lib/freeShipping";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildPageMetadata({ title: "Art Prints FAQ | OpenÉire Studios", description: "Find answers about fine art prints, shipping, gifting, formats, and buying aerial photography prints from OpenÉire Studios.", path: "/faq/art-prints" });
+
+const freeShippingThreshold = formatFreeShippingThreshold();
+const freeShippingAnswer = `Eligible physical orders over ${freeShippingThreshold} qualify for free delivery in ${FREE_SHIPPING_COUNTRY_LABEL}.`;
 
 const faqs: FAQEntry[] = [
   { question: "Do you ship fine art prints to the United States?", answerLead: "Yes, we ship prints to the United States.", answerParagraphs: ["You can order directly through the site, and shipping is calculated at checkout based on your location and the print."], bridge: <>See the <Link href="/us/fine-art-prints" className="text-accent hover:text-white">United States fine art prints page</Link>.</>, schemaAnswer: "Prints are available to buyers in the United States, with shipping calculated at checkout." },
@@ -14,7 +21,7 @@ const faqs: FAQEntry[] = [
   { question: "Are these limited edition?", answerLead: "Some prints may be limited, but not all are.", answerParagraphs: ["Limited-edition status is clearly stated on the product page where applicable."], schemaAnswer: "Some prints may be limited edition, as specified on the individual product page." },
   { question: "How is shipping handled for print orders?", answerLead: "Shipping is handled during checkout.", answerParagraphs: ["Delivery methods and costs are calculated securely for the selected print and destination."], schemaAnswer: "Shipping methods and costs are calculated during checkout." },
   { question: "When is shipping calculated for print orders?", answerLead: "Shipping is calculated at checkout.", answerParagraphs: ["The final cost depends on the print, size, delivery location, and available fulfilment method."], schemaAnswer: "Shipping is calculated at checkout based on print, size, location, and fulfilment method." },
-  { question: "Do you offer free shipping in Ireland?", answerLead: "Eligible physical orders over EUR 180 qualify for free delivery in Ireland.", answerParagraphs: ["The promotion is applied automatically when the order qualifies."], schemaAnswer: "Eligible physical orders over EUR 180 qualify for free delivery in Ireland." },
+  { question: `Do you offer free shipping in ${FREE_SHIPPING_COUNTRY_LABEL}?`, answerLead: freeShippingAnswer, answerParagraphs: ["The promotion is applied automatically when the order qualifies."], schemaAnswer: freeShippingAnswer },
   { question: "How long does print fulfilment usually take?", answerLead: "Fulfilment time depends on the print and delivery location.", answerParagraphs: ["Most orders are produced and shipped within a few working days, with delivery time depending on the selected method."], schemaAnswer: "Fulfilment time depends on the print, destination, and selected delivery method." },
   { question: "What should I do if I need help before ordering?", answerLead: "Contact the studio before placing an order.", answerParagraphs: ["We can help with choosing a piece, sizing, framing, or delivery questions."], bridge: <>Use the <Link href="/contact" className="text-accent hover:text-white">contact page</Link> to get in touch.</>, schemaAnswer: "Contact the studio for help choosing a print or clarifying details before ordering." },
 ];

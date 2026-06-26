@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FaShoppingBag } from "react-icons/fa";
 import { BagItem } from "@/components/cart/BagItem";
+import { BagRecommendations } from "@/components/cart/BagRecommendations";
 import { useCart } from "@/components/cart/CartProvider";
 import { OrderSummary } from "@/components/cart/OrderSummary";
 
@@ -85,6 +86,8 @@ export function ShoppingBagClient() {
               <OrderSummary />
             </div>
           )}
+
+          {items.length ? <BagRecommendations /> : null}
         </div>
       </div>
     </div>

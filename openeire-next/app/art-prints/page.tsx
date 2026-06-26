@@ -8,6 +8,10 @@ import {
   TextPanel,
 } from "@/components/marketing/MarketingPage";
 import { PUBLIC_IMAGES } from "@/lib/assets";
+import {
+  formatFreeShippingThreshold,
+  FREE_SHIPPING_COUNTRY_LABEL,
+} from "@/lib/freeShipping";
 import { SITE_NAME, buildAbsoluteUrl } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import {
@@ -27,8 +31,8 @@ export const metadata = buildPageMetadata({
   path: "/art-prints",
 });
 
-const shippingNote =
-  "Shipping is calculated at checkout, and eligible Ireland print orders over €180.00 qualify for free shipping.";
+const freeShippingThreshold = formatFreeShippingThreshold();
+const shippingNote = `Shipping is calculated at checkout, and eligible ${FREE_SHIPPING_COUNTRY_LABEL} print orders over ${freeShippingThreshold} qualify for free shipping.`;
 
 const valueCards = [
   {
@@ -70,7 +74,7 @@ const printBuyingNotes = [
   "Archival-minded art prints with a premium finish.",
   "Produced as physical pieces for personal display and interiors.",
   "Shipping is handled separately at checkout.",
-  "Eligible Ireland orders over €180.00 qualify for free shipping.",
+  `Eligible ${FREE_SHIPPING_COUNTRY_LABEL} orders over ${freeShippingThreshold} qualify for free shipping.`,
   "Need help choosing? Use the contact page for a direct enquiry.",
 ];
 
