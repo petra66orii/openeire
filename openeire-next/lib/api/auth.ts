@@ -1,6 +1,7 @@
 import { api, isApiError } from "@/lib/api/client";
 import type {
   ApiErrorResponse,
+  GoogleLoginPayload,
   LoginPayload,
   LoginResponse,
   MessageResponse,
@@ -81,6 +82,15 @@ export const loginUser = async (
   payload: LoginPayload,
 ): Promise<LoginResponse> => {
   const response = await api.post<LoginResponse>("auth/login/", payload, {
+    skipAuthRefresh: true,
+  });
+  return response.data;
+};
+
+export const loginWithGoogleCode = async (
+  payload: GoogleLoginPayload,
+): Promise<LoginResponse> => {
+  const response = await api.post<LoginResponse>("auth/google/", payload, {
     skipAuthRefresh: true,
   });
   return response.data;

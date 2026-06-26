@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "
 import { useAuth, normalizeAuthErrorMessage } from "@/components/auth/AuthProvider";
 import { useToast } from "@/components/ui/ToastProvider";
 import { getSafeReturnPath } from "@/lib/auth/redirects";
+import { SocialLogin } from "@/components/auth/SocialLogin";
 
 interface RegisterFormData {
   first_name: string;
@@ -242,6 +243,8 @@ export function RegisterForm() {
           {loading ? "Creating Account..." : "Create Account"}
         </button>
       </form>
+
+      <SocialLogin redirectPath={redirectPath} />
 
       <div className="mt-6 border-t border-white/10 pt-6 text-center text-sm text-gray-500">
         Already have an account?{" "}
