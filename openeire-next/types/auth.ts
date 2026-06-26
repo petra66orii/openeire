@@ -42,6 +42,10 @@ export interface LoginResponse {
   refresh: string;
 }
 
+export interface GoogleLoginPayload {
+  code: string;
+}
+
 export interface RegisterPayload {
   username: string;
   first_name?: string;

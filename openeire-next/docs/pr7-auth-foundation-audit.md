@@ -60,7 +60,7 @@ If the backend uses a different refresh route, update `lib/api/auth.ts` and `lib
 
 ## Known Gaps
 
-- Google social login is not migrated yet because the Vite app uses `@react-oauth/google`, and this PR does not add new auth dependencies.
+- Google social login was intentionally deferred from PR 7 because the Vite app used `@react-oauth/google`, and that auth-foundation PR did not add new auth dependencies.
 - `/profile` is not migrated yet; successful login keeps the production redirect target for parity, but the page itself belongs to a later account PR.
 - There is no dedicated test script in `openeire-next` yet, so auth validation is currently covered by lint/build and manual browser checks.
 

@@ -12,6 +12,7 @@ import {
 import {
   getProfile,
   isApiError,
+  loginWithGoogleCode,
   loginUser,
   normalizeAuthErrorMessage,
   registerUser,
@@ -23,13 +24,19 @@ import {
   setTokens,
 } from "@/lib/auth/tokenStorage";
 import { clearCheckoutSuccessContext } from "@/lib/checkout/successContext";
-import type { LoginPayload, RegisterPayload, UserProfile } from "@/types/auth";
+import type {
+  GoogleLoginPayload,
+  LoginPayload,
+  RegisterPayload,
+  UserProfile,
+} from "@/types/auth";
 
 interface AuthContextValue {
   user: UserProfile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<void>;
+  loginWithGoogle: (payload: GoogleLoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<UserProfile | null>;
@@ -123,6 +130,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [refreshUser],
   );
 
+  const loginWithGoogle = useCallback(
+    async (payload: GoogleLoginPayload) => {
+      clearCheckoutSuccessContext();
+      const tokens = await loginWithGoogleCode(payload);
+      if (!tokens.access || !tokens.refresh) {
+        throw new Error("Malformed Google login response.");
+      }
+      setTokens(tokens);
+      await refreshUser();
+    },
+    [refreshUser],
+  );
+
   const register = useCallback(async (payload: RegisterPayload) => {
     await registerUser(payload);
   }, []);
@@ -133,11 +153,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(user && getAccessToken()),
       isLoading,
       login,
+      loginWithGoogle,
       register,
       logout,
       refreshUser,
     }),
-    [isLoading, login, logout, refreshUser, register, user],
+    [isLoading, login, loginWithGoogle, logout, refreshUser, register, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

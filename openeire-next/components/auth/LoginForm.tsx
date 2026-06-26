@@ -7,6 +7,7 @@ import { useAuth, normalizeAuthErrorMessage } from "@/components/auth/AuthProvid
 import { useToast } from "@/components/ui/ToastProvider";
 import { resendVerificationEmail } from "@/lib/api/auth";
 import { getSafeReturnPath } from "@/lib/auth/redirects";
+import { SocialLogin } from "@/components/auth/SocialLogin";
 
 const inputClass =
   "w-full rounded-lg border border-white/20 bg-black p-3 text-white outline-none transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500";
@@ -155,6 +156,8 @@ export function LoginForm() {
           {loading ? "Signing in..." : "Log In"}
         </button>
       </form>
+
+      <SocialLogin redirectPath={redirectPath} />
 
       <div className="mt-8 border-t border-white/10 pt-6 text-center text-sm text-gray-500">
         <p className="mb-2">
