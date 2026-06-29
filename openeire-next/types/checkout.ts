@@ -135,6 +135,20 @@ export interface CheckoutSuccessContext {
   hasDigitalItems: boolean;
   hasPhysicalItems: boolean;
   itemCount: number;
+  analytics?: {
+    value?: number;
+    shipping?: number;
+    coupon?: string;
+    items?: Array<{
+      item_id: string;
+      item_name: string;
+      item_category?: string;
+      item_category2?: string;
+      item_variant?: string;
+      price?: number;
+      quantity?: number;
+    }>;
+  };
   returnStatus?: "succeeded";
   returnRecordedAt?: number;
 }

@@ -1,4 +1,4 @@
-import { API_BASE_URL, isAbsoluteUrl } from "@/lib/api/config";
+import { getApiBaseUrlForRequest, isAbsoluteUrl } from "@/lib/api/config";
 import {
   clearTokens,
   getAccessToken,
@@ -56,9 +56,10 @@ export const isApiError = (error: unknown): error is ApiError =>
   error instanceof ApiError;
 
 const buildUrl = (path: string, params?: Record<string, unknown>): string => {
+  const apiBaseUrl = getApiBaseUrlForRequest();
   const baseUrl = isAbsoluteUrl(path)
     ? path
-    : `${API_BASE_URL}${path.replace(/^\/+/, "")}`;
+    : `${apiBaseUrl}${path.replace(/^\/+/, "")}`;
   const url = new URL(baseUrl, getSiteUrl());
 
   for (const [key, value] of Object.entries(params ?? {})) {

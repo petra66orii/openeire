@@ -26,6 +26,13 @@ export interface BlogLikeResponse {
   likes_count: number;
 }
 
+export interface BlogComment {
+  id: number;
+  user: string;
+  content: string;
+  created_at: string;
+}
+
 export interface RelatedBlogPost {
   title: string;
   slug: string;

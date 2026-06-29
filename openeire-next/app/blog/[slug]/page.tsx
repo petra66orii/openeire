@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BlogComments } from "@/components/blog/BlogComments";
 import { BlogLikeButton } from "@/components/blog/BlogLikeButton";
 import { JsonLd } from "@/components/JsonLd";
 import { getPublishedBlogPostBySlug } from "@/lib/api/blog";
@@ -291,16 +292,7 @@ export default async function BlogDetailPage({
           </div>
         ) : null}
 
-        <div className="mt-20 rounded-2xl border border-white/5 bg-gray-900/50 p-8">
-          <h2 className="mb-4 font-serif text-2xl font-bold text-white">
-            Discussion
-          </h2>
-          <p className="text-sm leading-relaxed text-gray-400">
-            Comments remain available in the current React app while this
-            server-rendered migration preserves article content, saved stories,
-            sharing, and related-post discovery first.
-          </p>
-        </div>
+        <BlogComments slug={post.slug} />
       </div>
     </div>
   );

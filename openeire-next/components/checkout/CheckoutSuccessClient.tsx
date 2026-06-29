@@ -15,13 +15,16 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useCart } from "@/components/cart/CartProvider";
 import {
   clearCheckoutSuccessContext,
+  hasTrackedPurchaseAnalytics,
   isCheckoutSuccessHistoryEntry,
   markCheckoutSuccessHistoryEntry,
+  markPurchaseAnalyticsTracked,
   readCheckoutSuccessContext,
   stripCheckoutReturnParameters,
   writeCheckoutSuccessContext,
 } from "@/lib/checkout/successContext";
 import { getCheckoutCartSignature } from "@/lib/checkout/payload";
+import { trackEcommerceEvent } from "@/lib/ecommerceAnalytics";
 import { stripePromise } from "@/lib/stripe/client";
 import type { CheckoutSuccessContext } from "@/types/checkout";
 
@@ -45,6 +48,7 @@ export function CheckoutSuccessClient() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { clearCart, isLoaded: isCartLoaded, items } = useCart();
   const hasClearedCart = useRef(false);
+  const trackedPurchaseRef = useRef<string | null>(null);
   const [context, setContext] = useState<CheckoutSuccessContext | null>(null);
   const [displayStatus, setDisplayStatus] =
     useState<RedirectStatus>("checking");
@@ -145,6 +149,29 @@ export function CheckoutSuccessClient() {
       isActive = false;
     };
   }, [searchParams]);
+
+  useEffect(() => {
+    const analytics = context?.analytics;
+    if (
+      displayStatus !== "succeeded" ||
+      !context?.paymentIntentId ||
+      trackedPurchaseRef.current === context.paymentIntentId ||
+      hasTrackedPurchaseAnalytics(context.paymentIntentId) ||
+      !analytics?.items?.length
+    ) {
+      return;
+    }
+
+    trackedPurchaseRef.current = context.paymentIntentId;
+    markPurchaseAnalyticsTracked(context.paymentIntentId);
+    trackEcommerceEvent("purchase", {
+      transaction_id: context.paymentIntentId,
+      value: analytics.value,
+      shipping: analytics.shipping,
+      coupon: analytics.coupon,
+      items: analytics.items,
+    });
+  }, [context, displayStatus]);
 
   useEffect(() => {
     const cartMatchesReceipt = Boolean(
