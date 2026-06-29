@@ -1,4 +1,5 @@
 import { api, isApiError } from "@/lib/api/client";
+import { logPublicApiFetchFailure } from "@/lib/api/publicFetchLogging";
 import type {
   BlogLikeResponse,
   BlogComment,
@@ -12,15 +13,20 @@ const BLOG_REVALIDATE_SECONDS = 300;
 export const getPublishedBlogPosts = async (
   options: { tag?: string; page?: number | string } = {},
 ): Promise<PaginatedResponse<BlogPostListItem>> => {
-  const response = await api.get<PaginatedResponse<BlogPostListItem>>("blog/", {
-    params: {
-      tag: options.tag,
-      page: options.page,
-    },
-    next: { revalidate: BLOG_REVALIDATE_SECONDS },
-  });
+  try {
+    const response = await api.get<PaginatedResponse<BlogPostListItem>>("blog/", {
+      params: {
+        tag: options.tag,
+        page: options.page,
+      },
+      next: { revalidate: BLOG_REVALIDATE_SECONDS },
+    });
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    logPublicApiFetchFailure("blog:list", "blog/", error);
+    throw error;
+  }
 };
 
 export const getAllPublishedBlogPostsForSitemap = async (): Promise<
@@ -56,6 +62,7 @@ export const getPublishedBlogPostBySlug = async (
     ) {
       return null;
     }
+    logPublicApiFetchFailure("blog:detail", `blog/${slug}/`, error);
     throw error;
   }
 };

@@ -1,4 +1,5 @@
 import { api, isApiError } from "@/lib/api/client";
+import { logPublicApiFetchFailure } from "@/lib/api/publicFetchLogging";
 import type {
   PaginatedResponse,
   DigitalGalleryFilter,
@@ -38,23 +39,28 @@ const asGalleryPage = (
 export const getPublicGalleryItems = async (
   query: GalleryQuery = {},
 ): Promise<PaginatedResponse<PublicGalleryItem>> => {
-  const response = await api.get<
-    PublicGalleryItem[] | PaginatedResponse<PublicGalleryItem>
-  >("gallery/", {
-    params: {
-      type: query.type === "all" ? undefined : (query.type ?? "physical"),
-      collection:
-        !query.collection || query.collection === "all"
-          ? undefined
-          : query.collection,
-      search: query.search,
-      sort: query.sort ?? "date_desc",
-      page: query.page,
-    },
-    next: { revalidate: GALLERY_REVALIDATE_SECONDS },
-  });
+  try {
+    const response = await api.get<
+      PublicGalleryItem[] | PaginatedResponse<PublicGalleryItem>
+    >("gallery/", {
+      params: {
+        type: query.type === "all" ? undefined : (query.type ?? "physical"),
+        collection:
+          !query.collection || query.collection === "all"
+            ? undefined
+            : query.collection,
+        search: query.search,
+        sort: query.sort ?? "date_desc",
+        page: query.page,
+      },
+      next: { revalidate: GALLERY_REVALIDATE_SECONDS },
+    });
 
-  return asGalleryPage(response.data);
+    return asGalleryPage(response.data);
+  } catch (error) {
+    logPublicApiFetchFailure("gallery:public-list", "gallery/", error);
+    throw error;
+  }
 };
 
 export const getProtectedDigitalGalleryItems = async (
@@ -145,6 +151,7 @@ export const getPublicPhysicalProduct = async (
     ) {
       return null;
     }
+    logPublicApiFetchFailure("gallery:physical-detail", `products/${id}/`, error);
     throw error;
   }
 };
@@ -184,7 +191,12 @@ export const getShoppingBagRecommendations = async (): Promise<
     );
 
     if (recommendations.length) return recommendations;
-  } catch {
+  } catch (error) {
+    logPublicApiFetchFailure(
+      "gallery:recommendations",
+      "products/recommendations/",
+      error,
+    );
     // Recommendations are nice-to-have; fall back to public prints below.
   }
 
@@ -195,7 +207,12 @@ export const getShoppingBagRecommendations = async (): Promise<
     });
 
     return fallback.results.filter((item) => item.product_type === "physical");
-  } catch {
+  } catch (error) {
+    logPublicApiFetchFailure(
+      "gallery:recommendations-fallback",
+      "gallery/",
+      error,
+    );
     return [];
   }
 };
