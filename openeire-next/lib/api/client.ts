@@ -167,6 +167,14 @@ const request = async <T>(
   const url = buildUrl(path, config.params);
   const requestInfo = { method, url };
   const headers = new Headers(config.headers);
+
+  if (typeof window === "undefined") {
+    const internalSecret = process.env.OPENEIRE_INTERNAL_API_SECRET;
+
+    if (internalSecret) {
+      headers.set("X-OpenEire-Internal", internalSecret);
+    }
+  }
   const { body, shouldSetJsonContentType } = createRequestBody(
     config.data,
     config.body,
