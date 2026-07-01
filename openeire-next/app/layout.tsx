@@ -25,8 +25,9 @@ export default function RootLayout({
       </head>
       <body>
         <Script
+          id="openeire-iubenda-widget"
           src="https://embeds.iubenda.com/widgets/b39f0cd0-25d9-49f2-9306-1258615676f2.js"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
         <Providers>
           <div className="flex min-h-screen flex-col">

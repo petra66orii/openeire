@@ -108,17 +108,10 @@ export function HomeHeroSection() {
             </Link>
 
             <Link
-              href="/gallery-gate?next=/gallery/digital"
+              href="/services"
               className="w-full max-w-xs rounded-full border border-white/20 bg-black/20 px-8 py-4 font-medium text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white/30 sm:w-auto"
             >
-              Browse Footage
-            </Link>
-
-            <Link
-              href="/licensing"
-              className="w-full max-w-xs rounded-full border border-white/40 bg-white/5 px-8 py-4 font-medium text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white/20 sm:w-auto"
-            >
-              Explore Licensing
+              Explore Services
             </Link>
           </div>
         </div>

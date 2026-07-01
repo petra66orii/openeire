@@ -5,6 +5,7 @@ import { buildAbsoluteUrl } from "@/lib/site";
 
 const staticPublicRoutes = [
   "/",
+  "/services",
   "/licensing",
   "/art-prints",
   "/footage",
