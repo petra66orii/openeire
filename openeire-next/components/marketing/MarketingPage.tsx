@@ -120,48 +120,88 @@ export function CardGrid({
   columns?: 2 | 3;
 }) {
   return (
+    <>
+      <SwipeHint className="md:hidden" />
+      <div
+        className={
+          columns === 2
+            ? "mobile-snap-row grid gap-5 md:grid-cols-2"
+            : "mobile-snap-row grid gap-5 md:grid-cols-3"
+        }
+      >
+        {items.map((item, index) => (
+          <article
+            key={item.id ?? `${item.title}-${index}`}
+            className="mobile-snap-card rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
+          >
+            {item.icon ? (
+              <div className="p-2 text-2xl text-accent">{item.icon}</div>
+            ) : null}
+            <h3 className="font-serif text-xl font-bold text-white">
+              {item.title}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-gray-300">
+              {item.text}
+            </p>
+          </article>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export function SwipeHint({
+  className = "md:hidden",
+  label = "Swipe to explore",
+}: {
+  className?: string;
+  label?: string;
+}) {
+  return (
     <div
-      className={
-        columns === 2
-          ? "grid gap-5 md:grid-cols-2"
-          : "grid gap-5 md:grid-cols-3"
-      }
+      className={`mb-4 flex items-center justify-end gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-gray-400 ${className}`}
     >
-      {items.map((item, index) => (
-        <article
-          key={item.id ?? `${item.title}-${index}`}
-          className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
-        >
-          {item.icon ? (
-            <div className="text-2xl text-accent p-2">{item.icon}</div>
-          ) : null}
-          <h3 className="font-serif text-xl font-bold text-white">
-            {item.title}
-          </h3>
-          <p className="mt-3 text-sm leading-relaxed text-gray-300">
-            {item.text}
-          </p>
-        </article>
-      ))}
+      <span aria-hidden="true" className="text-sm leading-none">
+        {"<"}
+      </span>
+      <span>{label}</span>
+      <span aria-hidden="true" className="text-sm leading-none">
+        {">"}
+      </span>
     </div>
   );
 }
 
-export function NumberedSteps({ steps }: { steps: string[] }) {
+export function NumberedSteps({
+  steps,
+  mobileSwipe = true,
+}: {
+  steps: string[];
+  mobileSwipe?: boolean;
+}) {
   return (
-    <div className="grid gap-5 md:grid-cols-3">
-      {steps.map((step, index) => (
-        <article
-          key={`${step}-${index}`}
-          className="rounded-2xl border border-white/10 bg-black/35 p-5"
-        >
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-accent">
-            Step {index + 1}
-          </p>
-          <p className="mt-3 text-sm leading-relaxed text-gray-300">{step}</p>
-        </article>
-      ))}
-    </div>
+    <>
+      {mobileSwipe ? <SwipeHint className="md:hidden" /> : null}
+      <div
+        className={
+          mobileSwipe
+            ? "mobile-snap-row grid gap-5 md:grid-cols-3"
+            : "grid gap-5 md:grid-cols-3"
+        }
+      >
+        {steps.map((step, index) => (
+          <article
+            key={`${step}-${index}`}
+            className={`${mobileSwipe ? "mobile-snap-card" : ""} rounded-2xl border border-white/10 bg-black/35 p-5`}
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-accent">
+              Step {index + 1}
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-gray-300">{step}</p>
+          </article>
+        ))}
+      </div>
+    </>
   );
 }
 

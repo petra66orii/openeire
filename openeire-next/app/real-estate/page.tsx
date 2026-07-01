@@ -1,4 +1,5 @@
 import { JsonLd } from "@/components/JsonLd";
+import { SwipeHint } from "@/components/marketing/MarketingPage";
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
 import { SITE_NAME, buildAbsoluteUrl } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -328,11 +329,12 @@ export default function RealEstatePage() {
               Give every listing a stronger first impression.
             </h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-5">
+          <SwipeHint className="md:hidden" />
+          <div className="mobile-snap-row grid gap-5 md:grid-cols-2 lg:grid-cols-5">
             {listingFeatures.map((item) => (
               <div
                 key={item.title}
-                className="rounded-3xl border border-white/10 bg-gray-950 p-6"
+                className="mobile-snap-card rounded-3xl border border-white/10 bg-gray-950 p-6"
               >
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#16a34a]/15 text-xl text-[#16a34a]">
                   {item.icon}
@@ -362,11 +364,12 @@ export default function RealEstatePage() {
             </p>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-5">
+          <SwipeHint className="md:hidden" />
+          <div className="mobile-snap-row grid gap-5 lg:grid-cols-2 xl:grid-cols-5">
             {packages.map((item) => (
               <div
                 key={item.key}
-                className={`relative flex flex-col rounded-[1.75rem] border p-6 ${
+                className={`mobile-snap-card mobile-snap-card-wide relative flex flex-col rounded-[1.75rem] border p-6 ${
                   item.badge
                     ? "border-[#16a34a] bg-[#16a34a]/10 shadow-2xl shadow-[#16a34a]/10"
                     : "border-white/10 bg-black"
@@ -421,11 +424,12 @@ export default function RealEstatePage() {
               extras you do not need.
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <SwipeHint className="md:hidden" />
+          <div className="mobile-snap-row grid gap-4 md:grid-cols-2">
             {addOns.map((item) => (
               <div
                 key={item.label}
-                className="rounded-2xl border border-white/10 bg-gray-950 p-5"
+                className="mobile-snap-card rounded-2xl border border-white/10 bg-gray-950 p-5"
               >
                 <h3 className="font-bold">{item.label}</h3>
                 <p className="mt-2 text-sm text-[#16a34a]">{item.price}</p>
@@ -437,11 +441,12 @@ export default function RealEstatePage() {
 
       <section className="py-20">
         <div className="container mx-auto max-w-7xl px-4 lg:px-8">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <SwipeHint className="md:hidden" />
+          <div className="mobile-snap-row grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {processSteps.map((item) => (
               <div
                 key={item.title}
-                className="rounded-3xl border border-white/10 bg-gray-950 p-7"
+                className="mobile-snap-card rounded-3xl border border-white/10 bg-gray-950 p-7"
               >
                 <h2 className="font-serif text-2xl font-bold">{item.title}</h2>
                 <p className="mt-3 leading-relaxed text-gray-400">

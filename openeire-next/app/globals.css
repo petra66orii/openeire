@@ -102,12 +102,16 @@
 
 html {
   background: var(--color-paper);
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   @apply bg-paper font-sans text-dark antialiased;
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 h1,
@@ -265,4 +269,58 @@ a {
 .blog-content pre,
 .blog-content code {
   @apply rounded bg-white/5;
+}
+
+@media (max-width: 767px) {
+  .mobile-snap-row {
+    display: flex;
+    gap: 1rem;
+    margin-inline: -1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    padding-inline: 1rem;
+    scroll-padding-inline: 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-snap-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-snap-card {
+    flex: 0 0 min(84vw, 22rem);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  .mobile-snap-card-wide {
+    flex-basis: min(88vw, 24rem);
+  }
+}
+
+@media (max-width: 1024px) {
+  .services-snap-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .services-snap-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .services-snap-card {
+    flex: 0 0 min(88vw, 40rem);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
 }
