@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
+import { SwipeHint } from "@/components/marketing/MarketingPage";
 import {
   FaFileContract,
   FaHome,
@@ -140,11 +141,12 @@ export function HomeServicesSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4 lg:gap-8">
+        <SwipeHint className="md:hidden" />
+        <div className="mobile-snap-row grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4 lg:gap-8">
           {services.map((service) => (
             <div
               key={service.title}
-              className="group rounded-2xl border border-gray-700 bg-dark p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
+              className="mobile-snap-card group rounded-2xl border border-gray-700 bg-dark p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
             >
               <div className="mb-6 inline-block rounded-2xl bg-brand-500 p-4 transition-colors duration-300 group-hover:bg-accent-hover">
                 <div className="transition-colors duration-300 group-hover:text-white">

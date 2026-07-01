@@ -188,19 +188,19 @@ export default async function BlogDetailPage({
           {post.title}
         </h1>
 
-        <div className="mb-8 flex flex-wrap items-center gap-6 border-b border-white/10 pb-8 font-mono text-sm text-gray-400">
-          <div className="flex items-center gap-2">
+        <div className="mb-8 flex min-w-0 flex-wrap items-center gap-6 overflow-hidden border-b border-white/10 pb-8 font-mono text-sm text-gray-400">
+          <div className="flex min-w-0 items-center gap-2">
             <FaUser className="text-accent" /> {post.author}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <FaCalendar className="text-accent" /> {visiblePublishedDate}
           </div>
-          <div className="flex gap-2">
+          <div className="flex min-w-0 flex-wrap gap-2">
             {post.tags.map((tag) => (
               <Link
                 key={tag}
                 href={`/blog?tag=${encodeURIComponent(tag)}`}
-                className="text-accent hover:underline"
+                className="max-w-full break-words text-accent [overflow-wrap:anywhere] hover:underline"
               >
                 #{tag}
               </Link>
@@ -263,7 +263,7 @@ export default async function BlogDetailPage({
             <h2 className="mb-8 font-serif text-2xl font-bold text-white">
               Read Next
             </h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="mobile-snap-row grid grid-cols-1 gap-6 md:grid-cols-3">
               {post.related_posts.map((related) => {
                 const relatedImage = resolveMediaUrl(related.featured_image);
 
@@ -271,7 +271,7 @@ export default async function BlogDetailPage({
                   <Link
                     key={related.slug}
                     href={`/blog/${related.slug}`}
-                    className="group block overflow-hidden rounded-xl border border-white/10 bg-gray-900 transition-all hover:border-accent/50"
+                    className="mobile-snap-card group block overflow-hidden rounded-xl border border-white/10 bg-gray-900 transition-all hover:border-accent/50"
                   >
                     <div className="relative h-40 overflow-hidden">
                       <img

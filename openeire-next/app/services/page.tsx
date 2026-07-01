@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
+import { SwipeHint } from "@/components/marketing/MarketingPage";
 import { PUBLIC_IMAGES } from "@/lib/assets";
 import { SITE_NAME, buildAbsoluteUrl } from "@/lib/site";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/jsonLd";
@@ -16,21 +17,6 @@ export const metadata = buildPageMetadata({
 
 const serviceCards = [
   {
-    title: "Commercial Licensing",
-    eyebrow: "Rights-managed aerial visuals",
-    description:
-      "License premium aerial photography and footage for campaigns, editorial projects, brand films, tourism, hospitality, and production work.",
-    href: "/licensing",
-    cta: "Explore Licensing",
-    icon: <FaFileContract aria-hidden="true" />,
-    image: PUBLIC_IMAGES.heroPoster,
-    points: [
-      "Commercial and editorial licence scopes",
-      "Photo and video assets for campaign use",
-      "Clear usage, territory, duration, and approval terms",
-    ],
-  },
-  {
     title: "Real Estate Services",
     eyebrow: "Property media across Connacht",
     description:
@@ -44,6 +30,23 @@ const serviceCards = [
       "Clear package pricing for listings",
       "Listing-ready delivery for agents, developers, and sellers",
     ],
+    tone: "property",
+  },
+  {
+    title: "Commercial Licensing",
+    eyebrow: "Rights-managed aerial visuals",
+    description:
+      "License premium aerial photography and footage for campaigns, editorial projects, brand films, tourism, hospitality, and production work.",
+    href: "/licensing",
+    cta: "Explore Licensing",
+    icon: <FaFileContract aria-hidden="true" />,
+    image: PUBLIC_IMAGES.heroPoster,
+    points: [
+      "Commercial and editorial licence scopes",
+      "Photo and video assets for campaign use",
+      "Clear usage, territory, duration, and approval terms",
+    ],
+    tone: "licensing",
   },
 ] as const;
 
@@ -104,12 +107,16 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <section className="grid border-b border-white/10 lg:min-h-[62vh] lg:grid-cols-2">
+      <section className="border-b border-white/10">
+        <div className="container mx-auto px-4 pt-6 lg:hidden lg:px-8">
+          <SwipeHint className="lg:hidden" label="Swipe between services" />
+        </div>
+        <div className="services-snap-row grid lg:min-h-[62vh] lg:grid-cols-2">
         {serviceCards.map((service, index) => (
           <Link
             key={service.href}
             href={service.href}
-            className={`group relative isolate flex min-h-[34rem] overflow-hidden ${
+            className={`services-snap-card group relative isolate flex min-h-[34rem] overflow-hidden ${
               index === 0 ? "lg:border-r lg:border-white/10" : ""
             } focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-black`}
             aria-label={`${service.cta}: ${service.title}`}
@@ -121,7 +128,7 @@ export default function ServicesPage() {
             />
             <div
               className={`absolute inset-0 -z-10 ${
-                index === 0
+                service.tone === "licensing"
                   ? "bg-[linear-gradient(135deg,rgba(0,0,0,0.9),rgba(8,47,73,0.74)),radial-gradient(circle_at_top_left,rgba(255,196,0,0.18),transparent_38%)]"
                   : "bg-[linear-gradient(135deg,rgba(0,0,0,0.9),rgba(5,46,22,0.75)),radial-gradient(circle_at_top_right,rgba(22,163,74,0.25),transparent_42%)]"
               }`}
@@ -158,6 +165,7 @@ export default function ServicesPage() {
             </div>
           </Link>
         ))}
+        </div>
       </section>
 
       <section className="container mx-auto px-4 py-10 text-center text-sm text-gray-400 lg:px-8">

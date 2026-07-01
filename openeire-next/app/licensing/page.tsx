@@ -174,7 +174,7 @@ export default function LicensingPage() {
               Process
             </span>
           </div>
-          <NumberedSteps steps={steps} />
+          <NumberedSteps steps={steps} mobileSwipe={false} />
         </TextPanel>
       </PageSection>
       <PageSection title="Licence routes">
