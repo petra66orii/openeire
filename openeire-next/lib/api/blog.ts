@@ -20,6 +20,7 @@ export const getPublishedBlogPosts = async (
         page: options.page,
       },
       next: { revalidate: BLOG_REVALIDATE_SECONDS },
+      publicFetchContext: "blog:list",
     });
 
     return response.data;
@@ -51,6 +52,7 @@ export const getPublishedBlogPostBySlug = async (
   try {
     const response = await api.get<BlogPostDetail>(`blog/${slug}/`, {
       next: { revalidate: BLOG_REVALIDATE_SECONDS },
+      publicFetchContext: "blog:detail",
     });
 
     return response.data;

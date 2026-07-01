@@ -26,6 +26,7 @@ export interface ApiRequestConfig {
   _retry?: boolean;
   cache?: RequestCache;
   next?: NextFetchRequestConfig;
+  publicFetchContext?: string;
 }
 
 export class ApiError extends Error {
@@ -121,6 +122,7 @@ const isBodyInit = (value: unknown): value is BodyInit =>
   typeof value === "string";
 
 const SAFE_AUTH_REFRESH_RETRY_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+const SERVER_PUBLIC_FETCH_USER_AGENT = "OpenEire-Next-SSR/1.0";
 
 const canRetryAfterAuthRefresh = (
   method: string,
@@ -167,14 +169,16 @@ const request = async <T>(
   const url = buildUrl(path, config.params);
   const requestInfo = { method, url };
   const headers = new Headers(config.headers);
+  const isServerRequest = typeof window === "undefined";
+  const internalSecret = isServerRequest
+    ? process.env.OPENEIRE_INTERNAL_API_SECRET
+    : undefined;
 
-  if (typeof window === "undefined") {
-    const internalSecret = process.env.OPENEIRE_INTERNAL_API_SECRET;
-
-    if (internalSecret) {
-      headers.set("X-OpenEire-Internal", internalSecret);
-    }
+  if (isServerRequest) {
+    headers.set("User-Agent", SERVER_PUBLIC_FETCH_USER_AGENT);
+    if (internalSecret) headers.set("X-OpenEire-Internal", internalSecret);
   }
+
   const { body, shouldSetJsonContentType } = createRequestBody(
     config.data,
     config.body,
@@ -190,6 +194,17 @@ const request = async <T>(
   }
   if (shouldSetJsonContentType && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
+  }
+
+  if (isServerRequest && config.publicFetchContext) {
+    console.info("[server-public-fetch-debug]", {
+      context: config.publicFetchContext,
+      finalUrl: url,
+      isServer: true,
+      hasInternalSecret: Boolean(internalSecret),
+      hasInternalHeader: headers.has("X-OpenEire-Internal"),
+      userAgentSet: headers.has("User-Agent"),
+    });
   }
 
   try {

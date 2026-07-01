@@ -54,6 +54,7 @@ export const getPublicGalleryItems = async (
         page: query.page,
       },
       next: { revalidate: GALLERY_REVALIDATE_SECONDS },
+      publicFetchContext: "gallery:public-list",
     });
 
     return asGalleryPage(response.data);
@@ -137,6 +138,7 @@ export const getPublicPhysicalProduct = async (
       `products/${id}/`,
       {
         next: { revalidate: GALLERY_REVALIDATE_SECONDS },
+        publicFetchContext: "gallery:physical-detail",
       },
     );
 
@@ -184,6 +186,7 @@ export const getShoppingBagRecommendations = async (): Promise<
       PublicGalleryItem[] | PaginatedResponse<PublicGalleryItem>
     >("products/recommendations/", {
       cache: "no-store",
+      publicFetchContext: "gallery:recommendations",
     });
 
     const recommendations = asGalleryPage(response.data).results.filter(
