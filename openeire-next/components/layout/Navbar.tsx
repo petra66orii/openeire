@@ -11,13 +11,15 @@ import {
   FREE_SHIPPING_PROMO_ENABLED,
 } from "@/lib/freeShipping";
 
-const navItems = [
+const primaryNavItems = [
   { href: "/art-prints", label: "Art Prints" },
-  { href: "/licensing", label: "Licensing" },
-  { href: "/footage", label: "Footage" },
-  { href: "/real-estate", label: "Services" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
+];
+
+const serviceNavItems = [
+  { href: "/licensing", label: "Commercial Licensing" },
+  { href: "/real-estate", label: "Real Estate Services" },
 ];
 
 const isActivePath = (pathname: string, href: string) =>
@@ -101,8 +103,13 @@ export function Navbar() {
   const headerRef = useRef<HTMLDivElement | null>(null);
   const [showBanner, setShowBanner] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileServicesOpen, setIsMobileServicesOpen] = useState(false);
+  const [isDesktopServicesOpen, setIsDesktopServicesOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const isHome = pathname === "/";
+  const isServicesActive =
+    isActivePath(pathname, "/services") ||
+    serviceNavItems.some((item) => isActivePath(pathname, item.href));
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -113,6 +120,8 @@ export function Navbar() {
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setIsMobileServicesOpen(false);
+    setIsDesktopServicesOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -199,7 +208,74 @@ export function Navbar() {
             </Link>
 
             <div className="hidden items-center gap-5 font-medium text-xs uppercase tracking-wide lg:flex xl:gap-8 xl:text-sm">
-              {navItems.map((item) => (
+              <Link
+                href="/art-prints"
+                className="transition-colors hover:text-accent-hover"
+                style={
+                  isActivePath(pathname, "/art-prints")
+                    ? { color: "var(--color-accent)", fontWeight: 600 }
+                    : undefined
+                }
+              >
+                Art Prints
+              </Link>
+
+              <div
+                className="group relative"
+                onMouseEnter={() => setIsDesktopServicesOpen(true)}
+                onMouseLeave={() => setIsDesktopServicesOpen(false)}
+                onFocus={() => setIsDesktopServicesOpen(true)}
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                    setIsDesktopServicesOpen(false);
+                  }
+                }}
+              >
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 uppercase tracking-wide transition-colors hover:text-accent-hover focus:text-accent-hover focus:outline-none"
+                  style={
+                    isServicesActive
+                      ? { color: "var(--color-accent)", fontWeight: 600 }
+                      : undefined
+                  }
+                  aria-haspopup="true"
+                  aria-expanded={isDesktopServicesOpen}
+                >
+                  Services
+                  <svg
+                    className="h-3 w-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                <div className="invisible absolute left-1/2 top-full z-20 mt-4 w-64 -translate-x-1/2 rounded-2xl border border-white/10 bg-dark/95 p-3 text-left opacity-0 shadow-2xl shadow-black/35 backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                  <div className="absolute -top-4 left-0 h-4 w-full" aria-hidden="true" />
+                  {serviceNavItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="block rounded-xl px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/85 transition-colors hover:bg-white/10 hover:text-accent"
+                      style={
+                        isActivePath(pathname, item.href)
+                          ? { color: "var(--color-accent)" }
+                          : undefined
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {primaryNavItems.slice(1).map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -274,7 +350,59 @@ export function Navbar() {
           {isMobileMenuOpen ? (
             <div id="mobile-nav" className="px-4 pb-4 lg:hidden">
               <div className="mt-4 space-y-4 rounded-2xl border border-white/10 bg-dark/95 p-4 shadow-lg backdrop-blur-md">
-                {navItems.map((item) => (
+                <Link
+                  href="/art-prints"
+                  className="block text-sm font-semibold uppercase tracking-wide transition-colors hover:text-accent-hover"
+                >
+                  Art Prints
+                </Link>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileServicesOpen((prev) => !prev)}
+                    className="flex w-full items-center justify-between text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:text-accent-hover"
+                    aria-expanded={isMobileServicesOpen}
+                    aria-controls="mobile-services-nav"
+                  >
+                    Services
+                    <svg
+                      className={`h-4 w-4 transition-transform ${
+                        isMobileServicesOpen ? "rotate-180" : ""
+                      }`}
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                  {isMobileServicesOpen ? (
+                    <div
+                      id="mobile-services-nav"
+                      className="mt-3 space-y-3 border-l border-white/10 pl-4"
+                    >
+                      {serviceNavItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className="block text-xs font-semibold uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-accent-hover"
+                          style={
+                            isActivePath(pathname, item.href)
+                              ? { color: "var(--color-accent)" }
+                              : undefined
+                          }
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+                {primaryNavItems.slice(1).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}

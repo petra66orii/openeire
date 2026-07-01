@@ -175,7 +175,7 @@ export function NewsletterSignupModal() {
 
   return (
     <div
-      className="fixed inset-0 z-80 flex items-end justify-center p-4 sm:items-center sm:p-6"
+      className="fixed inset-0 z-80 flex items-end justify-center overflow-y-auto overscroll-contain p-4 sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="newsletter-signup-modal-title"
@@ -186,7 +186,7 @@ export function NewsletterSignupModal() {
         onClick={closeWithDismissal}
         aria-label="Close newsletter signup"
       />
-      <div className="relative z-10 w-full max-w-xl overflow-hidden rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(245,197,24,0.08),_transparent_35%),linear-gradient(180deg,_rgba(17,24,39,0.98),_rgba(5,8,14,0.98))] shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
+      <div className="relative z-10 max-h-[calc(100dvh-2rem)] w-full max-w-xl overflow-y-auto overscroll-contain rounded-[28px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(245,197,24,0.08),_transparent_35%),linear-gradient(180deg,_rgba(17,24,39,0.98),_rgba(5,8,14,0.98))] shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
         <button
           type="button"
           onClick={closeWithDismissal}
