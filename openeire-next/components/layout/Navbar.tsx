@@ -29,10 +29,12 @@ function AuthLinks({
   isAuthenticated,
   isLoading,
   variant,
+  onNavigate,
 }: {
   isAuthenticated: boolean;
   isLoading: boolean;
   variant: "desktop" | "mobile";
+  onNavigate?: () => void;
 }) {
   if (isLoading) {
     return variant === "desktop" ? (
@@ -62,12 +64,13 @@ function AuthLinks({
     return (
       <div className="hidden items-center space-x-4 text-sm font-medium lg:flex">
         {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={
-              link.cta
-                ? "rounded-full bg-primary px-5 py-2 text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105 hover:bg-primary/90"
+        <Link
+          key={link.href}
+          href={link.href}
+          onClick={onNavigate}
+          className={
+            link.cta
+              ? "rounded-full bg-primary px-5 py-2 text-white shadow-lg shadow-primary/30 transition-transform hover:scale-105 hover:bg-primary/90"
                 : "transition-colors hover:text-accent-hover"
             }
           >
@@ -84,6 +87,7 @@ function AuthLinks({
         <Link
           key={link.href}
           href={link.href}
+          onClick={onNavigate}
           className={
             link.cta
               ? "block rounded-full bg-primary px-4 py-2 text-center text-sm font-semibold uppercase tracking-wide text-white"
@@ -111,6 +115,12 @@ export function Navbar() {
     isActivePath(pathname, "/services") ||
     serviceNavItems.some((item) => isActivePath(pathname, item.href));
 
+  const closeAllMenus = () => {
+    setIsMobileMenuOpen(false);
+    setIsMobileServicesOpen(false);
+    setIsDesktopServicesOpen(false);
+  };
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     handleScroll();
@@ -119,10 +129,32 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-    setIsMobileServicesOpen(false);
-    setIsDesktopServicesOpen(false);
+    closeAllMenus();
   }, [pathname]);
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node | null;
+      if (headerRef.current?.contains(target)) return;
+      closeAllMenus();
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeAllMenus();
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -221,7 +253,7 @@ export function Navbar() {
               </Link>
 
               <div
-                className="group relative"
+                className="relative"
                 onMouseEnter={() => setIsDesktopServicesOpen(true)}
                 onMouseLeave={() => setIsDesktopServicesOpen(false)}
                 onFocus={() => setIsDesktopServicesOpen(true)}
@@ -244,7 +276,9 @@ export function Navbar() {
                 >
                   Services
                   <svg
-                    className="h-3 w-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180"
+                    className={`h-3 w-3 transition-transform ${
+                      isDesktopServicesOpen ? "rotate-180" : ""
+                    }`}
                     viewBox="0 0 20 20"
                     fill="currentColor"
                     aria-hidden="true"
@@ -256,12 +290,19 @@ export function Navbar() {
                     />
                   </svg>
                 </button>
-                <div className="invisible absolute left-1/2 top-full z-20 mt-4 w-64 -translate-x-1/2 rounded-2xl border border-white/10 bg-dark/95 p-3 text-left opacity-0 shadow-2xl shadow-black/35 backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+                <div
+                  className={`absolute left-1/2 top-full z-20 mt-4 w-64 -translate-x-1/2 rounded-2xl border border-white/10 bg-dark/95 p-3 text-left shadow-2xl shadow-black/35 backdrop-blur-md transition-all duration-200 ${
+                    isDesktopServicesOpen
+                      ? "visible opacity-100"
+                      : "invisible opacity-0"
+                  }`}
+                >
                   <div className="absolute -top-4 left-0 h-4 w-full" aria-hidden="true" />
                   {serviceNavItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
+                      onClick={closeAllMenus}
                       className="block rounded-xl px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/85 transition-colors hover:bg-white/10 hover:text-accent"
                       style={
                         isActivePath(pathname, item.href)
@@ -316,7 +357,15 @@ export function Navbar() {
 
               <button
                 type="button"
-                onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+                onClick={() =>
+                  setIsMobileMenuOpen((prev) => {
+                    const next = !prev;
+                    if (!next) {
+                      setIsMobileServicesOpen(false);
+                    }
+                    return next;
+                  })
+                }
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white transition-all hover:bg-white/10 lg:hidden"
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMobileMenuOpen}
@@ -343,6 +392,7 @@ export function Navbar() {
                 isAuthenticated={isAuthenticated}
                 isLoading={isLoading}
                 variant="desktop"
+                onNavigate={closeAllMenus}
               />
             </div>
           </div>
@@ -352,6 +402,7 @@ export function Navbar() {
               <div className="mt-4 space-y-4 rounded-2xl border border-white/10 bg-dark/95 p-4 shadow-lg backdrop-blur-md">
                 <Link
                   href="/art-prints"
+                  onClick={closeAllMenus}
                   className="block text-sm font-semibold uppercase tracking-wide transition-colors hover:text-accent-hover"
                 >
                   Art Prints
@@ -389,6 +440,7 @@ export function Navbar() {
                         <Link
                           key={item.href}
                           href={item.href}
+                          onClick={closeAllMenus}
                           className="block text-xs font-semibold uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-accent-hover"
                           style={
                             isActivePath(pathname, item.href)
@@ -406,6 +458,7 @@ export function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={closeAllMenus}
                     className="block text-sm font-semibold uppercase tracking-wide transition-colors hover:text-accent-hover"
                   >
                     {item.label}
@@ -415,6 +468,7 @@ export function Navbar() {
                   isAuthenticated={isAuthenticated}
                   isLoading={isLoading}
                   variant="mobile"
+                  onNavigate={closeAllMenus}
                 />
               </div>
             </div>

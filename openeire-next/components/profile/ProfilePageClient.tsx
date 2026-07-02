@@ -157,14 +157,6 @@ function AccountStatusCards({ user }: { user: UserProfile }) {
         </div>
         <div className="rounded-xl border border-white/10 bg-black/30 p-4">
           <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
-            Email verification
-          </p>
-          <p className="text-sm font-semibold text-white">
-            Not exposed by the profile endpoint
-          </p>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-black/30 p-4 md:col-span-2">
-          <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">
             Digital gallery access
           </p>
           <p className="text-sm font-semibold text-white">
