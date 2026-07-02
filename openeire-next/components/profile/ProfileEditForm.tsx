@@ -194,7 +194,8 @@ export function ProfileEditForm({
               className={`${inputClass} cursor-not-allowed opacity-50`}
             />
             <p className="mt-1 text-[11px] text-gray-500">
-              Change your email from the Security section.
+              Email change will return after the new-address verification flow
+              is hardened.
             </p>
           </Field>
 

@@ -118,7 +118,8 @@ export default function LicensingPage() {
           name: "Commercial aerial footage licensing",
           provider: { "@type": "Organization", name: SITE_NAME },
           areaServed: "Worldwide",
-          serviceType: "Rights-managed aerial footage and photography licensing",
+          serviceType:
+            "Rights-managed aerial footage and photography licensing",
           url: buildAbsoluteUrl("/licensing"),
           description:
             "Rights-managed licensing for premium aerial footage and photography for commercial and editorial use.",
@@ -127,20 +128,24 @@ export default function LicensingPage() {
       <HeroSection
         eyebrow="Commercial licensing for aerial visuals"
         title="Premium aerial visuals licensed for brands, agencies, and productions"
-        description="OpenÉire Studios licenses premium aerial footage and photography on a rights-managed basis. Start by choosing the photo or video asset you want to use, then send the usage details from that asset page so we can confirm scope, pricing, and approval."
+        description="Start by choosing the photo or video asset you want to use, then send the usage details from that asset page so we can confirm scope, pricing, and approval. OpenÉire Studios licenses premium aerial footage and photography on a rights-managed basis."
         image={PUBLIC_IMAGES.irelandGallery}
         actions={[
           {
             href: "/gallery-gate?next=/gallery/digital",
             label: "Browse Footage & Choose Your Asset",
           },
-          { href: "/contact", label: "Speak to the Studio", variant: "secondary" },
+          {
+            href: "/contact",
+            label: "Speak to the Studio",
+            variant: "secondary",
+          },
         ]}
         note={
           <>
             Licensing starts with the asset you want to use. From that page, you
-            can request a commercial licence with your usage details. Looking for
-            available footage first? Start with{" "}
+            can request a commercial licence with your usage details. Looking
+            for available footage first? Start with{" "}
             <Link href="/footage" className="text-accent hover:text-white">
               the footage page
             </Link>{" "}
@@ -200,7 +205,11 @@ export default function LicensingPage() {
             href: "/gallery-gate?next=/gallery/digital",
             label: "Browse Footage & Choose Your Asset",
           },
-          { href: "/contact", label: "Contact the Studio", variant: "secondary" },
+          {
+            href: "/contact",
+            label: "Contact the Studio",
+            variant: "secondary",
+          },
           {
             href: "/licensing/terms",
             label: "Review Legal Terms",

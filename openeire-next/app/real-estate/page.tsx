@@ -3,10 +3,7 @@ import { SwipeHint } from "@/components/marketing/MarketingPage";
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
 import { SITE_NAME, buildAbsoluteUrl } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import {
-  buildBreadcrumbJsonLd,
-  buildFaqPageJsonLd,
-} from "@/lib/seo/jsonLd";
+import { buildBreadcrumbJsonLd, buildFaqPageJsonLd } from "@/lib/seo/jsonLd";
 import {
   FaCalendarAlt,
   FaCamera,
@@ -44,8 +41,8 @@ const packages: readonly RealEstatePackage[] = [
     features: [
       "10 professionally edited interior & exterior photographs",
       "Full resolution delivery, print & web ready",
-      "24-hour delivery",
-      "Full commercial marketing licence for the property listing, including Daft.ie, MyHome.ie, agency websites, social media, email campaigns and print brochures",
+      "24-hour delivery (in normal operating conditions)",
+      "Commercial marketing licence for this specific property listing, including Daft.ie, MyHome.ie, agency websites, social media, email campaigns and print brochures, for the duration of the active listing (up to 2 years, non-transferable).",
     ],
   },
   {
@@ -55,9 +52,10 @@ const packages: readonly RealEstatePackage[] = [
     description: "Recommended for standard 3-4 bed residential properties.",
     features: [
       "20 professionally edited interior & exterior photographs",
+      "5-8 high-quality aerial drone stills",
       "Full resolution delivery, print & web ready",
-      "24-hour delivery",
-      "Full commercial marketing licence",
+      "24-hour delivery (in normal operating conditions)",
+      "Commercial marketing licence",
     ],
   },
   {
@@ -68,12 +66,13 @@ const packages: readonly RealEstatePackage[] = [
     description:
       "Recommended for detached homes, larger properties, new builds, agents wanting standout listings.",
     features: [
-      "20 professionally edited interior & exterior photographs",
+      "25 professionally edited interior & exterior photographs",
+      "5-8 high-quality aerial drone stills",
       "Aerial drone video, 60-90 seconds, 4K, edited with music",
       "Social media cuts included, portrait 9:16 and square 1:1 formatted reels",
       "Full resolution delivery, print & web ready",
-      "24-hour delivery",
-      "Full commercial marketing licence",
+      "24-hour delivery (in normal operating conditions)",
+      "Commercial marketing licence",
     ],
   },
   {
@@ -83,13 +82,15 @@ const packages: readonly RealEstatePackage[] = [
     description:
       "Recommended for premium listings, larger homes, waterfront/rural properties, new developments, and properties where presentation is a major selling point.",
     features: [
-      "20 professionally edited interior & exterior photographs",
+      "30 professionally edited interior & exterior photographs",
+      "5-8 high-quality aerial drone stills",
       "Aerial drone video, 60-90 seconds, 4K, edited with music",
       "Social media cuts included, portrait 9:16 and square 1:1 formatted reels",
       "3D interactive virtual tour, hosted, shareable link",
+      "Floor plan, 2D measured",
       "Full resolution delivery, print & web ready",
-      "24-hour delivery",
-      "Full commercial marketing licence",
+      "24-hour delivery (in normal operating conditions)",
+      "Commercial marketing licence",
     ],
   },
   {
@@ -121,7 +122,7 @@ const listingFeatures = [
   {
     icon: <FaCalendarAlt />,
     title: "Fast delivery",
-    text: "Listing-ready files delivered within 24 hours after the shoot once the access and brief details are confirmed.",
+    text: "Listing‑ready files delivered within 24 hours after the shoot, once access and brief details have been provided and conditions allow safe and lawful capture.",
   },
   {
     icon: <FaHome />,
@@ -141,7 +142,7 @@ const addOns = [
     price: "€10 + VAT per image",
   },
   {
-    label: "Floor plan, 2D measured",
+    label: "Floor plan, 2D measured (included in Premium package)",
     price: "€75 + VAT",
   },
   {
@@ -190,7 +191,7 @@ const faqs = [
   {
     question: "How quickly will I receive the media?",
     answer:
-      "All packages are delivered within 24 hours after the shoot, once access and brief details have been provided.",
+      "All packages are delivered within 24 hours after the shoot, once access and brief details have been provided and conditions allow safe and lawful capture.",
   },
   {
     question: "Can you fly the drone at every property?",
@@ -198,14 +199,24 @@ const faqs = [
       "Aerial work depends on weather, site conditions, airspace restrictions and safe operating limits. We review this before confirming the shoot.",
   },
   {
+    question: "Is OpenÉire commercially insured?",
+    answer:
+      "OpenÉire is fully insured for commercial drone operations, with public liability cover of up to €6.5 million per occurrence.",
+  },
+  {
     question: "What happens if the weather is unsuitable?",
     answer:
-      "If weather conditions fall outside safe operational limits within 48 hours of the shoot, we reschedule at no additional cost.",
+      "If weather or safety conditions fall outside safe operational limits, OpenÉire will offer one reschedule at no additional cost. Further reschedules may incur a fee.",
   },
   {
     question: "Can I use the photos and videos on Daft.ie and social media?",
     answer:
-      "Yes. All packages include a commercial marketing licence for the property listing, including property portals, agency websites, social media, email campaigns and print brochures.",
+      "Yes. All packages include a commercial marketing licence for the specific property listing, across property portals, your agency website, social media, email campaigns and print brochures. The licence is non-transferable and ends when the listing is sold, let or withdrawn, or after 2 years (whichever comes first).",
+  },
+  {
+    question: "Can another agent use the same photos and video?",
+    answer:
+      "No. The licence is granted to the booking agent for that specific instruction only. If a different agent lists the property, they will need to arrange their own shoot or licence agreement with OpenÉire Studios.",
   },
   {
     question: "Do you cover all of Connacht?",
@@ -227,7 +238,9 @@ const schema = [
       url: buildAbsoluteUrl("/real-estate"),
     },
   ]),
-  buildFaqPageJsonLd(faqs.map(({ question, answer }) => ({ question, answer }))),
+  buildFaqPageJsonLd(
+    faqs.map(({ question, answer }) => ({ question, answer })),
+  ),
   {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -279,20 +292,20 @@ export default function RealEstatePage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="#enquiry"
-                className="rounded-full bg-[#16a34a] px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-[#16a34a]/20 transition hover:bg-[#15803d] focus:outline-none focus:ring-2 focus:ring-[#16a34a] focus:ring-offset-2 focus:ring-offset-black"
+                className="rounded-full bg-brand-500 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-brand-500/20 transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-black"
               >
                 Request a Property Shoot
               </a>
               <a
                 href="#packages"
-                className="rounded-full border border-white/20 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white transition hover:border-[#16a34a] hover:text-[#16a34a] focus:outline-none focus:ring-2 focus:ring-[#16a34a] focus:ring-offset-2 focus:ring-offset-black"
+                className="rounded-full border border-white/20 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white transition hover:border-brand-500 hover:text-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-black"
               >
                 View Packages
               </a>
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur md:p-8">
+          <div className="rounded-[2rem] border border-white/10 bg-brand-500/[0.06] p-6 shadow-2xl backdrop-blur md:p-8">
             <p className="text-xs font-bold uppercase tracking-[0.24em] text-gray-400">
               Launch-ready listing media
             </p>
@@ -306,7 +319,7 @@ export default function RealEstatePage() {
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3">
                   <FaCheckCircle
-                    className="mt-1 shrink-0 text-accent"
+                    className="mt-1 shrink-0 text-brand-500"
                     aria-hidden="true"
                   />
                   <span className="text-sm leading-relaxed text-gray-200">
@@ -336,7 +349,7 @@ export default function RealEstatePage() {
                 key={item.title}
                 className="mobile-snap-card rounded-3xl border border-white/10 bg-gray-950 p-6"
               >
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#16a34a]/15 text-xl text-[#16a34a]">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/15 text-xl text-brand-500">
                   {item.icon}
                 </div>
                 <h3 className="font-serif text-xl font-bold">{item.title}</h3>
@@ -371,7 +384,7 @@ export default function RealEstatePage() {
                 key={item.key}
                 className={`mobile-snap-card mobile-snap-card-wide relative flex flex-col rounded-[1.75rem] border p-6 ${
                   item.badge
-                    ? "border-[#16a34a] bg-[#16a34a]/10 shadow-2xl shadow-[#16a34a]/10"
+                    ? "border-brand-500 bg-brand-500/10 shadow-2xl shadow-brand-500/10"
                     : "border-white/10 bg-black"
                 }`}
               >
@@ -391,7 +404,7 @@ export default function RealEstatePage() {
                   {item.features.map((feature) => (
                     <li key={feature} className="flex gap-3">
                       <FaCheckCircle
-                        className="mt-1 shrink-0 text-[#16a34a]"
+                        className="mt-1 shrink-0 text-brand-500"
                         aria-hidden="true"
                       />
                       <span>{feature}</span>
@@ -400,7 +413,7 @@ export default function RealEstatePage() {
                 </ul>
                 <a
                   href={`/real-estate?package=${item.key}#enquiry`}
-                  className="mt-8 rounded-full border border-white/20 px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.16em] transition hover:border-[#16a34a] hover:text-[#16a34a] focus:outline-none focus:ring-2 focus:ring-[#16a34a] focus:ring-offset-2 focus:ring-offset-black"
+                  className="mt-8 rounded-full border border-white/20 px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.16em] transition hover:border-brand-500 hover:text-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-black"
                 >
                   Enquire
                 </a>
@@ -432,7 +445,7 @@ export default function RealEstatePage() {
                 className="mobile-snap-card rounded-2xl border border-white/10 bg-gray-950 p-5"
               >
                 <h3 className="font-bold">{item.label}</h3>
-                <p className="mt-2 text-sm text-[#16a34a]">{item.price}</p>
+                <p className="mt-2 text-sm text-brand-500">{item.price}</p>
               </div>
             ))}
           </div>
@@ -458,9 +471,9 @@ export default function RealEstatePage() {
 
           <div className="mt-8 rounded-3xl border border-accent/20 bg-accent/10 p-6 text-sm leading-relaxed text-gray-200">
             Aerial work is planned around weather, site conditions, airspace
-            restrictions and safe operating limits. If conditions are unsuitable
-            within 48 hours of a scheduled outdoor or aerial shoot, we will
-            reschedule at no additional cost.
+            restrictions and safe operating limits. If weather conditions are
+            unsuitable, OpenÉire will offer one reschedule at no additional
+            cost. Further reschedules may incur a fee.
           </div>
         </div>
       </section>
@@ -468,7 +481,7 @@ export default function RealEstatePage() {
       <section className="bg-gray-950 py-20">
         <div className="container mx-auto max-w-5xl px-4 text-center lg:px-8">
           <FaHome
-            className="mx-auto mb-5 text-3xl text-[#16a34a]"
+            className="mx-auto mb-5 text-3xl text-brand-500"
             aria-hidden="true"
           />
           <h2 className="font-serif text-3xl font-bold md:text-5xl">
@@ -500,7 +513,7 @@ export default function RealEstatePage() {
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">
                   {item.question}
                   <FaChevronDown
-                    className="shrink-0 text-[#16a34a] transition group-open:rotate-180"
+                    className="shrink-0 text-brand-500 transition group-open:rotate-180"
                     aria-hidden="true"
                   />
                 </summary>
