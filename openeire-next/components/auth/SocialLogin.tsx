@@ -42,10 +42,22 @@ const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ?? "";
 const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 const GOOGLE_SCRIPT_ID = "google-identity-services";
+const GOOGLE_SCRIPT_TIMEOUT_MS = 8000;
+
+const logGoogleSignInDiagnostic = (
+  message: string,
+  context?: Record<string, boolean | string>,
+) => {
+  if (typeof window === "undefined") return;
+  console.warn("[google-sign-in]", message, context);
+};
+
+const isGoogleOAuthAvailable = () =>
+  Boolean(window.google?.accounts?.oauth2);
 
 const loadGoogleIdentityScript = (): Promise<void> => {
   if (typeof window === "undefined") return Promise.resolve();
-  if (window.google?.accounts?.oauth2) return Promise.resolve();
+  if (isGoogleOAuthAvailable()) return Promise.resolve();
 
   const existingScript = document.getElementById(
     GOOGLE_SCRIPT_ID,
@@ -53,10 +65,52 @@ const loadGoogleIdentityScript = (): Promise<void> => {
 
   if (existingScript) {
     return new Promise((resolve, reject) => {
-      existingScript.addEventListener("load", () => resolve(), { once: true });
+      if (existingScript.dataset.googleIdentityStatus === "loaded") {
+        reject(
+          new Error(
+            "Google sign-in script loaded, but the OAuth client was unavailable.",
+          ),
+        );
+        return;
+      }
+
+      if (existingScript.dataset.googleIdentityStatus === "failed") {
+        reject(new Error("Google sign-in script failed to load."));
+        return;
+      }
+
+      const timeout = window.setTimeout(() => {
+        reject(
+          new Error(
+            "Google sign-in script timed out before the OAuth client became available.",
+          ),
+        );
+      }, GOOGLE_SCRIPT_TIMEOUT_MS);
+
+      existingScript.addEventListener(
+        "load",
+        () => {
+          window.clearTimeout(timeout);
+          existingScript.dataset.googleIdentityStatus = "loaded";
+          if (isGoogleOAuthAvailable()) {
+            resolve();
+            return;
+          }
+          reject(
+            new Error(
+              "Google sign-in script loaded, but the OAuth client was unavailable.",
+            ),
+          );
+        },
+        { once: true },
+      );
       existingScript.addEventListener(
         "error",
-        () => reject(new Error("Google sign-in script failed to load.")),
+        () => {
+          window.clearTimeout(timeout);
+          existingScript.dataset.googleIdentityStatus = "failed";
+          reject(new Error("Google sign-in script failed to load."));
+        },
         { once: true },
       );
     });
@@ -68,9 +122,32 @@ const loadGoogleIdentityScript = (): Promise<void> => {
     script.src = GOOGLE_SCRIPT_SRC;
     script.async = true;
     script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () =>
+    const timeout = window.setTimeout(() => {
+      reject(
+        new Error(
+          "Google sign-in script timed out before the OAuth client became available.",
+        ),
+      );
+    }, GOOGLE_SCRIPT_TIMEOUT_MS);
+
+    script.onload = () => {
+      window.clearTimeout(timeout);
+      script.dataset.googleIdentityStatus = "loaded";
+      if (isGoogleOAuthAvailable()) {
+        resolve();
+        return;
+      }
+      reject(
+        new Error(
+          "Google sign-in script loaded, but the OAuth client was unavailable.",
+        ),
+      );
+    };
+    script.onerror = () => {
+      window.clearTimeout(timeout);
+      script.dataset.googleIdentityStatus = "failed";
       reject(new Error("Google sign-in script failed to load."));
+    };
     document.head.appendChild(script);
   });
 };
@@ -90,6 +167,9 @@ export function SocialLogin({ redirectPath }: SocialLoginProps) {
 
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) {
+      logGoogleSignInDiagnostic(
+        "Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID. Google sign-in is hidden.",
+      );
       setScriptError("Google sign-in is not configured.");
       return;
     }
@@ -98,11 +178,32 @@ export function SocialLogin({ redirectPath }: SocialLoginProps) {
     loadGoogleIdentityScript()
       .then(() => {
         if (isMounted) {
-          setIsReady(Boolean(window.google?.accounts?.oauth2));
+          const oauthAvailable = isGoogleOAuthAvailable();
+          if (!oauthAvailable) {
+            logGoogleSignInDiagnostic(
+              "Google Identity Services loaded without accounts.oauth2. Check browser blocking and OAuth origin configuration.",
+              {
+                scriptPresent: Boolean(
+                  document.getElementById(GOOGLE_SCRIPT_ID),
+                ),
+              },
+            );
+          }
+          setIsReady(oauthAvailable);
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (isMounted) {
+          logGoogleSignInDiagnostic(
+            error instanceof Error
+              ? error.message
+              : "Google Identity Services script could not be prepared.",
+            {
+              scriptPresent: Boolean(document.getElementById(GOOGLE_SCRIPT_ID)),
+              hasGoogleNamespace: Boolean(window.google),
+              hasOAuthNamespace: isGoogleOAuthAvailable(),
+            },
+          );
           setScriptError(
             "Google sign-in could not be prepared. Please use email and password.",
           );
@@ -118,6 +219,14 @@ export function SocialLogin({ redirectPath }: SocialLoginProps) {
     if (isSubmitting) return;
 
     if (!GOOGLE_CLIENT_ID || !window.google?.accounts?.oauth2) {
+      logGoogleSignInDiagnostic(
+        "Google sign-in was clicked before the OAuth client was available.",
+        {
+          hasClientId: Boolean(GOOGLE_CLIENT_ID),
+          hasGoogleNamespace: Boolean(window.google),
+          hasOAuthNamespace: isGoogleOAuthAvailable(),
+        },
+      );
       showToast(
         "Google sign-in is not ready yet. Please try again in a moment.",
         "error",
@@ -163,7 +272,16 @@ export function SocialLogin({ redirectPath }: SocialLoginProps) {
 
     try {
       client.requestCode();
-    } catch {
+    } catch (error) {
+      logGoogleSignInDiagnostic(
+        error instanceof Error
+          ? error.message
+          : "Google code popup could not be opened.",
+        {
+          hasOAuthNamespace: isGoogleOAuthAvailable(),
+          likelyOriginIssue: true,
+        },
+      );
       setIsSubmitting(false);
       showToast(
         "Google sign-in could not be opened. Please try again or use email and password.",

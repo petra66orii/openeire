@@ -201,10 +201,8 @@ export function AccountSecurityPanel({
           Current email: <span className="font-semibold text-white">{currentEmail}</span>
         </p>
         <div className="rounded-xl border border-amber-400/20 bg-amber-950/20 p-4 text-sm leading-relaxed text-amber-100/90">
-          Email changes are temporarily paused while we harden the verification
-          handoff. This avoids leaving accounts inactive before the new address
-          is verified. If you need to change your email before this flow is
-          restored, please contact OpenÉire Studios support.
+          Email change is temporarily unavailable. Please contact OpenÉire
+          Studios support if you need to update your email address.
         </div>
         <button
           type="button"
