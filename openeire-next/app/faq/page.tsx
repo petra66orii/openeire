@@ -6,7 +6,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import { buildAbsoluteUrl } from "@/lib/site";
 
 export const metadata = buildPageMetadata({
-  title: "FAQ | OpenÉire Studios",
+  title: "Drone, Licensing & Property Media FAQ | OpenÉire Studios",
   description: "Browse buyer FAQs about drone footage licensing, drone footage usage, and fine art prints from OpenÉire Studios.",
   path: "/faq",
 });

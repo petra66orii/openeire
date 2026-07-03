@@ -1,9 +1,21 @@
 import { JsonLd } from "@/components/JsonLd";
 import { SwipeHint } from "@/components/marketing/MarketingPage";
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
-import { SITE_NAME, buildAbsoluteUrl } from "@/lib/site";
+import {
+  DEFAULT_SOCIAL_IMAGE_PATH,
+  ORGANIZATION_LOGO_PATH,
+  SITE_CONTACT_EMAIL,
+  SITE_NAME,
+  SITE_NAME_ASCII,
+  buildAbsoluteUrl,
+  getOfficialSameAsLinks,
+} from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { buildBreadcrumbJsonLd, buildFaqPageJsonLd } from "@/lib/seo/jsonLd";
+import {
+  buildBreadcrumbJsonLd,
+  buildFaqPageJsonLd,
+  buildOpenEireLocalBusinessJsonLd,
+} from "@/lib/seo/jsonLd";
 import {
   FaCalendarAlt,
   FaCamera,
@@ -26,7 +38,7 @@ type RealEstatePackage = {
 export const metadata = buildPageMetadata({
   title: "Real Estate Photography & Drone Video in Connacht | OpenÉire Studios",
   description:
-    "Professional real estate photography, aerial drone video and 3D virtual tours for estate agents, developers and private sellers across Connacht. Clear package pricing and 24-hour delivery.",
+    "Real estate photography, drone video and 3D tours for estate agents, developers and sellers across Connacht. Packages from €175 + VAT.",
   path: "/real-estate",
   image: "/hero-poster.jpg",
 });
@@ -230,6 +242,37 @@ const faqs = [
   },
 ] as const;
 
+const realEstatePackageOffers = [
+  {
+    name: "Essential real estate media package",
+    price: "175",
+    description: "€175 + VAT. Includes 10 edited photos. VAT is excluded.",
+  },
+  {
+    name: "Starter real estate media package",
+    price: "229",
+    description:
+      "€229 + VAT. Includes 20 edited photos and 5-8 aerial drone stills. VAT is excluded.",
+  },
+  {
+    name: "Pro real estate media package",
+    price: "399",
+    description:
+      "€399 + VAT. Includes 25 edited photos, drone stills, a 60-90 second 4K aerial video and social cuts. VAT is excluded.",
+  },
+  {
+    name: "Premium real estate media package",
+    price: "579",
+    description:
+      "€579 + VAT. Includes 30 edited photos, drone stills, a 60-90 second 4K aerial video, social cuts, 3D virtual tour and 2D measured floor plan. VAT is excluded.",
+  },
+  {
+    name: "Custom real estate media package",
+    description:
+      "POA. Tailored pricing for multi-property shoots, larger developments, commercial properties and bespoke bundles.",
+  },
+] as const;
+
 const schema = [
   buildBreadcrumbJsonLd([
     { name: "Home", url: buildAbsoluteUrl("/") },
@@ -241,19 +284,51 @@ const schema = [
   buildFaqPageJsonLd(
     faqs.map(({ question, answer }) => ({ question, answer })),
   ),
+  buildOpenEireLocalBusinessJsonLd({
+    name: SITE_NAME,
+    alternateName: SITE_NAME_ASCII,
+    url: buildAbsoluteUrl("/"),
+    logo: buildAbsoluteUrl(ORGANIZATION_LOGO_PATH),
+    image: buildAbsoluteUrl(DEFAULT_SOCIAL_IMAGE_PATH),
+    email: SITE_CONTACT_EMAIL,
+    sameAs: getOfficialSameAsLinks(),
+  }),
   {
     "@context": "https://schema.org",
-    "@type": "ProfessionalService",
+    "@type": "Service",
+    "@id": buildAbsoluteUrl("/real-estate#service"),
     name: `${SITE_NAME} Real Estate Media`,
     url: buildAbsoluteUrl("/real-estate"),
     image: buildAbsoluteUrl("/hero-poster.jpg"),
     description:
       "Professional real estate photography, aerial drone video and 3D virtual tours for estate agents, developers and private sellers across Connacht.",
-    areaServed: ["Galway", "Mayo", "Roscommon", "Sligo", "Leitrim"],
+    serviceType: [
+      "Real estate photography",
+      "Drone photography",
+      "Drone videography",
+      "3D virtual tours",
+    ],
+    areaServed: ["Connacht", "Galway", "Mayo", "Roscommon", "Sligo", "Leitrim"],
     provider: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      url: buildAbsoluteUrl("/"),
+      "@id": `${buildAbsoluteUrl("/").replace(/\/+$/, "")}/#localbusiness`,
+    },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Real estate media packages",
+      itemListElement: realEstatePackageOffers.map((offer, index) => ({
+        "@type": "Offer",
+        position: index + 1,
+        name: offer.name,
+        description: offer.description,
+        url: buildAbsoluteUrl("/real-estate#packages"),
+        availability: "https://schema.org/InStock",
+        ...("price" in offer && offer.price
+          ? {
+              price: offer.price,
+              priceCurrency: "EUR",
+            }
+          : {}),
+      })),
     },
   },
 ];

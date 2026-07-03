@@ -13,8 +13,8 @@
   --color-dark: #1a1a1a;
   --color-paper: #fafaf9;
 
-  --font-sans: "Montserrat", sans-serif;
-  --font-serif: "Merriweather", serif;
+  --font-sans: var(--font-montserrat), sans-serif;
+  --font-serif: var(--font-merriweather), serif;
 
   --animate-float: float 6s ease-in-out infinite;
   --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;

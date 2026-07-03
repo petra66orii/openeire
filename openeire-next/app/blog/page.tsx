@@ -13,7 +13,7 @@ import { FaCalendarAlt, FaHeart, FaTag, FaUser } from "react-icons/fa";
 export const revalidate = 300;
 
 export const metadata = buildPageMetadata({
-  title: "Journal | OpenÉire Studios",
+  title: "Aerial Photography Journal | OpenÉire Studios",
   description:
     "Read behind-the-scenes notes, drone capture stories, and photography insights from OpenÉire Studios.",
   path: "/blog",
