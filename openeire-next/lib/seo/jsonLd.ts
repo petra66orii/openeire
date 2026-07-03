@@ -29,6 +29,60 @@ export const buildOrganizationJsonLd = (input: {
   ...(input.sameAs?.length ? { sameAs: input.sameAs } : {}),
 });
 
+export const buildOpenEireLocalBusinessJsonLd = (input: {
+  name: string;
+  alternateName?: string;
+  url: string;
+  logo: string;
+  image: string;
+  email: string;
+  sameAs?: string[];
+}): StructuredData => ({
+  "@context": "https://schema.org",
+  "@type": ["LocalBusiness", "ProfessionalService"],
+  "@id": `${input.url.replace(/\/+$/, "")}/#localbusiness`,
+  name: input.name,
+  ...(input.alternateName ? { alternateName: input.alternateName } : {}),
+  url: input.url,
+  logo: input.logo,
+  image: input.image,
+  email: input.email,
+  description:
+    "Premium aerial photography, fine art prints, property media, commercial licensing, and curated visual assets from Ireland.",
+  priceRange: "€175+VAT to POA",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Loughrea",
+    addressRegion: "Co. Galway",
+    addressCountry: "IE",
+  },
+  areaServed: [
+    { "@type": "AdministrativeArea", name: "Connacht" },
+    { "@type": "AdministrativeArea", name: "Galway" },
+    { "@type": "AdministrativeArea", name: "Mayo" },
+    { "@type": "AdministrativeArea", name: "Roscommon" },
+    { "@type": "AdministrativeArea", name: "Sligo" },
+    { "@type": "AdministrativeArea", name: "Leitrim" },
+    { "@type": "Country", name: "Ireland" },
+  ],
+  serviceType: [
+    "Real estate photography",
+    "Drone photography",
+    "Drone videography",
+    "3D virtual tours",
+    "Fine art prints",
+    "Rights-managed aerial media licensing",
+  ],
+  additionalProperty: [
+    {
+      "@type": "PropertyValue",
+      name: "Appointments",
+      value: "By appointment only",
+    },
+  ],
+  ...(input.sameAs?.length ? { sameAs: input.sameAs } : {}),
+});
+
 export const buildWebsiteJsonLd = (input: {
   name: string;
   alternateName?: string;

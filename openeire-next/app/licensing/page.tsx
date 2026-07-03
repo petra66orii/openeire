@@ -23,7 +23,7 @@ import {
 export const metadata = buildPageMetadata({
   title: "Commercial Aerial Footage Licensing | OpenÉire Studios",
   description:
-    "Explore premium aerial footage and photography from OpenÉire Studios for commercial and editorial use in Ireland and beyond. Start with the asset, then request a scoped licence from its page.",
+    "Rights-managed aerial footage and photography licensing for brands, agencies and productions. Quoted by usage, territory and duration.",
   path: "/licensing",
 });
 
@@ -122,7 +122,12 @@ export default function LicensingPage() {
             "Rights-managed aerial footage and photography licensing",
           url: buildAbsoluteUrl("/licensing"),
           description:
-            "Rights-managed licensing for premium aerial footage and photography for commercial and editorial use.",
+            "Rights-managed licensing for premium aerial footage and photography. Quotes are based on asset, usage, duration, territory, channel, exclusivity and commercial or editorial use.",
+          additionalProperty: costFactors.map((factor) => ({
+            "@type": "PropertyValue",
+            name: "Licensing quote factor",
+            value: factor,
+          })),
         }}
       />
       <HeroSection

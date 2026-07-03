@@ -275,8 +275,9 @@ export default async function BlogDetailPage({
                   >
                     <div className="relative h-40 overflow-hidden">
                       <img
-                        src={relatedImage ?? "https://via.placeholder.com/400"}
+                        src={relatedImage ?? "/hero-poster.jpg"}
                         alt=""
+                        aria-hidden="true"
                         className="h-full w-full object-cover opacity-80 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
                       />
                     </div>

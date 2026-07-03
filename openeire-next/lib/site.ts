@@ -27,3 +27,24 @@ export const buildAbsoluteUrl = (path: string): string => {
   if (/^https?:\/\//i.test(path)) return path;
   return new URL(path, `${getSiteUrl()}/`).toString();
 };
+
+const normalisePublicUrl = (value: string | undefined): string | null => {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+
+  try {
+    const url = new URL(trimmed);
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return null;
+    }
+    return url.toString();
+  } catch {
+    return null;
+  }
+};
+
+export const getOfficialSameAsLinks = (): string[] =>
+  [
+    normalisePublicUrl(process.env.NEXT_PUBLIC_SITE_SOCIAL_INSTAGRAM_URL),
+    normalisePublicUrl(process.env.NEXT_PUBLIC_SITE_SOCIAL_YOUTUBE_URL),
+  ].filter((url): url is string => Boolean(url));

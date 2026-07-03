@@ -97,7 +97,7 @@ export function ContactForm() {
             <FaEnvelope className="text-xl" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <h3 className="mb-1 text-lg font-bold text-white">Email Us</h3>
+            <h2 className="mb-1 text-lg font-bold text-white">Email Us</h2>
             <p className="mb-2 text-sm text-gray-400">
               For print enquiries, commercial licensing, and custom drone work.
             </p>
@@ -115,7 +115,7 @@ export function ContactForm() {
             <FaMapMarkerAlt className="text-xl" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <h3 className="mb-1 text-lg font-bold text-white">Studio</h3>
+            <h2 className="mb-1 text-lg font-bold text-white">Studio</h2>
             <p className="text-sm text-gray-400">
               Loughrea, Co. Galway, Ireland
               <br />
@@ -175,6 +175,7 @@ export function ContactForm() {
                     required
                     value={formData.name}
                     onChange={handleChange}
+                    autoComplete="name"
                     placeholder="John Doe"
                     className={inputClass}
                   />
@@ -190,6 +191,7 @@ export function ContactForm() {
                     required
                     value={formData.email}
                     onChange={handleChange}
+                    autoComplete="email"
                     placeholder="john@example.com"
                     className={inputClass}
                   />

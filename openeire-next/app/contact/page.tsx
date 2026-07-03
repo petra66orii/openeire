@@ -2,8 +2,19 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { buildBreadcrumbJsonLd } from "@/lib/seo/jsonLd";
-import { buildAbsoluteUrl } from "@/lib/site";
+import {
+  buildBreadcrumbJsonLd,
+  buildOpenEireLocalBusinessJsonLd,
+} from "@/lib/seo/jsonLd";
+import {
+  DEFAULT_SOCIAL_IMAGE_PATH,
+  ORGANIZATION_LOGO_PATH,
+  SITE_CONTACT_EMAIL,
+  SITE_NAME,
+  SITE_NAME_ASCII,
+  buildAbsoluteUrl,
+  getOfficialSameAsLinks,
+} from "@/lib/site";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Contact OpenEire Studios | Prints, Licensing & Drone Work",
@@ -16,10 +27,21 @@ export default function ContactPage() {
   return (
     <div className="page-top-offset min-h-screen overflow-x-hidden bg-black pb-20 text-white">
       <JsonLd
-        data={buildBreadcrumbJsonLd([
-          { name: "Home", url: buildAbsoluteUrl("/") },
-          { name: "Contact", url: buildAbsoluteUrl("/contact") },
-        ])}
+        data={[
+          buildBreadcrumbJsonLd([
+            { name: "Home", url: buildAbsoluteUrl("/") },
+            { name: "Contact", url: buildAbsoluteUrl("/contact") },
+          ]),
+          buildOpenEireLocalBusinessJsonLd({
+            name: SITE_NAME,
+            alternateName: SITE_NAME_ASCII,
+            url: buildAbsoluteUrl("/"),
+            logo: buildAbsoluteUrl(ORGANIZATION_LOGO_PATH),
+            image: buildAbsoluteUrl(DEFAULT_SOCIAL_IMAGE_PATH),
+            email: SITE_CONTACT_EMAIL,
+            sameAs: getOfficialSameAsLinks(),
+          }),
+        ]}
       />
 
       <div className="container mx-auto max-w-7xl px-4 pt-10 md:pt-14 lg:px-8">
