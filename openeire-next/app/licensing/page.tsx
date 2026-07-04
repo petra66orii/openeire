@@ -1,9 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import {
   CardGrid,
   CtaBand,
-  HeroSection,
   NumberedSteps,
   PageSection,
   TextPanel,
@@ -108,6 +108,18 @@ const protections = [
   "Full legal terms are available separately for buyers who need the agreement wording.",
 ];
 
+const heroActions = [
+  {
+    href: "/gallery-gate?next=/gallery/digital",
+    label: "Browse Footage & Choose Your Asset",
+  },
+  {
+    href: "/contact",
+    label: "Speak to the Studio",
+    variant: "secondary" as const,
+  },
+];
+
 export default function LicensingPage() {
   return (
     <div className="page-top-offset min-h-screen bg-black pb-20 text-white">
@@ -130,34 +142,76 @@ export default function LicensingPage() {
           })),
         }}
       />
-      <HeroSection
-        eyebrow="Commercial licensing for aerial visuals"
-        title="Premium aerial visuals licensed for brands, agencies, and productions"
-        description="Start by choosing the photo or video asset you want to use, then send the usage details from that asset page so we can confirm scope, pricing, and approval. OpenÉire Studios licenses premium aerial footage and photography on a rights-managed basis."
-        image={PUBLIC_IMAGES.irelandGallery}
-        actions={[
-          {
-            href: "/gallery-gate?next=/gallery/digital",
-            label: "Browse Footage & Choose Your Asset",
-          },
-          {
-            href: "/contact",
-            label: "Speak to the Studio",
-            variant: "secondary",
-          },
-        ]}
-        note={
-          <>
-            Licensing starts with the asset you want to use. From that page, you
-            can request a commercial licence with your usage details. Looking
-            for available footage first? Start with{" "}
-            <Link href="/footage" className="text-accent hover:text-white">
-              the footage page
-            </Link>{" "}
-            to find the right asset.
-          </>
-        }
-      />
+      <section className="relative isolate overflow-hidden border-b border-white/10 bg-black">
+        <Image
+          src={PUBLIC_IMAGES.heroLicensingPosterMobile}
+          alt=""
+          aria-hidden="true"
+          fill
+          priority
+          className="absolute inset-0 -z-30 object-cover md:hidden"
+          sizes="100vw"
+        />
+        <video
+          className="absolute inset-0 -z-30 hidden h-full w-full object-cover md:block"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="none"
+          poster={PUBLIC_IMAGES.heroLicensingPosterMobile}
+          aria-label="Aerial video of the Irish coastline available for commercial licensing"
+        >
+          <source
+            src={PUBLIC_IMAGES.heroLicensing}
+            type="video/mp4"
+            media="(min-width: 768px)"
+          />
+        </video>
+        <div className="absolute inset-0 -z-20 bg-black/50" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12)_0%,rgba(0,0,0,0)_42%),linear-gradient(90deg,rgba(0,0,0,0.86)_0%,rgba(0,0,0,0.64)_46%,rgba(0,0,0,0.24)_100%),linear-gradient(180deg,rgba(0,0,0,0.14)_0%,rgba(0,0,0,0.84)_100%)]" />
+        <div className="container mx-auto px-4 pb-10 pt-8 md:pb-24 md:pt-12 lg:px-8">
+          <div className="max-w-4xl">
+            <p className="inline-flex rounded-full border border-accent/30 bg-black/45 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">
+              Commercial licensing for aerial visuals
+            </p>
+            <h1 className="mt-5 max-w-3xl font-serif text-3xl font-bold leading-[1.05] text-white sm:text-4xl md:text-6xl">
+              Premium aerial visuals licensed for brands, agencies, and
+              productions
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-gray-300 md:text-lg">
+              Start by choosing the photo or video asset you want to use, then
+              send the usage details from that asset page so we can confirm
+              scope, pricing, and approval. OpenÉire Studios licenses premium
+              aerial footage and photography on a rights-managed basis.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              {heroActions.map((action) => (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className={
+                    action.variant === "secondary"
+                      ? "inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-3.5 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                      : "inline-flex items-center justify-center rounded-full bg-brand-500 px-7 py-3.5 text-center text-sm font-bold text-black transition-colors hover:bg-accent"
+                  }
+                >
+                  {action.label}
+                </Link>
+              ))}
+            </div>
+            <div className="mt-5 max-w-2xl text-sm leading-relaxed text-gray-400">
+              Licensing starts with the asset you want to use. From that page,
+              you can request a commercial licence with your usage details.
+              Looking for available footage first? Start with{" "}
+              <Link href="/footage" className="text-accent hover:text-white">
+                the footage page
+              </Link>{" "}
+              to find the right asset.
+            </div>
+          </div>
+        </div>
+      </section>
       <PageSection>
         <CardGrid items={valueCards} />
       </PageSection>
@@ -165,16 +219,27 @@ export default function LicensingPage() {
         <CardGrid items={audiences} columns={2} />
       </PageSection>
       <PageSection title="What affects licensing cost">
-        <TextPanel>
-          <ul className="grid gap-3">
-            {costFactors.map((item) => (
-              <li key={item} className="flex gap-3">
-                <FaCheckCircle className="mt-0.5 shrink-0 text-accent" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </TextPanel>
+        <div className="grid items-center gap-6 lg:grid-cols-[minmax(280px,0.85fr)_minmax(0,1fr)]">
+          <div className="relative min-h-80 overflow-hidden rounded-[28px] border border-white/10 bg-white/5">
+            <Image
+              src={PUBLIC_IMAGES.licensingPoster1}
+              alt="Slieve League cliffs photographed from above"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 42vw"
+            />
+          </div>
+          <TextPanel>
+            <ul className="grid gap-3">
+              {costFactors.map((item) => (
+                <li key={item} className="flex gap-3">
+                  <FaCheckCircle className="mt-0.5 shrink-0 text-accent" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </TextPanel>
+        </div>
       </PageSection>
       <PageSection title="How licensing works">
         <TextPanel>
@@ -191,16 +256,27 @@ export default function LicensingPage() {
         <CardGrid items={licenceTypes} />
       </PageSection>
       <PageSection title="What stays protected">
-        <TextPanel>
-          <ul className="grid gap-3">
-            {protections.map((point) => (
-              <li key={point} className="flex gap-3">
-                <FaShieldAlt className="mt-0.5 shrink-0 text-accent" />
-                <span>{point}</span>
-              </li>
-            ))}
-          </ul>
-        </TextPanel>
+        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.85fr)]">
+          <TextPanel>
+            <ul className="grid gap-3">
+              {protections.map((point) => (
+                <li key={point} className="flex gap-3">
+                  <FaShieldAlt className="mt-0.5 shrink-0 text-accent" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </TextPanel>
+          <div className="relative min-h-80 overflow-hidden rounded-[28px] border border-white/10 bg-white/5">
+            <Image
+              src={PUBLIC_IMAGES.licensingPoster2}
+              alt="Slieve League coastal landscape photographed for licensing"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 45vw"
+            />
+          </div>
+        </div>
       </PageSection>
       <CtaBand
         title="Ready to choose the right asset?"
