@@ -263,7 +263,8 @@ export default async function PhysicalProductPage({
 
               <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-relaxed text-gray-300">
                 Made to order as a premium fine art print. Shipping is
-                calculated at checkout.
+                calculated at checkout. All materials with the exception of Eco
+                Canvas, are shipped rolled.
               </div>
 
               {product.variants.length ? (
