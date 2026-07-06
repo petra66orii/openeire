@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FaShieldAlt, FaShippingFast } from "react-icons/fa";
+import { FaInfoCircle, FaShieldAlt, FaShippingFast } from "react-icons/fa";
 import { useCart } from "@/components/cart/CartProvider";
+import { PrintMaterialsModal } from "@/components/gallery/PrintMaterialsModal";
 import { useToast } from "@/components/ui/ToastProvider";
 import { formatCartCurrency } from "@/lib/cart/pricing";
 import type { CartProductSnapshot } from "@/lib/cart/types";
@@ -32,6 +33,7 @@ export function PhysicalAddToCartPanel({
     variants[0]?.material ?? "",
   );
   const [selectedSize, setSelectedSize] = useState(variants[0]?.size ?? "");
+  const [isMaterialsModalOpen, setIsMaterialsModalOpen] = useState(false);
 
   const selectedVariant = useMemo(
     () =>
@@ -159,6 +161,17 @@ export function PhysicalAddToCartPanel({
               />
             </svg>
           </span>
+          <button
+            type="button"
+            onClick={() => setIsMaterialsModalOpen(true)}
+            className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
+            aria-haspopup="dialog"
+            aria-controls="print-materials-modal"
+            id="print-materials-modal-trigger"
+          >
+            <FaInfoCircle aria-hidden="true" />
+            <span>About our print materials</span>
+          </button>
         </div>
 
         <div className="relative">
@@ -198,6 +211,11 @@ export function PhysicalAddToCartPanel({
         </span>
         </div>
       </div>
+
+      <PrintMaterialsModal
+        isOpen={isMaterialsModalOpen}
+        onClose={() => setIsMaterialsModalOpen(false)}
+      />
 
       <div className="mt-8 border-t border-white/10 pt-6">
         <div className="mb-6 flex items-end justify-between">
