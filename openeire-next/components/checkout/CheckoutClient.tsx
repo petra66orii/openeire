@@ -27,6 +27,7 @@ import {
   hasDigitalCartItems,
   hasPhysicalCartItems,
 } from "@/lib/checkout/payload";
+import { normalizeSupportedPhysicalShippingCountry } from "@/lib/checkout/supportedShippingCountries";
 import {
   clearPendingDiscountCode,
   readPendingDiscountCode,
@@ -309,6 +310,9 @@ export function CheckoutClient() {
   useEffect(() => {
     if (!isCartLoaded || !user || prefilledProfileRef.current) return;
     prefilledProfileRef.current = true;
+    const supportedProfileCountry = normalizeSupportedPhysicalShippingCountry(
+      user.country,
+    );
 
     setFormState((current) => ({
       ...current,
@@ -323,9 +327,9 @@ export function CheckoutClient() {
         city: user.default_town ?? "",
         state: user.default_county ?? "",
         country:
-          hasPhysicalItems && user.country !== "IE" && user.country !== "US"
+          hasPhysicalItems && !supportedProfileCountry
             ? ""
-            : (user.country ?? ""),
+            : (supportedProfileCountry ?? user.country ?? ""),
         postal_code: user.default_postcode ?? "",
       },
     }));

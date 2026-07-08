@@ -2,6 +2,11 @@
 
 import type { Country } from "@/types/auth";
 import type { CheckoutShippingDetails, ShippingMethod } from "@/types/checkout";
+import {
+  filterSupportedPhysicalShippingCountries,
+  normalizeSupportedPhysicalShippingCountry,
+  type SupportedPhysicalShippingCountry,
+} from "@/lib/checkout/supportedShippingCountries";
 
 interface CheckoutShippingFormProps {
   value: CheckoutShippingDetails;
@@ -15,7 +20,10 @@ interface CheckoutShippingFormProps {
 
 const SHIPPING_METHODS: ShippingMethod[] = ["budget", "standard", "express"];
 
-const TRANSIT_ESTIMATES: Record<"IE" | "US", Record<ShippingMethod, string>> = {
+const TRANSIT_ESTIMATES: Record<
+  SupportedPhysicalShippingCountry,
+  Record<ShippingMethod, string>
+> = {
   IE: {
     budget: "Estimated: Slower than Standard postal service",
     standard: "Estimated: 5-7 working days",
@@ -24,6 +32,16 @@ const TRANSIT_ESTIMATES: Record<"IE" | "US", Record<ShippingMethod, string>> = {
   US: {
     budget: "Estimated: Slower than Standard postal service",
     standard: "Estimated: 4-6 working days",
+    express: "Estimated: 1-6 working days",
+  },
+  AU: {
+    budget: "Estimated: Slower than Standard postal service",
+    standard: "Estimated at checkout",
+    express: "Estimated: 1-6 working days",
+  },
+  RO: {
+    budget: "Estimated: Slower than Standard postal service",
+    standard: "Estimated at checkout",
     express: "Estimated: 1-6 working days",
   },
 };
@@ -50,12 +68,9 @@ export function CheckoutShippingForm({
     onChange({ ...value, [field]: nextValue });
   };
 
-  const displayedCountries = countries.filter(
-    (country) => country.code === "IE" || country.code === "US",
-  );
+  const displayedCountries = filterSupportedPhysicalShippingCountries(countries);
   const requiresState = value.country === "US";
-  const transitCountry =
-    value.country === "IE" || value.country === "US" ? value.country : null;
+  const transitCountry = normalizeSupportedPhysicalShippingCountry(value.country);
 
   const getTransitEstimate = (method: ShippingMethod) => {
     if (!transitCountry) return "Select country for estimate";
@@ -241,4 +256,3 @@ export function CheckoutShippingForm({
     </>
   );
 }
-

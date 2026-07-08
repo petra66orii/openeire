@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LegalPageShell } from "@/components/legal/LegalPageShell";
+import { SUPPORTED_PHYSICAL_SHIPPING_COUNTRY_NAMES } from "@/lib/checkout/supportedShippingCountries";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export const metadata = buildPageMetadata({
@@ -20,8 +21,7 @@ export default function ShippingPage() {
         At OpenÉire Studios, we deliver our premium media in two formats:
         digital vault delivery for commercial licences and digital downloads,
         and physical print delivery for bespoke, museum-quality art prints. We
-        currently ship physical prints exclusively to Ireland and the United
-        States.
+        currently ship art prints to {SUPPORTED_PHYSICAL_SHIPPING_COUNTRY_NAMES}.
       </p>
 
       <hr />
@@ -60,8 +60,9 @@ export default function ShippingPage() {
       <p>
         To reduce delivery time, orders are typically routed to the print lab
         closest to the delivery address. United States orders are usually
-        printed in the US, and Irish orders are typically printed within the EU
-        or UK network.
+        printed in the US, Irish and Romanian orders are typically printed
+        within the EU or UK network, and Australian orders are routed through
+        the most appropriate available print network.
       </p>
       <h3>Production Times</h3>
       <p>
