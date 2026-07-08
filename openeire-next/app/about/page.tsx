@@ -6,7 +6,6 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import {
   buildBreadcrumbJsonLd,
   buildOrganizationJsonLd,
-  buildWebsiteJsonLd,
 } from "@/lib/seo/jsonLd";
 import {
   ORGANIZATION_LOGO_PATH,
@@ -67,13 +66,6 @@ export default function AboutPage() {
           logo: buildAbsoluteUrl(ORGANIZATION_LOGO_PATH),
           description: SITE_DESCRIPTION,
           contactEmail: SITE_CONTACT_EMAIL,
-        })}
-      />
-      <JsonLd
-        data={buildWebsiteJsonLd({
-          name: SITE_NAME,
-          alternateName: SITE_NAME_ASCII,
-          url: buildAbsoluteUrl("/"),
         })}
       />
 

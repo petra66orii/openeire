@@ -1,12 +1,14 @@
 import { JsonLd } from "@/components/JsonLd";
 import {
   HomeCertsSection,
+  HomeGoogleReviewsSection,
   HomeHeroSection,
   HomeServicesSection,
 } from "@/components/home/HomeSections";
 import {
   DEFAULT_SOCIAL_IMAGE_PATH,
   ORGANIZATION_LOGO_PATH,
+  SITE_ALTERNATE_NAMES,
   SITE_CONTACT_EMAIL,
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -53,13 +55,14 @@ export default function Home() {
           }),
           buildWebsiteJsonLd({
             name: SITE_NAME,
-            alternateName: SITE_NAME_ASCII,
+            alternateName: SITE_ALTERNATE_NAMES,
             url: buildAbsoluteUrl("/"),
           }),
         ]}
       />
       <HomeHeroSection />
       <HomeServicesSection />
+      <HomeGoogleReviewsSection />
       <HomeCertsSection />
     </>
   );
