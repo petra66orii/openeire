@@ -244,7 +244,7 @@ export function PhysicalAddToCartPanel({
             <FaShieldAlt /> Secure
           </span>
           <span className="flex items-center gap-1">
-            <FaShippingFast /> US & IE Ship
+            <FaShippingFast /> IE, US, AU & RO Ship
           </span>
         </div>
       </div>
