@@ -2,6 +2,7 @@ import { PUBLIC_IMAGES } from "@/lib/assets";
 
 export const SITE_NAME = "Open\u00c9ire Studios";
 export const SITE_NAME_ASCII = "OpenEire Studios";
+export const SITE_ALTERNATE_NAMES = [SITE_NAME_ASCII, "Open\u00c9ire"];
 export const SITE_DESCRIPTION =
   "Premium aerial photography, fine art prints, commercial licensing, and curated visual assets from Ireland.";
 export const SITE_CONTACT_EMAIL = "studio@openeire.ie";

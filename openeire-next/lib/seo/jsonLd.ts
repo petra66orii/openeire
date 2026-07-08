@@ -85,7 +85,7 @@ export const buildOpenEireLocalBusinessJsonLd = (input: {
 
 export const buildWebsiteJsonLd = (input: {
   name: string;
-  alternateName?: string;
+  alternateName?: string | string[];
   url: string;
 }): StructuredData => ({
   "@context": "https://schema.org",

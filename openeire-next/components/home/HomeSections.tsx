@@ -3,9 +3,11 @@ import Link from "next/link";
 import { SwipeHint } from "@/components/marketing/MarketingPage";
 import {
   FaFileContract,
+  FaGoogle,
   FaHome,
   FaImage,
   FaShieldAlt,
+  FaStar,
   FaVideo,
 } from "react-icons/fa";
 import { PUBLIC_IMAGES } from "@/lib/assets";
@@ -45,6 +47,50 @@ const services = [
   },
 ];
 
+const googleReviewLinks = {
+  readMore:
+    "https://www.google.com/maps/search/?api=1&query=Open%C3%89ire%20Studios",
+  leaveReview:
+    "https://www.google.com/search?q=Open%C3%89ire+Studios+Google+review",
+};
+
+const featuredGoogleReviews = [
+  {
+    reviewer: "James Bermingham",
+    rating: 5,
+    snippet: "Beautiful Photography. Easy to order.",
+  },
+  {
+    reviewer: "Barbie",
+    rating: 5,
+    snippet:
+      "Excellent service, very welcoming people, and great quality work. Great experience and I would definitely recommend!",
+  },
+  {
+    reviewer: "Luisa Narea",
+    rating: 5,
+    snippet:
+      "It was a truly pleasant experience working with the team at OpenEire Studios. The quality of their products is at a premium level, and their professionalism really stands out.",
+  },
+];
+
+function GoogleStarRating({ rating }: { rating: number }) {
+  return (
+    <div
+      className="flex items-center gap-1 text-accent"
+      aria-label={`${rating} out of 5 stars`}
+    >
+      {Array.from({ length: 5 }, (_, index) => (
+        <FaStar
+          key={index}
+          className={index < rating ? "h-4 w-4" : "h-4 w-4 text-white/20"}
+          aria-hidden="true"
+        />
+      ))}
+    </div>
+  );
+}
+
 export function HomeHeroSection() {
   return (
     <section
@@ -77,7 +123,7 @@ export function HomeHeroSection() {
           className="hero-motion-poster absolute left-0 top-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-dark/40 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-black/30" />
       </div>
 
       <div className="animate-fade-in-up relative z-10 mx-auto w-full max-w-5xl px-4 sm:px-6">
@@ -88,7 +134,7 @@ export function HomeHeroSection() {
 
           <h1 className="mb-6 font-serif text-4xl font-bold leading-tight text-white drop-shadow-md sm:text-5xl md:text-6xl lg:text-7xl">
             Capturing the World <br />
-            <span className="bg-gradient-to-r from-brand-500 via-white to-accent bg-clip-text pb-2 text-transparent drop-shadow-lg filter">
+            <span className="bg-linear-to-r from-brand-500 via-white to-accent bg-clip-text pb-2 text-transparent drop-shadow-lg filter">
               From Above
             </span>
           </h1>
@@ -117,7 +163,78 @@ export function HomeHeroSection() {
           </div>
         </div>
       </div>
-      <div className="pointer-events-none absolute bottom-0 left-0 z-20 h-20 w-full bg-gradient-to-t from-dark to-transparent md:h-48" />
+      <div className="pointer-events-none absolute bottom-0 left-0 z-20 h-20 w-full bg-linear-to-t from-dark to-transparent md:h-48" />
+    </section>
+  );
+}
+
+export function HomeGoogleReviewsSection() {
+  return (
+    <section className="bg-dark py-20 text-white lg:py-24">
+      <div className="container mx-auto px-4 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+          <div>
+            <div className="mb-5 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white">
+              <FaGoogle className="text-lg text-accent" aria-hidden="true" />
+              Google Reviews
+            </div>
+            <h2 className="font-serif text-3xl font-bold leading-tight md:text-4xl">
+              Trusted by customers on Google
+            </h2>
+            <p className="mt-5 max-w-2xl leading-relaxed text-gray-300">
+              Real feedback from people who ordered from or worked with Open
+              {"\u00c9"}ire Studios.
+            </p>
+            <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/4 px-4 py-3">
+                <GoogleStarRating rating={5} />
+                <span className="text-sm font-semibold text-white">
+                  5.0 on Google, based on 6 reviews
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {featuredGoogleReviews.map((review) => (
+              <article
+                key={review.reviewer}
+                className="rounded-2xl border border-white/10 bg-white/4 p-5 shadow-xl shadow-black/20"
+              >
+                <GoogleStarRating rating={review.rating} />
+                <blockquote className="mt-4 text-sm leading-7 text-gray-200">
+                  &quot;{review.snippet}&quot;
+                </blockquote>
+                <p className="mt-5 text-sm font-bold text-white">
+                  {review.reviewer}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-widest text-gray-500">
+                  Google review
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-8 sm:flex-row sm:items-center">
+          <Link
+            href={googleReviewLinks.readMore}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex justify-center rounded-full bg-white px-6 py-3 text-sm font-bold text-black transition-colors hover:bg-brand-500"
+          >
+            Read more reviews on Google
+          </Link>
+          <Link
+            href={googleReviewLinks.leaveReview}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white transition-colors hover:border-brand-500 hover:text-brand-500"
+          >
+            Leave a review
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }
