@@ -16,6 +16,8 @@ type MetadataInput = {
   noIndex?: boolean;
 };
 
+const ICON_CACHE_VERSION = "20260708";
+
 export const buildDefaultMetadata = (): Metadata =>
   buildPageMetadata({
     title: SITE_NAME,
@@ -37,6 +39,26 @@ export const buildPageMetadata = ({
     metadataBase: new URL(getSiteUrl()),
     title,
     description,
+    icons: {
+      icon: [
+        {
+          url: `/favicon.ico?v=${ICON_CACHE_VERSION}`,
+          sizes: "any",
+        },
+        {
+          url: `/icon.png?v=${ICON_CACHE_VERSION}`,
+          type: "image/png",
+          sizes: "512x512",
+        },
+      ],
+      apple: [
+        {
+          url: `/apple-icon.png?v=${ICON_CACHE_VERSION}`,
+          type: "image/png",
+          sizes: "180x180",
+        },
+      ],
+    },
     alternates: {
       canonical,
     },

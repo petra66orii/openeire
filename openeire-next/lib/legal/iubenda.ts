@@ -1,4 +1,4 @@
-const DEFAULT_POLICY_URL = "https://www.iubenda.com/privacy-policy/77203310";
+const DEFAULT_POLICY_URL = "https://www.iubenda.com/privacy-policy/30754861";
 
 const getSafePublicUrl = (value: string | undefined): string | null => {
   const trimmed = value?.trim();
@@ -6,16 +6,30 @@ const getSafePublicUrl = (value: string | undefined): string | null => {
 
   try {
     const url = new URL(trimmed);
-    return url.protocol === "https:" ? url.toString() : null;
+    if (
+      url.protocol !== "https:" ||
+      (url.hostname !== "iubenda.com" && !url.hostname.endsWith(".iubenda.com"))
+    ) {
+      return null;
+    }
+
+    return url.toString();
   } catch {
     return null;
   }
 };
 
-export const IUBENDA_POLICY_URL =
-  getSafePublicUrl(process.env.NEXT_PUBLIC_IUBENDA_POLICY_URL) ??
-  DEFAULT_POLICY_URL;
+const getPolicyEmbedUrl = (policyUrl: string | null): string | null => {
+  if (!policyUrl) return null;
 
-export const IUBENDA_POLICY_EMBED_URL =
-  getSafePublicUrl(process.env.NEXT_PUBLIC_IUBENDA_POLICY_EMBED_URL) ??
-  `${IUBENDA_POLICY_URL}/legal`;
+  const url = new URL(policyUrl);
+  url.pathname = url.pathname.replace(/\/legal\/?$/, "");
+  url.pathname = `${url.pathname.replace(/\/$/, "")}/legal`;
+  return url.toString();
+};
+
+export const IUBENDA_POLICY_URL = getSafePublicUrl(
+  process.env.NEXT_PUBLIC_IUBENDA_POLICY_URL,
+) ?? DEFAULT_POLICY_URL;
+
+export const IUBENDA_POLICY_EMBED_URL = getPolicyEmbedUrl(IUBENDA_POLICY_URL);
