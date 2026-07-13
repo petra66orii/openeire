@@ -80,6 +80,7 @@ const packages: readonly RealEstatePackage[] = [
     features: [
       "25 professionally edited interior & exterior photographs",
       "5-8 high-quality aerial drone stills",
+      "60-90 seconds of interior & exterior video, fully edited with music",
       "Aerial drone video, 60-90 seconds, 4K, edited with music",
       "Social media cuts included, portrait 9:16 and square 1:1 formatted reels",
       "Full resolution delivery, print & web ready",
@@ -96,6 +97,7 @@ const packages: readonly RealEstatePackage[] = [
     features: [
       "30 professionally edited interior & exterior photographs",
       "5-8 high-quality aerial drone stills",
+      "60-90 seconds of interior & exterior video, fully edited with music",
       "Aerial drone video, 60-90 seconds, 4K, edited with music",
       "Social media cuts included, portrait 9:16 and square 1:1 formatted reels",
       "3D interactive virtual tour, hosted, shareable link",
@@ -156,6 +158,10 @@ const addOns = [
   {
     label: "Floor plan, 2D measured (included in Premium package)",
     price: "€75 + VAT",
+  },
+  {
+    label: "3D virtual tour, hosted (included in Premium package)",
+    price: "€150 + VAT",
   },
   {
     label: "Rush same-day delivery, stills only",
@@ -344,7 +350,7 @@ export default function RealEstatePage() {
           style={{ backgroundImage: "url('/hero-poster.jpg')" }}
           aria-hidden="true"
         />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/80 via-black/80 to-black" />
+        <div className="absolute inset-0 -z-10 bg-linear-to-b from-black/80 via-black/80 to-black" />
         <div className="container mx-auto grid min-h-[78vh] max-w-7xl items-center gap-12 px-4 py-20 lg:grid-cols-[1.08fr_0.92fr] lg:px-8">
           <div className="max-w-4xl">
             <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-accent">
@@ -380,7 +386,7 @@ export default function RealEstatePage() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-brand-500/[0.06] p-6 shadow-2xl backdrop-blur md:p-8">
+          <div className="rounded-4xl border border-white/10 bg-brand-500/6 p-6 shadow-2xl backdrop-blur md:p-8">
             <p className="text-xs font-bold uppercase tracking-[0.24em] text-gray-400">
               Launch-ready listing media
             </p>
@@ -464,7 +470,7 @@ export default function RealEstatePage() {
                 }`}
               >
                 {item.badge ? (
-                  <span className="mb-4 inline-flex w-fit rounded-full bg-[#16a34a] px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white">
+                  <span className="mb-4 inline-flex w-fit rounded-full bg-brand-500 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white">
                     {item.badge}
                   </span>
                 ) : null}
