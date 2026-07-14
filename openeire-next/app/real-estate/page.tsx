@@ -11,6 +11,7 @@ import {
   getOfficialSameAsLinks,
 } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { REAL_ESTATE_VAT_NOTE } from "@/lib/realEstate";
 import {
   buildBreadcrumbJsonLd,
   buildFaqPageJsonLd,
@@ -38,7 +39,7 @@ type RealEstatePackage = {
 export const metadata = buildPageMetadata({
   title: "Real Estate Photography & Drone Video in Connacht | OpenÉire Studios",
   description:
-    "Real estate photography, drone video and 3D tours for estate agents, developers and sellers across Connacht. Packages from €175 + VAT.",
+    "Real estate photography, drone video and 3D tours for estate agents, developers and sellers across Connacht. Packages from €175 total.",
   path: "/real-estate",
   image: "/hero-poster.jpg",
 });
@@ -47,7 +48,7 @@ const packages: readonly RealEstatePackage[] = [
   {
     key: "essential",
     name: "Essential",
-    price: "€175 + VAT",
+    price: "€175 total",
     description:
       "Recommended for smaller properties, rentals, starter listings.",
     features: [
@@ -60,7 +61,7 @@ const packages: readonly RealEstatePackage[] = [
   {
     key: "starter",
     name: "Starter",
-    price: "€229 + VAT",
+    price: "€229 total",
     description: "Recommended for standard 3-4 bed residential properties.",
     features: [
       "20 professionally edited interior & exterior photographs",
@@ -73,7 +74,7 @@ const packages: readonly RealEstatePackage[] = [
   {
     key: "pro",
     name: "Pro",
-    price: "€399 + VAT",
+    price: "€399 total",
     badge: "Recommended",
     description:
       "Recommended for detached homes, larger properties, new builds, agents wanting standout listings.",
@@ -91,7 +92,7 @@ const packages: readonly RealEstatePackage[] = [
   {
     key: "premium",
     name: "Premium",
-    price: "€579 + VAT",
+    price: "€579 total",
     description:
       "Recommended for premium listings, larger homes, waterfront/rural properties, new developments, and properties where presentation is a major selling point.",
     features: [
@@ -141,7 +142,7 @@ const listingFeatures = [
   {
     icon: <FaHome />,
     title: "Clear pricing",
-    text: "Transparent packages from €175 + VAT with optional add-ons only where the listing needs them.",
+    text: "Transparent packages from €175 total with optional add-ons only where the listing needs them.",
   },
   {
     icon: <FaCheckCircle />,
@@ -153,31 +154,31 @@ const listingFeatures = [
 const addOns = [
   {
     label: "Additional edited stills",
-    price: "€10 + VAT per image",
+    price: "€10 total per image",
   },
   {
     label: "Floor plan, 2D measured (included in Premium package)",
-    price: "€75 + VAT",
+    price: "€75 total",
   },
   {
     label: "3D virtual tour, hosted (included in Premium package)",
-    price: "€150 + VAT",
+    price: "€150 total",
   },
   {
     label: "Rush same-day delivery, stills only",
-    price: "€75 + VAT",
+    price: "€75 total",
   },
   {
     label: "Extended drone video, up to 3 minutes, fully edited",
-    price: "€150 + VAT",
+    price: "€150 total",
   },
   {
     label: "Additional social media cuts, extra formats or edits",
-    price: "€50 + VAT",
+    price: "€50 total",
   },
   {
     label: "Travel supplement beyond 40 km from base",
-    price: "€0.50 + VAT per km",
+    price: "€0.50 total per km",
   },
 ] as const;
 
@@ -203,8 +204,7 @@ const processSteps = [
 const faqs = [
   {
     question: "Do prices include VAT?",
-    answer:
-      "No. Prices are quoted exclusive of VAT. VAT at 23% is added at invoicing.",
+    answer: REAL_ESTATE_VAT_NOTE,
   },
   {
     question: "How quickly will I receive the media?",
@@ -252,25 +252,25 @@ const realEstatePackageOffers = [
   {
     name: "Essential real estate media package",
     price: "175",
-    description: "€175 + VAT. Includes 10 edited photos. VAT is excluded.",
+    description: `€175 total. Includes 10 edited photos. ${REAL_ESTATE_VAT_NOTE}`,
   },
   {
     name: "Starter real estate media package",
     price: "229",
     description:
-      "€229 + VAT. Includes 20 edited photos and 5-8 aerial drone stills. VAT is excluded.",
+      `€229 total. Includes 20 edited photos and 5-8 aerial drone stills. ${REAL_ESTATE_VAT_NOTE}`,
   },
   {
     name: "Pro real estate media package",
     price: "399",
     description:
-      "€399 + VAT. Includes 25 edited photos, drone stills, a 60-90 second 4K aerial video and social cuts. VAT is excluded.",
+      `€399 total. Includes 25 edited photos, drone stills, a 60-90 second 4K aerial video and social cuts. ${REAL_ESTATE_VAT_NOTE}`,
   },
   {
     name: "Premium real estate media package",
     price: "579",
     description:
-      "€579 + VAT. Includes 30 edited photos, drone stills, a 60-90 second 4K aerial video, social cuts, 3D virtual tour and 2D measured floor plan. VAT is excluded.",
+      `€579 total. Includes 30 edited photos, drone stills, a 60-90 second 4K aerial video, social cuts, 3D virtual tour and 2D measured floor plan. ${REAL_ESTATE_VAT_NOTE}`,
   },
   {
     name: "Custom real estate media package",
@@ -392,7 +392,7 @@ export default function RealEstatePage() {
             </p>
             <div className="mt-6 grid gap-4">
               {[
-                "Photography packages from €175 + VAT",
+                "Photography packages from €175 total",
                 "Full commercial marketing licence included",
                 "24-hour delivery after the shoot",
                 "Drone capture planned around safe operating conditions",
@@ -453,7 +453,7 @@ export default function RealEstatePage() {
               Choose the media package that fits the listing.
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-gray-400">
-              All prices exclude VAT. VAT at 23% is added at invoicing. Travel
+              {REAL_ESTATE_VAT_NOTE} Travel
               supplement applies beyond 40 km from base.
             </p>
           </div>

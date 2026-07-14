@@ -22,6 +22,7 @@ import {
   registerIubendaConsentForm,
   submitIubendaConsentForm,
 } from "@/lib/iubendaConsent";
+import { REAL_ESTATE_VAT_NOTE } from "@/lib/realEstate";
 import type {
   AddOnKey,
   ClientType,
@@ -104,28 +105,28 @@ const addOns: Array<{ key: AddOnKey; label: string; price: string }> = [
   {
     key: "additional_stills",
     label: "Additional edited stills",
-    price: "€10 + VAT per image",
+    price: "€10 total per image",
   },
-  { key: "floor_plan", label: "Floor plan, 2D measured", price: "€75 + VAT" },
+  { key: "floor_plan", label: "Floor plan, 2D measured", price: "€75 total" },
   {
     key: "rush_delivery",
     label: "Rush same-day delivery, stills only",
-    price: "€75 + VAT",
+    price: "€75 total",
   },
   {
     key: "extended_drone_video",
     label: "Extended drone video, up to 3 minutes, fully edited",
-    price: "€150 + VAT",
+    price: "€150 total",
   },
   {
     key: "additional_social_cuts",
     label: "Additional social media cuts, extra formats or edits",
-    price: "€50 + VAT",
+    price: "€50 total",
   },
   {
     key: "travel_supplement",
     label: "Travel supplement beyond 40 km from base",
-    price: "€0.50 + VAT per km",
+    price: "€0.50 total per km",
   },
 ];
 
@@ -420,7 +421,11 @@ export function RealEstateEnquiryForm() {
               ) : null}
 
               <div className="grid gap-5 md:grid-cols-2">
-                <Field inputId="real-estate-name" label="Name" error={errors.name}>
+                <Field
+                  inputId="real-estate-name"
+                  label="Name"
+                  error={errors.name}
+                >
                   <input
                     id="real-estate-name"
                     name="name"
@@ -604,6 +609,9 @@ export function RealEstateEnquiryForm() {
                     </label>
                   ))}
                 </div>
+                <p className="mt-3 text-sm text-gray-400">
+                  {REAL_ESTATE_VAT_NOTE}
+                </p>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
