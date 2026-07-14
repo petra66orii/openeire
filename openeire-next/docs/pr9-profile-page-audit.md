@@ -1,5 +1,8 @@
 # PR 9 Profile Page Audit
 
+> Historical migration record. Current behaviour is defined by the active
+> `openeire-next` source and tests.
+
 ## Existing Vite profile behaviour
 
 - Route: `/profile`, protected by the existing React auth context.

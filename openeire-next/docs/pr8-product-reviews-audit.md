@@ -1,5 +1,8 @@
 # PR 8 Product Reviews Audit
 
+> Historical migration record. Current behaviour is defined by the active
+> `openeire-next` source and tests.
+
 ## Existing Vite implementation
 
 - Components: `ReviewForm.tsx`, `ProductReviewList.tsx`, `ReviewCard.tsx`, and `StarRating.tsx`.
