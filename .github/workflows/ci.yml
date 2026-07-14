@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: openeire
+        working-directory: openeire-next
 
     steps:
       - name: Checkout
@@ -42,16 +42,19 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: openeire/package-lock.json
+          cache-dependency-path: openeire-next/package-lock.json
 
       - name: Install
         run: npm ci
 
       - name: Lint
-        run: npm run lint --if-present
+        run: npm run lint
 
       - name: Typecheck
-        run: npm run typecheck --if-present
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
 
       - name: Build
         run: npm run build

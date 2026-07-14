@@ -1,5 +1,8 @@
 # Phase 1 Migration Preparation Map
 
+> Historical migration record. `openeire-next` is now the sole active frontend;
+> this document is not a current implementation or routing guide.
+
 These notes cover only the routes requested for future Phase 1 migration. PR 2
 creates placeholders and architecture; it does not migrate content.
 

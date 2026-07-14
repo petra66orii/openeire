@@ -1,5 +1,8 @@
 # OpenÉire Studios Route Inventory
 
+> Historical migration record. The inventory below describes the retired Vite
+> router and must not be used as current application documentation.
+
 This inventory reflects the current React + Vite router in `openeire/src/App.tsx`.
 PR 2 does not migrate any of these routes; it only prepares the parallel Next.js app.
 

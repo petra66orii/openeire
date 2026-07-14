@@ -1,5 +1,8 @@
 # PR 5 Public Gallery Migration Audit
 
+> Historical migration record. Current behaviour is defined by the active
+> `openeire-next` source and tests.
+
 ## Route Inventory
 
 | Route | Vite Source | API | Next Strategy |

@@ -1,5 +1,8 @@
 # PR 7 Authentication Foundation Audit
 
+> Historical migration record. Current behaviour is defined by the active
+> `openeire-next` source and tests.
+
 ## Existing Vite Auth Flow
 
 - Tokens are stored in `sessionStorage` as `accessToken` and `refreshToken`.
