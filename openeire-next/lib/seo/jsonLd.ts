@@ -49,7 +49,7 @@ export const buildOpenEireLocalBusinessJsonLd = (input: {
   email: input.email,
   description:
     "Premium aerial photography, fine art prints, property media, commercial licensing, and curated visual assets from Ireland.",
-  priceRange: "€175+VAT to POA",
+  priceRange: "€175 total to POA",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Loughrea",
