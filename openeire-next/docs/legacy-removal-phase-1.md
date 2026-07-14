@@ -1,8 +1,10 @@
 # Legacy frontend removal — Phase 1
 
-`openeire-next` is the sole active frontend. The `openeire` Vite/React directory
-and repository-root Vite package files are retained only until Phase 2 removal
-is explicitly approved.
+> Historical migration record. Phase 2 was approved after this checklist was
+> completed, and the legacy application and package files described below were
+> removed from the active branch.
+
+`openeire-next` is the sole active frontend.
 
 ## Package ownership
 
@@ -52,9 +54,9 @@ legacy removal.
 - [ ] Confirm there are no unexpected browser console errors.
 - [ ] Confirm loading, empty, validation, and API error states remain usable.
 
-## Phase 2 deletion boundary
+## Completed Phase 2 deletion boundary
 
-After explicit approval, Phase 2 may delete:
+After explicit approval, Phase 2 deleted:
 
 - The complete `openeire/` legacy application directory.
 - Repository-root `package.json` and `package-lock.json`.

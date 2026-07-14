@@ -2,14 +2,9 @@
 
 ## Active application
 
-`openeire-next` is the sole active OpenÉire Studios frontend. It is a Next.js
+`openeire-next` is the sole OpenÉire Studios frontend. It is a Next.js
 15 application using React 19, TypeScript, Tailwind CSS, Stripe Elements, and
 the native Next.js App Router.
-
-The sibling `openeire` directory contains the retired Vite/React application.
-It remains temporarily for migration verification and must not receive new
-features or fixes. See `openeire-next/docs/legacy-removal-phase-1.md` before
-changing or removing it.
 
 ## Repository structure
 
@@ -21,11 +16,7 @@ openeire-next/          # Active Next.js application
   public/               # Active static assets
   tests/                # Vitest smoke/component tests
   types/                # Shared TypeScript contracts
-openeire/               # Legacy Vite application; pending approved removal
 ```
-
-The repository-root `package.json` and `package-lock.json` are also legacy Vite
-artifacts. They are retained until Phase 2 removal is explicitly approved.
 
 ## Local development
 
@@ -69,9 +60,6 @@ Configure the deployment service with:
 
 The Django API must allow the deployed frontend origin through CORS and CSRF
 trusted-origin settings. Local Next.js development uses port 3000.
-
-Before changing production settings, complete the smoke checklist in
-`openeire-next/docs/legacy-removal-phase-1.md`.
 
 ## Historical migration documents
 
