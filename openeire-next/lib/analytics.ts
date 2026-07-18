@@ -1,6 +1,7 @@
 import {
   isAnalyticsConsentGranted,
-  registerIubendaConsentGrantedCallback,
+  isIubendaManagingGoogleConsentMode,
+  registerIubendaAnalyticsConsentCallback,
 } from "@/lib/iubendaConsent";
 
 type GtagArguments = [string, ...unknown[]];
@@ -12,14 +13,13 @@ declare global {
   }
 }
 
-const GA_SCRIPT_ID = "openeire-ga4-script";
-const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ?? "";
-let initPromise: Promise<void> | null = null;
-
-const hasMeasurementId = () =>
-  measurementId.length > 0 &&
-  measurementId !== "undefined" &&
-  measurementId !== "null";
+const DENIED_CONSENT = {
+  analytics_storage: "denied",
+  ad_storage: "denied",
+  ad_user_data: "denied",
+  ad_personalization: "denied",
+} as const;
+let lastObservedAnalyticsConsent: boolean | null = null;
 
 const ensureGtagStub = () => {
   window.dataLayer = window.dataLayer || [];
@@ -30,86 +30,60 @@ const ensureGtagStub = () => {
     });
 };
 
-export const initGA = (): Promise<void> => {
-  if (
-    typeof window === "undefined" ||
-    !hasMeasurementId() ||
-    !isAnalyticsConsentGranted()
-  ) {
-    return Promise.resolve();
-  }
-
-  if (initPromise) return initPromise;
-
+export const updateAnalyticsConsent = (granted: boolean): void => {
+  if (typeof window === "undefined") return;
   ensureGtagStub();
-
-  const existingScript = document.getElementById(GA_SCRIPT_ID);
-  if (existingScript) {
-    window.gtag?.("js", new Date());
-    window.gtag?.("config", measurementId, { send_page_view: false });
-    initPromise = Promise.resolve();
-    return initPromise;
-  }
-
-  initPromise = new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.id = GA_SCRIPT_ID;
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
-    script.onload = () => {
-      window.gtag?.("js", new Date());
-      window.gtag?.("config", measurementId, { send_page_view: false });
-      resolve();
-    };
-    script.onerror = () => {
-      initPromise = null;
-      reject(new Error("Failed to load Google Analytics."));
-    };
-    document.head.appendChild(script);
+  window.gtag?.("consent", "update", {
+    ...DENIED_CONSENT,
+    analytics_storage: granted ? "granted" : "denied",
   });
-
-  return initPromise;
 };
 
-export const trackPageView = (path: string, title?: string) => {
-  if (
-    typeof window === "undefined" ||
-    !hasMeasurementId() ||
-    !isAnalyticsConsentGranted()
-  ) {
-    return;
+// The root layout owns script loading and the single GA config command.
+export const initGA = (): Promise<void> => {
+  if (typeof window === "undefined" || !isAnalyticsConsentGranted()) {
+    return Promise.resolve();
+  }
+  ensureGtagStub();
+  return Promise.resolve();
+};
+
+export const trackPageView = (path: string, title?: string): boolean => {
+  if (typeof window === "undefined" || !isAnalyticsConsentGranted()) {
+    return false;
   }
 
-  void initGA()
-    .then(() => {
-      window.gtag?.("event", "page_view", {
-        page_path: path,
-        page_title: title || document.title,
-      });
-    })
-    .catch(() => undefined);
+  void initGA().then(() => {
+    window.gtag?.("event", "page_view", {
+      page_path: path,
+      page_title: title || document.title,
+    });
+  });
+  return true;
 };
 
 export const trackEvent = (
   name: string,
   params: Record<string, unknown> = {},
-) => {
-  if (
-    typeof window === "undefined" ||
-    !hasMeasurementId() ||
-    !isAnalyticsConsentGranted()
-  ) {
-    return;
+): boolean => {
+  if (typeof window === "undefined" || !isAnalyticsConsentGranted()) {
+    return false;
   }
 
-  void initGA()
-    .then(() => window.gtag?.("event", name, params))
-    .catch(() => undefined);
+  void initGA().then(() => window.gtag?.("event", name, params));
+  return true;
 };
 
 export const registerAnalyticsConsentListener = (onReady?: () => void) =>
-  registerIubendaConsentGrantedCallback(() => {
-    void initGA()
-      .then(() => onReady?.())
-      .catch(() => undefined);
+  registerIubendaAnalyticsConsentCallback((granted) => {
+    const previousConsent = lastObservedAnalyticsConsent;
+    lastObservedAnalyticsConsent = granted;
+    if (
+      !isIubendaManagingGoogleConsentMode() &&
+      previousConsent !== granted &&
+      (granted || previousConsent === true)
+    ) {
+      updateAnalyticsConsent(granted);
+    }
+    if (granted) onReady?.();
   });

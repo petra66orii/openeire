@@ -271,6 +271,27 @@ a {
   @apply rounded bg-white/5;
 }
 
+.property-checklist-download {
+  display: inline-flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  padding: 0.8rem 1.4rem;
+  border-radius: 9999px;
+  background: #173f35;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.property-checklist-download:hover {
+  background: #102d27;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 @media (max-width: 767px) {
   .mobile-snap-row {
     display: flex;

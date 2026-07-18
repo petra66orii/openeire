@@ -9,17 +9,26 @@ type SubjectFieldMap = Partial<{
 }>;
 
 type PreferenceFieldMap = Record<string, string>;
-type IubendaConsentGrantedCallback = () => void;
+type IubendaAnalyticsConsentCallback = (granted: boolean) => void;
 type IubendaCookieCallback = (...args: unknown[]) => void;
 
 interface IubendaCookieCallbacks {
   onReady?: IubendaCookieCallback;
   onConsentGiven?: IubendaCookieCallback;
   onConsentRead?: IubendaCookieCallback;
+  onConsentRejected?: IubendaCookieCallback;
+  onPreferenceExpressed?: IubendaCookieCallback;
+  onPreferenceChange?: IubendaCookieCallback;
 }
 
 interface IubendaCookieConfiguration {
+  siteId?: number | string;
+  cookiePolicyId?: number | string;
   callback?: IubendaCookieCallbacks;
+}
+
+interface IubendaCookieSolutionApi {
+  getPreferences?: () => unknown;
 }
 
 export interface IubendaConsentFormConfig {
@@ -42,6 +51,8 @@ declare global {
         [string, Record<string, unknown>, Record<string, unknown>?]
       >;
       csConfiguration?: IubendaCookieConfiguration;
+      cs?: { api?: IubendaCookieSolutionApi };
+      googleConsentModeV2?: boolean;
     };
   }
 }
@@ -49,29 +60,12 @@ declare global {
 const CONSENT_SCRIPT_SRC = "https://cdn.iubenda.com/cons/iubenda_cons.js";
 const DEFAULT_LEGAL_NOTICE_IDENTIFIERS = ["privacy_policy", "cookie_policy"];
 const IUBENDA_CALLBACK_BRIDGE_MARKER = "__openeireCallbackBridgeInstalled";
-const ANALYTICS_CONSENT_KEYS = new Set([
-  "analytics",
-  "analytics_storage",
-  "measurement",
-  "measurements",
-  "performance",
-  "statistics",
-  "statistical",
-]);
-const CONSENT_CONTAINER_KEYS = [
-  "consents",
-  "preferences",
-  "purposes",
-  "purposeConsents",
-  "categories",
-  "services",
-] as const;
+const IUBENDA_MEASUREMENT_PURPOSE_ID = "4";
 const registeredForms = new Map<string, RegisteredFormEntry>();
-const consentGrantedListeners = new Set<IubendaConsentGrantedCallback>();
-let analyticsConsentGranted = false;
-let callbackBridgeRetryId: number | null = null;
-let callbackBridgeRetryAttempts = 0;
-const CALLBACK_BRIDGE_MAX_RETRY_ATTEMPTS = 40;
+const analyticsConsentListeners = new Set<IubendaAnalyticsConsentCallback>();
+let analyticsConsentGranted: boolean | null = null;
+let consentMonitorId: number | null = null;
+const CONSENT_MONITOR_INTERVAL_MS = 250;
 
 const getSafeEnvValue = (value: string | undefined): string | null => {
   const trimmedValue = value?.trim();
@@ -158,57 +152,64 @@ const decodeConsentCookieValue = (rawValue: string): unknown | null => {
 
 const extractAnalyticsConsentFromValue = (value: unknown): boolean | null => {
   if (typeof value === "boolean") return value;
-
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      const nested = extractAnalyticsConsentFromValue(item);
-      if (nested !== null) return nested;
-    }
-    return null;
-  }
-
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
 
-  for (const [key, nestedValue] of Object.entries(record)) {
-    if (ANALYTICS_CONSENT_KEYS.has(key.trim().toLowerCase())) {
-      const nested = extractAnalyticsConsentFromValue(nestedValue);
-      if (nested !== null) return nested;
-    }
+  const purposes = record.purposes;
+  if (purposes && typeof purposes === "object" && !Array.isArray(purposes)) {
+    const measurementConsent = (purposes as Record<string, unknown>)[
+      IUBENDA_MEASUREMENT_PURPOSE_ID
+    ];
+    if (typeof measurementConsent === "boolean") return measurementConsent;
   }
 
-  for (const containerKey of CONSENT_CONTAINER_KEYS) {
-    if (!(containerKey in record)) continue;
-    const nested = extractAnalyticsConsentFromValue(record[containerKey]);
-    if (nested !== null) return nested;
+  for (const key of ["analytics_storage", "analytics", "measurement"]) {
+    if (typeof record[key] === "boolean") return record[key];
   }
 
-  if ("consent" in record) {
-    const nested = extractAnalyticsConsentFromValue(record.consent);
-    if (nested !== null) return nested;
-  }
+  if (typeof record.consent === "boolean") return record.consent;
 
   return null;
 };
 
-const hasStoredIubendaAnalyticsConsent = (): boolean => {
-  if (analyticsConsentGranted) return true;
-  return getIubendaConsentCookieValues().some((cookieValue) => {
+const getStoredIubendaAnalyticsConsent = (): boolean | null => {
+  for (const cookieValue of getIubendaConsentCookieValues()) {
     const parsed = decodeConsentCookieValue(cookieValue);
-    return extractAnalyticsConsentFromValue(parsed) === true;
-  });
-};
-
-const extractConsentGrantedFromCallbackArgs = (args: unknown[]): boolean => {
-  for (const arg of args) {
-    if (extractAnalyticsConsentFromValue(arg) === true) return true;
+    const consent = extractAnalyticsConsentFromValue(parsed);
+    if (consent !== null) return consent;
   }
-  return hasStoredIubendaAnalyticsConsent();
+  return null;
 };
 
-const notifyConsentGranted = () => {
-  analyticsConsentGranted = true;
-  for (const callback of consentGrantedListeners) callback();
+const getIubendaApiAnalyticsConsent = (): boolean | null => {
+  try {
+    return extractAnalyticsConsentFromValue(
+      window._iub?.cs?.api?.getPreferences?.(),
+    );
+  } catch {
+    return null;
+  }
+};
+
+const extractAnalyticsConsentFromCallbackArgs = (
+  args: unknown[],
+): boolean | null => {
+  for (const arg of args) {
+    const consent = extractAnalyticsConsentFromValue(arg);
+    if (consent !== null) return consent;
+  }
+  return getIubendaApiAnalyticsConsent() ?? getStoredIubendaAnalyticsConsent();
+};
+
+const notifyAnalyticsConsent = (granted: boolean) => {
+  if (analyticsConsentGranted === granted) return;
+  analyticsConsentGranted = granted;
+  for (const callback of analyticsConsentListeners) callback(granted);
+};
+
+const synchronizeAnalyticsConsent = (...args: unknown[]) => {
+  const consent = extractAnalyticsConsentFromCallbackArgs(args);
+  if (consent !== null) notifyAnalyticsConsent(consent);
 };
 
 const attachIubendaCookieCallbacks = () => {
@@ -221,13 +222,25 @@ const attachIubendaCookieCallbacks = () => {
     return true;
   }
 
-  const maybeNotify = (...args: unknown[]) => {
-    if (extractConsentGrantedFromCallbackArgs(args)) notifyConsentGranted();
-  };
+  const maybeNotify = (...args: unknown[]) => synchronizeAnalyticsConsent(...args);
 
   callbacks.onReady = composeCallback(callbacks.onReady, maybeNotify);
-  callbacks.onConsentGiven = composeCallback(callbacks.onConsentGiven, maybeNotify);
-  callbacks.onConsentRead = composeCallback(callbacks.onConsentRead, maybeNotify);
+  callbacks.onConsentRead = composeCallback(
+    callbacks.onConsentRead ?? callbacks.onConsentGiven,
+    maybeNotify,
+  );
+  callbacks.onPreferenceExpressed = composeCallback(
+    callbacks.onPreferenceExpressed,
+    maybeNotify,
+  );
+  callbacks.onPreferenceChange = composeCallback(
+    callbacks.onPreferenceChange,
+    maybeNotify,
+  );
+  callbacks.onConsentRejected = composeCallback(
+    callbacks.onConsentRejected,
+    () => notifyAnalyticsConsent(false),
+  );
   (callbacks as Record<string, unknown>)[IUBENDA_CALLBACK_BRIDGE_MARKER] = true;
   cookieConfiguration.callback = callbacks;
   return true;
@@ -235,56 +248,46 @@ const attachIubendaCookieCallbacks = () => {
 
 const ensureIubendaCookieCallbacksAttached = () => {
   if (typeof window === "undefined") return;
-  if (attachIubendaCookieCallbacks()) {
-    if (callbackBridgeRetryId !== null) {
-      window.clearInterval(callbackBridgeRetryId);
-      callbackBridgeRetryId = null;
-    }
-    callbackBridgeRetryAttempts = 0;
-    return;
-  }
-  if (callbackBridgeRetryId !== null) return;
+  attachIubendaCookieCallbacks();
+  synchronizeAnalyticsConsent();
+  if (analyticsConsentListeners.size === 0 || consentMonitorId !== null) return;
 
-  callbackBridgeRetryId = window.setInterval(() => {
-    callbackBridgeRetryAttempts += 1;
-    if (!attachIubendaCookieCallbacks()) {
-      if (callbackBridgeRetryAttempts < CALLBACK_BRIDGE_MAX_RETRY_ATTEMPTS) {
-        return;
-      }
-      if (callbackBridgeRetryId !== null) {
-        window.clearInterval(callbackBridgeRetryId);
-        callbackBridgeRetryId = null;
-      }
-      callbackBridgeRetryAttempts = 0;
-      return;
-    }
-    if (callbackBridgeRetryId !== null) {
-      window.clearInterval(callbackBridgeRetryId);
-      callbackBridgeRetryId = null;
-    }
-    callbackBridgeRetryAttempts = 0;
-  }, 250);
+  consentMonitorId = window.setInterval(() => {
+    attachIubendaCookieCallbacks();
+    synchronizeAnalyticsConsent();
+  }, CONSENT_MONITOR_INTERVAL_MS);
 };
 
 export const shouldDeferGAUntilIubendaConsent = (): boolean => {
   if (typeof window === "undefined") return true;
-  return isConsentDatabaseEnabled && !hasStoredIubendaAnalyticsConsent();
+  return !isAnalyticsConsentGranted();
 };
 
 export const isAnalyticsConsentGranted = (): boolean => {
   if (typeof window === "undefined") return false;
-  return !shouldDeferGAUntilIubendaConsent();
+  if (analyticsConsentGranted !== null) return analyticsConsentGranted;
+  const currentConsent =
+    getIubendaApiAnalyticsConsent() ?? getStoredIubendaAnalyticsConsent();
+  analyticsConsentGranted = currentConsent === true;
+  return analyticsConsentGranted;
 };
 
-export const registerIubendaConsentGrantedCallback = (
-  callback: IubendaConsentGrantedCallback,
+export const isIubendaManagingGoogleConsentMode = (): boolean =>
+  typeof window !== "undefined" && window._iub?.googleConsentModeV2 === true;
+
+export const registerIubendaAnalyticsConsentCallback = (
+  callback: IubendaAnalyticsConsentCallback,
 ) => {
   if (typeof window === "undefined") return () => undefined;
-  consentGrantedListeners.add(callback);
+  analyticsConsentListeners.add(callback);
+  callback(isAnalyticsConsentGranted());
   ensureIubendaCookieCallbacksAttached();
-  if (hasStoredIubendaAnalyticsConsent()) callback();
   return () => {
-    consentGrantedListeners.delete(callback);
+    analyticsConsentListeners.delete(callback);
+    if (analyticsConsentListeners.size === 0 && consentMonitorId !== null) {
+      window.clearInterval(consentMonitorId);
+      consentMonitorId = null;
+    }
   };
 };
 
