@@ -19,8 +19,9 @@ export function AnalyticsListener() {
   const trackCurrentPage = () => {
     const fullPath = `${pathnameRef.current}${window.location.search}`;
     if (lastTrackedPathRef.current === fullPath) return;
-    lastTrackedPathRef.current = fullPath;
-    trackPageView(fullPath, document.title);
+    if (trackPageView(fullPath, document.title)) {
+      lastTrackedPathRef.current = fullPath;
+    }
   };
 
   useEffect(
