@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   FaCheckCircle,
@@ -99,7 +100,8 @@ export function ContactForm() {
           <div className="min-w-0">
             <h2 className="mb-1 text-lg font-bold text-white">Email Us</h2>
             <p className="mb-2 text-sm text-gray-400">
-              For print enquiries, commercial licensing, and custom drone work.
+              For property-media enquiries, prints, commercial licensing, and
+              custom drone work.
             </p>
             <a
               href="mailto:contact@openeire.ie"
@@ -213,12 +215,27 @@ export function ContactForm() {
                   <option value="" disabled>
                     Select a topic...
                   </option>
+                  <option value="Real Estate">
+                    Real Estate / Property Media
+                  </option>
                   <option value="Licensing">Commercial Licensing</option>
                   <option value="Prints">Fine Art Prints</option>
                   <option value="Commission">Commission / Drone Work</option>
                   <option value="Support">Technical Support</option>
                   <option value="Other">Other Inquiry</option>
                 </select>
+                {formData.subject === "Real Estate" ? (
+                  <p className="mt-2 text-sm leading-relaxed text-gray-400">
+                    For a detailed property shoot request, you can also use our{" "}
+                    <Link
+                      href="/real-estate"
+                      className="font-medium text-brand-500 hover:underline"
+                    >
+                      Real Estate Enquiry Form
+                    </Link>
+                    .
+                  </p>
+                ) : null}
               </div>
 
               <div>

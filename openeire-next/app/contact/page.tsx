@@ -17,9 +17,10 @@ import {
 } from "@/lib/site";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Contact OpenEire Studios | Prints, Licensing & Drone Work",
+  title:
+    "Contact OpenEire Studios | Property Media, Prints, Licensing & Drone Work",
   description:
-    "Get in touch about fine art print enquiries, commercial licensing, or bespoke drone capture projects in Ireland.",
+    "Get in touch about real-estate and property-media enquiries, fine art prints, commercial licensing, or bespoke drone work in Ireland.",
   path: "/contact",
 });
 
@@ -50,9 +51,9 @@ export default function ContactPage() {
             Get in Touch
           </h1>
           <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-gray-400">
-            Have a question about a specific print, commercial licensing rights,
-            or a custom drone shot? We are here to help bring your vision to
-            life.
+            Have a question about real-estate or property media, a specific
+            print, commercial licensing rights, or custom drone work? We are
+            here to help bring your vision to life.
           </p>
         </div>
 
