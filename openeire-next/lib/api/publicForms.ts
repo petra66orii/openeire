@@ -43,6 +43,26 @@ export const getApiErrorMessage = (
   return fieldMessage ?? fallback;
 };
 
+export const getApiFieldErrors = (error: unknown): Record<string, string> => {
+  const payload = isApiError(error) ? error.response?.data : error;
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(payload as Record<string, unknown>).flatMap(
+      ([field, value]) => {
+        const message = Array.isArray(value)
+          ? value.filter(Boolean).join(" ")
+          : typeof value === "string"
+            ? value.trim()
+            : "";
+        return message ? [[field, message]] : [];
+      },
+    ),
+  );
+};
+
 export const sendContactMessage = async (payload: ContactData) => {
   const response = await api.post("home/contact/", payload);
   return response.data;
