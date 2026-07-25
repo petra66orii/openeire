@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
 import {
@@ -15,6 +15,7 @@ vi.mock("@/components/ui/ToastProvider", () => ({
 
 vi.mock("@/lib/api/publicForms", () => ({
   getApiErrorMessage: () => "Request failed",
+  getApiFieldErrors: () => ({}),
   submitRealEstateEnquiry: vi.fn(),
 }));
 
@@ -24,6 +25,7 @@ vi.mock("@/lib/iubendaConsent", () => ({
 }));
 
 describe("active real-estate pricing", () => {
+  afterEach(cleanup);
   beforeEach(() => {
     window.history.replaceState({}, "", "/real-estate");
   });
@@ -39,17 +41,18 @@ describe("active real-estate pricing", () => {
 
     expect(screen.getByText(REAL_ESTATE_VAT_NOTE)).toBeTruthy();
 
-    const packageSelect = screen.getByLabelText("Preferred package");
+    const packageSelect = screen.getByLabelText(/Preferred package/);
     const optionLabels = Array.from(packageSelect.querySelectorAll("option")).map(
       (option) => option.textContent,
     );
     expect(optionLabels).toEqual([
+      "Choose deliberately\u2026",
+      "Essential \u2014 \u20ac175",
+      "Starter \u2014 \u20ac229",
+      "Pro \u2014 \u20ac399",
+      "Premium \u2014 \u20ac579",
+      "Custom \u2014 POA",
       "Not sure",
-      "Essential",
-      "Starter",
-      "Pro",
-      "Premium",
-      "Custom",
     ]);
   });
 
