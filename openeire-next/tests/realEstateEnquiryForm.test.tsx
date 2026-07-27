@@ -79,6 +79,24 @@ describe("real-estate shoot scoping form", () => {
     );
   });
 
+  it("shows package-aware turnaround without fabricating a custom deadline", () => {
+    render(<RealEstateEnquiryForm />);
+
+    select("preferred_package", "essential");
+    expect(screen.getByText("Next-business-day delivery.")).toBeTruthy();
+
+    select("preferred_package", "pro");
+    expect(screen.getByText("Delivery within 2 business days.")).toBeTruthy();
+
+    select("preferred_package", "custom");
+    expect(screen.getByText("Turnaround as specifically agreed.")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Turnaround will be set out in the specifically agreed quotation.",
+      ),
+    ).toBeTruthy();
+  });
+
   it("reveals conditional company, location, scope, access and presenter fields", () => {
     render(<RealEstateEnquiryForm />);
     select("client_type", "estate_agent");
@@ -145,13 +163,37 @@ describe("real-estate shoot scoping form", () => {
     expect(screen.queryByLabelText(/Additional social formats/)).toBeNull();
   });
 
+  it("shows catalogue-driven included-photograph guidance for the selected package", () => {
+    render(<RealEstateEnquiryForm />);
+
+    select("preferred_package", "starter");
+    expect(
+      screen.getByText(/25 professionally edited interior and exterior photographs/),
+    ).toBeTruthy();
+
+    select("preferred_package", "premium");
+    expect(
+      screen.getByText(/35 professionally edited interior and exterior photographs/),
+    ).toBeTruthy();
+  });
+
   it("requires a bounded additional-stills quantity", () => {
     render(<RealEstateEnquiryForm />);
-    fireEvent.click(screen.getByLabelText(/Additional edited stills/));
-    const quantity = screen.getByLabelText(/Number of additional edited stills/) as HTMLInputElement;
+    fireEvent.click(screen.getByLabelText(/Additional edited photographs/));
+    const quantity = screen.getByLabelText(/Number of additional edited photographs/) as HTMLInputElement;
     expect(quantity.min).toBe("1");
     expect(quantity.max).toBe("50");
     expect(quantity.step).toBe("1");
+    expect(screen.getAllByText(/€10 per photograph/)).toHaveLength(2);
+  });
+
+  it("makes clear that rush delivery does not cover video or premium outputs", () => {
+    render(<RealEstateEnquiryForm />);
+
+    fireEvent.click(screen.getByLabelText(/Rush same-day delivery/));
+
+    expect(screen.getByText(/does not rush drone video, ground video/)).toBeTruthy();
+    expect(screen.getByText(/3D virtual tours, floor plans/)).toBeTruthy();
   });
 
   it("submits the structured payload and preserves Iubenda consent handling", async () => {
