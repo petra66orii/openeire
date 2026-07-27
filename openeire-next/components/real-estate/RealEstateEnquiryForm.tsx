@@ -363,7 +363,7 @@ export function RealEstateEnquiryForm() {
         `[data-error-field="${field}"], [name="${field}"]:not([type="hidden"])`,
       );
       control?.focus();
-      control?.scrollIntoView({ block: "center", behavior: "smooth" });
+      control?.scrollIntoView?.({ block: "center", behavior: "smooth" });
     });
   };
 
