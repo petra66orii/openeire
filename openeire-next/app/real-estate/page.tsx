@@ -11,7 +11,15 @@ import {
   getOfficialSameAsLinks,
 } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { REAL_ESTATE_VAT_NOTE } from "@/lib/realEstate";
+import {
+  REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY,
+  REAL_ESTATE_PACKAGES,
+  REAL_ESTATE_RUSH_DELIVERY_LABEL,
+  REAL_ESTATE_RUSH_DELIVERY_NOTE,
+  REAL_ESTATE_STANDARD_TURNAROUND_COPY,
+  REAL_ESTATE_TURNAROUND_CONTEXT,
+  REAL_ESTATE_VAT_NOTE,
+} from "@/lib/realEstate";
 import {
   buildBreadcrumbJsonLd,
   buildFaqPageJsonLd,
@@ -36,92 +44,28 @@ type RealEstatePackage = {
   features: readonly string[];
 };
 
+const realEstatePhotoAllowances = REAL_ESTATE_PACKAGES.flatMap(
+  ({ includedPhotographs }) =>
+    includedPhotographs === null ? [] : [includedPhotographs],
+).join(", ");
+
 export const metadata = buildPageMetadata({
   title: "Real Estate Photography & Drone Video in Connacht | OpenÉire Studios",
-  description:
-    "Real estate photography, drone video and 3D tours for estate agents, developers and sellers across Connacht. Packages from €175 total.",
+  description: `Real estate photography packages with ${realEstatePhotoAllowances} professionally edited photographs, drone video and 3D tours across Connacht, with package-aware business-day turnaround.`,
   path: "/real-estate",
   image: "/hero-poster.jpg",
 });
 
-const packages: readonly RealEstatePackage[] = [
-  {
-    key: "essential",
-    name: "Essential",
-    price: "€175 total",
-    description:
-      "Recommended for smaller properties, rentals, starter listings.",
-    features: [
-      "10 professionally edited interior & exterior photographs",
-      "Full resolution delivery, print & web ready",
-      "24-hour delivery (in normal operating conditions)",
-      "Commercial marketing licence for this specific property listing, including Daft.ie, MyHome.ie, agency websites, social media, email campaigns and print brochures, for the duration of the active listing (up to 2 years, non-transferable).",
-    ],
-  },
-  {
-    key: "starter",
-    name: "Starter",
-    price: "€229 total",
-    description: "Recommended for standard 3-4 bed residential properties.",
-    features: [
-      "20 professionally edited interior & exterior photographs",
-      "5-8 high-quality aerial drone stills",
-      "Full resolution delivery, print & web ready",
-      "24-hour delivery (in normal operating conditions)",
-      "Commercial marketing licence",
-    ],
-  },
-  {
-    key: "pro",
-    name: "Pro",
-    price: "€399 total",
-    badge: "Recommended",
-    description:
-      "Recommended for detached homes, larger properties, new builds, agents wanting standout listings.",
-    features: [
-      "25 professionally edited interior & exterior photographs",
-      "5-8 high-quality aerial drone stills",
-      "60-90 seconds of interior & exterior video, fully edited with music",
-      "Aerial drone video, 60-90 seconds, 4K, edited with music",
-      "Social media cuts included, portrait 9:16 and square 1:1 formatted reels",
-      "Full resolution delivery, print & web ready",
-      "24-hour delivery (in normal operating conditions)",
-      "Commercial marketing licence",
-    ],
-  },
-  {
-    key: "premium",
-    name: "Premium",
-    price: "€579 total",
-    description:
-      "Recommended for premium listings, larger homes, waterfront/rural properties, new developments, and properties where presentation is a major selling point.",
-    features: [
-      "30 professionally edited interior & exterior photographs",
-      "5-8 high-quality aerial drone stills",
-      "60-90 seconds of interior & exterior video, fully edited with music",
-      "Aerial drone video, 60-90 seconds, 4K, edited with music",
-      "Social media cuts included, portrait 9:16 and square 1:1 formatted reels",
-      "3D interactive virtual tour, hosted, shareable link",
-      "Floor plan, 2D measured",
-      "Full resolution delivery, print & web ready",
-      "24-hour delivery (in normal operating conditions)",
-      "Commercial marketing licence",
-    ],
-  },
-  {
-    key: "custom",
-    name: "Custom",
-    price: "POA",
-    description:
-      "For multi-property shoots, large developments, commercial properties, agricultural properties and bespoke bundles.",
-    features: [
-      "Multiple properties in a single booking",
-      "Cinematic property films",
-      "Commercial or agricultural properties",
-      "Developer packages",
-    ],
-  },
-] as const;
+const packages: readonly RealEstatePackage[] = REAL_ESTATE_PACKAGES.map(
+  (packageItem) => ({
+    key: packageItem.id,
+    name: packageItem.name,
+    price: packageItem.price,
+    badge: "badge" in packageItem ? packageItem.badge : undefined,
+    description: packageItem.description,
+    features: packageItem.features,
+  }),
+);
 
 const listingFeatures = [
   {
@@ -136,8 +80,8 @@ const listingFeatures = [
   },
   {
     icon: <FaCalendarAlt />,
-    title: "Fast delivery",
-    text: "Listing‑ready files delivered within 24 hours after the shoot, once access and brief details have been provided and conditions allow safe and lawful capture.",
+    title: "Package-aware turnaround",
+    text: REAL_ESTATE_STANDARD_TURNAROUND_COPY,
   },
   {
     icon: <FaHome />,
@@ -153,8 +97,8 @@ const listingFeatures = [
 
 const addOns = [
   {
-    label: "Additional edited stills",
-    price: "€10 total per image",
+    label: "Additional edited photographs",
+    price: "€10 total per photograph",
   },
   {
     label: "Floor plan, 2D measured (included in Premium package)",
@@ -165,7 +109,7 @@ const addOns = [
     price: "€150 total",
   },
   {
-    label: "Rush same-day delivery, stills only",
+    label: REAL_ESTATE_RUSH_DELIVERY_LABEL,
     price: "€75 total",
   },
   {
@@ -208,8 +152,7 @@ const faqs = [
   },
   {
     question: "How quickly will I receive the media?",
-    answer:
-      "All packages are delivered within 24 hours after the shoot, once access and brief details have been provided and conditions allow safe and lawful capture.",
+    answer: `${REAL_ESTATE_STANDARD_TURNAROUND_COPY} ${REAL_ESTATE_TURNAROUND_CONTEXT}`,
   },
   {
     question: "Can you fly the drone at every property?",
@@ -248,36 +191,13 @@ const faqs = [
   },
 ] as const;
 
-const realEstatePackageOffers = [
-  {
-    name: "Essential real estate media package",
-    price: "175",
-    description: `€175 total. Includes 10 edited photos. ${REAL_ESTATE_VAT_NOTE}`,
-  },
-  {
-    name: "Starter real estate media package",
-    price: "229",
-    description:
-      `€229 total. Includes 20 edited photos and 5-8 aerial drone stills. ${REAL_ESTATE_VAT_NOTE}`,
-  },
-  {
-    name: "Pro real estate media package",
-    price: "399",
-    description:
-      `€399 total. Includes 25 edited photos, drone stills, a 60-90 second 4K aerial video and social cuts. ${REAL_ESTATE_VAT_NOTE}`,
-  },
-  {
-    name: "Premium real estate media package",
-    price: "579",
-    description:
-      `€579 total. Includes 30 edited photos, drone stills, a 60-90 second 4K aerial video, social cuts, 3D virtual tour and 2D measured floor plan. ${REAL_ESTATE_VAT_NOTE}`,
-  },
-  {
-    name: "Custom real estate media package",
-    description:
-      "POA. Tailored pricing for multi-property shoots, larger developments, commercial properties and bespoke bundles.",
-  },
-] as const;
+const realEstatePackageOffers = REAL_ESTATE_PACKAGES.map((packageItem) => ({
+  name: `${packageItem.name} real estate media package`,
+  description: `${packageItem.price}. Includes ${packageItem.text} ${REAL_ESTATE_VAT_NOTE}`,
+  ...(packageItem.priceAmount !== null
+    ? { price: String(packageItem.priceAmount) }
+    : {}),
+}));
 
 const schema = [
   buildBreadcrumbJsonLd([
@@ -362,9 +282,9 @@ export default function RealEstatePage() {
               video and 3D tours with clear pricing.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-gray-300 md:text-xl">
-              One visit, listing-ready media and 24-hour delivery after the
-              shoot — for estate agents, developers and private sellers across
-              Connacht.
+              One visit, listing-ready media and a clear package-aware
+              turnaround — for estate agents, developers and private sellers
+              across Connacht.
             </p>
             <p className="mt-4 max-w-2xl text-xs font-bold uppercase tracking-[0.18em] text-gray-400">
               Interior & exterior photography • Aerial drone video • Social
@@ -394,7 +314,7 @@ export default function RealEstatePage() {
               {[
                 "Photography packages from €175 total",
                 "Full commercial marketing licence included",
-                "24-hour delivery after the shoot",
+                "Next-business-day or two-business-day standard turnaround by package",
                 "Drone capture planned around safe operating conditions",
                 "Commercially insured with €6.5m cover",
               ].map((item) => (
@@ -456,6 +376,9 @@ export default function RealEstatePage() {
               {REAL_ESTATE_VAT_NOTE} Travel
               supplement applies beyond 40 km from base.
             </p>
+            <p className="mt-3 text-sm leading-relaxed text-gray-500">
+              {REAL_ESTATE_TURNAROUND_CONTEXT}
+            </p>
           </div>
 
           <SwipeHint className="md:hidden" />
@@ -516,6 +439,12 @@ export default function RealEstatePage() {
             <p className="mt-5 text-lg leading-relaxed text-gray-400">
               Build a clean scope around the property rather than paying for
               extras you do not need.
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-gray-300">
+              {REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY}
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-amber-100">
+              {REAL_ESTATE_RUSH_DELIVERY_NOTE}
             </p>
           </div>
           <SwipeHint className="md:hidden" />

@@ -5,7 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
 import {
+  REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY,
   REAL_ESTATE_PACKAGES,
+  REAL_ESTATE_RUSH_DELIVERY_LABEL,
+  REAL_ESTATE_RUSH_DELIVERY_NOTE,
+  REAL_ESTATE_TURNAROUNDS,
   REAL_ESTATE_VAT_NOTE,
 } from "@/lib/realEstate";
 
@@ -30,10 +34,92 @@ describe("active real-estate pricing", () => {
     window.history.replaceState({}, "", "/real-estate");
   });
 
-  it("publishes the Pro package as €399 total", () => {
-    const proPackage = REAL_ESTATE_PACKAGES.find(({ id }) => id === "pro");
+  it("publishes the authoritative package prices and photograph allowances", () => {
+    expect(
+      Object.fromEntries(
+        REAL_ESTATE_PACKAGES.map(
+          ({ id, priceAmount, includedPhotographs }) => [
+            id,
+            { priceAmount, includedPhotographs },
+          ],
+        ),
+      ),
+    ).toEqual({
+      essential: { priceAmount: 175, includedPhotographs: 10 },
+      starter: { priceAmount: 229, includedPhotographs: 25 },
+      pro: { priceAmount: 399, includedPhotographs: 30 },
+      premium: { priceAmount: 579, includedPhotographs: 35 },
+      custom: { priceAmount: null, includedPhotographs: null },
+    });
 
-    expect(proPackage?.price).toBe("€399 total");
+    const proPackage = REAL_ESTATE_PACKAGES.find(({ id }) => id === "pro");
+    expect(proPackage?.text).toContain(
+      "30 professionally edited interior and exterior photographs",
+    );
+    expect(proPackage?.text).toContain("60-90 second ground video");
+    expect(proPackage?.text).toContain("60-90 second 4K aerial drone video");
+    expect(REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY).toContain(
+      "€10 per photograph",
+    );
+  });
+
+  it("drives package cards and JSON-LD from the shared catalogue", () => {
+    const pageSource = fs.readFileSync(
+      path.join(process.cwd(), "app", "real-estate", "page.tsx"),
+      "utf8",
+    );
+
+    expect(pageSource).toContain(
+      "const packages: readonly RealEstatePackage[] = REAL_ESTATE_PACKAGES.map",
+    );
+    expect(pageSource).toContain(
+      "const realEstatePackageOffers = REAL_ESTATE_PACKAGES.map",
+    );
+    expect(pageSource).toContain(
+      "const realEstatePhotoAllowances = REAL_ESTATE_PACKAGES.flatMap",
+    );
+    expect(pageSource).not.toMatch(
+      /Includes (?:20|25|30) edited photos/,
+    );
+  });
+
+  it("mirrors the package-aware API turnaround contract", () => {
+    expect(REAL_ESTATE_TURNAROUNDS).toMatchObject({
+      essential: {
+        code: "next_business_day",
+        label: "Next-business-day delivery",
+      },
+      starter: {
+        code: "next_business_day",
+        label: "Next-business-day delivery",
+      },
+      pro: {
+        code: "two_business_days",
+        label: "Delivery within 2 business days",
+      },
+      premium: {
+        code: "two_business_days",
+        label: "Delivery within 2 business days",
+      },
+      custom: {
+        code: "specifically_agreed",
+        label: "Turnaround as specifically agreed",
+      },
+      not_sure: {
+        code: "specifically_agreed",
+        label: "Turnaround as specifically agreed",
+      },
+    });
+  });
+
+  it("limits the rush add-on to still photography", () => {
+    expect(REAL_ESTATE_RUSH_DELIVERY_LABEL).toContain("still photography only");
+    expect(REAL_ESTATE_RUSH_DELIVERY_NOTE).toContain(
+      "does not rush drone video, ground video, social-media video cuts",
+    );
+    expect(REAL_ESTATE_RUSH_DELIVERY_NOTE).toContain(
+      "3D virtual tours, floor plans or other Premium outputs",
+    );
   });
 
   it("renders the VAT non-registration note and active package options", () => {
@@ -76,6 +162,25 @@ describe("active real-estate pricing", () => {
     };
 
     activeDirectories.forEach((directory) => inspect(path.join(process.cwd(), directory)));
+    expect(violations).toEqual([]);
+  });
+
+  it("contains no blanket 24-hour delivery promise in active real-estate copy", () => {
+    const targets = [
+      path.join(process.cwd(), "app", "real-estate", "page.tsx"),
+      path.join(process.cwd(), "lib", "realEstate.ts"),
+    ];
+    const forbidden = [
+      /24-hour (?:delivery|turnaround)/i,
+      /delivered within 24 hours after the shoot/i,
+      /all packages are delivered within 24 hours/i,
+    ];
+
+    const violations = targets.filter((target) => {
+      const source = fs.readFileSync(target, "utf8");
+      return forbidden.some((pattern) => pattern.test(source));
+    });
+
     expect(violations).toEqual([]);
   });
 });

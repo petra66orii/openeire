@@ -18,7 +18,14 @@ import {
   registerIubendaConsentForm,
   submitIubendaConsentForm,
 } from "@/lib/iubendaConsent";
-import { REAL_ESTATE_VAT_NOTE } from "@/lib/realEstate";
+import {
+  REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY,
+  REAL_ESTATE_ENQUIRY_PACKAGES,
+  REAL_ESTATE_RUSH_DELIVERY_LABEL,
+  REAL_ESTATE_RUSH_DELIVERY_NOTE,
+  REAL_ESTATE_VAT_NOTE,
+  getRealEstateTurnaround,
+} from "@/lib/realEstate";
 import type {
   AddOnKey,
   ClientType,
@@ -133,7 +140,6 @@ const initialFormData: FormData = {
   consent_to_contact: false,
 };
 
-const packages = ["essential", "starter", "pro", "premium", "custom", "not_sure"] as const;
 const counties = [
   "Carlow", "Cavan", "Clare", "Cork", "Donegal", "Dublin", "Galway", "Kerry",
   "Kildare", "Kilkenny", "Laois", "Leitrim", "Limerick", "Longford", "Louth",
@@ -141,10 +147,10 @@ const counties = [
   "Waterford", "Westmeath", "Wexford", "Wicklow",
 ];
 const addOns: Array<{ key: AddOnKey; label: string; price: string }> = [
-  { key: "additional_stills", label: "Additional edited stills", price: "€10 per image (maximum 50)" },
+  { key: "additional_stills", label: "Additional edited photographs", price: "€10 per photograph (maximum 50)" },
   { key: "floor_plan", label: "2D measured floor plan", price: "€75" },
   { key: "virtual_tour_3d", label: "Hosted 3D virtual tour", price: "€150" },
-  { key: "rush_delivery", label: "Rush same-day delivery — still photographs only", price: "€75" },
+  { key: "rush_delivery", label: REAL_ESTATE_RUSH_DELIVERY_LABEL, price: "€75" },
   { key: "extended_drone_video", label: "Extended drone video, up to 3 minutes", price: "€150" },
   { key: "additional_social_cuts", label: "Additional social formats / cuts", price: "€50" },
 ];
@@ -218,7 +224,10 @@ export function RealEstateEnquiryForm() {
 
   useEffect(() => {
     const requested = new URLSearchParams(window.location.search).get("package")?.trim();
-    if (requested && packages.includes(requested as PackageType)) {
+    if (
+      requested &&
+      REAL_ESTATE_ENQUIRY_PACKAGES.some(({ id }) => id === requested)
+    ) {
       setFormData((current) => ({ ...current, preferred_package: requested as PackageType }));
     }
   }, []);
@@ -434,6 +443,9 @@ export function RealEstateEnquiryForm() {
 
   const option = (value: string, label: string) => <option key={value} value={value}>{label}</option>;
   const shownAddOns = addOns.filter(({ key }) => !conflicts[formData.preferred_package as PackageType]?.includes(key));
+  const selectedPackage = REAL_ESTATE_ENQUIRY_PACKAGES.find(
+    ({ id }) => id === formData.preferred_package,
+  );
 
   if (status === "success") {
     return (
@@ -471,7 +483,28 @@ export function RealEstateEnquiryForm() {
               <Field inputId="real-estate-phone" label="Phone" required error={errors.phone}><input id="real-estate-phone" name="phone" type="tel" value={formData.phone} onChange={change} className={inputClass} autoComplete="tel" {...a11y("phone")} /></Field>
               <Field inputId="real-estate-client-type" label="Client type" required error={errors.client_type}><select id="real-estate-client-type" name="client_type" value={formData.client_type} onChange={change} className={inputClass} {...a11y("client_type")}><option value="">Select…</option>{option("estate_agent", "Estate agent")}{option("developer", "Developer")}{option("private_seller", "Private seller")}{option("landlord", "Landlord")}{option("other", "Other")}</select></Field>
               <Field inputId="real-estate-company-name" label="Company / agency name" required={["estate_agent", "developer"].includes(formData.client_type)} error={errors.company_name}><input id="real-estate-company-name" name="company_name" value={formData.company_name} onChange={change} className={inputClass} autoComplete="organization" {...a11y("company_name")} /></Field>
-              <Field inputId="real-estate-preferred-package" label="Preferred package" required error={errors.preferred_package}><select id="real-estate-preferred-package" name="preferred_package" value={formData.preferred_package} onChange={change} className={inputClass} {...a11y("preferred_package")}><option value="">Choose deliberately…</option>{option("essential", "Essential — €175")}{option("starter", "Starter — €229")}{option("pro", "Pro — €399")}{option("premium", "Premium — €579")}{option("custom", "Custom — POA")}{option("not_sure", "Not sure")}</select></Field>
+              <Field inputId="real-estate-preferred-package" label="Preferred package" required error={errors.preferred_package}>
+                <select id="real-estate-preferred-package" name="preferred_package" value={formData.preferred_package} onChange={change} className={inputClass} {...a11y("preferred_package")}>
+                  <option value="">Choose deliberately…</option>
+                  {REAL_ESTATE_ENQUIRY_PACKAGES.map((packageItem) =>
+                    option(
+                      packageItem.id,
+                      packageItem.id === "not_sure"
+                        ? packageItem.name
+                        : `${packageItem.name} — ${packageItem.price.replace(" total", "")}`,
+                    ),
+                  )}
+                </select>
+                {formData.preferred_package ? (
+                  <div className="mt-2 space-y-1 text-sm leading-relaxed text-gray-400">
+                    <p>{selectedPackage?.includedPhotographsLabel}.</p>
+                    <p>
+                      <strong>{getRealEstateTurnaround(formData.preferred_package).label}.</strong>
+                    </p>
+                    <p>{getRealEstateTurnaround(formData.preferred_package).detail}</p>
+                  </div>
+                ) : null}
+              </Field>
             </div>
           </Section>
 
@@ -528,8 +561,8 @@ export function RealEstateEnquiryForm() {
           <Section title="Optional add-ons">
             {packageNotice ? <p role="status" className="rounded-xl bg-amber-400/10 p-3 text-sm text-amber-100">{packageNotice}</p> : null}
             <div className="grid gap-3 md:grid-cols-2">{shownAddOns.map((item) => <label key={item.key} className="flex gap-3 rounded-xl border border-white/10 p-4"><input type="checkbox" name="add_ons" value={item.key} checked={formData.add_ons.includes(item.key)} onChange={() => toggleAddOn(item.key)} /><span><strong className="block">{item.label}</strong><span className="text-sm text-gray-500">{item.price}</span></span></label>)}</div>
-            {formData.add_ons.includes("additional_stills") ? <Field inputId="real-estate-additional-stills-quantity" label="Number of additional edited stills" required error={errors.additional_stills_quantity}><input id="real-estate-additional-stills-quantity" name="additional_stills_quantity" type="number" min="1" max="50" step="1" value={formData.additional_stills_quantity} onChange={change} className={inputClass} {...a11y("additional_stills_quantity")} /></Field> : null}
-            {formData.add_ons.includes("rush_delivery") && ["pro", "premium"].includes(formData.preferred_package) ? <p className="text-sm text-amber-200">Rush delivery applies to still photographs only. Video follows the normal agreed schedule.</p> : null}
+            {formData.add_ons.includes("additional_stills") ? <Field inputId="real-estate-additional-stills-quantity" label="Number of additional edited photographs" required error={errors.additional_stills_quantity} hint={REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY}><input id="real-estate-additional-stills-quantity" name="additional_stills_quantity" type="number" min="1" max="50" step="1" value={formData.additional_stills_quantity} onChange={change} className={inputClass} {...a11y("additional_stills_quantity")} /></Field> : null}
+            {formData.add_ons.includes("rush_delivery") ? <p className="text-sm text-amber-200">{REAL_ESTATE_RUSH_DELIVERY_NOTE}</p> : null}
             <p className="text-xs text-gray-500">{REAL_ESTATE_VAT_NOTE}</p>
           </Section>
 
