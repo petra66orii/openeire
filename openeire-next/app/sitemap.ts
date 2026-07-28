@@ -10,6 +10,7 @@ const staticPublicRoutes = [
   "/art-prints",
   "/footage",
   "/real-estate",
+  "/real-estate/portfolio",
   "/about",
   "/us",
   "/us/fine-art-prints",

@@ -98,6 +98,9 @@ export function Footer() {
               <FooterLink href="/licensing">Licensing</FooterLink>
               <FooterLink href="/gallery-gate?next=/gallery/digital">Stock Footage</FooterLink>
               <FooterLink href="/services">Services</FooterLink>
+              <FooterLink href="/real-estate/portfolio">
+                Real Estate Portfolio
+              </FooterLink>
               <FooterLink href="/blog">Journal</FooterLink>
               <FooterLink href="/about">Our Story</FooterLink>
             </ul>

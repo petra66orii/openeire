@@ -20,6 +20,7 @@ const primaryNavItems = [
 const serviceNavItems = [
   { href: "/licensing", label: "Commercial Licensing" },
   { href: "/real-estate", label: "Real Estate Services" },
+  { href: "/real-estate/portfolio", label: "Real Estate Portfolio" },
 ];
 
 const isActivePath = (pathname: string, href: string) =>

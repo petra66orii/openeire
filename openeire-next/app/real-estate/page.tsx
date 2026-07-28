@@ -488,6 +488,29 @@ export default function RealEstatePage() {
         </div>
       </section>
 
+      <section className="border-y border-white/10 bg-brand-900/40 py-16">
+        <div className="container mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-4 md:flex-row md:items-center lg:px-8">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-accent">
+              Real estate media portfolio
+            </p>
+            <h2 className="mt-3 font-serif text-3xl font-bold md:text-4xl">
+              See how photography, film and listing assets work together.
+            </h2>
+            <p className="mt-4 leading-7 text-gray-300">
+              Explore the portfolio area for selected property work and the
+              media formats available for future listing briefs.
+            </p>
+          </div>
+          <a
+            href="/real-estate/portfolio"
+            className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-full border border-white/25 px-7 py-3 text-center text-sm font-bold uppercase tracking-[0.16em] text-white hover:border-accent hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            View the portfolio
+          </a>
+        </div>
+      </section>
+
       <section className="bg-gray-950 py-20">
         <div className="container mx-auto max-w-5xl px-4 text-center lg:px-8">
           <FaHome
