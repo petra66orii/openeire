@@ -10,6 +10,7 @@ import {
   formatFreeShippingThreshold,
   FREE_SHIPPING_PROMO_ENABLED,
 } from "@/lib/freeShipping";
+import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
 
 const primaryNavItems = [
   { href: "/art-prints", label: "Art Prints" },
@@ -20,6 +21,7 @@ const primaryNavItems = [
 const serviceNavItems = [
   { href: "/licensing", label: "Commercial Licensing" },
   { href: "/real-estate", label: "Real Estate Services" },
+  { href: REAL_ESTATE_PORTFOLIO_PATH, label: "Real Estate Portfolio" },
 ];
 
 const isActivePath = (pathname: string, href: string) =>

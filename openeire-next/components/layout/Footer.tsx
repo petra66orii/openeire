@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { FaInstagram, FaYoutube } from "react-icons/fa";
 import { FooterNewsletterSignup } from "@/components/newsletter/FooterNewsletterSignup";
+import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
 
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -98,6 +99,9 @@ export function Footer() {
               <FooterLink href="/licensing">Licensing</FooterLink>
               <FooterLink href="/gallery-gate?next=/gallery/digital">Stock Footage</FooterLink>
               <FooterLink href="/services">Services</FooterLink>
+              <FooterLink href={REAL_ESTATE_PORTFOLIO_PATH}>
+                Real Estate Portfolio
+              </FooterLink>
               <FooterLink href="/blog">Journal</FooterLink>
               <FooterLink href="/about">Our Story</FooterLink>
             </ul>

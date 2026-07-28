@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -67,6 +69,23 @@ describe("root GA4 bootstrap", () => {
     expect(bootstrap).toContain('ad_user_data: "denied"');
     expect(bootstrap).toContain('ad_personalization: "denied"');
     expect(bootstrap).toContain("send_page_view: false");
+  });
+
+  it("loads DOM-mutating remote scripts only after React hydration", () => {
+    const layoutSource = fs.readFileSync(
+      path.join(process.cwd(), "app", "layout.tsx"),
+      "utf8",
+    );
+
+    expect(layoutSource).toMatch(
+      /id="openeire-iubenda-widget"[\s\S]*?strategy="afterInteractive"/,
+    );
+    expect(layoutSource).toMatch(
+      /id=\{GA_SCRIPT_ID\}[\s\S]*?strategy="afterInteractive"/,
+    );
+    expect(layoutSource).toMatch(
+      /id="openeire-ga4-bootstrap"[\s\S]*?strategy="beforeInteractive"/,
+    );
   });
 
   it("falls back to the checked production ID when the public env is missing", async () => {

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllPublishedBlogPostsForSitemap } from "@/lib/api/blog";
 import { getAllPublicPhysicalProductsForSitemap } from "@/lib/api/gallery";
+import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
 import { buildAbsoluteUrl } from "@/lib/site";
 
 const staticPublicRoutes = [
@@ -10,6 +11,7 @@ const staticPublicRoutes = [
   "/art-prints",
   "/footage",
   "/real-estate",
+  REAL_ESTATE_PORTFOLIO_PATH,
   "/about",
   "/us",
   "/us/fine-art-prints",
