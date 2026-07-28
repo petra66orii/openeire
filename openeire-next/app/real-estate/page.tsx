@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { SwipeHint } from "@/components/marketing/MarketingPage";
+import { RealEstateHeroImage } from "@/components/real-estate/RealEstateHeroImage";
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
 import {
   DEFAULT_SOCIAL_IMAGE_PATH,
@@ -20,6 +22,7 @@ import {
   REAL_ESTATE_TURNAROUND_CONTEXT,
   REAL_ESTATE_VAT_NOTE,
 } from "@/lib/realEstate";
+import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
 import {
   buildBreadcrumbJsonLd,
   buildFaqPageJsonLd,
@@ -53,7 +56,6 @@ export const metadata = buildPageMetadata({
   title: "Real Estate Photography & Drone Video in Connacht | OpenÉire Studios",
   description: `Real estate photography packages with ${realEstatePhotoAllowances} professionally edited photographs, drone video and 3D tours across Connacht, with package-aware business-day turnaround.`,
   path: "/real-estate",
-  image: "/hero-poster.jpg",
 });
 
 const packages: readonly RealEstatePackage[] = REAL_ESTATE_PACKAGES.map(
@@ -225,7 +227,6 @@ const schema = [
     "@id": buildAbsoluteUrl("/real-estate#service"),
     name: `${SITE_NAME} Real Estate Media`,
     url: buildAbsoluteUrl("/real-estate"),
-    image: buildAbsoluteUrl("/hero-poster.jpg"),
     description:
       "Professional real estate photography, aerial drone video and 3D virtual tours for estate agents, developers and private sellers across Connacht.",
     serviceType: [
@@ -265,14 +266,17 @@ export default function RealEstatePage() {
       <JsonLd data={schema} />
 
       <section className="relative isolate overflow-hidden pt-[calc(var(--site-header-height,96px)+2rem)]">
+        <RealEstateHeroImage objectPositionClassName="object-[64%_center] sm:object-[68%_center] lg:object-[72%_center]" />
         <div
-          className="absolute inset-0 -z-20 bg-cover bg-center opacity-35"
-          style={{ backgroundImage: "url('/hero-poster.jpg')" }}
+          className="absolute inset-0 -z-10 bg-linear-to-r from-black/95 via-black/75 to-black/45 md:from-black/90 md:via-black/60 md:to-black/25"
           aria-hidden="true"
         />
-        <div className="absolute inset-0 -z-10 bg-linear-to-b from-black/80 via-black/80 to-black" />
-        <div className="container mx-auto grid min-h-[78vh] max-w-7xl items-center gap-12 px-4 py-20 lg:grid-cols-[1.08fr_0.92fr] lg:px-8">
-          <div className="max-w-4xl">
+        <div
+          className="absolute inset-0 -z-10 bg-linear-to-b from-transparent via-transparent to-black/65"
+          aria-hidden="true"
+        />
+        <div className="container mx-auto flex min-h-[78vh] max-w-7xl items-center px-4 py-20 lg:px-8">
+          <div className="max-w-3xl">
             <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-accent">
               <FaMapMarkerAlt aria-hidden="true" />
               Real estate media across Connacht
@@ -290,46 +294,52 @@ export default function RealEstatePage() {
               Interior & exterior photography • Aerial drone video • Social
               media cuts • 3D virtual tours
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <a
                 href="#enquiry"
                 className="rounded-full bg-brand-500 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-brand-500/20 transition hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-black"
               >
                 Request a Property Shoot
               </a>
-              <a
-                href="#packages"
-                className="rounded-full border border-white/20 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white transition hover:border-brand-500 hover:text-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-black"
+              <Link
+                href={REAL_ESTATE_PORTFOLIO_PATH}
+                className="rounded-full border border-white/30 bg-black/25 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-white backdrop-blur transition hover:border-accent hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
               >
-                View Packages
-              </a>
+                View property portfolio
+              </Link>
             </div>
+            <a
+              href="#packages"
+              className="mt-5 inline-flex text-sm font-bold text-gray-200 underline decoration-white/35 underline-offset-4 transition hover:text-accent hover:decoration-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              Compare packages and pricing
+            </a>
           </div>
+        </div>
+      </section>
 
-          <div className="rounded-4xl border border-white/10 bg-brand-500/6 p-6 shadow-2xl backdrop-blur md:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-gray-400">
-              Launch-ready listing media
-            </p>
-            <div className="mt-6 grid gap-4">
-              {[
-                "Photography packages from €175 total",
-                "Full commercial marketing licence included",
-                "Next-business-day or two-business-day standard turnaround by package",
-                "Drone capture planned around safe operating conditions",
-                "Commercially insured with €6.5m cover",
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <FaCheckCircle
-                    className="mt-1 shrink-0 text-brand-500"
-                    aria-hidden="true"
-                  />
-                  <span className="text-sm leading-relaxed text-gray-200">
-                    {item}
-                  </span>
-                </div>
-              ))}
+      <section
+        aria-label="Property media service assurances"
+        className="border-y border-white/10 bg-gray-950"
+      >
+        <div className="container mx-auto grid max-w-7xl gap-px px-4 py-5 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+          {[
+            "Photography packages from €175 total",
+            "Commercial marketing licence included",
+            "Package-aware business-day turnaround",
+            "Drone capture subject to safe conditions",
+          ].map((item) => (
+            <div
+              key={item}
+              className="flex items-start gap-3 border-white/10 py-3 sm:px-4 sm:odd:border-r lg:border-r lg:last:border-r-0"
+            >
+              <FaCheckCircle
+                className="mt-0.5 shrink-0 text-brand-500"
+                aria-hidden="true"
+              />
+              <span className="text-sm leading-6 text-gray-300">{item}</span>
             </div>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -485,29 +495,6 @@ export default function RealEstatePage() {
             unsuitable, OpenÉire will offer one reschedule at no additional
             cost. Further reschedules may incur a fee.
           </div>
-        </div>
-      </section>
-
-      <section className="border-y border-white/10 bg-brand-900/40 py-16">
-        <div className="container mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-4 md:flex-row md:items-center lg:px-8">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-accent">
-              Real estate media portfolio
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-bold md:text-4xl">
-              See how photography, film and listing assets work together.
-            </h2>
-            <p className="mt-4 leading-7 text-gray-300">
-              Explore the portfolio area for selected property work and the
-              media formats available for future listing briefs.
-            </p>
-          </div>
-          <a
-            href="/real-estate/portfolio"
-            className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-full border border-white/25 px-7 py-3 text-center text-sm font-bold uppercase tracking-[0.16em] text-white hover:border-accent hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            View the portfolio
-          </a>
         </div>
       </section>
 

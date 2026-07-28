@@ -2,19 +2,30 @@ import fs from "node:fs";
 import path from "node:path";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import RealEstatePage from "@/app/real-estate/page";
 import RealEstatePortfolioPage, {
   metadata,
 } from "@/app/real-estate/portfolio/page";
 import { PortfolioProject } from "@/components/real-estate/PortfolioProject";
 import {
   REAL_ESTATE_PORTFOLIO_PROJECTS,
+  getDemonstratedPortfolioFormats,
   getPublishedPortfolioProjects,
   type RealEstatePortfolioProject,
 } from "@/lib/realEstatePortfolio";
+import { REAL_ESTATE_PACKAGES } from "@/lib/realEstate";
+import {
+  REAL_ESTATE_HERO_IMAGE,
+  REAL_ESTATE_PORTFOLIO_HERO_IMAGE,
+  REAL_ESTATE_PORTFOLIO_PATH,
+} from "@/lib/realEstatePresentation";
 import { buildPortfolioJsonLd } from "@/lib/seo/realEstatePortfolioJsonLd";
 
 vi.mock("@/lib/analytics", () => ({
   trackEvent: vi.fn(),
+}));
+vi.mock("@/components/real-estate/RealEstateEnquiryForm", () => ({
+  RealEstateEnquiryForm: () => <section id="enquiry">Enquiry form</section>,
 }));
 
 const buildProject = (
@@ -38,7 +49,7 @@ const buildProject = (
       height: 1080,
     },
   ],
-  services: ["Property photography", "Aerial drone stills"],
+  photographyFormats: ["photography", "aerialStills"],
   featured: true,
   published: true,
   portfolioPermissionConfirmed: true,
@@ -49,7 +60,7 @@ const buildProject = (
 describe("real-estate portfolio", () => {
   afterEach(cleanup);
 
-  it("renders the correct page heading, CTAs and professional empty state", () => {
+  it("renders the approved project, gallery, heading and CTAs", () => {
     render(<RealEstatePortfolioPage />);
 
     expect(
@@ -68,9 +79,78 @@ describe("real-estate portfolio", () => {
     ).toBe("/real-estate");
     expect(
       screen.getByRole("heading", {
-        name: /portfolio is being prepared for publication/i,
+        name: "Detached residence in County Galway",
       }),
     ).toBeTruthy();
+    expect(
+      screen.queryByRole("heading", {
+        name: /approved property work is being prepared for publication/i,
+      }),
+    ).toBeNull();
+    expect(document.body.textContent).not.toMatch(
+      /permission is still|seeking permission|written permissions/i,
+    );
+    expect(
+      screen.getByRole("heading", {
+        name: "Media demonstrated in published work.",
+      }),
+    ).toBeTruthy();
+    expect(
+      document.querySelector('[data-gallery-mode="responsive-marquee"]'),
+    ).toBeTruthy();
+  });
+
+  it("places a secondary portfolio link in the main real-estate hero", () => {
+    render(<RealEstatePage />);
+
+    const portfolioLink = screen.getByRole("link", {
+      name: "View property portfolio",
+    });
+    expect(portfolioLink.getAttribute("href")).toBe(
+      REAL_ESTATE_PORTFOLIO_PATH,
+    );
+    expect(
+      portfolioLink.closest("section")?.querySelector("h1")?.textContent,
+    ).toMatch(/Property media built for Connacht agents/i);
+  });
+
+  it("uses centrally configured approved property heroes", () => {
+    expect(REAL_ESTATE_HERO_IMAGE).toMatchObject({
+      src: "https://media.openeire.ie/portfolio/county-galway-20260724/drone-exterior-v1.webp",
+      alt: "Aerial view of a residential property photographed by OpenÉire Studios",
+      width: 2500,
+      height: 1406,
+    });
+    expect(REAL_ESTATE_PORTFOLIO_HERO_IMAGE).toMatchObject({
+      src: "https://media.openeire.ie/portfolio/county-galway-20260724/hero-v1.webp",
+      alt: "Exterior view of a residential property photographed by OpenÉire Studios",
+      width: 2500,
+      height: 1406,
+    });
+
+    const pageSources = [
+      path.join(process.cwd(), "app", "real-estate", "page.tsx"),
+      path.join(process.cwd(), "app", "real-estate", "portfolio", "page.tsx"),
+    ].map((target) => fs.readFileSync(target, "utf8"));
+
+    for (const source of pageSources) {
+      expect(source).toContain("<RealEstateHeroImage");
+      expect(source).not.toContain('src="/hero-poster.jpg"');
+      expect(source).not.toContain("url('/hero-poster.jpg')");
+    }
+
+    render(<RealEstatePage />);
+    expect(
+      screen.getByAltText(REAL_ESTATE_HERO_IMAGE.alt).getAttribute("src"),
+    ).toContain(encodeURIComponent(REAL_ESTATE_HERO_IMAGE.src));
+
+    cleanup();
+    render(<RealEstatePortfolioPage />);
+    expect(
+      screen
+        .getByAltText(REAL_ESTATE_PORTFOLIO_HERO_IMAGE.alt)
+        .getAttribute("src"),
+    ).toContain(encodeURIComponent(REAL_ESTATE_PORTFOLIO_HERO_IMAGE.src));
   });
 
   it("only returns projects with explicit publication and permission state", () => {
@@ -111,6 +191,156 @@ describe("real-estate portfolio", () => {
     ).toEqual([authorised]);
   });
 
+  it("renders no gallery for unpublished or unauthorised project collections", () => {
+    const gatedProjects = getPublishedPortfolioProjects([
+      buildProject({ published: false }),
+      buildProject({
+        slug: "unpermitted-gallery",
+        portfolioPermissionConfirmed: false,
+      }),
+    ]);
+
+    render(
+      <>
+        {gatedProjects.map((project) => (
+          <PortfolioProject key={project.slug} project={project} />
+        ))}
+      </>,
+    );
+
+    expect(
+      document.querySelector('[data-gallery-mode="responsive-marquee"]'),
+    ).toBeNull();
+  });
+
+  it("publishes only the approved R2-backed project", () => {
+    const project = REAL_ESTATE_PORTFOLIO_PROJECTS.find(
+      ({ slug }) => slug === "detached-residence-county-galway",
+    );
+
+    expect(project).toBeTruthy();
+    expect(project?.title).toBe("Detached residence in County Galway");
+    expect(project?.title).not.toMatch(/Woodland residence/i);
+    expect(project?.packageName).toBe(
+      "Residential property media coverage",
+    );
+    expect(project?.published).toBe(true);
+    expect(project?.portfolioPermissionConfirmed).toBe(true);
+    expect(project?.permissionReference).toBe(
+      "portfolio-approval-2026-07",
+    );
+    expect(project?.imageCount).toBe(8);
+    expect(project?.galleryImages).toHaveLength(7);
+    expect(project?.groundVideo).toMatchObject({
+      youtubeVideoId: "MTGASk31sGo",
+      poster: {
+        src: "https://media.openeire.ie/portfolio/county-galway-20260724/drone-exterior-v1.webp",
+        alt: "Aerial view of a residential property used as the video poster",
+        width: 2500,
+        height: 1406,
+      },
+      title: "Detached residence property film",
+      width: 16,
+      height: 9,
+    });
+    expect(project?.deliverables).toContain("Ground property video");
+    expect(project?.aerialVideo).toBeUndefined();
+    expect(project?.socialVideos).toBeUndefined();
+    expect(project?.floorPlanImage).toBeUndefined();
+    expect(getDemonstratedPortfolioFormats()).toEqual([
+      "photography",
+      "aerialStills",
+      "groundVideo",
+    ]);
+    expect(
+      getDemonstratedPortfolioFormats([
+        { ...project!, published: true },
+      ]),
+    ).toEqual(["photography", "aerialStills", "groundVideo"]);
+
+    const images = [project?.heroImage, ...(project?.galleryImages ?? [])];
+    expect(images).toHaveLength(8);
+    for (const image of images) {
+      expect(image?.src).toMatch(
+        /^https:\/\/media\.openeire\.ie\/portfolio\/county-galway-20260724\/[a-z0-9-]+\.webp$/,
+      );
+      expect(image?.width).toBeGreaterThan(0);
+      expect(image?.height).toBeGreaterThan(0);
+      expect(image?.alt.trim()).toBeTruthy();
+    }
+  });
+
+  it("derives demonstrated formats only from authorised published media", () => {
+    const photographyOnly = buildProject();
+    expect(getDemonstratedPortfolioFormats([photographyOnly])).toEqual([
+      "photography",
+      "aerialStills",
+    ]);
+
+    const video = {
+      youtubeVideoId: "AbCdEfGhI12",
+      poster: {
+        src: "/hero-poster.jpg",
+        alt: "Video poster",
+        width: 1920,
+        height: 1080,
+      },
+      title: "Property film",
+      description: "Approved test film.",
+      width: 16,
+      height: 9,
+    };
+    const allFormats = buildProject({
+      groundVideo: video,
+      aerialVideo: { ...video, youtubeVideoId: "JkLmNoPqR34" },
+      socialVideos: [{ ...video, youtubeVideoId: "StUvWxYzA56" }],
+      floorPlanImage: {
+        src: "/hero-poster.jpg",
+        alt: "Approved floor plan",
+        width: 1600,
+        height: 1200,
+      },
+    });
+    expect(getDemonstratedPortfolioFormats([allFormats])).toEqual([
+      "photography",
+      "aerialStills",
+      "groundVideo",
+      "aerialVideo",
+      "socialMediaCuts",
+      "floorPlan",
+    ]);
+
+    expect(
+      getDemonstratedPortfolioFormats([
+        { ...allFormats, published: false },
+        { ...allFormats, portfolioPermissionConfirmed: false },
+        { ...allFormats, permissionReference: " " },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("renders only evidence supported by the published project", () => {
+    render(<RealEstatePortfolioPage />);
+
+    expect(
+      screen.queryByRole("heading", { name: "Social-media cuts" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("heading", { name: "Measured 2D floor plans" }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("heading", {
+        name: "Interior and exterior photography",
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { name: "Aerial drone stills" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { name: "Ground property video" }),
+    ).toBeTruthy();
+  });
+
   it("does not leak unauthorised project data into JSON-LD", () => {
     const authorised = buildProject();
     const unpermitted = buildProject({
@@ -133,7 +363,7 @@ describe("real-estate portfolio", () => {
     expect(serialized).not.toMatch(/\b[A-Z]\d{2}\s?[A-Z0-9]{4}\b/);
   });
 
-  it("omits optional film and floor-plan sections when assets are absent", () => {
+  it("renders photography independently and omits all absent optional media", () => {
     render(<PortfolioProject project={buildProject()} />);
 
     expect(
@@ -143,7 +373,37 @@ describe("real-estate portfolio", () => {
       screen.queryByRole("heading", { name: "Measured 2D floor plan" }),
     ).toBeNull();
     expect(
+      screen.queryByRole("heading", { name: "Social-media films" }),
+    ).toBeNull();
+    expect(
       screen.getByRole("heading", { name: "Property photography" }),
+    ).toBeTruthy();
+  });
+
+  it("features a single property film before deliverables and photography", () => {
+    render(<PortfolioProject project={REAL_ESTATE_PORTFOLIO_PROJECTS[0]} />);
+
+    const filmHeading = screen.getByRole("heading", {
+      name: "Property film",
+    });
+    const deliverablesHeading = screen.getByRole("heading", {
+      name: "Selected deliverables",
+    });
+    const photographyHeading = screen.getByRole("heading", {
+      name: "Property photography",
+    });
+    const filmLayout = document.querySelector(
+      '[data-property-video-layout="featured"]',
+    );
+
+    expect(filmLayout?.className).toContain("max-w-3xl");
+    expect(
+      filmHeading.compareDocumentPosition(deliverablesHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      filmHeading.compareDocumentPosition(photographyHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
   });
 
@@ -151,7 +411,9 @@ describe("real-estate portfolio", () => {
     expect(metadata.title).toBe(
       "Real Estate Photography Portfolio | OpenÉire Studios",
     );
-    expect(metadata.description).toMatch(/drone media, property films/i);
+    expect(metadata.description).toMatch(
+      /approved property photography, aerial media/i,
+    );
     expect(metadata.alternates?.canonical).toBe(
       "https://openeire.ie/real-estate/portfolio",
     );
@@ -170,9 +432,16 @@ describe("real-estate portfolio", () => {
 
     for (const target of targets) {
       expect(fs.readFileSync(target, "utf8")).toContain(
-        "/real-estate/portfolio",
+        "REAL_ESTATE_PORTFOLIO_PATH",
       );
     }
+  });
+
+  it("keeps social cuts and floor plans in the commercial catalogue", () => {
+    const commercialCatalogue = JSON.stringify(REAL_ESTATE_PACKAGES);
+
+    expect(commercialCatalogue).toMatch(/Social media cuts included/i);
+    expect(commercialCatalogue).toMatch(/Floor plan, 2D measured/i);
   });
 
   it("does not import historical booking data into public portfolio code", () => {
@@ -192,9 +461,14 @@ describe("real-estate portfolio", () => {
     expect(publicPortfolioSources).not.toMatch(
       /(?:import|from|require\()[^\n]*(?:booking|agreement|client-record)/i,
     );
-    expect(REAL_ESTATE_PORTFOLIO_PROJECTS).toEqual([]);
+    expect(getPublishedPortfolioProjects()).toEqual([
+      REAL_ESTATE_PORTFOLIO_PROJECTS[0],
+    ]);
     expect(publicPortfolioSources).not.toMatch(
       /\b[A-Z]\d{2}\s?[A-Z0-9]{4}\b/,
+    );
+    expect(publicPortfolioSources).not.toMatch(
+      /\b(?:Laura|Kathleen|KW Ireland)\b/i,
     );
   });
 });

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
 
 type PortfolioTrackedLinkProps = {
   href: string;
@@ -25,7 +26,7 @@ export function PortfolioTrackedLink({
       className={className}
       onClick={() =>
         trackEvent(eventName, {
-          page: "/real-estate/portfolio",
+          page: REAL_ESTATE_PORTFOLIO_PATH,
           location: eventLocation,
           destination: href,
         })
@@ -35,4 +36,3 @@ export function PortfolioTrackedLink({
     </Link>
   );
 }
-

@@ -36,8 +36,8 @@ or metadata. Use a general location such as `County Galway`.
 2. Add meaningful, non-identifying alt text and explicit pixel dimensions for
    every image. Omit video and floor-plan fields when those formats were not
    delivered or are not approved.
-3. Verify the package name against the signed scope. For example, describe a
-   Pro booking with a floor-plan add-on exactly that way, not as Premium.
+3. Describe the public scope shown rather than applying a historical package
+   label. Package contents and names may change over time.
 4. Complete the privacy review and record the written approval.
 5. Add the safe internal approval reference, set
    `portfolioPermissionConfirmed: true`, then set `published: true`.
@@ -51,26 +51,46 @@ the reference, so omitted or incomplete permission data cannot render.
 
 Host public portfolio media on the existing approved OpenÉire media origin
 (`https://media.openeire.ie`) or a local, intentionally web-sized asset in
-`public/`. Do not commit camera originals, delivery archives or multi-gigabyte
-video masters. The Next.js image configuration currently permits only the
-OpenÉire API and media hosts.
+`public/`. Do not commit camera originals, delivery archives or video masters.
+The Next.js image configuration currently permits only the OpenÉire API and
+media hosts.
 
 Recommended exports:
 
 - photographs: AVIF or WebP where the pipeline supports it, with JPEG fallback
   when needed; retain a long edge suitable for the displayed size and compress
   for the web;
-- landscape film: H.264 MP4, 1920 x 1080, streaming-friendly bitrate and fast
-  start;
-- vertical cut: H.264 MP4, 1080 x 1920;
+- hero photographs: 2400-2560 pixels on the long edge;
+- gallery photographs: 1800-2200 pixels on the long edge;
+- use sRGB, remove GPS and unnecessary EXIF metadata, and target roughly
+  200-500 KB per gallery image;
 - poster: compressed WebP or JPEG matching the video's aspect ratio;
-- optional WebM only when the existing media pipeline produces and serves it;
 - floor plan: cleaned WebP, PNG or accessible PDF preview with all identifying
   address blocks removed unless separately approved.
 
-Videos use native controls, do not autoplay, use `preload="none"` and attach
-their source only near the viewport. Supply a compressed poster for every
-video.
+Use descriptive filenames for distinct views and reserve the final `-v1`,
+`-v2` segment for asset revisions. For example, prefer
+`kitchen-island-v1.webp` and `kitchen-dining-v1.webp` for two different angles.
+Existing approved objects named `kitchen-v1.webp` and `kitchen-v2.webp` remain
+valid and do not need to be renamed.
+
+Portfolio films are delivered by YouTube rather than directly from the media
+bucket. Upload the best-quality 4K MP4 to the OpenÉire Studios YouTube channel,
+allow embedding, and use either Public or Unlisted visibility as appropriate.
+Wait for 4K processing to finish before publication.
+
+Add only the 11-character YouTube video ID to `youtubeVideoId`, not a full
+YouTube URL. Supply a locally controlled compressed poster for every video.
+The portfolio renders that poster as a lightweight facade and does not contact
+YouTube until the visitor presses Play. Playback then uses YouTube Privacy
+Enhanced Mode through `youtube-nocookie.com`.
+
+Recommended YouTube export:
+
+- MP4 with H.264 High Profile and AAC audio at 48 kHz;
+- 3840 x 2160 for landscape 4K, retaining the captured frame rate;
+- variable bitrate, BT.709 for SDR footage, and web/fast-start enabled;
+- 35-45 Mbps for 24/25/30 fps, or 53-68 Mbps for 48/50/60 fps.
 
 ## Local checks
 
@@ -92,7 +112,7 @@ floor-plan fields produce no empty section.
 Search the production output for exact addresses and Irish Eircodes before
 release. Historical booking data must never be imported into this catalogue.
 
-## First real project: still required
+## Before enabling a project
 
 - a signed written portfolio/self-promotional approval from an authorised
   client or property representative;
@@ -100,8 +120,16 @@ release. Historical booking data must never be imported into this catalogue.
 - confirmation of whether client credit is required;
 - final approved image selections with alt text;
 - web-sized image exports and a designated hero image;
-- H.264 landscape and vertical exports, if approved for display;
+- a processed, embeddable YouTube upload for each approved film;
+- the 11-character YouTube video ID for each approved film;
 - compressed poster images for each approved video;
 - a redacted, web-sized floor-plan preview, if approved;
 - the accurate package/scope wording and approved completion month;
 - an internal, non-public permission reference for the catalogue.
+
+The demonstrated-format cards are derived from authorised, published project
+data. Photography formats require an actual hero or gallery image. Ground,
+aerial and social video formats require their corresponding video fields, and
+the floor-plan format requires an actual approved floor-plan image. Do not add
+format fields merely to advertise services; the commercial package catalogue
+is the authority for what OpenÉire sells.

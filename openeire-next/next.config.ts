@@ -87,6 +87,7 @@ const buildContentSecurityPolicy = (): string => {
       "https://m.stripe.network",
       "https://*.stripe.com",
       "https://accounts.google.com",
+      "https://www.youtube-nocookie.com",
       "https://cdn.iubenda.com",
       "https://embeds.iubenda.com",
       "https://*.iubenda.com",

@@ -11,6 +11,10 @@ export function PortfolioProject({
 }: {
   project: RealEstatePortfolioProject;
 }) {
+  const hasTwoPropertyFilms = Boolean(
+    project.groundVideo && project.aerialVideo,
+  );
+
   return (
     <article
       id={project.slug}
@@ -60,6 +64,43 @@ export function PortfolioProject({
         </section>
       </div>
 
+      {project.groundVideo || project.aerialVideo ? (
+        <section className="container mx-auto mt-16 max-w-7xl px-4 lg:px-8">
+          <div
+            className={
+              hasTwoPropertyFilms
+                ? "grid items-start gap-8 lg:grid-cols-2"
+                : "mx-auto max-w-3xl"
+            }
+            data-property-video-layout={
+              hasTwoPropertyFilms ? "split" : "featured"
+            }
+          >
+            <h3
+              className={
+                hasTwoPropertyFilms
+                  ? "mb-7 text-2xl font-bold text-white lg:col-span-2"
+                  : "mb-7 text-2xl font-bold text-white"
+              }
+            >
+              Property film
+            </h3>
+            {project.groundVideo ? (
+              <PortfolioVideo
+                video={project.groundVideo}
+                projectSlug={project.slug}
+              />
+            ) : null}
+            {project.aerialVideo ? (
+              <PortfolioVideo
+                video={project.aerialVideo}
+                projectSlug={project.slug}
+              />
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       <section className="container mx-auto mt-16 max-w-7xl px-4 lg:px-8">
         <h3 className="text-2xl font-bold text-white">Selected deliverables</h3>
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -79,10 +120,12 @@ export function PortfolioProject({
       </section>
 
       {project.galleryImages.length ? (
-        <section className="container mx-auto mt-16 max-w-7xl px-4 lg:px-8">
-          <h3 className="mb-7 text-2xl font-bold text-white">
-            Property photography
-          </h3>
+        <section className="mt-16">
+          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+            <h3 className="mb-7 text-2xl font-bold text-white">
+              Property photography
+            </h3>
+          </div>
           <PortfolioGallery
             images={project.galleryImages}
             projectSlug={project.slug}
@@ -90,28 +133,19 @@ export function PortfolioProject({
         </section>
       ) : null}
 
-      {project.landscapeVideo || project.verticalVideo ? (
+      {project.socialVideos?.length ? (
         <section className="container mx-auto mt-16 max-w-7xl px-4 lg:px-8">
-          <h3 className="mb-7 text-2xl font-bold text-white">Property film</h3>
-          <div
-            className={`grid gap-8 ${
-              project.verticalVideo
-                ? "items-start lg:grid-cols-[1.5fr_0.5fr]"
-                : ""
-            }`}
-          >
-            {project.landscapeVideo ? (
+          <h3 className="mb-7 text-2xl font-bold text-white">
+            Social-media films
+          </h3>
+          <div className="grid items-start gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {project.socialVideos.map((video) => (
               <PortfolioVideo
-                video={project.landscapeVideo}
+                key={video.youtubeVideoId}
+                video={video}
                 projectSlug={project.slug}
               />
-            ) : null}
-            {project.verticalVideo ? (
-              <PortfolioVideo
-                video={project.verticalVideo}
-                projectSlug={project.slug}
-              />
-            ) : null}
+            ))}
           </div>
         </section>
       ) : null}

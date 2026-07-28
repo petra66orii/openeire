@@ -1,11 +1,12 @@
 import type { RealEstatePortfolioProject } from "@/lib/realEstatePortfolio";
+import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/jsonLd";
 import { buildAbsoluteUrl, SITE_NAME } from "@/lib/site";
 
 export const REAL_ESTATE_PORTFOLIO_TITLE =
   "Real Estate Photography Portfolio | OpenÉire Studios";
 export const REAL_ESTATE_PORTFOLIO_DESCRIPTION =
-  "Explore professional property photography, drone media, property films and listing assets created by OpenÉire Studios for properties across Galway and Connacht.";
+  "Explore approved property photography, aerial media and published project work created by OpenÉire Studios for properties across Galway and Connacht.";
 
 export const buildPortfolioJsonLd = (
   projects: readonly RealEstatePortfolioProject[],
@@ -16,16 +17,16 @@ export const buildPortfolioJsonLd = (
       { name: "Real Estate Media", url: buildAbsoluteUrl("/real-estate") },
       {
         name: "Real Estate Media Portfolio",
-        url: buildAbsoluteUrl("/real-estate/portfolio"),
+        url: buildAbsoluteUrl(REAL_ESTATE_PORTFOLIO_PATH),
       },
     ]),
-    "@id": buildAbsoluteUrl("/real-estate/portfolio#breadcrumb"),
+    "@id": buildAbsoluteUrl(`${REAL_ESTATE_PORTFOLIO_PATH}#breadcrumb`),
   },
   {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "@id": buildAbsoluteUrl("/real-estate/portfolio#collection"),
-    url: buildAbsoluteUrl("/real-estate/portfolio"),
+    "@id": buildAbsoluteUrl(`${REAL_ESTATE_PORTFOLIO_PATH}#collection`),
+    url: buildAbsoluteUrl(REAL_ESTATE_PORTFOLIO_PATH),
     name: REAL_ESTATE_PORTFOLIO_TITLE,
     description: REAL_ESTATE_PORTFOLIO_DESCRIPTION,
     isPartOf: {
@@ -34,7 +35,7 @@ export const buildPortfolioJsonLd = (
       url: buildAbsoluteUrl("/"),
     },
     breadcrumb: {
-      "@id": buildAbsoluteUrl("/real-estate/portfolio#breadcrumb"),
+      "@id": buildAbsoluteUrl(`${REAL_ESTATE_PORTFOLIO_PATH}#breadcrumb`),
     },
     ...(projects.length
       ? {
@@ -47,7 +48,7 @@ export const buildPortfolioJsonLd = (
               name: project.title,
               description: project.summary,
               url: buildAbsoluteUrl(
-                `/real-estate/portfolio#${project.slug}`,
+                `${REAL_ESTATE_PORTFOLIO_PATH}#${project.slug}`,
               ),
               contentLocation: {
                 "@type": "Place",
@@ -73,4 +74,3 @@ export const buildPortfolioJsonLd = (
       : {}),
   },
 ];
-

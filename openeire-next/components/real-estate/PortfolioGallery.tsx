@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight, FaExpand, FaTimes } from "react-icons/fa";
+import styles from "@/components/real-estate/PortfolioGallery.module.css";
 import { trackEvent } from "@/lib/analytics";
 import type { PortfolioImage } from "@/lib/realEstatePortfolio";
 
@@ -11,8 +12,26 @@ type PortfolioGalleryProps = {
   projectSlug: string;
 };
 
+export type PortfolioGalleryEntry = {
+  image: PortfolioImage;
+  originalIndex: number;
+};
+
 const focusableSelector =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const CLONE_SEQUENCE_COUNT = 2;
+
+export const splitPortfolioGalleryRows = (
+  images: readonly PortfolioImage[],
+): readonly [readonly PortfolioGalleryEntry[], readonly PortfolioGalleryEntry[]] => {
+  const rows: [PortfolioGalleryEntry[], PortfolioGalleryEntry[]] = [[], []];
+
+  images.forEach((image, originalIndex) => {
+    rows[originalIndex % 2].push({ image, originalIndex });
+  });
+
+  return rows;
+};
 
 export function PortfolioGallery({
   images,
@@ -27,6 +46,7 @@ export function PortfolioGallery({
   const openerRef = useRef<HTMLButtonElement | null>(null);
   const triggerRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const activeImage = activeIndex === null ? null : images[activeIndex];
+  const rows = splitPortfolioGalleryRows(images);
 
   const close = useCallback(() => {
     const trigger = openerRef.current;
@@ -34,12 +54,15 @@ export function PortfolioGallery({
     window.requestAnimationFrame(() => trigger?.focus());
   }, []);
 
-  const move = useCallback((direction: -1 | 1) => {
-    setActiveIndex((current) => {
-      if (current === null || images.length < 2) return current;
-      return (current + direction + images.length) % images.length;
-    });
-  }, [images.length]);
+  const move = useCallback(
+    (direction: -1 | 1) => {
+      setActiveIndex((current) => {
+        if (current === null || images.length < 2) return current;
+        return (current + direction + images.length) % images.length;
+      });
+    },
+    [images.length],
+  );
 
   const markFailed = useCallback((src: string) => {
     setFailedSources((current) => {
@@ -48,6 +71,18 @@ export function PortfolioGallery({
       return next;
     });
   }, []);
+
+  const openImage = (
+    originalIndex: number,
+    trigger: HTMLButtonElement | null,
+  ) => {
+    openerRef.current = trigger;
+    setActiveIndex(originalIndex);
+    trackEvent("portfolio_gallery_open", {
+      project_slug: projectSlug,
+      image_index: originalIndex + 1,
+    });
+  };
 
   useEffect(() => {
     if (activeIndex === null) return;
@@ -78,6 +113,7 @@ export function PortfolioGallery({
         dialogRef.current?.querySelectorAll<HTMLElement>(focusableSelector) ?? [],
       );
       if (!focusable.length) return;
+
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (event.shiftKey && document.activeElement === first) {
@@ -98,72 +134,127 @@ export function PortfolioGallery({
 
   if (!images.length) return null;
 
+  const renderOriginal = ({
+    image,
+    originalIndex,
+  }: PortfolioGalleryEntry) => {
+    const failed = failedSources.has(image.src);
+
+    return (
+      <figure
+        key={`${image.src}-${originalIndex}`}
+        className={styles.card}
+        style={{ aspectRatio: `${image.width} / ${image.height}` }}
+        data-gallery-original="true"
+      >
+        <button
+          ref={(node) => {
+            triggerRefs.current[originalIndex] = node;
+          }}
+          type="button"
+          disabled={failed}
+          onClick={(event) => openImage(originalIndex, event.currentTarget)}
+          className={styles.cardButton}
+          aria-label={
+            failed
+              ? `Image unavailable: ${image.alt}`
+              : `Open image ${originalIndex + 1} of ${images.length}: ${image.alt}`
+          }
+        >
+          {failed ? (
+            <span className={styles.imageFallback}>
+              Image temporarily unavailable
+            </span>
+          ) : (
+            <>
+              <Image
+                src={image.src}
+                alt={image.alt}
+                width={image.width}
+                height={image.height}
+                sizes="(max-width: 767px) 82vw, (max-width: 1023px) 480px, 540px"
+                className={styles.galleryImage}
+                onError={() => markFailed(image.src)}
+              />
+              <span className={styles.expandControl} aria-hidden="true">
+                <FaExpand />
+              </span>
+            </>
+          )}
+        </button>
+        {image.caption ? (
+          <figcaption className={styles.caption}>{image.caption}</figcaption>
+        ) : null}
+      </figure>
+    );
+  };
+
+  const renderClone = ({
+    image,
+    originalIndex,
+  }: PortfolioGalleryEntry) => (
+    <div
+      key={`${image.src}-${originalIndex}-clone`}
+      className={styles.card}
+      style={{ aspectRatio: `${image.width} / ${image.height}` }}
+    >
+      {failedSources.has(image.src) ? (
+        <span className={styles.imageFallback}>Image temporarily unavailable</span>
+      ) : (
+        <Image
+          src={image.src}
+          alt=""
+          width={image.width}
+          height={image.height}
+          sizes="(max-width: 1023px) 480px, 540px"
+          className={styles.galleryImage}
+          draggable={false}
+        />
+      )}
+    </div>
+  );
+
   return (
     <>
-      <div className="grid auto-rows-[14rem] gap-4 sm:grid-cols-2 lg:grid-cols-12">
-        {images.map((image, index) => {
-          const isPortrait = image.height > image.width;
-          const failed = failedSources.has(image.src);
-          return (
-            <figure
-              key={`${image.src}-${index}`}
-              className={`group relative overflow-hidden rounded-3xl bg-gray-900 ${
-                isPortrait
-                  ? "sm:row-span-2 lg:col-span-4"
-                  : index % 3 === 0
-                    ? "lg:col-span-8"
-                    : "lg:col-span-4"
-              }`}
+      <div
+        className={styles.gallery}
+        role="region"
+        aria-label="Property photography gallery"
+        data-gallery-mode="responsive-marquee"
+      >
+        {rows.map((row, rowIndex) =>
+          row.length ? (
+            <div
+              key={`gallery-row-${rowIndex + 1}`}
+              className={styles.row}
+              data-gallery-row={rowIndex + 1}
+              data-direction={rowIndex === 0 ? "forward" : "reverse"}
             >
-              <button
-                ref={(node) => {
-                  triggerRefs.current[index] = node;
-                }}
-                type="button"
-                disabled={failed}
-                onClick={() => {
-                  openerRef.current = triggerRefs.current[index];
-                  setActiveIndex(index);
-                  trackEvent("portfolio_gallery_open", {
-                    project_slug: projectSlug,
-                    image_index: index + 1,
-                  });
-                }}
-                className="relative h-full w-full focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-accent disabled:cursor-default"
-                aria-label={
-                  failed
-                    ? `Image unavailable: ${image.alt}`
-                    : `Open image ${index + 1} of ${images.length}: ${image.alt}`
-                }
+              <div
+                className={`${styles.track} ${
+                  rowIndex === 0 ? styles.forward : styles.reverse
+                }`}
               >
-                {failed ? (
-                  <span className="flex h-full w-full items-center justify-center bg-gray-900 px-6 text-center text-sm text-gray-400">
-                    Image temporarily unavailable
-                  </span>
-                ) : (
-                  <>
-                    <Image
-                      src={image.src}
-                      alt={image.alt}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 66vw"
-                      className="object-cover transition duration-500 motion-reduce:transition-none group-hover:scale-[1.02] motion-reduce:group-hover:scale-100"
-                      onError={() => markFailed(image.src)}
-                    />
-                    <span className="absolute bottom-4 right-4 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full bg-black/75 text-white opacity-90 backdrop-blur">
-                      <FaExpand aria-hidden="true" />
-                    </span>
-                  </>
-                )}
-              </button>
-              {image.caption ? (
-                <figcaption className="absolute bottom-0 left-0 max-w-[80%] bg-black/75 px-4 py-2 text-xs text-gray-200">
-                  {image.caption}
-                </figcaption>
-              ) : null}
-            </figure>
-          );
-        })}
+                <div
+                  className={styles.sequence}
+                  data-gallery-sequence="original"
+                >
+                  {row.map(renderOriginal)}
+                </div>
+                {Array.from({ length: CLONE_SEQUENCE_COUNT }, (_, cloneIndex) => (
+                  <div
+                    key={`gallery-row-${rowIndex + 1}-clone-${cloneIndex + 1}`}
+                    className={`${styles.sequence} ${styles.cloneSequence}`}
+                    aria-hidden="true"
+                    data-gallery-sequence="clone"
+                  >
+                    {row.map(renderClone)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null,
+        )}
       </div>
 
       {activeImage ? (
@@ -173,6 +264,9 @@ export function PortfolioGallery({
           aria-modal="true"
           aria-label={`Property photography viewer, image ${activeIndex! + 1} of ${images.length}`}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 sm:p-8"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) close();
+          }}
         >
           <button
             ref={closeButtonRef}

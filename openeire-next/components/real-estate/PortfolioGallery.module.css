@@ -1,0 +1,224 @@
+.gallery {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+}
+
+.row {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  padding: 0.25rem 1rem 0.75rem;
+  scroll-padding-inline: 1rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 25%) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.track,
+.sequence {
+  display: flex;
+  width: max-content;
+}
+
+.track {
+  will-change: auto;
+}
+
+.sequence {
+  align-items: stretch;
+  gap: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.cloneSequence {
+  display: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.card {
+  position: relative;
+  height: clamp(11rem, 52vw, 15rem);
+  flex: none;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 1rem;
+  background: rgb(17 24 39);
+  scroll-snap-align: start;
+}
+
+.cardButton {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: white;
+}
+
+.cardButton:disabled {
+  cursor: default;
+}
+
+.cardButton:focus {
+  outline: none;
+}
+
+.cardButton:focus-visible {
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 4px var(--color-accent);
+}
+
+.galleryImage {
+  display: block;
+  width: auto;
+  max-width: none;
+  height: 100%;
+  object-fit: contain;
+  transition: filter 300ms ease;
+}
+
+.cardButton:hover .galleryImage {
+  filter: brightness(1.06);
+}
+
+.expandControl {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  display: inline-flex;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 9999px;
+  background: rgb(0 0 0 / 75%);
+  color: white;
+  backdrop-filter: blur(8px);
+}
+
+.caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  max-width: calc(100% - 4.5rem);
+  padding: 0.5rem 0.75rem;
+  background: rgb(0 0 0 / 75%);
+  color: rgb(229 231 235);
+  font-size: 0.75rem;
+}
+
+.imageFallback {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgb(17 24 39);
+  color: rgb(156 163 175);
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .gallery {
+    gap: 1.25rem;
+  }
+
+  .row {
+    padding-inline: 1.5rem;
+  }
+
+  .sequence {
+    gap: 1rem;
+    padding-right: 1rem;
+  }
+
+  .card {
+    height: 16rem;
+    border-radius: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gallery {
+    gap: 1.5rem;
+  }
+
+  .row {
+    padding-inline: 2rem;
+  }
+
+  .card {
+    height: 18rem;
+  }
+}
+
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .row {
+    overflow-x: hidden;
+    padding-inline: 0;
+    scroll-snap-type: none;
+    scrollbar-width: none;
+  }
+
+  .track {
+    will-change: transform;
+    animation-duration: 80s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .forward {
+    animation-name: portfolio-marquee-forward;
+  }
+
+  .reverse {
+    animation-name: portfolio-marquee-reverse;
+  }
+
+  .cloneSequence {
+    display: flex;
+  }
+
+  .row:hover .track,
+  .row:focus-within .track {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galleryImage {
+    transition: none;
+  }
+}
+
+@keyframes portfolio-marquee-forward {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-33.333333%);
+  }
+}
+
+@keyframes portfolio-marquee-reverse {
+  from {
+    transform: translateX(-33.333333%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
