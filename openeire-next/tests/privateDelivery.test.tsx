@@ -167,7 +167,10 @@ vi.mock("@/components/layout/Footer", () => ({
 }));
 
 describe("private delivery shell", () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    shellPath.value = `/delivery/${PUBLIC_ID}`;
+  });
 
   it("does not mount tracking, cart/marketing providers, or public chrome", async () => {
     const { AppShell } = await import("@/components/layout/AppShell");
@@ -181,5 +184,20 @@ describe("private delivery shell", () => {
     expect(screen.queryByTestId("public-providers")).toBeNull();
     expect(screen.queryByTestId("public-navbar")).toBeNull();
     expect(screen.queryByTestId("public-footer")).toBeNull();
+  });
+
+  it("retains analytics, providers and public chrome on public routes", async () => {
+    shellPath.value = "/real-estate/portfolio";
+    const { AppShell } = await import("@/components/layout/AppShell");
+    render(
+      <AppShell>
+        <p>Public content</p>
+      </AppShell>,
+    );
+    expect(screen.getByText("Public content")).toBeTruthy();
+    expect(screen.getAllByTestId("tracking-script")).toHaveLength(3);
+    expect(screen.getByTestId("public-providers")).toBeTruthy();
+    expect(screen.getByTestId("public-navbar")).toBeTruthy();
+    expect(screen.getByTestId("public-footer")).toBeTruthy();
   });
 });

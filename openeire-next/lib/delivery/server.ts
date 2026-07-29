@@ -5,11 +5,29 @@ import type { NextRequest } from "next/server";
 export const DELIVERY_COOKIE = "openeire_delivery_access";
 
 const backendBaseUrl = (): string => {
-  const configured =
-    process.env.OPENEIRE_API_BASE_URL ??
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    "https://api.openeire.ie/api/";
-  return configured.endsWith("/") ? configured : `${configured}/`;
+  const configured = process.env.OPENEIRE_API_BASE_URL?.trim();
+  if (!configured) {
+    throw new Error("Secure delivery server configuration is unavailable.");
+  }
+  let parsed: URL;
+  try {
+    parsed = new URL(configured);
+  } catch {
+    throw new Error("Secure delivery server configuration is unavailable.");
+  }
+  const protocolAllowed =
+    parsed.protocol === "https:" ||
+    (process.env.NODE_ENV !== "production" && parsed.protocol === "http:");
+  if (
+    !protocolAllowed ||
+    parsed.username ||
+    parsed.password ||
+    parsed.search ||
+    parsed.hash
+  ) {
+    throw new Error("Secure delivery server configuration is unavailable.");
+  }
+  return parsed.toString().endsWith("/") ? parsed.toString() : `${parsed.toString()}/`;
 };
 
 const internalSecret = (): string => {
