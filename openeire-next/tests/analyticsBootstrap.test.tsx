@@ -72,19 +72,19 @@ describe("root GA4 bootstrap", () => {
   });
 
   it("loads DOM-mutating remote scripts only after React hydration", () => {
-    const layoutSource = fs.readFileSync(
-      path.join(process.cwd(), "app", "layout.tsx"),
+    const shellSource = fs.readFileSync(
+      path.join(process.cwd(), "components", "layout", "AppShell.tsx"),
       "utf8",
     );
 
-    expect(layoutSource).toMatch(
+    expect(shellSource).toMatch(
       /id="openeire-iubenda-widget"[\s\S]*?strategy="afterInteractive"/,
     );
-    expect(layoutSource).toMatch(
+    expect(shellSource).toMatch(
       /id=\{GA_SCRIPT_ID\}[\s\S]*?strategy="afterInteractive"/,
     );
-    expect(layoutSource).toMatch(
-      /id="openeire-ga4-bootstrap"[\s\S]*?strategy="beforeInteractive"/,
+    expect(shellSource).toMatch(
+      /id="openeire-ga4-bootstrap"[\s\S]*?strategy="afterInteractive"/,
     );
   });
 

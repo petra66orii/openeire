@@ -128,6 +128,42 @@ const securityHeaders = [
   },
 ];
 
+const privateDeliveryHeaders = [
+  {
+    key: "Cache-Control",
+    value: "private, no-store, max-age=0",
+  },
+  {
+    key: "Pragma",
+    value: "no-cache",
+  },
+  {
+    key: "Referrer-Policy",
+    value: "no-referrer",
+  },
+  {
+    key: "X-Robots-Tag",
+    value: "noindex, nofollow, noarchive",
+  },
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "default-src 'self'",
+      "base-uri 'none'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data:",
+      "font-src 'self' data:",
+      "connect-src 'self'",
+      "media-src 'none'",
+      "worker-src 'none'",
+    ].join("; "),
+  },
+];
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
@@ -173,6 +209,14 @@ const nextConfig: NextConfig = {
             value: "noindex, nofollow",
           },
         ],
+      },
+      {
+        source: "/delivery/:path*",
+        headers: privateDeliveryHeaders,
+      },
+      {
+        source: "/api/delivery/:path*",
+        headers: privateDeliveryHeaders,
       },
     ];
   },

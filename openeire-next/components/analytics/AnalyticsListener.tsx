@@ -17,6 +17,7 @@ export function AnalyticsListener() {
   }, [pathname]);
 
   const trackCurrentPage = () => {
+    if (pathnameRef.current.startsWith("/delivery/")) return;
     const fullPath = `${pathnameRef.current}${window.location.search}`;
     if (lastTrackedPathRef.current === fullPath) return;
     if (trackPageView(fullPath, document.title)) {

@@ -26,6 +26,7 @@ export default function robots(): MetadataRoute.Robots {
           "/gallery/digital",
           "/gallery/photo",
           "/gallery/video",
+          "/delivery/",
           "/403",
           "/404",
           "/500",
