@@ -5,6 +5,10 @@ import {
   getRefreshToken,
   updateAccessToken,
 } from "@/lib/auth/tokenStorage";
+import {
+  SERVER_MEMORY_LOGGER_SYMBOL,
+  type ServerMemoryLoggerGlobal,
+} from "@/lib/memoryLoggingShared";
 import { getSiteUrl } from "@/lib/site";
 
 export interface ApiResponse<T = unknown> {
@@ -196,7 +200,11 @@ const request = async <T>(
     headers.set("Content-Type", "application/json");
   }
 
-  if (isServerRequest && config.publicFetchContext) {
+  if (
+    process.env.SERVER_PUBLIC_FETCH_DEBUG === "1" &&
+    isServerRequest &&
+    config.publicFetchContext
+  ) {
     console.info("[server-public-fetch-debug]", {
       context: config.publicFetchContext,
       finalUrl: url,
@@ -217,6 +225,22 @@ const request = async <T>(
       next: config.next,
     });
     const data = await parseResponseBody(response);
+
+    if (
+      process.env.SERVER_FETCH_MEMORY_LOGGING === "1" &&
+      isServerRequest &&
+      config.publicFetchContext
+    ) {
+      const memoryLogger = (globalThis as ServerMemoryLoggerGlobal)[
+        SERVER_MEMORY_LOGGER_SYMBOL
+      ];
+      memoryLogger?.("public-fetch", {
+        context: config.publicFetchContext,
+        method,
+        status: String(response.status),
+      });
+    }
+
     const apiResponse: ApiResponse<T> = {
       data: data as T,
       status: response.status,

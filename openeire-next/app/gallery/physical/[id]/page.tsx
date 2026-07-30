@@ -8,7 +8,7 @@ import { RelatedPrintsRail } from "@/components/gallery/RelatedPrintsRail";
 import { SpecBox } from "@/components/gallery/SpecBox";
 import { ProductReviews } from "@/components/reviews/ProductReviews";
 import { ShareControls } from "@/components/share/ShareControls";
-import { getPublicPhysicalProduct } from "@/lib/api/gallery";
+import { getCachedPublicPhysicalProduct } from "@/lib/api/serverDetails";
 import { getProductReviews } from "@/lib/api/reviews";
 import { getLowestVariant, splitTags } from "@/lib/gallery/format";
 import { resolveMediaUrl } from "@/lib/media";
@@ -27,7 +27,7 @@ export async function generateMetadata({
   const { id } = await params;
 
   try {
-    const product = await getPublicPhysicalProduct(id);
+    const product = await getCachedPublicPhysicalProduct(id);
     if (!product) {
       return {
         title: "Art print not found | OpenÉire Studios",
@@ -85,7 +85,7 @@ export default async function PhysicalProductPage({
 }) {
   const { id } = await params;
   let failedToLoad = false;
-  const product = await getPublicPhysicalProduct(id).catch(() => {
+  const product = await getCachedPublicPhysicalProduct(id).catch(() => {
     failedToLoad = true;
     return null;
   });

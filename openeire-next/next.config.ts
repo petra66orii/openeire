@@ -167,6 +167,7 @@ const privateDeliveryHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  cacheMaxMemorySize: 8 * 1024 * 1024,
   outputFileTracingRoot: process.cwd(),
   images: {
     remotePatterns: [
