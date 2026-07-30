@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { BlogComments } from "@/components/blog/BlogComments";
 import { BlogLikeButton } from "@/components/blog/BlogLikeButton";
 import { JsonLd } from "@/components/JsonLd";
-import { getPublishedBlogPostBySlug } from "@/lib/api/blog";
+import { getCachedPublishedBlogPostBySlug } from "@/lib/api/serverDetails";
 import { formatBlogDisplayDate } from "@/lib/blog/dates";
 import { resolveMediaUrl } from "@/lib/media";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/jsonLd";
@@ -39,7 +39,7 @@ export async function generateMetadata({
   const { slug } = await params;
 
   try {
-    const post = await getPublishedBlogPostBySlug(slug);
+    const post = await getCachedPublishedBlogPostBySlug(slug);
     if (!post) {
       return {
         title: "Journal post not found | OpenÉire Studios",
@@ -100,7 +100,7 @@ export default async function BlogDetailPage({
 }) {
   const { slug } = await params;
   let failedToLoad = false;
-  const post = await getPublishedBlogPostBySlug(slug).catch(() => {
+  const post = await getCachedPublishedBlogPostBySlug(slug).catch(() => {
     failedToLoad = true;
     return null;
   });
