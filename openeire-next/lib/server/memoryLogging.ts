@@ -4,6 +4,7 @@ import {
   SERVER_MEMORY_LOGGER_SYMBOL,
   type ServerMemoryLoggerGlobal,
 } from "@/lib/memoryLoggingShared";
+import { isNextImageOptimizationDisabled } from "@/lib/config/nextImages";
 
 const MEMORY_LOG_STARTUP_SYMBOL = Symbol.for(
   "openeire.server-memory.startup-logged",
@@ -61,6 +62,9 @@ export const registerServerMemoryLogging = (): void => {
 
   if (!memoryGlobal[MEMORY_LOG_STARTUP_SYMBOL]) {
     memoryGlobal[MEMORY_LOG_STARTUP_SYMBOL] = true;
+    console.info("[server-image-optimization]", {
+      nextImageOptimizationDisabled: isNextImageOptimizationDisabled(),
+    });
     logServerMemory("startup");
   }
 

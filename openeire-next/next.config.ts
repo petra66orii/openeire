@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { createNextImageConfig } from "./lib/config/nextImages";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -169,18 +170,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   cacheMaxMemorySize: 8 * 1024 * 1024,
   outputFileTracingRoot: process.cwd(),
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "api.openeire.ie",
-      },
-      {
-        protocol: "https",
-        hostname: "media.openeire.ie",
-      },
-    ],
-  },
+  images: createNextImageConfig(),
   async redirects() {
     return [
       {
