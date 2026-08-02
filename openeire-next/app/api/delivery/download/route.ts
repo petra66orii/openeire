@@ -4,6 +4,7 @@ import {
   assertTrustedDeliveryPost,
   DELIVERY_COOKIE,
   deliveryBackendPost,
+  logDeliveryFailure,
   noStoreHeaders,
 } from "@/lib/delivery/server";
 
@@ -29,6 +30,7 @@ export async function POST(request: NextRequest) {
     );
     const redirectUrl = backend.payload.redirect_url;
     if (!backend.ok || typeof redirectUrl !== "string") {
+      logDeliveryFailure("backend_response");
       return NextResponse.redirect(
         new URL(`${returnPath}?download=failed`, request.url),
         { status: 303, headers: noStoreHeaders },
@@ -42,7 +44,8 @@ export async function POST(request: NextRequest) {
       status: 303,
       headers: noStoreHeaders,
     });
-  } catch {
+  } catch (error) {
+    logDeliveryFailure(error);
     return NextResponse.redirect(
       new URL(`${returnPath}?download=failed`, request.url),
       { status: 303, headers: noStoreHeaders },

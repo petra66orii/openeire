@@ -4,6 +4,7 @@ import {
   assertTrustedDeliveryPost,
   DELIVERY_COOKIE,
   deliveryBackendPost,
+  logDeliveryFailure,
   noStoreHeaders,
 } from "@/lib/delivery/server";
 
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
         ? backend.payload.state
         : "unavailable";
     if (!backend.ok || typeof backend.payload.session !== "string") {
+      logDeliveryFailure("backend_response");
       return NextResponse.json(
         { state },
         { status: backend.status, headers: noStoreHeaders },
@@ -55,7 +57,8 @@ export async function POST(request: NextRequest) {
       maxAge,
     });
     return response;
-  } catch {
+  } catch (error) {
+    logDeliveryFailure(error);
     return NextResponse.json(
       { state: "unavailable" },
       { status: 400, headers: noStoreHeaders },
