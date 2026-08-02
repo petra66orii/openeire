@@ -4,6 +4,7 @@ import {
   assertTrustedDeliveryPost,
   DELIVERY_COOKIE,
   deliveryBackendPost,
+  logDeliveryFailure,
   noStoreHeaders,
 } from "@/lib/delivery/server";
 
@@ -20,11 +21,13 @@ export async function POST(request: NextRequest) {
       );
     }
     const backend = await deliveryBackendPost("session", { session }, origin);
+    if (!backend.ok) logDeliveryFailure("backend_response");
     return NextResponse.json(
       backend.ok ? backend.payload : { state: backend.payload.state ?? "unavailable" },
       { status: backend.status, headers: noStoreHeaders },
     );
-  } catch {
+  } catch (error) {
+    logDeliveryFailure(error);
     return NextResponse.json(
       { state: "unavailable" },
       { status: 400, headers: noStoreHeaders },
