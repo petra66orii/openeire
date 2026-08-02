@@ -21,6 +21,8 @@ const memoryGlobal = globalThis as MemoryTestGlobal;
 describe("server memory logging", () => {
   const originalNextRuntime = process.env.NEXT_RUNTIME;
   const originalMemoryLogging = process.env.SERVER_MEMORY_LOGGING;
+  const originalImageOptimizationDisabled =
+    process.env.NEXT_IMAGE_OPTIMIZATION_DISABLED;
 
   beforeEach(() => {
     delete memoryGlobal[STARTUP_SYMBOL];
@@ -28,6 +30,7 @@ describe("server memory logging", () => {
     delete memoryGlobal[LOGGER_SYMBOL];
     process.env.NEXT_RUNTIME = "nodejs";
     process.env.SERVER_MEMORY_LOGGING = "1";
+    process.env.NEXT_IMAGE_OPTIMIZATION_DISABLED = "1";
   });
 
   afterEach(() => {
@@ -45,6 +48,13 @@ describe("server memory logging", () => {
       delete process.env.SERVER_MEMORY_LOGGING;
     } else {
       process.env.SERVER_MEMORY_LOGGING = originalMemoryLogging;
+    }
+
+    if (originalImageOptimizationDisabled === undefined) {
+      delete process.env.NEXT_IMAGE_OPTIMIZATION_DISABLED;
+    } else {
+      process.env.NEXT_IMAGE_OPTIMIZATION_DISABLED =
+        originalImageOptimizationDisabled;
     }
   });
 
@@ -90,6 +100,16 @@ describe("server memory logging", () => {
       5 * 60 * 1_000,
     );
     expect(unref).toHaveBeenCalledTimes(1);
+    expect(
+      consoleInfoSpy.mock.calls.filter(
+        ([label]) => label === "[server-image-optimization]",
+      ),
+    ).toEqual([
+      [
+        "[server-image-optimization]",
+        { nextImageOptimizationDisabled: true },
+      ],
+    ]);
     expect(
       consoleInfoSpy.mock.calls.filter(
         ([label, value]) =>
