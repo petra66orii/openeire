@@ -165,6 +165,8 @@ const privateDeliveryHeaders = [
   },
 ];
 
+const privateBookingHeaders = privateDeliveryHeaders;
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
@@ -208,6 +210,14 @@ const nextConfig: NextConfig = {
       {
         source: "/api/delivery/:path*",
         headers: privateDeliveryHeaders,
+      },
+      {
+        source: "/book/:path*",
+        headers: privateBookingHeaders,
+      },
+      {
+        source: "/api/book/:path*",
+        headers: privateBookingHeaders,
       },
     ];
   },

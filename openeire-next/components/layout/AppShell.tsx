@@ -16,8 +16,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "";
   const isPrivateDelivery =
     pathname.startsWith("/delivery/") || pathname.startsWith("/api/delivery/");
+  const isPrivateBooking =
+    pathname.startsWith("/book/") || pathname.startsWith("/api/book/");
 
-  if (isPrivateDelivery) {
+  if (isPrivateDelivery || isPrivateBooking) {
     return (
       <main id="main" tabIndex={-1} className="min-h-screen bg-zinc-950 text-white">
         {children}
