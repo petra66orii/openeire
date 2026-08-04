@@ -293,6 +293,13 @@ export function HomeServicesSection() {
   );
 }
 
+const trustItems = [
+  { value: "IAA", label: "Irish Aviation Authority" },
+  { value: "EASA", label: "EU Aviation Safety" },
+  { value: "€6.5M", label: "Public Liability Insurance" },
+  { value: "Valid Safe Pass", label: "Construction-Site Access" },
+] as const;
+
 export function HomeCertsSection() {
   return (
     <section className="relative overflow-hidden border-t border-brand-700 bg-brand-900 py-12 text-white">
@@ -316,9 +323,9 @@ export function HomeCertsSection() {
       </div>
 
       <div className="container relative z-10 mx-auto px-4 lg:px-8">
-        <div className="flex flex-col items-center justify-between gap-8 text-center md:flex-row md:text-left">
+        <div className="grid items-center gap-8 text-center lg:grid-cols-[minmax(16rem,0.9fr)_minmax(0,2.1fr)] lg:text-left">
           <div>
-            <h2 className="mb-2 flex items-center justify-center gap-3 font-serif text-2xl font-bold md:justify-start">
+            <h2 className="mb-2 flex items-center justify-center gap-3 font-serif text-2xl font-bold lg:justify-start">
               <FaShieldAlt className="text-accent" />
               Fully Certified & Insured
             </h2>
@@ -328,42 +335,22 @@ export function HomeCertsSection() {
             </p>
           </div>
 
-          <div className="grid w-full grid-cols-2 items-center gap-6 lg:w-auto lg:grid-flow-col lg:grid-cols-none lg:gap-8 xl:gap-12">
-            <div className="flex flex-col items-center">
-              <span className="mb-1 block text-3xl font-bold text-white">
-                IAA
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-accent">
-                Irish Aviation Authority
-              </span>
-            </div>
-            <div className="hidden h-10 w-px bg-brand-700 lg:block" />
-            <div className="flex flex-col items-center">
-              <span className="mb-1 block text-3xl font-bold text-white">
-                EASA
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-accent">
-                EU Aviation Safety
-              </span>
-            </div>
-            <div className="hidden h-10 w-px bg-brand-700 lg:block" />
-            <div className="flex flex-col items-center">
-              <span className="mb-1 block text-3xl font-bold text-white">
-                €6.5M
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-accent">
-                Public Liability Insurance
-              </span>
-            </div>
-            <div className="hidden h-10 w-px bg-brand-700 lg:block" />
-            <div className="flex flex-col items-center">
-              <span className="mb-1 block text-xl font-bold text-white md:text-2xl">
-                Valid SOLAS Safe Pass
-              </span>
-              <span className="text-[10px] uppercase tracking-widest text-accent">
-                Construction-Site Access
-              </span>
-            </div>
+          <div className="grid w-full grid-cols-2 items-stretch lg:grid-cols-4">
+            {trustItems.map((item, index) => (
+              <div
+                key={item.value}
+                className={`flex min-h-20 flex-col items-center justify-center px-4 text-center ${
+                  index % 2 === 1 ? "border-l border-brand-700" : ""
+                } ${index > 0 ? "lg:border-l lg:border-brand-700" : "lg:border-l-0"}`}
+              >
+                <span className="block text-2xl font-bold leading-tight text-white sm:text-3xl">
+                  {item.value}
+                </span>
+                <span className="mt-1 text-[10px] uppercase tracking-widest text-accent">
+                  {item.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

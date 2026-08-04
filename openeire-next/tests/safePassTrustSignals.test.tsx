@@ -14,7 +14,8 @@ describe("Safe Pass trust signals", () => {
   it("shows the Safe Pass trust item on the homepage", () => {
     render(<HomeCertsSection />);
 
-    expect(screen.getByText("Valid SOLAS Safe Pass")).toBeTruthy();
+    expect(screen.getByText("Valid Safe Pass")).toBeTruthy();
+    expect(document.body.textContent).not.toContain("SOLAS");
   });
 
   it("shows the site-access assurance, FAQ and Custom package wording", () => {
@@ -22,7 +23,7 @@ describe("Safe Pass trust signals", () => {
 
     expect(
       screen.getByText(
-        "Valid SOLAS Safe Pass held for construction-site access",
+        "Valid Safe Pass held for construction-site access",
       ),
     ).toBeTruthy();
     expect(
@@ -30,7 +31,7 @@ describe("Safe Pass trust signals", () => {
     ).toBeTruthy();
     expect(
       screen.getByText(
-        "Yes. A valid SOLAS Safe Pass is held for construction-site access. All work remains subject to the site manager’s induction, access requirements and safety procedures.",
+        "Yes. A valid Safe Pass is held for construction-site access. All work remains subject to the site manager’s induction, access requirements and safety procedures.",
       ),
     ).toBeTruthy();
     expect(
@@ -38,5 +39,6 @@ describe("Safe Pass trust signals", () => {
         /Suitable for developments, active construction sites and multi-property projects, subject to site access and safety requirements\./,
       ),
     ).toBeTruthy();
+    expect(document.body.textContent).not.toContain("SOLAS");
   });
 });
