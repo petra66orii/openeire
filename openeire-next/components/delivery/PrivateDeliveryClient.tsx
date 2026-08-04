@@ -19,6 +19,7 @@ interface Deliverable {
   filename: string;
   size: number;
   mime_type: string;
+  format_label?: string;
 }
 
 interface DeliveryDto {
@@ -327,6 +328,11 @@ export function PrivateDeliveryClient({
                         <div className="min-w-0">
                           <h3 className="break-words font-semibold text-white">
                             {file.display_name}
+                            {file.format_label && (
+                              <span className="font-normal text-zinc-300">
+                                {" "}— {file.format_label}
+                              </span>
+                            )}
                           </h3>
                           <p className="mt-1 break-all text-sm text-zinc-400">
                             {file.filename} · {formatBytes(file.size)}

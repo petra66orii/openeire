@@ -35,6 +35,7 @@ const validDelivery = {
             filename: `${"very-long-filename-".repeat(8)}.zip`,
             size: 1048576,
             mime_type: "application/zip",
+            format_label: "ZIP archive",
           },
         ],
       },
@@ -148,6 +149,12 @@ describe("private delivery bootstrap", () => {
     expect(screen.getByText("Media delivery").className).toContain(
       "text-[#16a34a]",
     );
+    expect(
+      screen.getByRole("heading", {
+        level: 3,
+        name: "Web photographs — ZIP archive",
+      }),
+    ).toBeTruthy();
     expect(screen.getByText(/very-long-filename-/).className).toContain(
       "break-all",
     );
