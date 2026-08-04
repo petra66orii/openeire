@@ -328,7 +328,7 @@ export function HomeCertsSection() {
             </p>
           </div>
 
-          <div className="flex items-center gap-6 md:gap-12">
+          <div className="grid w-full grid-cols-2 items-center gap-6 lg:w-auto lg:grid-flow-col lg:grid-cols-none lg:gap-8 xl:gap-12">
             <div className="flex flex-col items-center">
               <span className="mb-1 block text-3xl font-bold text-white">
                 IAA
@@ -337,7 +337,7 @@ export function HomeCertsSection() {
                 Irish Aviation Authority
               </span>
             </div>
-            <div className="hidden h-10 w-px bg-brand-700 md:block" />
+            <div className="hidden h-10 w-px bg-brand-700 lg:block" />
             <div className="flex flex-col items-center">
               <span className="mb-1 block text-3xl font-bold text-white">
                 EASA
@@ -346,13 +346,22 @@ export function HomeCertsSection() {
                 EU Aviation Safety
               </span>
             </div>
-            <div className="hidden h-10 w-px bg-brand-700 md:block" />
+            <div className="hidden h-10 w-px bg-brand-700 lg:block" />
             <div className="flex flex-col items-center">
               <span className="mb-1 block text-3xl font-bold text-white">
                 €6.5M
               </span>
               <span className="text-[10px] uppercase tracking-widest text-accent">
                 Public Liability Insurance
+              </span>
+            </div>
+            <div className="hidden h-10 w-px bg-brand-700 lg:block" />
+            <div className="flex flex-col items-center">
+              <span className="mb-1 block text-xl font-bold text-white md:text-2xl">
+                Valid SOLAS Safe Pass
+              </span>
+              <span className="text-[10px] uppercase tracking-widest text-accent">
+                Construction-Site Access
               </span>
             </div>
           </div>
