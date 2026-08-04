@@ -169,12 +169,18 @@ export interface DeliveryBackendResponse {
   ok: boolean;
   status: number;
   payload: Record<string, unknown>;
+  redirectUrl: string | null;
+}
+
+interface DeliveryBackendPostOptions {
+  redirect?: RequestRedirect;
 }
 
 export const deliveryBackendPost = async (
   endpoint: string,
   body: Record<string, unknown>,
   browserOrigin: string,
+  options: DeliveryBackendPostOptions = {},
 ): Promise<DeliveryBackendResponse> => {
   const url = `${backendBaseUrl()}real-estate/delivery/${endpoint}/`;
   const secret = internalSecret();
@@ -183,6 +189,7 @@ export const deliveryBackendPost = async (
     response = await fetch(url, {
       method: "POST",
       cache: "no-store",
+      redirect: options.redirect ?? "follow",
       headers: {
         "Content-Type": "application/json",
         Origin: browserOrigin,
@@ -202,7 +209,11 @@ export const deliveryBackendPost = async (
   } catch {
     // Deliberately discard backend response text; it may contain operational data.
   }
-  return { ok: response.ok, status: response.status, payload };
+  const redirectUrl =
+    response.status >= 300 && response.status < 400
+      ? response.headers.get("location")
+      : null;
+  return { ok: response.ok, status: response.status, payload, redirectUrl };
 };
 
 export const noStoreHeaders = {

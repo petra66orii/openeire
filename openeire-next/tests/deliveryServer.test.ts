@@ -4,14 +4,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import { POST as exchangeDelivery } from "@/app/api/delivery/exchange/route";
+import { POST as downloadDelivery } from "@/app/api/delivery/download/route";
 import {
   assertTrustedDeliveryPost,
+  DELIVERY_COOKIE,
   deliveryBackendPost,
   logDeliveryFailure,
 } from "@/lib/delivery/server";
 
 const INTERNAL_SECRET = "internal-secret-with-high-entropy-1234567890";
 const PUBLIC_ID = "11111111-1111-4111-8111-111111111111";
+const FILE_ID = "22222222-2222-4222-8222-222222222222";
+const SESSION = "signed-fictional-session-private-value";
+const SIGNED_DOWNLOAD_URL =
+  "https://downloads.example.test/private/object.zip?X-Amz-Signature=fictional-private-value";
 
 const deliveryRequest = (
   body: Record<string, unknown>,
@@ -382,5 +388,287 @@ describe("delivery server boundary", () => {
     expect(logged).not.toContain(INTERNAL_SECRET);
     expect(logged).not.toContain("private connection detail");
     expect(logged).not.toContain("real-estate/delivery/exchange");
+  });
+});
+
+const downloadRequest = ({
+  origin = "https://openeire.test",
+  requestUrl = "https://openeire.test/api/delivery/download",
+  headers = {},
+  json = true,
+}: {
+  origin?: string | null;
+  requestUrl?: string;
+  headers?: Record<string, string>;
+  json?: boolean;
+} = {}) => {
+  const requestHeaders: Record<string, string> = {
+    Accept: json ? "application/json" : "text/html",
+    "Content-Type": json
+      ? "application/json"
+      : "application/x-www-form-urlencoded",
+    Cookie: `${DELIVERY_COOKIE}=${SESSION}`,
+    Host: "openeire.test",
+    ...headers,
+  };
+  if (origin !== null) requestHeaders.Origin = origin;
+  const body = json
+    ? JSON.stringify({ deliverable_id: FILE_ID })
+    : new URLSearchParams({
+        deliverable_id: FILE_ID,
+        recipient_public_id: PUBLIC_ID,
+      }).toString();
+  return new NextRequest(requestUrl, {
+    method: "POST",
+    headers: requestHeaders,
+    body,
+  });
+};
+
+describe("delivery download boundary", () => {
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://openeire.test");
+    vi.stubEnv("OPENEIRE_API_BASE_URL", "https://api.example.test/api");
+    vi.stubEnv("REAL_ESTATE_DELIVERY_INTERNAL_SECRET", INTERNAL_SECRET);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("documents the native form Origin null failure at the invalid_origin branch", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://openeire.ie");
+    vi.stubEnv("RENDER_EXTERNAL_HOSTNAME", "openeire-next.onrender.com");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await downloadDelivery(
+      downloadRequest({
+        origin: "null",
+        requestUrl: "http://0.0.0.0:10000/api/delivery/download",
+        json: false,
+        headers: {
+          Host: "openeire-next.onrender.com",
+          "X-Forwarded-Host": "openeire.ie",
+          "X-Forwarded-Proto": "https",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(303);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith("delivery_failure", {
+      category: "invalid_origin",
+    });
+  });
+
+  it("accepts the production same-origin fetch behind Render and Cloudflare", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://openeire.ie");
+    vi.stubEnv("RENDER_EXTERNAL_HOSTNAME", "openeire-next.onrender.com");
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(
+        new Response(JSON.stringify({ redirect_url: SIGNED_DOWNLOAD_URL }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await downloadDelivery(
+      downloadRequest({
+        origin: "https://openeire.ie",
+        requestUrl: "http://0.0.0.0:10000/api/delivery/download",
+        headers: {
+          Host: "openeire-next.onrender.com",
+          "X-Forwarded-Host": "openeire.ie",
+          "X-Forwarded-Proto": "https",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      download_url: SIGNED_DOWNLOAD_URL,
+    });
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.example.test/api/real-estate/delivery/download/",
+      expect.objectContaining({
+        method: "POST",
+        cache: "no-store",
+        redirect: "manual",
+        headers: expect.objectContaining({
+          Origin: "https://openeire.ie",
+          "X-OpenEire-Delivery-Internal": INTERNAL_SECRET,
+        }),
+        body: JSON.stringify({
+          session: SESSION,
+          deliverable_id: FILE_ID,
+        }),
+      }),
+    );
+  });
+
+  it("handles a Django 303 without following the signed URL server-side", async () => {
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(
+        new Response(null, {
+          status: 303,
+          headers: { Location: SIGNED_DOWNLOAD_URL },
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await downloadDelivery(downloadRequest());
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({
+      download_url: SIGNED_DOWNLOAD_URL,
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/real-estate/delivery/download/"),
+      expect.objectContaining({ redirect: "manual" }),
+    );
+  });
+
+  it("preserves the controlled 303 for a valid legacy POST", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(JSON.stringify({ redirect_url: SIGNED_DOWNLOAD_URL }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          }),
+        ),
+      ),
+    );
+
+    const response = await downloadDelivery(downloadRequest({ json: false }));
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe(SIGNED_DOWNLOAD_URL);
+  });
+
+  it.each([
+    ["foreign", "https://attacker.example", "invalid_origin"],
+    ["missing", null, "missing_origin"],
+  ])("rejects a %s Origin before contacting Django", async (_, origin, category) => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await downloadDelivery(downloadRequest({ origin }));
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ state: "unavailable" });
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith("delivery_failure", { category });
+  });
+
+  it("rejects spoofed forwarded headers before contacting Django", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://openeire.ie");
+    vi.stubEnv("RENDER_EXTERNAL_HOSTNAME", "openeire-next.onrender.com");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await downloadDelivery(
+      downloadRequest({
+        origin: "https://openeire.ie",
+        requestUrl: "http://0.0.0.0:10000/api/delivery/download",
+        headers: {
+          Host: "openeire-next.onrender.com",
+          "X-Forwarded-Host": "attacker.example",
+          "X-Forwarded-Proto": "https",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(consoleError).toHaveBeenCalledWith("delivery_failure", {
+      category: "proxy_origin_mismatch",
+    });
+  });
+
+  it.each([
+    ["expired", 410],
+    ["revoked", 404],
+    ["payment_locked", 423],
+    ["preview", 403],
+  ])("passes through the %s policy status with a generic body", async (state, status) => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              state,
+              detail: `private-${state}-detail`,
+              deliverable_id: FILE_ID,
+            }),
+            { status, headers: { "Content-Type": "application/json" } },
+          ),
+        ),
+      ),
+    );
+
+    const response = await downloadDelivery(downloadRequest());
+
+    expect(response.status).toBe(status);
+    await expect(response.json()).resolves.toEqual({ state: "unavailable" });
+    expect(consoleError).toHaveBeenCalledWith("delivery_failure", {
+      category: "backend_response",
+    });
+    expect(JSON.stringify(consoleError.mock.calls)).not.toContain(FILE_ID);
+    expect(JSON.stringify(consoleError.mock.calls)).not.toContain(
+      `private-${state}-detail`,
+    );
+  });
+
+  it("keeps configuration and backend connection failures generic and private", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubEnv("OPENEIRE_API_BASE_URL", "");
+
+    const configurationResponse = await downloadDelivery(downloadRequest());
+    expect(configurationResponse.status).toBe(400);
+    await expect(configurationResponse.json()).resolves.toEqual({
+      state: "unavailable",
+    });
+    expect(consoleError).toHaveBeenLastCalledWith("delivery_failure", {
+      category: "configuration_error",
+    });
+
+    vi.stubEnv("OPENEIRE_API_BASE_URL", "https://api.example.test/api");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.reject(new Error("private connection detail"))),
+    );
+    const connectionResponse = await downloadDelivery(downloadRequest());
+    expect(connectionResponse.status).toBe(400);
+    await expect(connectionResponse.json()).resolves.toEqual({
+      state: "unavailable",
+    });
+    expect(consoleError).toHaveBeenLastCalledWith("delivery_failure", {
+      category: "backend_connection_error",
+    });
+
+    const logged = JSON.stringify(consoleError.mock.calls);
+    expect(logged).not.toContain(FILE_ID);
+    expect(logged).not.toContain(SESSION);
+    expect(logged).not.toContain(SIGNED_DOWNLOAD_URL);
+    expect(logged).not.toContain(INTERNAL_SECRET);
+    expect(logged).not.toContain("private connection detail");
+    expect(logged).not.toContain("Cookie");
   });
 });

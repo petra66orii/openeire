@@ -98,6 +98,9 @@ export function PrivateDeliveryClient({
   const [delivery, setDelivery] = useState<DeliveryDto | null>(null);
   const [isPreview, setIsPreview] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
+  const pendingDownloadRef = useRef<string | null>(null);
+  const [pendingDownloadId, setPendingDownloadId] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (startedRef.current) return;
@@ -174,13 +177,58 @@ export function PrivateDeliveryClient({
     setRetryKey((value) => value + 1);
   };
 
+  const downloadFile = async (deliverableId: string) => {
+    if (isPreview || pendingDownloadRef.current) return;
+    pendingDownloadRef.current = deliverableId;
+    setPendingDownloadId(deliverableId);
+    setDownloadError(null);
+
+    try {
+      const response = await fetch("/api/delivery/download", {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ deliverable_id: deliverableId }),
+      });
+      const payload: unknown = await response.json();
+      const downloadUrl =
+        payload && typeof payload === "object" && !Array.isArray(payload)
+          ? (payload as { download_url?: unknown }).download_url
+          : null;
+      if (!response.ok || typeof downloadUrl !== "string") {
+        throw new Error("Download unavailable");
+      }
+      const parsed = new URL(downloadUrl);
+      if (parsed.protocol !== "https:") {
+        throw new Error("Download unavailable");
+      }
+
+      const link = document.createElement("a");
+      link.href = parsed.toString();
+      link.rel = "noreferrer";
+      link.referrerPolicy = "no-referrer";
+      document.body.append(link);
+      link.click();
+      link.remove();
+    } catch {
+      setDownloadError("We could not start that download. Please try again.");
+    } finally {
+      pendingDownloadRef.current = null;
+      setPendingDownloadId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-8 text-zinc-100 sm:px-6 sm:py-12">
       <div className="mx-auto max-w-5xl">
         <header className="mb-10 flex items-center justify-between border-b border-white/10 pb-6">
           <a
             href="https://openeire.ie"
-            className="rounded-sm text-xl font-extrabold tracking-tight text-white outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+            className="rounded-sm text-xl font-extrabold tracking-tight text-white outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             aria-label="OpenÉire Studios home"
           >
             OpenÉire <span className="text-amber-400">Studios</span>
@@ -192,7 +240,7 @@ export function PrivateDeliveryClient({
 
         {state === "bootstrapping" && (
           <section aria-live="polite" aria-busy="true" className="py-20 text-center">
-            <div className="mx-auto mb-5 h-9 w-9 animate-spin rounded-full border-2 border-zinc-700 border-t-amber-400" />
+            <div className="mx-auto mb-5 h-9 w-9 animate-spin rounded-full border-2 border-zinc-700 border-t-[#16a34a]" />
             <h1 className="text-2xl font-bold">Opening your private delivery</h1>
             <p className="mt-3 text-zinc-400">Securely checking access…</p>
           </section>
@@ -209,7 +257,7 @@ export function PrivateDeliveryClient({
               </div>
             )}
             <section className="mb-10">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-amber-400">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#16a34a]">
                 Media delivery
               </p>
               <h1 className="max-w-3xl text-3xl font-bold leading-tight sm:text-5xl">
@@ -252,6 +300,15 @@ export function PrivateDeliveryClient({
               </div>
             )}
 
+            {downloadError && (
+              <div
+                role="alert"
+                className="mb-6 rounded-xl border border-red-400/30 bg-red-950/40 p-4 text-sm text-red-100"
+              >
+                {downloadError}
+              </div>
+            )}
+
             <div className="space-y-8">
               {delivery.groups.map((group) => (
                 <section key={group.category} aria-labelledby={`group-${group.category}`}>
@@ -275,22 +332,30 @@ export function PrivateDeliveryClient({
                             {file.filename} · {formatBytes(file.size)}
                           </p>
                         </div>
-                        <form method="post" action="/api/delivery/download">
-                          <input type="hidden" name="deliverable_id" value={file.id} />
-                          <input
-                            type="hidden"
-                            name="recipient_public_id"
-                            value={recipientPublicId}
-                          />
+                        <div className="w-full shrink-0 sm:w-auto">
                           <button
-                            type="submit"
-                            disabled={isPreview}
+                            type="button"
+                            onClick={() => void downloadFile(file.id)}
+                            disabled={isPreview || pendingDownloadId !== null}
+                            aria-busy={pendingDownloadId === file.id}
                             aria-label={`Download ${file.display_name}`}
-                            className="w-full rounded-lg bg-amber-400 px-5 py-3 text-sm font-bold text-zinc-950 outline-none transition hover:bg-amber-300 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:bg-zinc-600 disabled:text-zinc-300 sm:w-auto"
+                            className="w-full rounded-lg bg-[#16a34a] px-5 py-3 text-sm font-bold text-white outline-none transition hover:bg-[#15803d] active:bg-[#064e3b] focus-visible:ring-2 focus-visible:ring-[#16a34a] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400 sm:w-auto"
                           >
-                            {isPreview ? "Preview only" : "Download"}
+                            {isPreview ? (
+                              "Preview only"
+                            ) : pendingDownloadId === file.id ? (
+                              <span className="inline-flex items-center gap-2">
+                                <span
+                                  aria-hidden="true"
+                                  className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                                />
+                                Preparing…
+                              </span>
+                            ) : (
+                              "Download"
+                            )}
                           </button>
-                        </form>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -330,14 +395,14 @@ export function PrivateDeliveryClient({
                 <button
                   type="button"
                   onClick={retry}
-                  className="rounded-lg bg-amber-400 px-5 py-3 font-bold text-zinc-950 outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="rounded-lg bg-[#16a34a] px-5 py-3 font-bold text-white outline-none transition hover:bg-[#15803d] active:bg-[#064e3b] focus-visible:ring-2 focus-visible:ring-[#16a34a] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
                   Try again
                 </button>
               )}
               <a
                 href="mailto:hello@openeire.ie"
-                className="rounded-lg border border-white/20 px-5 py-3 font-semibold text-white outline-none hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-amber-400"
+                className="rounded-lg border border-white/20 px-5 py-3 font-semibold text-white outline-none transition hover:border-[#16a34a]/70 hover:bg-[#064e3b]/30 focus-visible:ring-2 focus-visible:ring-[#16a34a]"
               >
                 Contact support
               </a>

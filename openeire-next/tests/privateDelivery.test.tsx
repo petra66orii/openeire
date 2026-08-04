@@ -1,10 +1,12 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PrivateDeliveryClient } from "@/components/delivery/PrivateDeliveryClient";
 
 const PUBLIC_ID = "11111111-1111-4111-8111-111111111111";
 const FILE_ID = "22222222-2222-4222-8222-222222222222";
+const SIGNED_DOWNLOAD_URL =
+  "https://downloads.example.test/private/object.zip?X-Amz-Signature=fictional";
 
 const response = (payload: unknown, ok = true, status = ok ? 200 : 423) =>
   Promise.resolve({
@@ -116,34 +118,115 @@ describe("private delivery bootstrap", () => {
     expect(document.body.textContent).not.toContain(PUBLIC_ID);
   });
 
-  it("uses an accessible POST form for downloads and handles long filenames", async () => {
+  it("uses one same-origin POST fetch and navigates the browser directly to the signed URL", async () => {
     window.history.replaceState({}, "", `/delivery/${PUBLIC_ID}`);
-    vi.stubGlobal("fetch", vi.fn(() => response(validDelivery)));
+    let resolveDownload!: (value: Response) => void;
+    const pendingDownload = new Promise<Response>((resolve) => {
+      resolveDownload = resolve;
+    });
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(() => response(validDelivery))
+      .mockImplementationOnce(() => pendingDownload);
+    vi.stubGlobal("fetch", fetchMock);
+    let navigatedTo = "";
+    const clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(function (this: HTMLAnchorElement) {
+        navigatedTo = this.href;
+      });
 
     render(<PrivateDeliveryClient recipientPublicId={PUBLIC_ID} />);
 
     const button = await screen.findByRole("button", {
       name: "Download Web photographs",
     });
-    const form = button.closest("form");
-    expect(form?.method).toBe("post");
-    expect(form?.getAttribute("action")).toBe("/api/delivery/download");
-    expect(screen.getByText(/very-long-filename-/)).toBeTruthy();
+    expect(button.className).toContain("bg-[#16a34a]");
+    expect(button.className).toContain("w-full");
+    expect(button.className).toContain("sm:w-auto");
+    expect(button.closest("li")?.className).toContain("sm:flex-row");
+    expect(screen.getByText("Media delivery").className).toContain(
+      "text-[#16a34a]",
+    );
+    expect(screen.getByText(/very-long-filename-/).className).toContain(
+      "break-all",
+    );
+
+    fireEvent.click(button);
+    fireEvent.click(button);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      "/api/delivery/download",
+      expect.objectContaining({
+        method: "POST",
+        credentials: "same-origin",
+        headers: expect.objectContaining({
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        }),
+      }),
+    );
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body as string)).toEqual({
+      deliverable_id: FILE_ID,
+    });
+    expect(button).toHaveProperty("disabled", true);
+    expect(button.textContent).toContain("Preparing");
+
+    resolveDownload({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ download_url: SIGNED_DOWNLOAD_URL }),
+    } as Response);
+
+    await waitFor(() => expect(clickSpy).toHaveBeenCalledTimes(1));
+    expect(navigatedTo).toBe(SIGNED_DOWNLOAD_URL);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(button).toHaveProperty("disabled", false));
+  });
+
+  it("shows an accessible generic error when download initiation fails", async () => {
+    window.history.replaceState({}, "", `/delivery/${PUBLIC_ID}`);
+    const fetchMock = vi
+      .fn()
+      .mockImplementationOnce(() => response(validDelivery))
+      .mockImplementationOnce(() =>
+        response({ state: "unavailable", private_detail: FILE_ID }, false),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<PrivateDeliveryClient recipientPublicId={PUBLIC_ID} />);
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "Download Web photographs",
+      }),
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain(
+      "We could not start that download. Please try again.",
+    );
+    expect(document.body.textContent).not.toContain(FILE_ID);
   });
 
   it("labels staff preview and disables downloads", async () => {
     window.history.replaceState({}, "", `/delivery/${PUBLIC_ID}`);
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() => response({ ...validDelivery, preview: true })),
+    const fetchMock = vi.fn(() =>
+      response({ ...validDelivery, preview: true }),
     );
+    vi.stubGlobal("fetch", fetchMock);
 
     render(<PrivateDeliveryClient recipientPublicId={PUBLIC_ID} />);
 
     expect(await screen.findByText(/Staff preview/)).toBeTruthy();
-    expect(
-      screen.getByRole("button", { name: "Download Web photographs" }),
-    ).toHaveProperty("disabled", true);
+    const button = screen.getByRole("button", {
+      name: "Download Web photographs",
+    });
+    expect(button).toHaveProperty("disabled", true);
+    fireEvent.click(button);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
 
