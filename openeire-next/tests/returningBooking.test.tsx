@@ -98,6 +98,18 @@ describe("returning-client short booking form", () => {
     await waitFor(() => expect(document.activeElement).toBe(document.getElementById("booking-property_address")));
   });
 
+  it("shows generic backend conflicts as a visible form error", async () => {
+    const fetchMock = vi.fn()
+      .mockImplementationOnce(() => response({ state: "valid" }))
+      .mockImplementationOnce(() => response({ state: "valid", client: summary }))
+      .mockImplementationOnce(() => response({ state: "unavailable", detail: "Booking access is unavailable." }, false, 409));
+    await openForm(fetchMock);
+    completeVisibleFields();
+    fireEvent.submit(screen.getByRole("button", { name: /Send property request/ }).closest("form")!);
+    expect((await screen.findByRole("alert")).textContent).toContain("Booking access is unavailable.");
+    expect((document.getElementById("booking-property_address") as HTMLTextAreaElement).value).toBe("Fictional House, Galway");
+  });
+
   it("requires land scope only for relevant property categories", async () => {
     await openForm();
     completeVisibleFields();

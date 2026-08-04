@@ -134,7 +134,7 @@ export function ReturningClientBookingForm({ credentialPublicId }: { credentialP
       const body: unknown = await response.json();
       if (!response.ok) {
         if (response.status === 404) { setPageState("unavailable"); return; }
-        const fieldErrors = body && typeof body === "object" ? Object.fromEntries(Object.entries(body as Record<string, unknown>).map(([key, value]) => [key, Array.isArray(value) ? value.join(" ") : String(value)])) : { submit: "We could not submit the request." };
+        const fieldErrors = body && typeof body === "object" ? Object.fromEntries(Object.entries(body as Record<string, unknown>).map(([key, value]) => [key === "detail" ? "submit" : key, Array.isArray(value) ? value.join(" ") : String(value)])) : { submit: "We could not submit the request." };
         setErrors(fieldErrors); submittingRef.current = false; setSubmitting(false); focusFirstError(fieldErrors); return;
       }
       setPageState("success");
