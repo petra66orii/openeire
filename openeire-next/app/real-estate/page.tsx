@@ -162,6 +162,11 @@ const faqs = [
       "Aerial work depends on weather, site conditions, airspace restrictions and safe operating limits. We review this before confirming the shoot.",
   },
   {
+    question: "Can you work on active construction sites?",
+    answer:
+      "Yes. A valid SOLAS Safe Pass is held for construction-site access. All work remains subject to the site manager’s induction, access requirements and safety procedures.",
+  },
+  {
     question: "Is OpenÉire commercially insured?",
     answer:
       "OpenÉire is fully insured for commercial drone operations, with public liability cover of up to €6.5 million per occurrence.",
@@ -322,12 +327,13 @@ export default function RealEstatePage() {
         aria-label="Property media service assurances"
         className="border-y border-white/10 bg-gray-950"
       >
-        <div className="container mx-auto grid max-w-7xl gap-px px-4 py-5 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+        <div className="container mx-auto grid max-w-7xl gap-px px-4 py-5 sm:grid-cols-2 lg:grid-cols-5 lg:px-8">
           {[
             "Photography packages from €175 total",
             "Commercial marketing licence included",
             "Package-aware business-day turnaround",
             "Drone capture subject to safe conditions",
+            "Valid SOLAS Safe Pass held for construction-site access",
           ].map((item) => (
             <div
               key={item}

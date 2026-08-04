@@ -163,7 +163,7 @@ export const REAL_ESTATE_PACKAGES = [
     includedPhotographs: null,
     includedPhotographsLabel: "Included photographs as specifically agreed",
     description:
-      "For multi-property shoots, large developments, commercial properties, agricultural properties and bespoke bundles.",
+      "For multi-property shoots, large developments, commercial properties, agricultural properties and bespoke bundles. Suitable for developments, active construction sites and multi-property projects, subject to site access and safety requirements.",
     features: [
       "Included photographs as specifically agreed",
       "Multiple properties in a single booking",
