@@ -164,7 +164,7 @@ const faqs = [
   {
     question: "Can you work on active construction sites?",
     answer:
-      "Yes. A valid SOLAS Safe Pass is held for construction-site access. All work remains subject to the site manager’s induction, access requirements and safety procedures.",
+      "Yes. A valid Safe Pass is held for construction-site access. All work remains subject to the site manager’s induction, access requirements and safety procedures.",
   },
   {
     question: "Is OpenÉire commercially insured?",
@@ -333,7 +333,7 @@ export default function RealEstatePage() {
             "Commercial marketing licence included",
             "Package-aware business-day turnaround",
             "Drone capture subject to safe conditions",
-            "Valid SOLAS Safe Pass held for construction-site access",
+            "Valid Safe Pass held for construction-site access",
           ].map((item) => (
             <div
               key={item}
