@@ -160,7 +160,22 @@ describe("real-estate shoot scoping form", () => {
     expect(screen.queryByLabelText(/Hosted 3D virtual tour/)).toBeNull();
     expect(screen.getByText(/already included in the new package/)).toBeTruthy();
     expect(screen.queryByLabelText(/2D measured floor plan/)).toBeNull();
-    expect(screen.queryByLabelText(/Additional social formats/)).toBeNull();
+    expect(screen.getByLabelText(/Additional social formats/)).toBeTruthy();
+  });
+
+  it("offers a floor plan only where it is not already included", () => {
+    render(<RealEstateEnquiryForm />);
+
+    select("preferred_package", "essential");
+    expect(screen.getByLabelText(/2D measured floor plan/)).toBeTruthy();
+
+    for (const packageId of ["starter", "pro", "premium"]) {
+      select("preferred_package", packageId);
+      expect(screen.queryByLabelText(/2D measured floor plan/)).toBeNull();
+    }
+
+    select("preferred_package", "custom");
+    expect(screen.getByLabelText(/2D measured floor plan/)).toBeTruthy();
   });
 
   it("shows catalogue-driven included-photograph guidance for the selected package", () => {
@@ -168,12 +183,12 @@ describe("real-estate shoot scoping form", () => {
 
     select("preferred_package", "starter");
     expect(
-      screen.getByText(/25 professionally edited interior and exterior photographs/),
+      screen.getByText(/25 professionally edited interior and exterior ground photographs/),
     ).toBeTruthy();
 
     select("preferred_package", "premium");
     expect(
-      screen.getByText(/35 professionally edited interior and exterior photographs/),
+      screen.getByText(/35 professionally edited interior and exterior ground photographs/),
     ).toBeTruthy();
   });
 

@@ -104,14 +104,33 @@ describe("real-estate portfolio", () => {
     render(<RealEstatePage />);
 
     const portfolioLink = screen.getByRole("link", {
-      name: "View property portfolio",
+      name: "View Our Property Portfolio",
     });
     expect(portfolioLink.getAttribute("href")).toBe(
       REAL_ESTATE_PORTFOLIO_PATH,
     );
     expect(
       portfolioLink.closest("section")?.querySelector("h1")?.textContent,
-    ).toMatch(/Property media built for Connacht agents/i);
+    ).toBe("Property Photography and Drone Media in Galway and Across Connacht");
+  });
+
+  it("renders concise balanced package cards with Pro recommended", () => {
+    render(<RealEstatePage />);
+
+    const proCard = screen
+      .getByRole("heading", { name: "Pro — €419 Total" })
+      .closest("article");
+    const essentialCard = screen
+      .getByRole("heading", { name: "Essential — €175 Total" })
+      .closest("article");
+    const customCard = screen
+      .getByRole("heading", { name: "Custom — Price on Application" })
+      .closest("article");
+
+    expect(proCard?.textContent).toContain("Recommended");
+    expect(proCard?.textContent).toContain("Vertical 9:16 social video");
+    expect(essentialCard?.textContent).not.toContain("duration of the active listing");
+    expect(customCard?.className).toContain("lg:grid-cols-[0.75fr_1.5fr_auto]");
   });
 
   it("uses centrally configured approved property heroes", () => {
@@ -323,7 +342,7 @@ describe("real-estate portfolio", () => {
     render(<RealEstatePortfolioPage />);
 
     expect(
-      screen.queryByRole("heading", { name: "Social-media cuts" }),
+      screen.queryByRole("heading", { name: "Vertical social-media video" }),
     ).toBeNull();
     expect(
       screen.queryByRole("heading", { name: "Measured 2D floor plans" }),
@@ -437,11 +456,12 @@ describe("real-estate portfolio", () => {
     }
   });
 
-  it("keeps social cuts and floor plans in the commercial catalogue", () => {
+  it("keeps vertical social video and floor plans in the commercial catalogue", () => {
     const commercialCatalogue = JSON.stringify(REAL_ESTATE_PACKAGES);
 
-    expect(commercialCatalogue).toMatch(/Social media cuts included/i);
-    expect(commercialCatalogue).toMatch(/Floor plan, 2D measured/i);
+    expect(commercialCatalogue).toMatch(/vertical 9:16 social-media video/i);
+    expect(commercialCatalogue).toMatch(/Measured 2D floor plan/i);
+    expect(commercialCatalogue).not.toMatch(/square 1:1|portrait and square/i);
   });
 
   it("does not import historical booking data into public portfolio code", () => {
