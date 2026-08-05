@@ -155,8 +155,9 @@ const addOns: Array<{ key: AddOnKey; label: string; price: string }> = [
   { key: "additional_social_cuts", label: "Additional social formats / cuts", price: "€50" },
 ];
 const conflicts: Partial<Record<PackageType, AddOnKey[]>> = {
-  pro: ["additional_social_cuts"],
-  premium: ["floor_plan", "virtual_tour_3d", "additional_social_cuts"],
+  starter: ["floor_plan"],
+  pro: ["floor_plan"],
+  premium: ["floor_plan", "virtual_tour_3d"],
 };
 
 const inputClass =
@@ -497,7 +498,11 @@ export function RealEstateEnquiryForm() {
                 </select>
                 {formData.preferred_package ? (
                   <div className="mt-2 space-y-1 text-sm leading-relaxed text-gray-400">
-                    <p>{selectedPackage?.includedPhotographsLabel}.</p>
+                    {selectedPackage && "text" in selectedPackage ? (
+                      <p><strong>Included package scope:</strong> {selectedPackage.text}</p>
+                    ) : (
+                      <p><strong>Included package scope:</strong> To be specifically agreed.</p>
+                    )}
                     <p>
                       <strong>{getRealEstateTurnaround(formData.preferred_package).label}.</strong>
                     </p>

@@ -36,12 +36,12 @@ export const PORTFOLIO_FORMAT_DEFINITIONS = {
     text: "Controlled aerial movement that helps establish scale and setting.",
   },
   socialMediaCuts: {
-    title: "Social-media cuts",
-    text: "Purpose-made vertical and square edits for listing channels.",
+    title: "Vertical social-media video",
+    text: "Purpose-made vertical 9:16 video for listing channels.",
   },
   floorPlan: {
     title: "Measured 2D floor plans",
-    text: "Clear layout information supplied as an optional listing asset.",
+    text: "Clear layout information included with Starter, Pro and Premium, or available by agreement.",
   },
 } as const;
 

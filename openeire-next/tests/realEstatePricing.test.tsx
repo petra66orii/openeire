@@ -46,18 +46,20 @@ describe("active real-estate pricing", () => {
       ),
     ).toEqual({
       essential: { priceAmount: 175, includedPhotographs: 10 },
-      starter: { priceAmount: 229, includedPhotographs: 25 },
-      pro: { priceAmount: 399, includedPhotographs: 30 },
-      premium: { priceAmount: 579, includedPhotographs: 35 },
+      starter: { priceAmount: 259, includedPhotographs: 25 },
+      pro: { priceAmount: 419, includedPhotographs: 30 },
+      premium: { priceAmount: 549, includedPhotographs: 35 },
       custom: { priceAmount: null, includedPhotographs: null },
     });
 
     const proPackage = REAL_ESTATE_PACKAGES.find(({ id }) => id === "pro");
     expect(proPackage?.text).toContain(
-      "30 professionally edited interior and exterior photographs",
+      "30 professionally edited interior and exterior ground photographs",
     );
     expect(proPackage?.text).toContain("60-90 second ground video");
     expect(proPackage?.text).toContain("60-90 second 4K aerial drone video");
+    expect(proPackage?.text).toContain("measured 2D floor plan");
+    expect(proPackage?.text).toContain("vertical 9:16 social-media video");
     expect(REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY).toContain(
       "€10 per photograph",
     );
@@ -70,13 +72,10 @@ describe("active real-estate pricing", () => {
     );
 
     expect(pageSource).toContain(
-      "const packages: readonly RealEstatePackage[] = REAL_ESTATE_PACKAGES.map",
+      "{REAL_ESTATE_PACKAGES.slice(0, 4).map((item) => (",
     );
     expect(pageSource).toContain(
       "const realEstatePackageOffers = REAL_ESTATE_PACKAGES.map",
-    );
-    expect(pageSource).toContain(
-      "const realEstatePhotoAllowances = REAL_ESTATE_PACKAGES.flatMap",
     );
     expect(pageSource).not.toMatch(
       /Includes (?:20|25|30) edited photos/,
@@ -134,12 +133,28 @@ describe("active real-estate pricing", () => {
     expect(optionLabels).toEqual([
       "Choose deliberately\u2026",
       "Essential \u2014 \u20ac175",
-      "Starter \u2014 \u20ac229",
-      "Pro \u2014 \u20ac399",
-      "Premium \u2014 \u20ac579",
+      "Starter \u2014 \u20ac259",
+      "Pro \u2014 \u20ac419",
+      "Premium \u2014 \u20ac549",
       "Custom \u2014 POA",
       "Not sure",
     ]);
+  });
+
+  it("publishes the approved SEO metadata and a single visible H1", () => {
+    const pageSource = fs.readFileSync(
+      path.join(process.cwd(), "app", "real-estate", "page.tsx"),
+      "utf8",
+    );
+
+    expect(pageSource).toContain(
+      "Property Photography Galway & Connacht | OpenÉire Studios",
+    );
+    expect(pageSource).toContain(
+      "Property photography, drone stills, 4K video, floor plans and 3D tours for estate agents, developers and sellers in Galway and across Connacht.",
+    );
+    expect(pageSource.match(/<h1\b/g)).toHaveLength(1);
+    expect(pageSource).not.toMatch(/square 1:1|portrait and square/i);
   });
 
   it("contains no legacy VAT-exclusive wording in active UI source", () => {

@@ -20,7 +20,7 @@ const serviceCards = [
     title: "Real Estate Services",
     eyebrow: "Property media across Connacht",
     description:
-      "Book professional real estate photography, aerial drone video, social cuts, and 3D virtual tours for property listings and developments.",
+      "Book professional real estate photography, aerial drone video, vertical 9:16 social video, floor plans, and 3D virtual tours for property listings and developments.",
     href: "/real-estate",
     cta: "View Real Estate Services",
     icon: <FaHome aria-hidden="true" />,

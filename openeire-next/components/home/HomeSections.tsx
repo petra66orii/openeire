@@ -6,11 +6,11 @@ import {
   FaGoogle,
   FaHome,
   FaImage,
-  FaShieldAlt,
   FaStar,
   FaVideo,
 } from "react-icons/fa";
 import { PUBLIC_IMAGES } from "@/lib/assets";
+import { DroneQualificationsSection } from "@/components/trust/DroneQualificationsSection";
 
 const services = [
   {
@@ -293,67 +293,6 @@ export function HomeServicesSection() {
   );
 }
 
-const trustItems = [
-  { value: "IAA", label: "Irish Aviation Authority" },
-  { value: "EASA", label: "EU Aviation Safety" },
-  { value: "€6.5M", label: "Public Liability Insurance" },
-  { value: "Valid Safe Pass", label: "Construction-Site Access" },
-] as const;
-
 export function HomeCertsSection() {
-  return (
-    <section className="relative overflow-hidden border-t border-brand-700 bg-brand-900 py-12 text-white">
-      <div className="pointer-events-none absolute left-0 top-0 h-full w-full opacity-5">
-        <svg width="100%" height="100%" aria-hidden="true">
-          <pattern
-            id="cert-grid"
-            width="40"
-            height="40"
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d="M 40 0 L 0 0 0 40"
-              fill="none"
-              stroke="white"
-              strokeWidth="1"
-            />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#cert-grid)" />
-        </svg>
-      </div>
-
-      <div className="container relative z-10 mx-auto px-4 lg:px-8">
-        <div className="grid items-center gap-8 text-center lg:grid-cols-[minmax(16rem,0.9fr)_minmax(0,2.1fr)] lg:text-left">
-          <div>
-            <h2 className="mb-2 flex items-center justify-center gap-3 font-serif text-2xl font-bold lg:justify-start">
-              <FaShieldAlt className="text-accent" />
-              Fully Certified & Insured
-            </h2>
-            <p className="max-w-md text-sm text-brand-100">
-              We operate with strict adherence to EU aviation safety standards.
-              Safety is our priority on every flight.
-            </p>
-          </div>
-
-          <div className="grid w-full grid-cols-2 items-stretch lg:grid-cols-4">
-            {trustItems.map((item, index) => (
-              <div
-                key={item.value}
-                className={`flex min-h-20 flex-col items-center justify-center px-4 text-center ${
-                  index % 2 === 1 ? "border-l border-brand-700" : ""
-                } ${index > 0 ? "lg:border-l lg:border-brand-700" : "lg:border-l-0"}`}
-              >
-                <span className="block text-2xl font-bold leading-tight text-white sm:text-3xl">
-                  {item.value}
-                </span>
-                <span className="mt-1 text-[10px] uppercase tracking-widest text-accent">
-                  {item.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  return <DroneQualificationsSection variant="concise" />;
 }
