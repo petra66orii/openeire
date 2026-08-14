@@ -1,5 +1,6 @@
 export const PUBLIC_IMAGES = {
   heroPoster: "/hero-poster.jpg",
+  artPrintsHero: "/ireland-woodland-sunset-art-prints.jpg",
   heroPosterMobile: "/hero-poster-mobile.jpg",
   heroLicensing: "/ireland-eire-muckross-head.mp4",
   heroLicensingPosterMobile: "/ireland-eire-muckross-head-mobile.webp",

@@ -25,6 +25,8 @@ export function HeroSection({
   title,
   description,
   image = PUBLIC_IMAGES.heroPoster,
+  imagePositionClassName = "bg-center",
+  contentPositionClassName = "",
   actions = [],
   note,
 }: {
@@ -32,18 +34,20 @@ export function HeroSection({
   title: string;
   description: string;
   image?: string;
+  imagePositionClassName?: string;
+  contentPositionClassName?: string;
   actions?: LinkButton[];
   note?: ReactNode;
 }) {
   return (
     <section className="relative isolate overflow-hidden border-b border-white/10 bg-black">
       <div
-        className="absolute inset-0 -z-20 bg-cover bg-center opacity-35"
+        className={`absolute inset-0 -z-20 bg-cover opacity-35 ${imagePositionClassName}`}
         style={{ backgroundImage: `url("${image}")` }}
       />
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_55%),linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.82)_100%)]" />
       <div className="page-top-offset container relative z-10 mx-auto px-4 pb-8 md:pb-20 lg:px-8">
-        <div className="max-w-4xl">
+        <div className={`max-w-4xl ${contentPositionClassName}`}>
           <p className="inline-flex rounded-full border border-accent/30 bg-black/45 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">
             {eyebrow}
           </p>
