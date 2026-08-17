@@ -67,6 +67,8 @@ export const getRealEstateTurnaround = (packageId: RealEstatePackageId) =>
 export const REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_PRICE = 10;
 export const REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY =
   "Additional edited photographs may be agreed at €10 per photograph.";
+export const REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE =
+  "One combined 4K property film — 60–90 sec ground footage + 60–90 sec aerial footage (approx. 2–3 min total)";
 
 export const REAL_ESTATE_PACKAGES = [
   {
@@ -124,13 +126,12 @@ export const REAL_ESTATE_PACKAGES = [
       "30 edited ground photographs",
       "5–8 drone stills",
       "2D measured floor plan",
-      "60–90 sec ground video",
-      "Separate 4K drone video",
+      REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
       "Vertical 9:16 social video",
       "Full-resolution delivery",
       "Two-business-day delivery",
     ],
-    text: `30 professionally edited interior and exterior ground photographs, 5-8 aerial drone stills in addition to the ground photographs, measured 2D floor plan, 60-90 second ground video, a separate 60-90 second 4K aerial drone video, one vertical 9:16 social-media video, ${REAL_ESTATE_TURNAROUNDS.pro.label.toLowerCase()}, and listing marketing licence.`,
+    text: `30 professionally edited interior and exterior ground photographs, 5-8 aerial drone stills in addition to the ground photographs, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, one separate vertical 9:16 social-media video, ${REAL_ESTATE_TURNAROUNDS.pro.label.toLowerCase()}, and listing marketing licence.`,
     turnaround: REAL_ESTATE_TURNAROUNDS.pro,
   },
   {
@@ -147,13 +148,12 @@ export const REAL_ESTATE_PACKAGES = [
       "35 edited ground photographs",
       "5–8 drone stills",
       "2D measured floor plan",
-      "60–90 sec ground video",
-      "Separate 4K drone video",
+      REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
       "Vertical 9:16 social video",
       "Hosted 3D virtual tour",
       "Two-business-day delivery",
     ],
-    text: `35 professionally edited interior and exterior ground photographs, 5-8 aerial drone stills in addition to the ground photographs, measured 2D floor plan, ground video, a separate 4K aerial drone video, one vertical 9:16 social-media video, hosted 3D virtual tour, ${REAL_ESTATE_TURNAROUNDS.premium.label.toLowerCase()}, and listing marketing licence.`,
+    text: `35 professionally edited interior and exterior ground photographs, 5-8 aerial drone stills in addition to the ground photographs, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, one separate vertical 9:16 social-media video, hosted 3D virtual tour, ${REAL_ESTATE_TURNAROUNDS.premium.label.toLowerCase()}, and listing marketing licence.`,
     turnaround: REAL_ESTATE_TURNAROUNDS.premium,
   },
   {

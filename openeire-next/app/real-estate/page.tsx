@@ -13,7 +13,11 @@ import {
   getOfficialSameAsLinks,
 } from "@/lib/site";
 import { buildPageMetadata } from "@/lib/seo/metadata";
-import { REAL_ESTATE_PACKAGES, REAL_ESTATE_VAT_NOTE } from "@/lib/realEstate";
+import {
+  REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
+  REAL_ESTATE_PACKAGES,
+  REAL_ESTATE_VAT_NOTE,
+} from "@/lib/realEstate";
 import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
 import {
   buildBreadcrumbJsonLd,
@@ -42,8 +46,7 @@ const completeMedia = [
   "Professionally edited interior and exterior photography",
   "5–8 aerial drone stills in addition to the ground photographs",
   "A measured 2D floor plan",
-  "Interior and exterior property video",
-  "A separate 4K aerial drone video",
+  REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
   "Vertical 9:16 social-media video",
   "A hosted 3D interactive virtual tour",
   "Commercial marketing rights for the active property listing",
@@ -139,7 +142,7 @@ const faqs = [
   {
     question: "How much does property photography cost in Galway?",
     answer:
-      "OpenÉire Studios property-photography packages begin at €175 total. The Starter package costs €259 and includes 25 ground photographs, 5–8 aerial drone stills and a measured 2D floor plan. The Pro package costs €419 and includes 30 ground photographs, drone stills, a measured floor plan, ground video, a separate 4K drone video and vertical 9:16 social-media video. The Premium package costs €549 and includes 35 ground photographs, drone stills, a measured floor plan, ground and aerial video, vertical social video and a hosted 3D virtual tour. Travel charges may apply beyond 40 kilometres from our base.",
+      `OpenÉire Studios property-photography packages begin at €175 total. The Starter package costs €259 and includes 25 ground photographs, 5–8 aerial drone stills and a measured 2D floor plan. The Pro package costs €419 and includes 30 ground photographs, drone stills, a measured floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, plus a separate vertical 9:16 social-media video. The Premium package costs €549 and adds five ground photographs and a hosted 3D virtual tour while retaining those video deliverables. Travel charges may apply beyond 40 kilometres from our base.`,
   },
   {
     question: "Do the prices include VAT?",
@@ -358,7 +361,7 @@ export default function RealEstatePage() {
               Based in County Galway, OpenÉire Studios provides listing-ready property media throughout Galway and across Connacht.
             </p>
             <p className={proseClass}>
-              One carefully planned visit gives you professionally edited ground photography and, depending on your package, aerial drone stills, ground-level video, 4K drone video, vertical social-media content, a measured floor plan and an interactive 3D tour.
+              One carefully planned visit gives you professionally edited ground photography and, depending on your package, aerial drone stills, a measured floor plan and an interactive 3D tour. Pro and Premium include <strong>{REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}</strong>, while the vertical social-media video remains separate.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a href="#enquiry" className="rounded-full bg-brand-500 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] transition hover:bg-brand-600">Request a Property Shoot</a>
@@ -414,10 +417,9 @@ export default function RealEstatePage() {
               <p className={proseClass}>All aerial work is subject to suitable weather, site access, airspace restrictions and safe operating conditions.</p>
             </article>
             <article className="rounded-3xl border border-white/10 bg-gray-950 p-7">
-              <h2 className="font-serif text-3xl font-bold">Property Video and 4K Drone Video</h2>
-              <p className={proseClass}>The Pro and Premium packages include both ground-level property video and a separate aerial drone video.</p>
-              <p className={proseClass}>The ground video provides a polished visual tour of the interior and exterior of the property. The aerial video presents the building, land and surroundings from above.</p>
-              <p className={proseClass}>Each video is normally 60–90 seconds long and is fully edited with music.</p>
+              <h2 className="font-serif text-3xl font-bold">Combined 4K Property Film</h2>
+              <p className={proseClass}><strong>{REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}</strong></p>
+              <p className={proseClass}>It is delivered as one final property film, not separate full-length ground and aerial films. The included vertical 9:16 social-media video remains a separate deliverable.</p>
             </article>
             <article className="rounded-3xl border border-white/10 bg-gray-950 p-7">
               <h2 className="font-serif text-3xl font-bold">Vertical Social-Media Video</h2>

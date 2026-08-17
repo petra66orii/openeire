@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
 import {
   REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY,
+  REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
   REAL_ESTATE_PACKAGES,
   REAL_ESTATE_RUSH_DELIVERY_LABEL,
   REAL_ESTATE_RUSH_DELIVERY_NOTE,
@@ -53,11 +54,36 @@ describe("active real-estate pricing", () => {
     });
 
     const proPackage = REAL_ESTATE_PACKAGES.find(({ id }) => id === "pro");
+    const premiumPackage = REAL_ESTATE_PACKAGES.find(({ id }) => id === "premium");
     expect(proPackage?.text).toContain(
       "30 professionally edited interior and exterior ground photographs",
     );
-    expect(proPackage?.text).toContain("60-90 second ground video");
-    expect(proPackage?.text).toContain("60-90 second 4K aerial drone video");
+    expect(proPackage?.text).toContain(
+      "One combined 4K property film — 60–90 sec ground footage + 60–90 sec aerial footage (approx. 2–3 min total)",
+    );
+    expect(proPackage?.text).toContain("one separate vertical 9:16 social-media video");
+    expect(proPackage?.text).not.toContain("separate 60–90 second 4K aerial drone video");
+    expect(proPackage?.features).toContain(REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE);
+    expect(
+      proPackage?.features.filter(
+        (feature) => feature === REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
+      ),
+    ).toHaveLength(1);
+    expect(proPackage?.features).toContain("Vertical 9:16 social video");
+    expect(premiumPackage?.text).toContain(
+      "One combined 4K property film — 60–90 sec ground footage + 60–90 sec aerial footage (approx. 2–3 min total)",
+    );
+    expect(premiumPackage?.text).toContain("one separate vertical 9:16 social-media video");
+    expect(premiumPackage?.text).toContain("hosted 3D virtual tour");
+    expect(premiumPackage?.features).toContain(
+      REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
+    );
+    expect(
+      premiumPackage?.features.filter(
+        (feature) => feature === REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
+      ),
+    ).toHaveLength(1);
+    expect(premiumPackage?.features).toContain("Vertical 9:16 social video");
     expect(proPackage?.text).toContain("measured 2D floor plan");
     expect(proPackage?.text).toContain("vertical 9:16 social-media video");
     expect(REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY).toContain(
