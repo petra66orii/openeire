@@ -81,7 +81,7 @@ function VideoPreview({
           <img
             src={posterUrl}
             alt={title}
-            className="absolute inset-0 h-full w-full object-cover opacity-35 blur-sm"
+            className="absolute inset-0 h-full w-full object-cover opacity-70 blur-sm"
           />
         ) : null}
         <div className="relative z-10 flex flex-col items-center gap-3">

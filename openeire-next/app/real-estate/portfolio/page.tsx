@@ -58,11 +58,11 @@ export default function RealEstatePortfolioPage() {
           objectPositionClassName="object-[64%_center] sm:object-[70%_center] lg:object-[74%_center]"
         />
         <div
-          className="absolute inset-0 -z-10 bg-linear-to-r from-black/95 via-black/75 to-black/45 md:from-black/90 md:via-black/60 md:to-black/25"
+          className="absolute inset-0 -z-10 bg-linear-to-r from-black/70 via-black/50 to-black/20 md:from-black/65 md:via-black/40 md:to-black/15"
           aria-hidden="true"
         />
         <div
-          className="absolute inset-0 -z-10 bg-linear-to-b from-transparent via-transparent to-black/65"
+          className="absolute inset-0 -z-10 bg-linear-to-b from-transparent via-transparent to-black/40"
           aria-hidden="true"
         />
         <div className="container mx-auto flex min-h-[72vh] max-w-7xl items-center px-4 py-20 lg:px-8">

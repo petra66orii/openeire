@@ -168,8 +168,8 @@ export default function LicensingPage() {
             media="(min-width: 768px)"
           />
         </video>
-        <div className="absolute inset-0 -z-20 bg-black/50" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12)_0%,rgba(0,0,0,0)_42%),linear-gradient(90deg,rgba(0,0,0,0.86)_0%,rgba(0,0,0,0.64)_46%,rgba(0,0,0,0.24)_100%),linear-gradient(180deg,rgba(0,0,0,0.14)_0%,rgba(0,0,0,0.84)_100%)]" />
+        <div className="absolute inset-0 -z-20 bg-black/15" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12)_0%,rgba(0,0,0,0)_42%),linear-gradient(90deg,rgba(0,0,0,0.5)_0%,rgba(0,0,0,0.28)_46%,rgba(0,0,0,0.08)_100%),linear-gradient(180deg,rgba(0,0,0,0.03)_0%,rgba(0,0,0,0.45)_100%)]" />
         <div className="container mx-auto px-4 pb-10 pt-8 md:pb-24 md:pt-12 lg:px-8">
           <div className="max-w-4xl">
             <p className="inline-flex rounded-full border border-accent/30 bg-black/45 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">
