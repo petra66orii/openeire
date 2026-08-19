@@ -15,6 +15,24 @@ export type CardItem = {
   text: string;
 };
 
+type HeroImageTreatment = "standard" | "art-prints";
+
+const heroImageTreatments: Record<
+  HeroImageTreatment,
+  { imageClassName: string; overlayClassName: string }
+> = {
+  standard: {
+    imageClassName: "opacity-75",
+    overlayClassName:
+      "bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_55%),linear-gradient(180deg,rgba(0,0,0,0.04)_0%,rgba(0,0,0,0.45)_100%)]",
+  },
+  "art-prints": {
+    imageClassName: "opacity-90",
+    overlayClassName:
+      "bg-[linear-gradient(90deg,rgba(0,0,0,0.38)_0%,rgba(0,0,0,0.14)_58%,rgba(0,0,0,0.03)_100%),linear-gradient(180deg,rgba(0,0,0,0.02)_0%,rgba(0,0,0,0.38)_100%)]",
+  },
+};
+
 const buttonClass = (variant: LinkButton["variant"] = "primary") =>
   variant === "secondary"
     ? "inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-3.5 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10"
@@ -27,6 +45,7 @@ export function HeroSection({
   image = PUBLIC_IMAGES.heroPoster,
   imagePositionClassName = "bg-center",
   contentPositionClassName = "",
+  imageTreatment = "standard",
   actions = [],
   note,
 }: {
@@ -36,16 +55,19 @@ export function HeroSection({
   image?: string;
   imagePositionClassName?: string;
   contentPositionClassName?: string;
+  imageTreatment?: HeroImageTreatment;
   actions?: LinkButton[];
   note?: ReactNode;
 }) {
+  const treatment = heroImageTreatments[imageTreatment];
+
   return (
     <section className="relative isolate overflow-hidden border-b border-white/10 bg-black">
       <div
-        className={`absolute inset-0 -z-20 bg-cover opacity-35 ${imagePositionClassName}`}
+        className={`absolute inset-0 -z-20 bg-cover ${treatment.imageClassName} ${imagePositionClassName}`}
         style={{ backgroundImage: `url("${image}")` }}
       />
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_55%),linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.82)_100%)]" />
+      <div className={`absolute inset-0 -z-10 ${treatment.overlayClassName}`} />
       <div className="page-top-offset container relative z-10 mx-auto px-4 pb-8 md:pb-20 lg:px-8">
         <div className={`max-w-4xl ${contentPositionClassName}`}>
           <p className="inline-flex rounded-full border border-accent/30 bg-black/45 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">

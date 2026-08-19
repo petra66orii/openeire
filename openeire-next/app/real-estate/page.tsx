@@ -345,7 +345,7 @@ export default function RealEstatePage() {
 
       <section className="relative isolate overflow-hidden pt-[calc(var(--site-header-height,96px)+2rem)]">
         <RealEstateHeroImage objectPositionClassName="object-[64%_center] sm:object-[68%_center] lg:object-[72%_center]" />
-        <div className="absolute inset-0 -z-10 bg-linear-to-r from-black/95 via-black/75 to-black/40" aria-hidden="true" />
+        <div className="absolute inset-0 -z-10 bg-linear-to-r from-black/70 via-black/50 to-black/20" aria-hidden="true" />
         <div className="container mx-auto flex min-h-[78vh] max-w-7xl items-center px-4 py-20 lg:px-8">
           <div className="max-w-4xl">
             <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] text-accent">

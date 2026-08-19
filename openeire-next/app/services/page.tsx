@@ -85,12 +85,12 @@ export default function ServicesPage() {
 
       <section className="page-top-offset relative isolate overflow-hidden border-b border-white/10">
         <div
-          className="absolute inset-0 -z-20 bg-cover bg-center opacity-25"
+          className="absolute inset-0 -z-20 bg-cover bg-center opacity-65"
           style={{ backgroundImage: `url(${PUBLIC_IMAGES.heroPoster})` }}
           aria-hidden="true"
         />
         <div
-          className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(22,163,74,0.22),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.38),#000)]"
+          className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(22,163,74,0.22),transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.12),rgba(0,0,0,0.55))]"
           aria-hidden="true"
         />
         <div className="container mx-auto px-4 py-12 text-center sm:py-16 lg:px-8">
@@ -122,15 +122,15 @@ export default function ServicesPage() {
             aria-label={`${service.cta}: ${service.title}`}
           >
             <div
-              className="absolute inset-0 -z-20 bg-cover bg-center opacity-[0.28] transition duration-500 group-hover:scale-105 group-hover:opacity-[0.35]"
+              className="absolute inset-0 -z-20 bg-cover bg-center opacity-65 transition duration-500 group-hover:scale-105 group-hover:opacity-[0.72]"
               style={{ backgroundImage: `url(${service.image})` }}
               aria-hidden="true"
             />
             <div
               className={`absolute inset-0 -z-10 ${
                 service.tone === "licensing"
-                  ? "bg-[linear-gradient(135deg,rgba(0,0,0,0.9),rgba(8,47,73,0.74)),radial-gradient(circle_at_top_left,rgba(255,196,0,0.18),transparent_38%)]"
-                  : "bg-[linear-gradient(135deg,rgba(0,0,0,0.9),rgba(5,46,22,0.75)),radial-gradient(circle_at_top_right,rgba(22,163,74,0.25),transparent_42%)]"
+                  ? "bg-[linear-gradient(135deg,rgba(0,0,0,0.55),rgba(8,47,73,0.38)),radial-gradient(circle_at_top_left,rgba(255,196,0,0.18),transparent_38%)]"
+                  : "bg-[linear-gradient(135deg,rgba(0,0,0,0.55),rgba(5,46,22,0.4)),radial-gradient(circle_at_top_right,rgba(22,163,74,0.25),transparent_42%)]"
               }`}
               aria-hidden="true"
             />

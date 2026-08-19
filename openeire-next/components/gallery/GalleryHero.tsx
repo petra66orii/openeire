@@ -158,9 +158,9 @@ export function GalleryHero({
                 loading={collection.id === "all" ? "eager" : "lazy"}
                 fetchPriority={collection.id === "all" ? "high" : "auto"}
                 decoding="async"
-                className="h-full w-full object-cover opacity-60 grayscale transition-transform duration-700 group-hover:scale-110 group-[.swiper-slide-active]:opacity-100 group-[.swiper-slide-active]:grayscale-0"
+                className="h-full w-full object-cover opacity-95 grayscale transition-transform duration-700 group-hover:scale-110 group-[.swiper-slide-active]:opacity-100 group-[.swiper-slide-active]:grayscale-0"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-50" />
               <div className="absolute bottom-8 left-0 w-full translate-y-2 text-center transition-all duration-500">
                 <h2 className="font-serif text-2xl font-bold tracking-wide text-white">
                   {collection.label}

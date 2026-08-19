@@ -61,7 +61,7 @@ export function PortfolioVideo({
               className="object-cover"
             />
             <div
-              className="absolute inset-0 bg-linear-to-t from-black/65 via-black/10 to-black/10"
+              className="absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-transparent"
               aria-hidden="true"
             />
           </>

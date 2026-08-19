@@ -75,10 +75,10 @@ export default function AboutPage() {
           alt="Aerial landscape photographed by OpenÉire Studios"
           fill
           priority
-          className="object-cover opacity-60"
+          className="object-cover opacity-95"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-black/30" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/10" />
         <div className="header-safe-top relative z-10 mx-auto max-w-4xl px-4 pb-16 text-center">
           <span className="mb-4 block text-sm font-bold uppercase tracking-[0.3em] text-accent">
             Established 2026
@@ -203,10 +203,10 @@ export default function AboutPage() {
           alt=""
           aria-hidden="true"
           fill
-          className="object-cover opacity-65"
+          className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
         <div className="relative z-10 px-4 text-center">
           <h2 className="mb-6 font-serif text-4xl font-bold md:text-6xl">
             Ready to explore?

@@ -67,8 +67,8 @@ export function FAQTopicPage({
       })))} />
 
       <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_55%),linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.84)_100%)]" />
-        <div className="absolute inset-0 bg-[url('/hero-poster.jpg')] bg-cover bg-center opacity-25" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_55%),linear-gradient(180deg,rgba(0,0,0,0.04)_0%,rgba(0,0,0,0.45)_100%)]" />
+        <div className="absolute inset-0 bg-[url('/hero-poster.jpg')] bg-cover bg-center opacity-65" />
         <div className="header-safe-top container relative z-10 mx-auto px-4 pb-8 md:pb-20 lg:px-8">
           <div className="max-w-4xl">
             <span className="inline-flex items-center rounded-full border border-accent/30 bg-black/45 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-accent">

@@ -97,6 +97,7 @@ export default function ArtPrintsPage() {
         title="Fine art prints that feel premium."
         description="OpenÉire Studios turns aerial photography into statement wall art for homes, interiors, and gifting. These are not generic poster prints. Each piece is selected to feel editorial, distinctive, and made to live well in real spaces."
         image={PUBLIC_IMAGES.artPrintsHero}
+        imageTreatment="art-prints"
         imagePositionClassName="bg-[position:36%_center] sm:bg-[position:40%_center] lg:bg-[position:center_52%]"
         contentPositionClassName="translate-y-4 md:translate-y-10 lg:translate-y-[50px]"
         actions={[
