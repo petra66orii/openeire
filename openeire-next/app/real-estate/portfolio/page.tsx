@@ -11,6 +11,7 @@ import {
 import { JsonLd } from "@/components/JsonLd";
 import { RealEstateHeroImage } from "@/components/real-estate/RealEstateHeroImage";
 import { PortfolioProject } from "@/components/real-estate/PortfolioProject";
+import { PortfolioPropertyNavigator } from "@/components/real-estate/PortfolioPropertyNavigator";
 import { PortfolioTrackedLink } from "@/components/real-estate/PortfolioTrackedLink";
 import {
   getDemonstratedPortfolioFormats,
@@ -40,11 +41,15 @@ const formatIcons: Record<PortfolioFormat, IconType> = {
   aerialStills: FaHelicopter,
   groundVideo: FaPhotoVideo,
   aerialVideo: FaFilm,
+  propertyFilm: FaFilm,
   socialMediaCuts: FaMobileAlt,
   floorPlan: FaDraftingCompass,
 };
 
 const publishedProjects = getPublishedPortfolioProjects();
+const portfolioNavigationProjects = publishedProjects.map(
+  ({ anchorId, title }) => ({ anchorId, title }),
+);
 const demonstratedFormats = getDemonstratedPortfolioFormats();
 
 export default function RealEstatePortfolioPage() {
@@ -120,22 +125,31 @@ export default function RealEstatePortfolioPage() {
       </section>
 
       {publishedProjects.length ? (
-        <section aria-labelledby="featured-projects-heading">
-          <div className="container mx-auto max-w-7xl px-4 pb-6 lg:px-8">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-accent">
-              Selected property work
-            </p>
-            <h2
-              id="featured-projects-heading"
-              className="mt-4 text-3xl font-bold md:text-5xl"
-            >
-              Featured projects
-            </h2>
-          </div>
-          {publishedProjects.map((project) => (
-            <PortfolioProject key={project.slug} project={project} />
-          ))}
-        </section>
+        <>
+          <section aria-labelledby="featured-projects-heading">
+            <div className="container mx-auto max-w-7xl px-4 pb-6 lg:px-8">
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-accent">
+                Selected property work
+              </p>
+              <h2
+                id="featured-projects-heading"
+                className="mt-4 text-3xl font-bold md:text-5xl"
+              >
+                Residential projects
+              </h2>
+            </div>
+            <div className="container mx-auto max-w-[96rem] px-4 lg:px-8 xl:grid xl:grid-cols-[minmax(0,1fr)_14rem] xl:gap-10">
+              <div className="xl:col-start-2 xl:row-start-1 xl:pt-8">
+                <PortfolioPropertyNavigator projects={portfolioNavigationProjects} />
+              </div>
+              <div className="min-w-0 xl:col-start-1 xl:row-start-1">
+                {publishedProjects.map((project) => (
+                  <PortfolioProject key={project.slug} project={project} />
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
       ) : (
         <section
           aria-labelledby="portfolio-preparation-heading"

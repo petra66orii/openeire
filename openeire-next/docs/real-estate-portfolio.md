@@ -36,12 +36,14 @@ or metadata. Use a general location such as `County Galway`.
 2. Add meaningful, non-identifying alt text and explicit pixel dimensions for
    every image. Omit video and floor-plan fields when those formats were not
    delivered or are not approved.
-3. Describe the public scope shown rather than applying a historical package
+3. Set a stable, county-level `anchorId` for the property navigator. Treat this
+   fragment as public copy: do not derive it from an address or exact locality.
+4. Describe the public scope shown rather than applying a historical package
    label. Package contents and names may change over time.
-4. Complete the privacy review and record the written approval.
-5. Add the safe internal approval reference, set
+5. Complete the privacy review and record the written approval.
+6. Add the safe internal approval reference, set
    `portfolioPermissionConfirmed: true`, then set `published: true`.
-6. Run the checks below and review the generated HTML for private identifiers.
+7. Run the checks below and review the generated HTML for private identifiers.
 
 To unpublish immediately, set either `published` or
 `portfolioPermissionConfirmed` to `false`. The filter requires both flags plus
@@ -129,7 +131,9 @@ release. Historical booking data must never be imported into this catalogue.
 
 The demonstrated-format cards are derived from authorised, published project
 data. Photography formats require an actual hero or gallery image. Ground,
-aerial and social video formats require their corresponding video fields, and
-the floor-plan format requires an actual approved floor-plan image. Do not add
-format fields merely to advertise services; the commercial package catalogue
+aerial, combined-property and social video formats require their corresponding
+video fields, and the floor-plan format requires at least one actual approved
+image in `floorPlanImages`. Multiple storeys belong to one floor-plan
+deliverable and should be grouped in that array. Do not add format fields merely
+to advertise services; the commercial package catalogue
 is the authority for what OpenÉire sells.

@@ -4,6 +4,19 @@
   width: 100%;
 }
 
+.gridGallery {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.floorPlanGallery {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 56rem;
+}
+
 .row {
   width: 100%;
   overflow-x: auto;
@@ -50,6 +63,17 @@
   scroll-snap-align: start;
 }
 
+.card.gridCard,
+.card.floorPlanCard {
+  width: 100%;
+  height: auto;
+}
+
+.floorPlanCard {
+  border-color: rgb(255 255 255 / 20%);
+  background: white;
+}
+
 .cardButton {
   position: relative;
   display: block;
@@ -84,6 +108,19 @@
   height: 100%;
   object-fit: contain;
   transition: filter 300ms ease;
+}
+
+.gridImage {
+  width: 100%;
+  max-width: 100%;
+  object-fit: cover;
+}
+
+.floorPlanImage {
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem;
+  object-fit: contain;
 }
 
 .cardButton:hover .galleryImage {
@@ -135,6 +172,15 @@
     gap: 1.25rem;
   }
 
+  .gridGallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .floorPlanImage {
+    padding: 2rem;
+  }
+
   .row {
     padding-inline: 1.5rem;
   }
@@ -153,6 +199,10 @@
 @media (min-width: 1024px) {
   .gallery {
     gap: 1.5rem;
+  }
+
+  .gridGallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .row {

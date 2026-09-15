@@ -10,6 +10,9 @@ import type { PortfolioImage } from "@/lib/realEstatePortfolio";
 type PortfolioGalleryProps = {
   images: readonly PortfolioImage[];
   projectSlug: string;
+  mode?: "marquee" | "grid" | "floorPlan";
+  galleryLabel?: string;
+  viewerLabel?: string;
 };
 
 export type PortfolioGalleryEntry = {
@@ -36,6 +39,9 @@ export const splitPortfolioGalleryRows = (
 export function PortfolioGallery({
   images,
   projectSlug,
+  mode = "marquee",
+  galleryLabel = "Property photography gallery",
+  viewerLabel = "Property photography viewer",
 }: PortfolioGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [failedSources, setFailedSources] = useState<Set<string>>(
@@ -139,11 +145,18 @@ export function PortfolioGallery({
     originalIndex,
   }: PortfolioGalleryEntry) => {
     const failed = failedSources.has(image.src);
+    const staticMode = mode !== "marquee";
 
     return (
       <figure
         key={`${image.src}-${originalIndex}`}
-        className={styles.card}
+        className={`${styles.card} ${
+          mode === "grid"
+            ? styles.gridCard
+            : mode === "floorPlan"
+              ? styles.floorPlanCard
+              : ""
+        }`}
         style={{ aspectRatio: `${image.width} / ${image.height}` }}
         data-gallery-original="true"
       >
@@ -172,8 +185,21 @@ export function PortfolioGallery({
                 alt={image.alt}
                 width={image.width}
                 height={image.height}
-                sizes="(max-width: 767px) 82vw, (max-width: 1023px) 480px, 540px"
-                className={styles.galleryImage}
+                sizes={
+                  mode === "floorPlan"
+                    ? "(max-width: 896px) 100vw, 896px"
+                    : mode === "grid"
+                      ? "(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 400px"
+                      : "(max-width: 767px) 82vw, (max-width: 1023px) 480px, 540px"
+                }
+                className={`${styles.galleryImage} ${
+                  mode === "grid"
+                    ? styles.gridImage
+                    : mode === "floorPlan"
+                      ? styles.floorPlanImage
+                      : ""
+                }`}
+                loading={staticMode ? "lazy" : undefined}
                 onError={() => markFailed(image.src)}
               />
               <span className={styles.expandControl} aria-hidden="true">
@@ -214,55 +240,72 @@ export function PortfolioGallery({
     </div>
   );
 
+  const originalImages = images.map((image, originalIndex) =>
+    renderOriginal({ image, originalIndex }),
+  );
+
   return (
     <>
-      <div
-        className={styles.gallery}
-        role="region"
-        aria-label="Property photography gallery"
-        data-gallery-mode="responsive-marquee"
-      >
-        {rows.map((row, rowIndex) =>
-          row.length ? (
-            <div
-              key={`gallery-row-${rowIndex + 1}`}
-              className={styles.row}
-              data-gallery-row={rowIndex + 1}
-              data-direction={rowIndex === 0 ? "forward" : "reverse"}
-            >
+      {mode === "marquee" ? (
+        <div
+          className={styles.gallery}
+          role="region"
+          aria-label={galleryLabel}
+          data-gallery-mode="responsive-marquee"
+        >
+          {rows.map((row, rowIndex) =>
+            row.length ? (
               <div
-                className={`${styles.track} ${
-                  rowIndex === 0 ? styles.forward : styles.reverse
-                }`}
+                key={`gallery-row-${rowIndex + 1}`}
+                className={styles.row}
+                data-gallery-row={rowIndex + 1}
+                data-direction={rowIndex === 0 ? "forward" : "reverse"}
               >
                 <div
-                  className={styles.sequence}
-                  data-gallery-sequence="original"
+                  className={`${styles.track} ${
+                    rowIndex === 0 ? styles.forward : styles.reverse
+                  }`}
                 >
-                  {row.map(renderOriginal)}
-                </div>
-                {Array.from({ length: CLONE_SEQUENCE_COUNT }, (_, cloneIndex) => (
                   <div
-                    key={`gallery-row-${rowIndex + 1}-clone-${cloneIndex + 1}`}
-                    className={`${styles.sequence} ${styles.cloneSequence}`}
-                    aria-hidden="true"
-                    data-gallery-sequence="clone"
+                    className={styles.sequence}
+                    data-gallery-sequence="original"
                   >
-                    {row.map(renderClone)}
+                    {row.map(renderOriginal)}
                   </div>
-                ))}
+                  {Array.from({ length: CLONE_SEQUENCE_COUNT }, (_, cloneIndex) => (
+                    <div
+                      key={`gallery-row-${rowIndex + 1}-clone-${cloneIndex + 1}`}
+                      className={`${styles.sequence} ${styles.cloneSequence}`}
+                      aria-hidden="true"
+                      data-gallery-sequence="clone"
+                    >
+                      {row.map(renderClone)}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : null,
-        )}
-      </div>
+            ) : null,
+          )}
+        </div>
+      ) : (
+        <div
+          className={
+            mode === "floorPlan" ? styles.floorPlanGallery : styles.gridGallery
+          }
+          role="region"
+          aria-label={galleryLabel}
+          data-gallery-mode={mode === "floorPlan" ? "floor-plan" : "grid"}
+        >
+          {originalImages}
+        </div>
+      )}
 
       {activeImage ? (
         <div
           ref={dialogRef}
           role="dialog"
           aria-modal="true"
-          aria-label={`Property photography viewer, image ${activeIndex! + 1} of ${images.length}`}
+          aria-label={`${viewerLabel}, image ${activeIndex! + 1} of ${images.length}`}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 sm:p-8"
           onClick={(event) => {
             if (event.target === event.currentTarget) close();
