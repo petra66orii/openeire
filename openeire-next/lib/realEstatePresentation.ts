@@ -8,10 +8,10 @@ export const REAL_ESTATE_HERO_IMAGE = {
 } as const;
 
 export const REAL_ESTATE_PORTFOLIO_HERO_IMAGE = {
-  src: "https://media.openeire.ie/portfolio/county-galway-20260724/hero-v1.webp",
-  alt: "Exterior view of a residential property photographed by OpenÉire Studios",
-  width: 2500,
-  height: 1406,
+  src: "https://media.openeire.ie/portfolio/county-leitrim-20260803/road-shot.webp",
+  alt: "Tree-lined approach to a residential property in County Leitrim",
+  width: 8064,
+  height: 4536,
 } as const;
 
 export type RealEstateHeroImageConfig =
@@ -35,6 +35,10 @@ export const PORTFOLIO_FORMAT_DEFINITIONS = {
     title: "Aerial video",
     text: "Controlled aerial movement that helps establish scale and setting.",
   },
+  propertyFilm: {
+    title: "Property film — ground and aerial footage",
+    text: "A single listing film combining ground-level coverage with aerial context.",
+  },
   socialMediaCuts: {
     title: "Vertical social-media video",
     text: "Purpose-made vertical 9:16 video for listing channels.",
@@ -53,6 +57,7 @@ export const PORTFOLIO_FORMAT_ORDER: readonly PortfolioFormat[] = [
   "aerialStills",
   "groundVideo",
   "aerialVideo",
+  "propertyFilm",
   "socialMediaCuts",
   "floorPlan",
 ];

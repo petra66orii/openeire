@@ -1,12 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import RealEstatePage from "@/app/real-estate/page";
 import RealEstatePortfolioPage, {
   metadata,
 } from "@/app/real-estate/portfolio/page";
 import { PortfolioProject } from "@/components/real-estate/PortfolioProject";
+import { PortfolioPropertyNavigator } from "@/components/real-estate/PortfolioPropertyNavigator";
 import {
   REAL_ESTATE_PORTFOLIO_PROJECTS,
   getDemonstratedPortfolioFormats,
@@ -32,6 +33,7 @@ const buildProject = (
   overrides: Partial<RealEstatePortfolioProject> = {},
 ): RealEstatePortfolioProject => ({
   slug: "county-galway-residence",
+  anchorId: "county-galway-residence",
   title: "County Galway residential property",
   generalLocation: "County Galway",
   propertyType: "Detached residence",
@@ -57,8 +59,18 @@ const buildProject = (
   ...overrides,
 });
 
+const publishedProjectTitles = [
+  "Detached country residence in County Galway",
+  "Rural residence in County Galway",
+  "Residential property in County Galway",
+  "Woodland residence in County Leitrim",
+];
+
 describe("real-estate portfolio", () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
 
   it("renders the approved project, gallery, heading and CTAs", () => {
     render(<RealEstatePortfolioPage />);
@@ -79,7 +91,7 @@ describe("real-estate portfolio", () => {
     ).toBe("/real-estate");
     expect(
       screen.getByRole("heading", {
-        name: "Detached residence in County Galway",
+        name: "Detached country residence in County Galway",
       }),
     ).toBeTruthy();
     expect(
@@ -98,6 +110,116 @@ describe("real-estate portfolio", () => {
     expect(
       document.querySelector('[data-gallery-mode="responsive-marquee"]'),
     ).toBeTruthy();
+    expect(
+      document.querySelectorAll('[data-project-layout="editorial"]'),
+    ).toHaveLength(4);
+    expect(
+      screen.getAllByRole("link", { name: "Discuss a similar property" }),
+    ).toHaveLength(4);
+    const propertyNavigation = screen.getByRole("navigation", {
+      name: "Portfolio properties",
+    });
+    const propertyLinks = Array.from(
+      propertyNavigation.querySelectorAll<HTMLAnchorElement>("a"),
+    );
+    expect(
+      screen.getByText("Jump to property").parentElement?.className,
+    ).toContain("xl:hidden");
+    expect(screen.getByText("On this page").parentElement?.className).toContain(
+      "sticky",
+    );
+    expect(screen.getByText("On this page").parentElement?.className).toContain(
+      "xl:block",
+    );
+    expect(propertyLinks).toHaveLength(8);
+    expect(propertyLinks[0].className).toContain("focus-visible:ring-2");
+    expect(new Set(propertyLinks.map((link) => link.textContent))).toEqual(
+      new Set(publishedProjectTitles),
+    );
+    expect(new Set(propertyLinks.map((link) => link.getAttribute("href")))).toEqual(
+      new Set([
+        "#county-galway-country-residence",
+        "#county-galway-rural-residence",
+        "#county-galway-residential-property",
+        "#county-leitrim-woodland-residence",
+      ]),
+    );
+    for (const anchorId of [
+      "county-galway-country-residence",
+      "county-galway-rural-residence",
+      "county-galway-residential-property",
+      "county-leitrim-woodland-residence",
+    ]) {
+      expect(document.getElementById(anchorId)?.className).toContain(
+        "scroll-mt-",
+      );
+    }
+  });
+
+  it("updates the current property link as project sections intersect", () => {
+    let observerCallback: IntersectionObserverCallback | undefined;
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+
+    class IntersectionObserverMock {
+      readonly root = null;
+      readonly rootMargin = "";
+      readonly thresholds = [0];
+
+      constructor(callback: IntersectionObserverCallback) {
+        observerCallback = callback;
+      }
+
+      observe = observe;
+      unobserve = vi.fn();
+      disconnect = disconnect;
+      takeRecords = () => [];
+    }
+
+    vi.stubGlobal("IntersectionObserver", IntersectionObserverMock);
+
+    const projects = [
+      {
+        anchorId: "county-galway-country-residence",
+        title: publishedProjectTitles[0],
+      },
+      {
+        anchorId: "county-leitrim-woodland-residence",
+        title: publishedProjectTitles[3],
+      },
+    ];
+
+    render(
+      <>
+        <PortfolioPropertyNavigator projects={projects} />
+        <article id={projects[0].anchorId} />
+        <article id={projects[1].anchorId} />
+      </>,
+    );
+
+    expect(observe).toHaveBeenCalledTimes(2);
+
+    const leitrimSection = document.getElementById(projects[1].anchorId)!;
+    act(() => {
+      observerCallback?.(
+        [
+          {
+            target: leitrimSection,
+            isIntersecting: true,
+            boundingClientRect: { top: 120 },
+          } as unknown as IntersectionObserverEntry,
+        ],
+        {} as IntersectionObserver,
+      );
+    });
+
+    for (const link of screen.getAllByRole("link", {
+      name: publishedProjectTitles[3],
+    })) {
+      expect(link.getAttribute("aria-current")).toBe("location");
+    }
+
+    expect(disconnect).not.toHaveBeenCalled();
   });
 
   it("places a secondary portfolio link in the main real-estate hero", () => {
@@ -141,10 +263,10 @@ describe("real-estate portfolio", () => {
       height: 1406,
     });
     expect(REAL_ESTATE_PORTFOLIO_HERO_IMAGE).toMatchObject({
-      src: "https://media.openeire.ie/portfolio/county-galway-20260724/hero-v1.webp",
-      alt: "Exterior view of a residential property photographed by OpenÉire Studios",
-      width: 2500,
-      height: 1406,
+      src: "https://media.openeire.ie/portfolio/county-leitrim-20260803/road-shot.webp",
+      alt: "Tree-lined approach to a residential property in County Leitrim",
+      width: 8064,
+      height: 4536,
     });
 
     const pageSources = [
@@ -238,7 +360,7 @@ describe("real-estate portfolio", () => {
     );
 
     expect(project).toBeTruthy();
-    expect(project?.title).toBe("Detached residence in County Galway");
+    expect(project?.title).toBe("Detached country residence in County Galway");
     expect(project?.title).not.toMatch(/Woodland residence/i);
     expect(project?.packageName).toBe(
       "Residential property media coverage",
@@ -263,19 +385,22 @@ describe("real-estate portfolio", () => {
       height: 9,
     });
     expect(project?.deliverables).toContain("Ground property video");
+    expect(project?.deliverables).toContain("Measured 2D floor plan");
     expect(project?.aerialVideo).toBeUndefined();
     expect(project?.socialVideos).toBeUndefined();
-    expect(project?.floorPlanImage).toBeUndefined();
+    expect(project?.floorPlanImages).toHaveLength(2);
     expect(getDemonstratedPortfolioFormats()).toEqual([
       "photography",
       "aerialStills",
       "groundVideo",
+      "propertyFilm",
+      "floorPlan",
     ]);
     expect(
       getDemonstratedPortfolioFormats([
         { ...project!, published: true },
       ]),
-    ).toEqual(["photography", "aerialStills", "groundVideo"]);
+    ).toEqual(["photography", "aerialStills", "groundVideo", "floorPlan"]);
 
     const images = [project?.heroImage, ...(project?.galleryImages ?? [])];
     expect(images).toHaveLength(8);
@@ -312,19 +437,23 @@ describe("real-estate portfolio", () => {
     const allFormats = buildProject({
       groundVideo: video,
       aerialVideo: { ...video, youtubeVideoId: "JkLmNoPqR34" },
+      propertyFilm: { ...video, youtubeVideoId: "PrOpErTy123" },
       socialVideos: [{ ...video, youtubeVideoId: "StUvWxYzA56" }],
-      floorPlanImage: {
-        src: "/hero-poster.jpg",
-        alt: "Approved floor plan",
-        width: 1600,
-        height: 1200,
-      },
+      floorPlanImages: [
+        {
+          src: "/hero-poster.jpg",
+          alt: "Approved floor plan",
+          width: 1600,
+          height: 1200,
+        },
+      ],
     });
     expect(getDemonstratedPortfolioFormats([allFormats])).toEqual([
       "photography",
       "aerialStills",
       "groundVideo",
       "aerialVideo",
+      "propertyFilm",
       "socialMediaCuts",
       "floorPlan",
     ]);
@@ -345,8 +474,8 @@ describe("real-estate portfolio", () => {
       screen.queryByRole("heading", { name: "Vertical social-media video" }),
     ).toBeNull();
     expect(
-      screen.queryByRole("heading", { name: "Measured 2D floor plans" }),
-    ).toBeNull();
+      screen.getByRole("heading", { name: "Measured 2D floor plans" }),
+    ).toBeTruthy();
     expect(
       screen.getByRole("heading", {
         name: "Interior and exterior photography",
@@ -399,7 +528,7 @@ describe("real-estate portfolio", () => {
     ).toBeTruthy();
   });
 
-  it("features a single property film before deliverables and photography", () => {
+  it("centres a single property film between deliverables and photography", () => {
     render(<PortfolioProject project={REAL_ESTATE_PORTFOLIO_PROJECTS[0]} />);
 
     const filmHeading = screen.getByRole("heading", {
@@ -415,15 +544,97 @@ describe("real-estate portfolio", () => {
       '[data-property-video-layout="featured"]',
     );
 
-    expect(filmLayout?.className).toContain("max-w-3xl");
+    expect(filmLayout?.className).toContain("mx-auto");
+    expect(filmLayout?.className).toContain("max-w-4xl");
     expect(
-      filmHeading.compareDocumentPosition(deliverablesHeading) &
+      deliverablesHeading.compareDocumentPosition(filmHeading) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
       filmHeading.compareDocumentPosition(photographyHeading) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+  });
+
+  it("publishes the three owner-approved residential projects", () => {
+    const preparedProjects = REAL_ESTATE_PORTFOLIO_PROJECTS.filter(
+      ({ featured }) => !featured,
+    );
+
+    expect(preparedProjects.map(({ slug }) => slug)).toEqual([
+      "county-galway-residence-2026-08-06",
+      "county-galway-residence-2026-08-22",
+      "county-leitrim-residence-2026-08-03",
+    ]);
+    expect(preparedProjects.map(({ imageCount }) => imageCount)).toEqual([
+      7, 6, 5,
+    ]);
+    expect(preparedProjects.every(({ published }) => published)).toBe(true);
+    expect(
+      preparedProjects.every(
+        ({ portfolioPermissionConfirmed }) => portfolioPermissionConfirmed,
+      ),
+    ).toBe(true);
+    expect(preparedProjects.map(({ permissionReference }) => permissionReference)).toEqual([
+      "portfolio-owner-approval-killascaul-2026-09-15",
+      "portfolio-owner-approval-craughwell-2026-09-15",
+      "portfolio-owner-approval-lough-rynn-2026-09-15",
+    ]);
+
+    const killascaul = preparedProjects[0];
+    const craughwell = preparedProjects[1];
+    const loughRynn = preparedProjects[2];
+    expect(killascaul.galleryImages).toHaveLength(6);
+    expect(killascaul.propertyFilm?.youtubeVideoId).toBe("U9oni757G90");
+    expect(craughwell.galleryImages).toHaveLength(5);
+    expect(craughwell.propertyFilm?.youtubeVideoId).toBe("JAQxl0l3Spo");
+    expect(craughwell.floorPlanImages).toHaveLength(2);
+    expect(loughRynn.galleryImages).toHaveLength(4);
+    expect(loughRynn.propertyFilm).toBeUndefined();
+    expect(
+      REAL_ESTATE_PORTFOLIO_PROJECTS.flatMap((project) =>
+        [project.groundVideo, project.aerialVideo, project.propertyFilm]
+          .filter(Boolean)
+          .map((video) => video!.youtubeVideoId),
+      ),
+    ).toEqual(["MTGASk31sGo", "U9oni757G90", "JAQxl0l3Spo"]);
+    expect(getPublishedPortfolioProjects()).toEqual(
+      REAL_ESTATE_PORTFOLIO_PROJECTS,
+    );
+
+    const publicJsonLd = JSON.stringify(
+      buildPortfolioJsonLd(getPublishedPortfolioProjects()),
+    );
+    for (const project of preparedProjects) {
+      expect(publicJsonLd).not.toContain(project.permissionReference);
+    }
+
+    render(<RealEstatePortfolioPage />);
+    for (const project of preparedProjects) {
+      expect(document.body.innerHTML).not.toContain(project.permissionReference);
+    }
+  });
+
+  it("keeps specific localities out of public project copy and JSON-LD", () => {
+    render(<RealEstatePortfolioPage />);
+
+    const publicText = document.body.textContent ?? "";
+    const publicJsonLd = JSON.stringify(
+      buildPortfolioJsonLd(getPublishedPortfolioProjects()),
+    );
+
+    for (const locality of [
+      "Killenadeema",
+      "Killascaul",
+      "Craughwell",
+      "Lough Rynn",
+    ]) {
+      expect(publicText).not.toMatch(new RegExp(locality, "i"));
+      expect(publicJsonLd).not.toMatch(new RegExp(locality, "i"));
+    }
+
+    expect(publicText).toContain("County Galway");
+    expect(publicText).toContain("County Leitrim");
   });
 
   it("uses production metadata and the canonical portfolio URL", () => {
@@ -481,9 +692,9 @@ describe("real-estate portfolio", () => {
     expect(publicPortfolioSources).not.toMatch(
       /(?:import|from|require\()[^\n]*(?:booking|agreement|client-record)/i,
     );
-    expect(getPublishedPortfolioProjects()).toEqual([
-      REAL_ESTATE_PORTFOLIO_PROJECTS[0],
-    ]);
+    expect(getPublishedPortfolioProjects()).toEqual(
+      REAL_ESTATE_PORTFOLIO_PROJECTS,
+    );
     expect(publicPortfolioSources).not.toMatch(
       /\b[A-Z]\d{2}\s?[A-Z0-9]{4}\b/,
     );

@@ -122,6 +122,56 @@ describe("portfolio gallery", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
+  it("renders compact projects as a responsive grid without cloned media", () => {
+    const { container } = render(
+      <PortfolioGallery
+        images={images}
+        projectSlug="compact-project"
+        mode="grid"
+        galleryLabel="Compact project photography gallery"
+        viewerLabel="Compact project photography viewer"
+      />,
+    );
+
+    expect(
+      screen.getByRole("region", {
+        name: "Compact project photography gallery",
+      }),
+    ).toBeTruthy();
+    expect(
+      container.querySelector('[data-gallery-mode="grid"]'),
+    ).toBeTruthy();
+    expect(
+      container.querySelectorAll('[data-gallery-original="true"]'),
+    ).toHaveLength(images.length);
+    expect(container.querySelector('[data-gallery-sequence="clone"]')).toBeNull();
+  });
+
+  it("presents a floor plan prominently and opens it in a labelled viewer", () => {
+    const floorPlan = images[0];
+    const { container } = render(
+      <PortfolioGallery
+        images={[floorPlan]}
+        projectSlug="floor-plan-project"
+        mode="floorPlan"
+        galleryLabel="Measured 2D floor plan"
+        viewerLabel="Measured 2D floor plan viewer"
+      />,
+    );
+
+    expect(
+      container.querySelector('[data-gallery-mode="floor-plan"]'),
+    ).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole("button", { name: /Open image 1 of 1/i }),
+    );
+    expect(
+      screen.getByRole("dialog", {
+        name: /Measured 2D floor plan viewer, image 1 of 1/i,
+      }),
+    ).toBeTruthy();
+  });
+
   it("uses only the unique image sequence for lightbox navigation", async () => {
     render(<PortfolioGallery images={images} projectSlug="test-project" />);
     const firstTrigger = screen.getByRole("button", {

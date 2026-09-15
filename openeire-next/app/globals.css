@@ -106,6 +106,12 @@ html {
   overflow-x: clip;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.portfolio-property-navigation) {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   @apply bg-paper font-sans text-dark antialiased;
   margin: 0;
