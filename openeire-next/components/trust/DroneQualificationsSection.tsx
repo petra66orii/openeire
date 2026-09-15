@@ -3,6 +3,7 @@ import Link from "next/link";
 
 type Qualification = {
   title: string;
+  summaryLabel: string;
   alt: string;
   src: string;
   width: number;
@@ -15,6 +16,7 @@ type Qualification = {
 const qualifications: readonly Qualification[] = [
   {
     title: "IAA Registered",
+    summaryLabel: "IAA Registered",
     alt: "Irish Aviation Authority",
     src: "/qualifications/iaa.png",
     width: 381,
@@ -27,6 +29,7 @@ const qualifications: readonly Qualification[] = [
   },
   {
     title: "EASA A1/A3 and A2",
+    summaryLabel: "EASA A1/A3 & A2",
     alt: "European Union Aviation Safety Agency",
     src: "/qualifications/easa.png",
     width: 1280,
@@ -39,6 +42,7 @@ const qualifications: readonly Qualification[] = [
   },
   {
     title: "Safe Pass",
+    summaryLabel: "Safe Pass",
     alt: "Safe Pass",
     src: "/qualifications/safe-pass.png",
     width: 1500,
@@ -51,6 +55,7 @@ const qualifications: readonly Qualification[] = [
   },
   {
     title: "Coverdrone Insured",
+    summaryLabel: "Coverdrone Insured",
     alt: "Coverdrone",
     src: "/qualifications/coverdrone.png",
     width: 600,
@@ -62,6 +67,40 @@ const qualifications: readonly Qualification[] = [
       "Specialist commercial drone insurance with public-liability cover of up to €6.5 million per occurrence.",
   },
 ] as const;
+
+export function DroneQualificationsSummary() {
+  return (
+    <section
+      aria-label="Professional property-media credentials"
+      className="border-y border-slate-400/20 bg-[linear-gradient(180deg,#202936_0%,#18212c_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),inset_0_-1px_0_rgba(0,0,0,0.35)]"
+    >
+      <div className="container mx-auto grid max-w-7xl grid-cols-2 px-4 py-3 lg:grid-cols-4 lg:px-8">
+        {qualifications.map((qualification) => (
+          <div
+            key={qualification.title}
+            className="flex min-w-0 flex-col items-center justify-center gap-2 px-2 py-3 text-center lg:min-h-20 lg:flex-row lg:gap-4 lg:border-l lg:border-white/15 lg:px-5 lg:py-2 lg:first:border-l-0"
+            data-qualification-summary-item
+          >
+            <span className="flex h-10 w-full max-w-28 shrink-0 items-center justify-center">
+              <Image
+                src={qualification.src}
+                alt=""
+                width={qualification.width}
+                height={qualification.height}
+                sizes="(min-width: 1024px) 112px, 104px"
+                className="max-h-10 w-auto max-w-full object-contain"
+                aria-hidden="true"
+              />
+            </span>
+            <span className="max-w-36 text-[0.68rem] font-bold uppercase leading-5 tracking-[0.12em] text-gray-100 sm:text-xs">
+              {qualification.summaryLabel}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export function DroneQualificationsSection({
   variant,

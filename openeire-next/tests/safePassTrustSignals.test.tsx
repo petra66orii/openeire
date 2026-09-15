@@ -31,6 +31,45 @@ describe("drone qualification trust signals", () => {
   it("shows the full qualification section and accurate safety limitations", () => {
     render(<RealEstatePage />);
 
+    const summary = screen.getByRole("region", {
+      name: "Professional property-media credentials",
+    });
+    const summaryImages = Array.from(summary.querySelectorAll("img"));
+
+    expect(summary.className).toContain("bg-[linear-gradient");
+    expect(summary.className).not.toContain("bg-gray-950");
+    expect(
+      summary.querySelectorAll("[data-qualification-summary-item]"),
+    ).toHaveLength(4);
+    expect(summaryImages).toHaveLength(4);
+    expect(
+      summaryImages.every(
+        (image) =>
+          image.getAttribute("alt") === "" &&
+          image.getAttribute("aria-hidden") === "true",
+      ),
+    ).toBe(true);
+    expect(
+      summaryImages.map((image) =>
+        decodeURIComponent(image.getAttribute("src") ?? ""),
+      ),
+    ).toEqual([
+      expect.stringContaining("/qualifications/iaa.png"),
+      expect.stringContaining("/qualifications/easa.png"),
+      expect.stringContaining("/qualifications/safe-pass.png"),
+      expect.stringContaining("/qualifications/coverdrone.png"),
+    ]);
+    for (const label of [
+      "IAA Registered",
+      "EASA A1/A3 & A2",
+      "Safe Pass",
+      "Coverdrone Insured",
+    ]) {
+      expect(summary.textContent).toContain(label);
+    }
+    expect(summary.textContent).not.toMatch(
+      /operating restrictions|competency certificates|construction-safety|public-liability cover/i,
+    );
     expect(screen.getByRole("heading", { name: "Qualified, Insured and Safety-Conscious Drone Operations" })).toBeTruthy();
     expect(screen.getByText(/registered as a drone operator with the Irish Aviation Authority/)).toBeTruthy();
     expect(screen.getByText(/EASA Open Category A1\/A3 and A2 competency certificates/)).toBeTruthy();

@@ -9,6 +9,7 @@ import { CartBadge } from "@/components/cart/CartBadge";
 import {
   formatFreeShippingThreshold,
   FREE_SHIPPING_PROMO_ENABLED,
+  shouldShowFreeShippingPromoForPath,
 } from "@/lib/freeShipping";
 import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
 
@@ -195,7 +196,9 @@ export function Navbar() {
       ref={headerRef}
       className="fixed left-0 top-0 z-50 flex w-full flex-col transition-all duration-300"
     >
-      {showBanner && FREE_SHIPPING_PROMO_ENABLED ? (
+      {showBanner &&
+      FREE_SHIPPING_PROMO_ENABLED &&
+      shouldShowFreeShippingPromoForPath(pathname) ? (
         <div className="relative bg-dark px-4 py-2 text-xs font-medium text-white transition-all duration-300 ease-in-out">
           <div className="container mx-auto flex items-center justify-center text-center">
             <p className="tracking-wide">
