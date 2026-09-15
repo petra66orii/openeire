@@ -13,6 +13,7 @@ import {
   REAL_ESTATE_TURNAROUNDS,
   REAL_ESTATE_VAT_NOTE,
 } from "@/lib/realEstate";
+import { shouldShowFreeShippingPromoForPath } from "@/lib/freeShipping";
 
 vi.mock("@/components/ui/ToastProvider", () => ({
   useToast: () => ({ showToast: vi.fn() }),
@@ -70,6 +71,7 @@ describe("active real-estate pricing", () => {
       ),
     ).toHaveLength(1);
     expect(proPackage?.features).toContain("Vertical 9:16 social video");
+    expect(proPackage?.features).toContain("Commercial marketing licence");
     expect(premiumPackage?.text).toContain(
       "One combined 4K property film — 60–90 sec ground footage + 60–90 sec aerial footage (approx. 2–3 min total)",
     );
@@ -84,11 +86,20 @@ describe("active real-estate pricing", () => {
       ),
     ).toHaveLength(1);
     expect(premiumPackage?.features).toContain("Vertical 9:16 social video");
+    expect(premiumPackage?.features).toContain("Commercial marketing licence");
     expect(proPackage?.text).toContain("measured 2D floor plan");
     expect(proPackage?.text).toContain("vertical 9:16 social-media video");
     expect(REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY).toContain(
       "€10 per photograph",
     );
+  });
+
+  it("keeps the physical-shipping promotion out of real-estate routes", () => {
+    expect(shouldShowFreeShippingPromoForPath("/real-estate")).toBe(false);
+    expect(
+      shouldShowFreeShippingPromoForPath("/real-estate/portfolio"),
+    ).toBe(false);
+    expect(shouldShowFreeShippingPromoForPath("/art-prints")).toBe(true);
   });
 
   it("drives package cards and JSON-LD from the shared catalogue", () => {

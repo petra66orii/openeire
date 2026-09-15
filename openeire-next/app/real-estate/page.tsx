@@ -2,7 +2,10 @@ import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
 import { RealEstateHeroImage } from "@/components/real-estate/RealEstateHeroImage";
 import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquiryForm";
-import { DroneQualificationsSection } from "@/components/trust/DroneQualificationsSection";
+import {
+  DroneQualificationsSection,
+  DroneQualificationsSummary,
+} from "@/components/trust/DroneQualificationsSection";
 import {
   DEFAULT_SOCIAL_IMAGE_PATH,
   ORGANIZATION_LOGO_PATH,
@@ -358,26 +361,20 @@ export default function RealEstatePage() {
               Complete property photography, aerial drone media, video tours, floor plans and 3D virtual tours for estate agents, developers and private sellers.
             </p>
             <p className={proseClass}>
-              Based in County Galway, OpenÉire Studios provides listing-ready property media throughout Galway and across Connacht.
+              <strong>One booking. One organised property-media visit. Complete listing media.</strong>
             </p>
             <p className={proseClass}>
-              One carefully planned visit gives you professionally edited ground photography and, depending on your package, aerial drone stills, a measured floor plan and an interactive 3D tour. Pro and Premium include <strong>{REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}</strong>, while the vertical social-media video remains separate.
+              OpenÉire Studios coordinates the agreed capture through one supplier and one planned visit wherever access, weather, airspace and safe drone-operating conditions allow. Each package has a clear scope and listing-ready delivery.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a href="#enquiry" className="rounded-full bg-brand-500 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] transition hover:bg-brand-600">Request a Property Shoot</a>
-              <Link href={REAL_ESTATE_PORTFOLIO_PATH} className="rounded-full border border-white/30 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] transition hover:border-accent hover:text-accent">View Our Property Portfolio</Link>
+              <Link href={REAL_ESTATE_PORTFOLIO_PATH} className="rounded-full border border-white/30 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.18em] transition hover:border-accent hover:text-accent">View Residential Portfolio</Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section aria-label="Property media service assurances" className="border-y border-white/10 bg-gray-950">
-        <div className="container mx-auto grid max-w-7xl gap-4 px-4 py-6 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
-          {["Property photography packages from €175 total", "Commercial marketing licence included", "Clear business-day turnaround", "Drone capture subject to weather, airspace and safe operating conditions"].map((item) => (
-            <p key={item} className="flex gap-3 text-sm text-gray-300"><FaCheckCircle className="mt-1 shrink-0 text-brand-500" aria-hidden="true" />{item}</p>
-          ))}
-        </div>
-      </section>
+      <DroneQualificationsSummary />
 
       <main>
         <section className="py-20">
@@ -393,9 +390,20 @@ export default function RealEstatePage() {
         <section className="bg-gray-950 py-20">
           <div className="container mx-auto max-w-5xl px-4 lg:px-8">
             <h2 className="font-serif text-3xl font-bold md:text-5xl">Complete Property Media From One Team</h2>
-            <p className={proseClass}>Instead of coordinating separate photographers, drone operators and floor-plan providers, you can arrange the complete media package through one booking.</p>
+            <p className={proseClass}>Instead of coordinating separate photographers, drone operators, videographers and floor-plan providers, you can arrange the agreed listing media through one organised supplier.</p>
+            <p className={proseClass}>Photography, floor-plan scanning, video and suitable drone capture can be coordinated during one planned property visit where conditions allow.</p>
             <p className={proseClass}>Depending on the selected package, your property shoot may include:</p>
             <CheckList items={completeMedia} />
+            <p className="mt-8 max-w-3xl leading-relaxed text-gray-300">
+              See this workflow in practice across four residential projects, including three genuine property films and two measured-floor-plan examples.{" "}
+              <Link
+                href={REAL_ESTATE_PORTFOLIO_PATH}
+                className="font-bold text-accent underline decoration-accent/50 underline-offset-4 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                Explore the residential portfolio
+              </Link>
+              .
+            </p>
           </div>
         </section>
 

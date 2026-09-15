@@ -44,3 +44,6 @@ export const isFreeShippingCountryEligible = (countryCode?: string | null) =>
     countryCode &&
       FREE_SHIPPING_ELIGIBLE_COUNTRIES.includes(countryCode.toUpperCase()),
   );
+
+export const shouldShowFreeShippingPromoForPath = (pathname: string) =>
+  pathname !== "/real-estate" && !pathname.startsWith("/real-estate/");

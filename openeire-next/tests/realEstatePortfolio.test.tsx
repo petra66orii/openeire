@@ -226,7 +226,7 @@ describe("real-estate portfolio", () => {
     render(<RealEstatePage />);
 
     const portfolioLink = screen.getByRole("link", {
-      name: "View Our Property Portfolio",
+      name: "View Residential Portfolio",
     });
     expect(portfolioLink.getAttribute("href")).toBe(
       REAL_ESTATE_PORTFOLIO_PATH,
@@ -234,6 +234,21 @@ describe("real-estate portfolio", () => {
     expect(
       portfolioLink.closest("section")?.querySelector("h1")?.textContent,
     ).toBe("Property Photography and Drone Media in Galway and Across Connacht");
+    expect(
+      screen.getByText(
+        "One booking. One organised property-media visit. Complete listing media.",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        /four residential projects, including three genuine property films and two measured-floor-plan examples/i,
+      ),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "Explore the residential portfolio" })
+        .getAttribute("href"),
+    ).toBe(REAL_ESTATE_PORTFOLIO_PATH);
   });
 
   it("renders concise balanced package cards with Pro recommended", () => {
