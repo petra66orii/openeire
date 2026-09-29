@@ -26,10 +26,6 @@ export function CheckoutDiscountCard({
   return (
     <section className="rounded-2xl border border-white/10 bg-gray-950/90 p-6 shadow-2xl shadow-black/30">
       <h2 className="font-serif text-xl font-bold text-white">Discount Code</h2>
-      <p className="mt-2 text-xs leading-relaxed text-gray-500">
-        Discounts are validated by the backend and applied only where eligible.
-      </p>
-
       {appliedDiscount ? (
         <div className="mt-5 rounded-xl border border-brand-500/30 bg-brand-500/10 p-4">
           <div className="flex items-start justify-between gap-4">
@@ -59,7 +55,7 @@ export function CheckoutDiscountCard({
             value={value}
             onChange={(event) => onChange(event.target.value.toUpperCase())}
             disabled={disabled || isApplying}
-            placeholder="WELCOME10"
+            placeholder="Discount code"
             className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black px-4 py-3 text-sm font-bold uppercase tracking-[0.16em] text-white outline-none transition-colors placeholder:text-gray-700 focus:border-accent disabled:cursor-not-allowed disabled:opacity-60"
           />
           <button
