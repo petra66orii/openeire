@@ -257,16 +257,16 @@ describe("real-estate portfolio", () => {
     const proCard = screen
       .getByRole("heading", { name: "Pro — €419 Total" })
       .closest("article");
-    const essentialCard = screen
-      .getByRole("heading", { name: "Essential — €175 Total" })
+    const starterCard = screen
+      .getByRole("heading", { name: "Starter — €259 Total" })
       .closest("article");
     const customCard = screen
-      .getByRole("heading", { name: "Custom — Price on Application" })
+      .getByRole("heading", { name: "Custom / POA" })
       .closest("article");
 
     expect(proCard?.textContent).toContain("Recommended");
-    expect(proCard?.textContent).toContain("Vertical 9:16 social video");
-    expect(essentialCard?.textContent).not.toContain("duration of the active listing");
+    expect(proCard?.textContent).toContain("One separate vertical 9:16 social-media edit");
+    expect(starterCard?.textContent).not.toContain("duration of the active listing");
     expect(customCard?.className).toContain("lg:grid-cols-[0.75fr_1.5fr_auto]");
   });
 
@@ -685,7 +685,7 @@ describe("real-estate portfolio", () => {
   it("keeps vertical social video and floor plans in the commercial catalogue", () => {
     const commercialCatalogue = JSON.stringify(REAL_ESTATE_PACKAGES);
 
-    expect(commercialCatalogue).toMatch(/vertical 9:16 social-media video/i);
+    expect(commercialCatalogue).toMatch(/vertical 9:16 social-media edit/i);
     expect(commercialCatalogue).toMatch(/Measured 2D floor plan/i);
     expect(commercialCatalogue).not.toMatch(/square 1:1|portrait and square/i);
   });

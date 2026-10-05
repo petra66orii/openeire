@@ -85,7 +85,7 @@ describe("drone qualification trust signals", () => {
     ).toBeTruthy();
     expect(
       screen.getByText(
-        /Suitable for developments, active construction sites and multi-property projects, subject to site access and safety requirements\./,
+        /Recommended for substantial grounds, multiple buildings or accommodation units, land-heavy coverage/,
       ),
     ).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/IAA certified|Specific Category/i);
