@@ -10,7 +10,7 @@ import { FaArrowRight, FaFileContract, FaHome } from "react-icons/fa";
 export const metadata = buildPageMetadata({
   title: "Services | Commercial Licensing & Real Estate Media | OpenÉire Studios",
   description:
-    "Choose between commercial aerial licensing and real estate photography, drone video, and virtual tour services from OpenÉire Studios.",
+    "Choose between commercial aerial licensing and real estate photography, combined property films, and virtual tour services from OpenÉire Studios.",
   path: "/services",
   image: PUBLIC_IMAGES.heroPoster,
 });
@@ -20,7 +20,7 @@ const serviceCards = [
     title: "Real Estate Services",
     eyebrow: "Property media across Connacht",
     description:
-      "Book professional real estate photography, aerial drone video, vertical 9:16 social video, floor plans, and 3D virtual tours for property listings and developments.",
+      "Book professional real estate photography, one combined property film using ground and aerial footage, a separate vertical 9:16 social edit, floor plans, and 3D virtual tours for property listings and developments.",
     href: "/real-estate",
     cta: "View Real Estate Services",
     icon: <FaHome aria-hidden="true" />,

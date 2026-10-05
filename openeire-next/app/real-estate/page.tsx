@@ -18,7 +18,9 @@ import {
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import {
   REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
+  REAL_ESTATE_COMBINED_VIDEO_RUNTIME,
   REAL_ESTATE_PACKAGES,
+  REAL_ESTATE_STARTING_PRICE_COPY,
   REAL_ESTATE_VAT_NOTE,
 } from "@/lib/realEstate";
 import { REAL_ESTATE_PORTFOLIO_PATH } from "@/lib/realEstatePresentation";
@@ -47,11 +49,12 @@ const listingUses = [
 
 const completeMedia = [
   "Professionally edited interior and exterior photography",
-  "5–8 aerial drone stills in addition to the ground photographs",
+  "5–8 edited drone stills",
   "A measured 2D floor plan",
   REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
-  "Vertical 9:16 social-media video",
-  "A hosted 3D interactive virtual tour",
+  REAL_ESTATE_COMBINED_VIDEO_RUNTIME,
+  "One separate vertical 9:16 social-media edit",
+  "A hosted 3D interactive virtual tour for a suitable standard-sized property",
   "Commercial marketing rights for the active property listing",
 ];
 
@@ -74,34 +77,44 @@ const socialPlatforms = [
 
 const addOns = [
   {
-    title: "Additional Edited Photographs",
-    price: "€10 per photograph.",
+    title: "Additional edited photographs",
+    price: "€10 each",
     body: "Additional images must be agreed as part of the property scope.",
   },
   {
-    title: "Measured 2D Floor Plan",
-    price: "€75 total.",
-    body: "Available for the Essential package and suitable Custom bookings. A measured floor plan is already included in Starter, Pro and Premium.",
+    title: "Measured 2D floor plan",
+    price: "€75 guidance where the agreed work does not already include one",
+    body: "A measured floor plan is already included in Starter, Pro and Premium and is not charged again.",
   },
   {
-    title: "Hosted 3D Virtual Tour",
-    price: "€150 total.",
-    body: "Included in the Premium package. It may be added to another suitable package where the property and booking scope allow.",
+    title: "Hosted 3D virtual tour",
+    price: "from €150 for a suitable standard-sized property",
+    body: "Larger, scan-heavy or unusually complex properties are quoted according to size and scope. The standard suitable-property tour is already included in Premium.",
   },
   {
     title: "Same-Day Rush Delivery for Still Photography",
     price: "€75 total.",
-    body: "This rush service applies only to still photography. It does not accelerate ground-level video, drone video, vertical social-media video, 3D virtual tours, floor plans or other Premium-package outputs.",
+    body: "This rush service applies only to still photography. It does not accelerate property films, vertical social-media edits, 3D virtual tours, floor plans or other Premium-package outputs.",
   },
   {
-    title: "Extended Drone Video",
-    price: "€150 total.",
-    body: "Provides an extended aerial video of up to three minutes, fully edited.",
+    title: "Extended Property Film",
+    price: "quoted according to the additional filming and edit scope",
+    body: "Used where the extension combines ground and aerial footage. No automatic runtime is promised.",
   },
   {
-    title: "Additional Social-Media Video",
-    price: "€50 total.",
-    body: "Available for additional cuts, alternative formats or additional edits beyond the included vertical 9:16 version.",
+    title: "Additional social cut / format",
+    price: "€50",
+    body: "Applies to one defined additional cut or format. Additional revisions, substantially different edits or expanded production are scoped separately. Pro and Premium already include one standard vertical 9:16 edit.",
+  },
+  {
+    title: "Luxury / Architectural Photography",
+    price: "from €295",
+    body: "A higher-production photography service for distinctive, design-led or premium properties requiring more deliberate architectural coverage. Substantial, unusually large, multi-building or heavily bespoke luxury work routes to Custom / POA review.",
+  },
+  {
+    title: "Twilight / dusk photography",
+    price: "scope reviewed, typically from €150–€200",
+    body: "This is guidance only, not an automatic fixed price. It is scoped separately where another attendance is required.",
   },
   {
     title: "Travel Beyond 40 Kilometres",
@@ -145,7 +158,7 @@ const faqs = [
   {
     question: "How much does property photography cost in Galway?",
     answer:
-      `OpenÉire Studios property-photography packages begin at €175 total. The Starter package costs €259 and includes 25 ground photographs, 5–8 aerial drone stills and a measured 2D floor plan. The Pro package costs €419 and includes 30 ground photographs, drone stills, a measured floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, plus a separate vertical 9:16 social-media video. The Premium package costs €549 and adds five ground photographs and a hosted 3D virtual tour while retaining those video deliverables. Travel charges may apply beyond 40 kilometres from our base.`,
+      `${REAL_ESTATE_STARTING_PRICE_COPY} Starter is €259 total and includes typically 25–30 professionally edited interior and exterior photographs, 5–8 edited drone stills and a measured 2D floor plan. Pro is €419 total and includes typically 30–35 photographs, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE.toLowerCase()}, approximately 2–3 minutes where the property and agreed brief justify it, plus one separate vertical 9:16 social-media edit. Premium is €549 total, includes typically 35–40 photographs and adds a hosted 3D virtual tour for a suitable standard-sized property. Travel charges may apply beyond 40 kilometres from our base.`,
   },
   {
     question: "Do the prices include VAT?",
@@ -154,17 +167,17 @@ const faqs = [
   {
     question: "How quickly will I receive the property media?",
     answer:
-      "Essential and Starter packages are normally delivered by the end of the next business day. Pro and Premium packages are normally delivered within two business days because of the additional video-production workload. Turnaround begins after the shoot is complete and all required property and client information has been supplied. Weather-dependent return visits and agreed scope changes may affect delivery.",
+      "Starter is normally delivered by the end of the next business day. Pro and Premium are normally delivered within two business days because of the additional video-production workload. Turnaround begins after the shoot is complete and all required property and client information has been supplied. Weather-dependent return visits and agreed scope changes may affect delivery.",
   },
   {
     question: "Do the photograph numbers include the drone stills?",
     answer:
-      "No. The stated photograph numbers for Starter, Pro and Premium refer to professionally edited ground-level interior and exterior photographs. Each of those packages also includes 5–8 aerial drone stills on top of the stated ground-photo count.",
+      "No. The indicative photograph ranges for Starter, Pro and Premium refer to professionally edited interior and exterior photographs. Each package also includes 5–8 edited drone stills. Final gallery quantities depend on the property and agreed brief rather than being fixed minimums.",
   },
   {
     question: "Which packages include a floor plan?",
     answer:
-      "A measured 2D floor plan is included in Starter, Pro and Premium. It can be added to Essential for €75 and may also be included in a suitable Custom quotation.",
+      "A measured 2D floor plan is included in Starter, Pro and Premium. The current €75 guidance applies only to suitable work that does not already include one.",
   },
   {
     question: "Can the drone be flown at every property?",
@@ -209,17 +222,17 @@ const faqs = [
   {
     question: "Is drone photography included in every package?",
     answer:
-      "Drone stills are included with Starter, Pro and Premium. Essential includes ground-level interior and exterior photography only.",
+      "Drone stills are included with Starter, Pro and Premium. Custom / POA work is scoped according to the property and brief.",
   },
   {
     question: "Are vertical social-media videos included?",
     answer:
-      "A vertical 9:16 social-media video is included with Pro and Premium. Additional cuts, alternative formats or extra edits may be arranged for €50.",
+      "One separate vertical 9:16 social-media edit is included with Pro and Premium. One defined additional social cut or format may be arranged for €50; expanded production is scoped separately.",
   },
   {
     question: "Is a 3D virtual tour included?",
     answer:
-      "A hosted, shareable 3D virtual tour is included with Premium. It can be added to another suitable package for €150 where the property and booking scope allow.",
+      "A hosted 3D virtual tour for a suitable standard-sized property is included with Premium. For other suitable work it starts from €150. Larger, scan-heavy or unusually complex properties are quoted according to size and scope.",
   },
 ];
 
@@ -324,12 +337,18 @@ function PackageCard({
           </span>
         ) : null}
         <h3 className="font-serif text-2xl font-bold">
-          {item.name} — {item.price === "POA" ? "Price on Application" : `${item.price.replace(" total", "")} Total`}
+          {item.id === "custom" ? item.name : `${item.name} — ${item.price.replace(" total", "")} Total`}
         </h3>
         <p className="mt-3 text-sm leading-relaxed text-gray-400">{item.description}</p>
       </div>
       <div className={secondary ? "mt-5 lg:mt-0" : "flex-1"}>
         <CheckList items={item.features} />
+        {"galleryQualifier" in item ? (
+          <p className="mt-5 text-xs leading-relaxed text-gray-500">{item.galleryQualifier}</p>
+        ) : null}
+        {"virtualTourQualifier" in item ? (
+          <p className="mt-3 text-xs leading-relaxed text-gray-500">{item.virtualTourQualifier}</p>
+        ) : null}
       </div>
       <a
         href={`/real-estate?package=${item.id}#enquiry`}
@@ -421,32 +440,33 @@ export default function RealEstatePage() {
               <p className={proseClass}>Drone stills show how the property relates to its wider site and surroundings.</p>
               <p className={proseClass}>They are especially useful for:</p>
               <CheckList items={droneUses} />
-              <p className={proseClass}>The Starter, Pro and Premium packages include <strong>5–8 aerial drone stills on top of the stated number of ground photographs</strong>.</p>
+              <p className={proseClass}>The Starter, Pro and Premium packages include <strong>5–8 edited drone stills alongside the indicative interior and exterior photograph range</strong>.</p>
               <p className={proseClass}>All aerial work is subject to suitable weather, site access, airspace restrictions and safe operating conditions.</p>
             </article>
             <article className="rounded-3xl border border-white/10 bg-gray-950 p-7">
               <h2 className="font-serif text-3xl font-bold">Combined 4K Property Film</h2>
               <p className={proseClass}><strong>{REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}</strong></p>
-              <p className={proseClass}>It is delivered as one final property film, not separate full-length ground and aerial films. The included vertical 9:16 social-media video remains a separate deliverable.</p>
+              <p className={proseClass}>{REAL_ESTATE_COMBINED_VIDEO_RUNTIME}.</p>
+              <p className={proseClass}>It is delivered as one final property film, not separate full-length ground and aerial films. The included vertical 9:16 social-media edit remains a separate deliverable.</p>
             </article>
             <article className="rounded-3xl border border-white/10 bg-gray-950 p-7">
               <h2 className="font-serif text-3xl font-bold">Vertical Social-Media Video</h2>
-              <p className={proseClass}>The Pro and Premium packages include a vertical 9:16 social-media video prepared for platforms such as:</p>
+              <p className={proseClass}>The Pro and Premium packages include one separate vertical 9:16 social-media edit prepared for platforms such as:</p>
               <CheckList items={socialPlatforms} />
-              <p className={proseClass}>Additional social-media cuts, alternative formats or extra edits may be arranged for €50.</p>
+              <p className={proseClass}>An additional social cut / format is €50 for one defined additional cut or format. Additional revisions, substantially different edits or expanded production are scoped separately.</p>
             </article>
             <article className="rounded-3xl border border-white/10 bg-gray-950 p-7">
               <h2 className="font-serif text-3xl font-bold">2D Measured Floor Plans</h2>
               <p className={proseClass}>A measured floor plan helps buyers understand the layout and relationship between rooms.</p>
               <p className={proseClass}>The floor plan is intended for property-marketing purposes and is supplied as a clear digital asset for listings, websites and brochures.</p>
               <p className={proseClass}>A measured 2D floor plan is included in the Starter, Pro and Premium packages.</p>
-              <p className={proseClass}>It remains available as a €75 add-on for the Essential package and suitable Custom bookings.</p>
+              <p className={proseClass}>Current €75 guidance applies to suitable work that does not already include one.</p>
             </article>
             <article className="rounded-3xl border border-white/10 bg-gray-950 p-7">
               <h2 className="font-serif text-3xl font-bold">Hosted 3D Virtual Tours</h2>
               <p className={proseClass}>A 3D virtual tour allows prospective buyers to explore the property online and move through the rooms at their own pace.</p>
               <p className={proseClass}>It can provide useful additional context for remote buyers and help interested parties understand the property before attending a viewing.</p>
-              <p className={proseClass}>A hosted 3D virtual tour costs €150 as an add-on and is included in the Premium package.</p>
+              <p className={proseClass}>A hosted 3D virtual tour starts from €150 for a suitable standard-sized property and is included in Premium. Larger, scan-heavy or unusually complex properties are quoted according to size and scope.</p>
             </article>
           </div>
         </section>
@@ -454,16 +474,17 @@ export default function RealEstatePage() {
         <section id="packages" className="scroll-mt-32 bg-gray-950 py-20">
           <div className="container mx-auto max-w-7xl px-4 lg:px-8">
             <h2 className="font-serif text-3xl font-bold md:text-5xl">Property Photography Packages</h2>
+            <p className={proseClass}><strong>{REAL_ESTATE_STARTING_PRICE_COPY}</strong></p>
             <p className={proseClass}>{REAL_ESTATE_VAT_NOTE}</p>
             <p className={proseClass}>Standard package pricing applies within 40 kilometres of our base. A travel supplement applies beyond that distance.</p>
             <p className={proseClass}>Turnaround begins once the shoot has been completed and all required property and client information has been supplied. Weather-dependent return visits and agreed changes to the scope may affect delivery.</p>
-            <div className="mt-10 grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-4">
-              {REAL_ESTATE_PACKAGES.slice(0, 4).map((item) => (
+            <div className="mt-10 grid items-stretch gap-5 md:grid-cols-3">
+              {REAL_ESTATE_PACKAGES.slice(0, 3).map((item) => (
                 <PackageCard key={item.id} item={item} />
               ))}
             </div>
             <div className="mt-5">
-              <PackageCard item={REAL_ESTATE_PACKAGES[4]} secondary />
+              <PackageCard item={REAL_ESTATE_PACKAGES[3]} secondary />
             </div>
           </div>
         </section>
@@ -480,6 +501,11 @@ export default function RealEstatePage() {
                   <p className={proseClass}>{item.body}</p>
                 </article>
               ))}
+            </div>
+            <div className="mt-8 space-y-3 rounded-3xl border border-white/10 bg-gray-950 p-6 text-sm leading-relaxed text-gray-300">
+              <p>Scripted, multi-take or substantial presenter-led production is quoted separately.</p>
+              <p>Additional attendance may be chargeable where a return visit is required because of newly added requirements, unavailable access, property readiness issues or an expanded scope requested after the agreed shoot.</p>
+              <p>No additional attendance charge applies where the return is required because OpenÉire failed to capture an item that was already clearly included in the agreed scope.</p>
             </div>
           </div>
         </section>

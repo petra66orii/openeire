@@ -32,7 +32,7 @@ const services = [
   {
     title: "Property Media",
     description:
-      "Real estate photography, drone video, and 3D virtual tours for agents, developers, landlords, and private sellers across Connacht.",
+      "Real estate photography, combined ground-and-aerial property films, and 3D virtual tours for agents, developers, landlords, and private sellers across Connacht.",
     link: "/real-estate",
     cta: "View Real Estate Services",
     icon: <FaHome className="h-10 w-10 text-paper" />,
