@@ -29,6 +29,7 @@ import {
 import type {
   AddOnKey,
   ClientType,
+  CustomReviewReason,
   HowHeard,
   PackageType,
   PropertyCategory,
@@ -59,6 +60,8 @@ type FormData = Omit<
   | "how_heard"
   | "internal_floor_area"
   | "additional_stills_quantity"
+  | "custom_review_reasons"
+  | "custom_review_notes"
 > & {
   client_type: "" | ClientType;
   preferred_package: "" | PackageType;
@@ -92,6 +95,8 @@ type FormData = Omit<
   how_heard: "" | HowHeard;
   message: string;
   add_ons: AddOnKey[];
+  custom_review_reasons: CustomReviewReason[];
+  custom_review_notes: string;
 };
 
 type FormErrors = Partial<Record<keyof FormData | "submit", string>>;
@@ -137,6 +142,8 @@ const initialFormData: FormData = {
   audio_requirements: "",
   how_heard: "",
   message: "",
+  custom_review_reasons: [],
+  custom_review_notes: "",
   consent_to_contact: false,
 };
 
@@ -146,19 +153,58 @@ const counties = [
   "Mayo", "Meath", "Monaghan", "Offaly", "Roscommon", "Sligo", "Tipperary",
   "Waterford", "Westmeath", "Wexford", "Wicklow",
 ];
-const addOns: Array<{ key: AddOnKey; label: string; price: string }> = [
-  { key: "additional_stills", label: "Additional edited photographs", price: "€10 per photograph (maximum 50)" },
-  { key: "floor_plan", label: "2D measured floor plan", price: "€75" },
-  { key: "virtual_tour_3d", label: "Hosted 3D virtual tour", price: "€150" },
+const addOns: Array<{ key: AddOnKey; label: string; price: string; qualifier?: string }> = [
+  { key: "additional_stills", label: "Additional edited photographs", price: "€10 each (maximum 50)" },
+  { key: "floor_plan", label: "Measured 2D floor plan", price: "€75" },
+  {
+    key: "virtual_tour_3d",
+    label: "Hosted 3D virtual tour",
+    price: "from €150 for a suitable standard-sized property",
+    qualifier: "Larger, scan-heavy or unusually complex properties are quoted according to size and scope.",
+  },
   { key: "rush_delivery", label: REAL_ESTATE_RUSH_DELIVERY_LABEL, price: "€75" },
-  { key: "extended_drone_video", label: "Extended drone video, up to 3 minutes", price: "€150" },
-  { key: "additional_social_cuts", label: "Additional social formats / cuts", price: "€50" },
+  {
+    key: "extended_property_film",
+    label: "Extended Property Film",
+    price: "quoted according to the additional filming and edit scope",
+  },
+  {
+    key: "additional_social_cuts",
+    label: "Additional social cut / format",
+    price: "€50",
+    qualifier: "Applies to one defined additional cut or format. Additional revisions, substantially different edits or expanded production are scoped separately.",
+  },
+  {
+    key: "luxury_architectural",
+    label: "Luxury / Architectural Photography",
+    price: "from €295",
+    qualifier: "A higher-production photography service for distinctive, design-led or premium properties requiring more deliberate architectural coverage.",
+  },
+  {
+    key: "twilight_dusk",
+    label: "Twilight / dusk photography",
+    price: "scope reviewed, typically from €150–€200",
+    qualifier: "Guidance only. Scope is reviewed separately, especially where another attendance is required.",
+  },
 ];
 const conflicts: Partial<Record<PackageType, AddOnKey[]>> = {
   starter: ["floor_plan"],
   pro: ["floor_plan"],
   premium: ["floor_plan", "virtual_tour_3d"],
 };
+
+const customReviewOptions: Array<{ key: CustomReviewReason; label: string }> = [
+  { key: "substantial_grounds", label: "Substantial grounds" },
+  { key: "multiple_buildings", label: "Multiple buildings" },
+  { key: "multiple_units", label: "Multiple accommodation units" },
+  { key: "land_heavy", label: "Land-heavy coverage" },
+  { key: "unusually_large", label: "Unusually large property" },
+  { key: "luxury_architectural", label: "Luxury / architectural scope materially beyond the standard packages" },
+  { key: "extensive_twilight", label: "Extensive twilight requirements" },
+  { key: "substantial_presenter", label: "Scripted, multi-take or substantial presenter-led production" },
+  { key: "bespoke_film", label: "Bespoke or complex film requirements" },
+  { key: "unsure", label: "Unsure / request review" },
+];
 
 const inputClass =
   "w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3 text-white outline-none transition focus:border-[#16a34a] focus:ring-1 focus:ring-[#16a34a]";
@@ -288,6 +334,29 @@ export function RealEstateEnquiryForm() {
     setErrors((current) => ({ ...current, add_ons: undefined, additional_stills_quantity: undefined }));
   };
 
+  const toggleCustomReviewReason = (key: CustomReviewReason) => {
+    setFormData((current) => {
+      const selected = current.custom_review_reasons.includes(key);
+      const custom_review_reasons = selected
+        ? current.custom_review_reasons.filter((item) => item !== key)
+        : [...current.custom_review_reasons, key];
+      return {
+        ...current,
+        custom_review_reasons,
+        preferred_package: custom_review_reasons.length ? "custom" : current.preferred_package,
+      };
+    });
+    setPackageNotice(
+      "Complex-property details route this enquiry to Custom / POA review before pricing or booking.",
+    );
+    setErrors((current) => ({
+      ...current,
+      preferred_package: undefined,
+      custom_review_reasons: undefined,
+      submit: undefined,
+    }));
+  };
+
   const validate = () => {
     const next: FormErrors = {};
     const required: Array<[keyof FormData, string]> = [
@@ -351,6 +420,12 @@ export function RealEstateEnquiryForm() {
         next.additional_stills_quantity = "Choose a whole number from 1 to 50.";
       }
     }
+    if (
+      formData.custom_review_reasons.length &&
+      !["custom", "not_sure"].includes(formData.preferred_package)
+    ) {
+      next.preferred_package = "This scope requires Custom / POA review.";
+    }
     if (!formData.readiness_acknowledged) next.readiness_acknowledged = "Please acknowledge the readiness requirement.";
     if (!formData.consent_to_contact) next.consent_to_contact = "Please confirm we may contact you about this enquiry.";
     return next;
@@ -369,7 +444,7 @@ export function RealEstateEnquiryForm() {
   };
 
   const buildPayload = (): RealEstateEnquiryPayload => ({
-    form_schema_version: 2,
+    form_schema_version: 3,
     name: trim(formData.name),
     email: trim(formData.email),
     phone: trim(formData.phone),
@@ -412,6 +487,8 @@ export function RealEstateEnquiryForm() {
     audio_requirements: formData.on_camera === "yes" ? optional(formData.audio_requirements) : undefined,
     how_heard: formData.how_heard || undefined,
     message: optional(formData.message),
+    custom_review_reasons: formData.custom_review_reasons,
+    custom_review_notes: optional(formData.custom_review_notes),
     consent_to_contact: formData.consent_to_contact,
   });
 
@@ -490,7 +567,7 @@ export function RealEstateEnquiryForm() {
                   {REAL_ESTATE_ENQUIRY_PACKAGES.map((packageItem) =>
                     option(
                       packageItem.id,
-                      packageItem.id === "not_sure"
+                      packageItem.id === "not_sure" || packageItem.id === "custom"
                         ? packageItem.name
                         : `${packageItem.name} — ${packageItem.price.replace(" total", "")}`,
                     ),
@@ -542,6 +619,31 @@ export function RealEstateEnquiryForm() {
             <Field inputId="real-estate-property-features" label="Other features affecting coverage" error={errors.property_features}><textarea id="real-estate-property-features" name="property_features" value={formData.property_features} onChange={change} className={inputClass} rows={2} {...a11y("property_features")} /></Field>
           </Section>
 
+          <Section title="Custom / POA scope review">
+            <p className="text-sm leading-relaxed text-gray-300">
+              Select anything that applies. These cases are reviewed before pricing and cannot proceed through an ordinary package booking until the scope is approved.
+            </p>
+            <div className="grid gap-3 md:grid-cols-2">
+              {customReviewOptions.map((item) => (
+                <label key={item.key} className="flex gap-3 rounded-xl border border-white/10 p-4 text-sm">
+                  <input
+                    type="checkbox"
+                    name="custom_review_reasons"
+                    value={item.key}
+                    checked={formData.custom_review_reasons.includes(item.key)}
+                    onChange={() => toggleCustomReviewReason(item.key)}
+                  />
+                  <span>{item.label}</span>
+                </label>
+              ))}
+            </div>
+            {formData.custom_review_reasons.length ? (
+              <Field inputId="real-estate-custom-review-notes" label="Scope review details" error={errors.custom_review_notes}>
+                <textarea id="real-estate-custom-review-notes" name="custom_review_notes" value={formData.custom_review_notes} onChange={change} className={inputClass} rows={3} {...a11y("custom_review_notes")} />
+              </Field>
+            ) : null}
+          </Section>
+
           <Section title="Access & shoot readiness">
             <div className="grid gap-5 md:grid-cols-2">
               <Field inputId="real-estate-occupancy-status" label="Occupancy status" required error={errors.occupancy_status}><select id="real-estate-occupancy-status" name="occupancy_status" value={formData.occupancy_status} onChange={change} className={inputClass} {...a11y("occupancy_status")}><option value="">Select…</option>{option("vacant", "Vacant")}{option("owner_occupied", "Owner occupied")}{option("tenant_occupied", "Tenant occupied")}{option("new_build_site", "New build / site")}{option("other", "Other")}</select></Field>
@@ -565,7 +667,7 @@ export function RealEstateEnquiryForm() {
 
           <Section title="Optional add-ons">
             {packageNotice ? <p role="status" className="rounded-xl bg-amber-400/10 p-3 text-sm text-amber-100">{packageNotice}</p> : null}
-            <div className="grid gap-3 md:grid-cols-2">{shownAddOns.map((item) => <label key={item.key} className="flex gap-3 rounded-xl border border-white/10 p-4"><input type="checkbox" name="add_ons" value={item.key} checked={formData.add_ons.includes(item.key)} onChange={() => toggleAddOn(item.key)} /><span><strong className="block">{item.label}</strong><span className="text-sm text-gray-500">{item.price}</span></span></label>)}</div>
+            <div className="grid gap-3 md:grid-cols-2">{shownAddOns.map((item) => <label key={item.key} className="flex gap-3 rounded-xl border border-white/10 p-4"><input type="checkbox" name="add_ons" value={item.key} checked={formData.add_ons.includes(item.key)} onChange={() => toggleAddOn(item.key)} /><span><strong className="block">{item.label}</strong><span className="block text-sm text-gray-500">{item.price}</span>{item.qualifier ? <span className="mt-1 block text-xs leading-relaxed text-gray-500">{item.qualifier}</span> : null}</span></label>)}</div>
             {formData.add_ons.includes("additional_stills") ? <Field inputId="real-estate-additional-stills-quantity" label="Number of additional edited photographs" required error={errors.additional_stills_quantity} hint={REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY}><input id="real-estate-additional-stills-quantity" name="additional_stills_quantity" type="number" min="1" max="50" step="1" value={formData.additional_stills_quantity} onChange={change} className={inputClass} {...a11y("additional_stills_quantity")} /></Field> : null}
             {formData.add_ons.includes("rush_delivery") ? <p className="text-sm text-amber-200">{REAL_ESTATE_RUSH_DELIVERY_NOTE}</p> : null}
             <p className="text-xs text-gray-500">{REAL_ESTATE_VAT_NOTE}</p>
