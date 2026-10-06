@@ -37,6 +37,10 @@ describe("active real-estate pricing", () => {
   });
 
   it("publishes the authoritative package prices and photograph allowances", () => {
+    expect(REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE).toBe(
+      "One combined cinematic 4K property film using ground and aerial footage, typically 2–3 minutes depending on the property and agreed brief",
+    );
+
     expect(
       Object.fromEntries(
         REAL_ESTATE_PACKAGES.map(
@@ -62,6 +66,7 @@ describe("active real-estate pricing", () => {
       "One combined cinematic 4K property film using ground and aerial footage",
     );
     expect(proPackage?.text).toContain("one separate vertical 9:16 social-media edit");
+    expect(proPackage?.text.match(/2–3 minutes/g)).toHaveLength(1);
     expect(proPackage?.text).not.toContain("separate 60–90 second 4K aerial drone video");
     expect(proPackage?.features).toContain(REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE);
     expect(
@@ -75,6 +80,7 @@ describe("active real-estate pricing", () => {
       "One combined cinematic 4K property film using ground and aerial footage",
     );
     expect(premiumPackage?.text).toContain("one separate vertical 9:16 social-media edit");
+    expect(premiumPackage?.text.match(/2–3 minutes/g)).toHaveLength(1);
     expect(premiumPackage?.text).toContain("hosted 3D virtual tour for a suitable standard-sized property");
     expect(premiumPackage?.features).toContain(
       REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,

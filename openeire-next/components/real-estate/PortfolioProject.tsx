@@ -166,7 +166,7 @@ export function PortfolioProject({
 
       <div className="container mx-auto mt-14 flex max-w-7xl flex-col gap-4 px-4 sm:flex-row lg:px-8">
         <PortfolioTrackedLink
-          href="/real-estate#enquiry"
+          href="/real-estate#enquire"
           eventName="portfolio_enquiry_cta"
           eventLocation={`project:${project.slug}`}
           className="rounded-full bg-brand-500 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.16em] text-white hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"

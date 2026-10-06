@@ -61,9 +61,7 @@ export const REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_PRICE = 10;
 export const REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY =
   "Additional edited photographs — €10 each";
 export const REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE =
-  "One combined cinematic 4K property film using ground and aerial footage";
-export const REAL_ESTATE_COMBINED_VIDEO_RUNTIME =
-  "Approx. 2–3 minutes where the property and agreed brief justify it";
+  "One combined cinematic 4K property film using ground and aerial footage, typically 2–3 minutes depending on the property and agreed brief";
 export const REAL_ESTATE_GALLERY_QUALIFIER =
   "Photo quantities are indicative rather than a fixed minimum. The final gallery depends on the property’s size, layout, presentation, access and agreed brief, with priority given to a strong, non-repetitive set of marketing images.";
 export const REAL_ESTATE_STARTING_PRICE_COPY =
@@ -111,13 +109,12 @@ export const REAL_ESTATE_PACKAGES = [
       "5–8 edited drone stills",
       "Measured 2D floor plan",
       REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
-      REAL_ESTATE_COMBINED_VIDEO_RUNTIME,
       "One separate vertical 9:16 social-media edit",
       "Full-resolution delivery",
       "Two-business-day delivery",
       "Commercial marketing licence",
     ],
-    text: `Typically 30–35 professionally edited interior and exterior photographs, 5–8 edited drone stills, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, approximately 2–3 minutes where the property and agreed brief justify it, one separate vertical 9:16 social-media edit, ${REAL_ESTATE_TURNAROUNDS.pro.label.toLowerCase()}, and commercial marketing licence.`,
+    text: `Typically 30–35 professionally edited interior and exterior photographs, 5–8 edited drone stills, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, one separate vertical 9:16 social-media edit, ${REAL_ESTATE_TURNAROUNDS.pro.label.toLowerCase()}, and commercial marketing licence.`,
     galleryQualifier: REAL_ESTATE_GALLERY_QUALIFIER,
     turnaround: REAL_ESTATE_TURNAROUNDS.pro,
   },
@@ -137,14 +134,13 @@ export const REAL_ESTATE_PACKAGES = [
       "5–8 edited drone stills",
       "Measured 2D floor plan",
       REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
-      REAL_ESTATE_COMBINED_VIDEO_RUNTIME,
       "One separate vertical 9:16 social-media edit",
       "Hosted 3D virtual tour for a suitable standard-sized property",
       "Full-resolution delivery",
       "Two-business-day delivery",
       "Commercial marketing licence",
     ],
-    text: `Typically 35–40 professionally edited interior and exterior photographs, 5–8 edited drone stills, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, approximately 2–3 minutes where the property and agreed brief justify it, one separate vertical 9:16 social-media edit, hosted 3D virtual tour for a suitable standard-sized property, full-resolution delivery, ${REAL_ESTATE_TURNAROUNDS.premium.label.toLowerCase()}, and commercial marketing licence.`,
+    text: `Typically 35–40 professionally edited interior and exterior photographs, 5–8 edited drone stills, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, one separate vertical 9:16 social-media edit, hosted 3D virtual tour for a suitable standard-sized property, full-resolution delivery, ${REAL_ESTATE_TURNAROUNDS.premium.label.toLowerCase()}, and commercial marketing licence.`,
     galleryQualifier: REAL_ESTATE_GALLERY_QUALIFIER,
     virtualTourQualifier:
       "The included 3D tour applies to a suitable standard-sized property. Larger, scan-heavy or unusually complex properties require a scope review and may be quoted separately.",

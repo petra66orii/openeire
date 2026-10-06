@@ -527,7 +527,10 @@ export function RealEstateEnquiryForm() {
 
   if (status === "success") {
     return (
-      <section id="enquiry" className="scroll-mt-32 bg-gray-950 py-20">
+      <section
+        id="enquire"
+        className="scroll-mt-[calc(var(--site-header-height,96px)+var(--real-estate-section-nav-height,64px)+1rem)] bg-gray-950 py-20"
+      >
         <div className="container mx-auto max-w-3xl px-4 text-center">
           <FaCheckCircle className="mx-auto mb-5 text-5xl text-accent" />
           <h2 className="font-serif text-3xl font-bold">Thanks — enquiry received.</h2>
@@ -539,7 +542,10 @@ export function RealEstateEnquiryForm() {
   }
 
   return (
-    <section id="enquiry" className="scroll-mt-32 bg-gray-950 py-20">
+    <section
+      id="enquire"
+      className="scroll-mt-[calc(var(--site-header-height,96px)+var(--real-estate-section-nav-height,64px)+1rem)] bg-gray-950 py-20"
+    >
       <div className="container mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[0.7fr_1.3fr] lg:px-8">
         <div>
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-accent">Enquiry</p>

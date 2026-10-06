@@ -5,7 +5,7 @@ import RealEstatePage from "@/app/real-estate/page";
 import { HomeCertsSection } from "@/components/home/HomeSections";
 
 vi.mock("@/components/real-estate/RealEstateEnquiryForm", () => ({
-  RealEstateEnquiryForm: () => <section id="enquiry">Enquiry form</section>,
+  RealEstateEnquiryForm: () => <section id="enquire">Enquiry form</section>,
 }));
 
 describe("drone qualification trust signals", () => {

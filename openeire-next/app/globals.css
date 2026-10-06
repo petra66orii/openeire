@@ -95,6 +95,45 @@
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .real-estate-benefits[data-reveal-ready="true"][data-visible="false"]
+    .real-estate-benefit-card {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  .real-estate-benefits[data-visible="true"] .real-estate-benefit-card {
+    animation: real-estate-benefit-reveal 420ms ease-out both;
+    animation-delay: calc(var(--benefit-index, 0) * 70ms);
+  }
+
+  .real-estate-service-media-enter {
+    animation: real-estate-media-enter 280ms ease-out both;
+  }
+}
+
+@keyframes real-estate-benefit-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes real-estate-media-enter {
+  from {
+    opacity: 0.7;
+    transform: scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 :root {
   --page-top-offset: 7rem;
   --site-header-height: var(--page-top-offset);
@@ -107,7 +146,8 @@ html {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  html:has(.portfolio-property-navigation) {
+  html:has(.portfolio-property-navigation),
+  html:has(.real-estate-section-navigation) {
     scroll-behavior: smooth;
   }
 }

@@ -26,7 +26,7 @@ vi.mock("@/lib/analytics", () => ({
   trackEvent: vi.fn(),
 }));
 vi.mock("@/components/real-estate/RealEstateEnquiryForm", () => ({
-  RealEstateEnquiryForm: () => <section id="enquiry">Enquiry form</section>,
+  RealEstateEnquiryForm: () => <section id="enquire">Enquiry form</section>,
 }));
 
 const buildProject = (
@@ -83,7 +83,7 @@ describe("real-estate portfolio", () => {
     ).toBeTruthy();
     expect(
       screen.getByRole("link", { name: "Discuss a Property" }).getAttribute("href"),
-    ).toBe("/real-estate#enquiry");
+    ).toBe("/real-estate#enquire");
     expect(
       screen
         .getByRole("link", { name: "View Services & Packages" })

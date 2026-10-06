@@ -86,7 +86,7 @@ export default function RealEstatePortfolioPage() {
             </p>
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <PortfolioTrackedLink
-                href="/real-estate#enquiry"
+                href="/real-estate#enquire"
                 eventName="portfolio_enquiry_cta"
                 eventLocation="hero"
                 className="rounded-full bg-brand-500 px-7 py-4 text-center text-sm font-bold uppercase tracking-[0.17em] text-white shadow-xl shadow-brand-500/20 hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -253,7 +253,7 @@ export default function RealEstatePortfolioPage() {
             receive a scope recommendation and an accurate quotation.
           </p>
           <PortfolioTrackedLink
-            href="/real-estate#enquiry"
+            href="/real-estate#enquire"
             eventName="portfolio_enquiry_cta"
             eventLocation="closing_cta"
             className="mt-9 inline-flex min-h-12 items-center justify-center rounded-full bg-accent px-8 py-4 text-sm font-bold uppercase tracking-[0.17em] text-black hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
