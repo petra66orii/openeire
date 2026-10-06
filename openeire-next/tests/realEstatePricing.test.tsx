@@ -37,6 +37,10 @@ describe("active real-estate pricing", () => {
   });
 
   it("publishes the authoritative package prices and photograph allowances", () => {
+    expect(REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE).toBe(
+      "One combined cinematic 4K property film using ground and aerial footage, typically 2–3 minutes depending on the property and agreed brief",
+    );
+
     expect(
       Object.fromEntries(
         REAL_ESTATE_PACKAGES.map(
@@ -47,7 +51,6 @@ describe("active real-estate pricing", () => {
         ),
       ),
     ).toEqual({
-      essential: { priceAmount: 175, includedPhotographs: 10 },
       starter: { priceAmount: 259, includedPhotographs: 25 },
       pro: { priceAmount: 419, includedPhotographs: 30 },
       premium: { priceAmount: 549, includedPhotographs: 35 },
@@ -57,12 +60,13 @@ describe("active real-estate pricing", () => {
     const proPackage = REAL_ESTATE_PACKAGES.find(({ id }) => id === "pro");
     const premiumPackage = REAL_ESTATE_PACKAGES.find(({ id }) => id === "premium");
     expect(proPackage?.text).toContain(
-      "30 professionally edited interior and exterior ground photographs",
+      "Typically 30–35 professionally edited interior and exterior photographs",
     );
     expect(proPackage?.text).toContain(
-      "One combined 4K property film — 60–90 sec ground footage + 60–90 sec aerial footage (approx. 2–3 min total)",
+      "One combined cinematic 4K property film using ground and aerial footage",
     );
-    expect(proPackage?.text).toContain("one separate vertical 9:16 social-media video");
+    expect(proPackage?.text).toContain("one separate vertical 9:16 social-media edit");
+    expect(proPackage?.text.match(/2–3 minutes/g)).toHaveLength(1);
     expect(proPackage?.text).not.toContain("separate 60–90 second 4K aerial drone video");
     expect(proPackage?.features).toContain(REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE);
     expect(
@@ -70,13 +74,14 @@ describe("active real-estate pricing", () => {
         (feature) => feature === REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
       ),
     ).toHaveLength(1);
-    expect(proPackage?.features).toContain("Vertical 9:16 social video");
+    expect(proPackage?.features).toContain("One separate vertical 9:16 social-media edit");
     expect(proPackage?.features).toContain("Commercial marketing licence");
     expect(premiumPackage?.text).toContain(
-      "One combined 4K property film — 60–90 sec ground footage + 60–90 sec aerial footage (approx. 2–3 min total)",
+      "One combined cinematic 4K property film using ground and aerial footage",
     );
-    expect(premiumPackage?.text).toContain("one separate vertical 9:16 social-media video");
-    expect(premiumPackage?.text).toContain("hosted 3D virtual tour");
+    expect(premiumPackage?.text).toContain("one separate vertical 9:16 social-media edit");
+    expect(premiumPackage?.text.match(/2–3 minutes/g)).toHaveLength(1);
+    expect(premiumPackage?.text).toContain("hosted 3D virtual tour for a suitable standard-sized property");
     expect(premiumPackage?.features).toContain(
       REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
     );
@@ -85,12 +90,12 @@ describe("active real-estate pricing", () => {
         (feature) => feature === REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
       ),
     ).toHaveLength(1);
-    expect(premiumPackage?.features).toContain("Vertical 9:16 social video");
+    expect(premiumPackage?.features).toContain("One separate vertical 9:16 social-media edit");
     expect(premiumPackage?.features).toContain("Commercial marketing licence");
     expect(proPackage?.text).toContain("measured 2D floor plan");
-    expect(proPackage?.text).toContain("vertical 9:16 social-media video");
+    expect(proPackage?.text).toContain("vertical 9:16 social-media edit");
     expect(REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY).toContain(
-      "€10 per photograph",
+      "€10 each",
     );
   });
 
@@ -109,7 +114,7 @@ describe("active real-estate pricing", () => {
     );
 
     expect(pageSource).toContain(
-      "{REAL_ESTATE_PACKAGES.slice(0, 4).map((item) => (",
+      "{REAL_ESTATE_PACKAGES.slice(0, 3).map((item) => (",
     );
     expect(pageSource).toContain(
       "const realEstatePackageOffers = REAL_ESTATE_PACKAGES.map",
@@ -121,10 +126,6 @@ describe("active real-estate pricing", () => {
 
   it("mirrors the package-aware API turnaround contract", () => {
     expect(REAL_ESTATE_TURNAROUNDS).toMatchObject({
-      essential: {
-        code: "next_business_day",
-        label: "Next-business-day delivery",
-      },
       starter: {
         code: "next_business_day",
         label: "Next-business-day delivery",
@@ -151,7 +152,7 @@ describe("active real-estate pricing", () => {
   it("limits the rush add-on to still photography", () => {
     expect(REAL_ESTATE_RUSH_DELIVERY_LABEL).toContain("still photography only");
     expect(REAL_ESTATE_RUSH_DELIVERY_NOTE).toContain(
-      "does not rush drone video, ground video, social-media video cuts",
+      "does not rush property films, social-media video cuts",
     );
     expect(REAL_ESTATE_RUSH_DELIVERY_NOTE).toContain(
       "3D virtual tours, floor plans or other Premium outputs",
@@ -169,11 +170,10 @@ describe("active real-estate pricing", () => {
     );
     expect(optionLabels).toEqual([
       "Choose deliberately\u2026",
-      "Essential \u2014 \u20ac175",
       "Starter \u2014 \u20ac259",
       "Pro \u2014 \u20ac419",
       "Premium \u2014 \u20ac549",
-      "Custom \u2014 POA",
+      "Custom / POA",
       "Not sure",
     ]);
   });

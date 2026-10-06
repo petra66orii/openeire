@@ -2,7 +2,6 @@ export const REAL_ESTATE_VAT_NOTE =
   "OpenÉire Studios is not currently VAT registered. No VAT is charged.";
 
 export type RealEstatePackageId =
-  | "essential"
   | "starter"
   | "pro"
   | "premium"
@@ -10,12 +9,6 @@ export type RealEstatePackageId =
   | "not_sure";
 
 export const REAL_ESTATE_TURNAROUNDS = {
-  essential: {
-    code: "next_business_day",
-    label: "Next-business-day delivery",
-    detail:
-      "This package is normally delivered by the end of the next business day.",
-  },
   starter: {
     code: "next_business_day",
     label: "Next-business-day delivery",
@@ -50,7 +43,7 @@ export const REAL_ESTATE_TURNAROUNDS = {
 >;
 
 export const REAL_ESTATE_STANDARD_TURNAROUND_COPY =
-  "Essential and Starter packages are normally delivered by the end of the next business day. Pro and Premium packages are normally delivered within two business days due to the additional video-production workload.";
+  "Starter is normally delivered by the end of the next business day. Pro and Premium are normally delivered within two business days due to the additional video-production workload.";
 
 export const REAL_ESTATE_TURNAROUND_CONTEXT =
   "Turnaround begins once the shoot is complete and all required property and client information has been supplied. Weather-dependent return visits and agreed changes to the scope may affect delivery.";
@@ -59,56 +52,44 @@ export const REAL_ESTATE_RUSH_DELIVERY_LABEL =
   "Rush same-day delivery — still photography only";
 
 export const REAL_ESTATE_RUSH_DELIVERY_NOTE =
-  "The €75 rush add-on covers still photography only. It does not rush drone video, ground video, social-media video cuts, 3D virtual tours, floor plans or other Premium outputs.";
+  "The €75 rush add-on covers still photography only. It does not rush property films, social-media video cuts, 3D virtual tours, floor plans or other Premium outputs.";
 
 export const getRealEstateTurnaround = (packageId: RealEstatePackageId) =>
   REAL_ESTATE_TURNAROUNDS[packageId];
 
 export const REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_PRICE = 10;
 export const REAL_ESTATE_ADDITIONAL_PHOTOGRAPH_COPY =
-  "Additional edited photographs may be agreed at €10 per photograph.";
+  "Additional edited photographs — €10 each";
 export const REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE =
-  "One combined 4K property film — 60–90 sec ground footage + 60–90 sec aerial footage (approx. 2–3 min total)";
+  "One combined cinematic 4K property film using ground and aerial footage, typically 2–3 minutes depending on the property and agreed brief";
+export const REAL_ESTATE_GALLERY_QUALIFIER =
+  "Photo quantities are indicative rather than a fixed minimum. The final gallery depends on the property’s size, layout, presentation, access and agreed brief, with priority given to a strong, non-repetitive set of marketing images.";
+export const REAL_ESTATE_STARTING_PRICE_COPY =
+  "Property-media packages from €259 total.";
+export const REAL_ESTATE_CATALOGUE_VERSION = "residential_2026_10";
 
 export const REAL_ESTATE_PACKAGES = [
-  {
-    id: "essential",
-    name: "Essential",
-    price: "\u20AC175 total",
-    priceAmount: 175,
-    includedPhotographs: 10,
-    includedPhotographsLabel:
-      "10 professionally edited interior and exterior ground photographs",
-    description:
-      "Best for smaller properties, rentals and straightforward starter listings.",
-    features: [
-      "10 edited interior and exterior photographs",
-      "Full-resolution delivery",
-      "Next-business-day delivery",
-      "Commercial marketing licence",
-      "Optional 2D floor plan +€75",
-    ],
-    text: `10 professionally edited interior and exterior ground photographs, full-resolution delivery, ${REAL_ESTATE_TURNAROUNDS.essential.label.toLowerCase()}, and listing marketing licence.`,
-    turnaround: REAL_ESTATE_TURNAROUNDS.essential,
-  },
   {
     id: "starter",
     name: "Starter",
     price: "\u20AC259 total",
     priceAmount: 259,
     includedPhotographs: 25,
+    includedPhotographsMax: 30,
     includedPhotographsLabel:
-      "25 professionally edited interior and exterior ground photographs",
-    description: "Best for standard residential listings without video.",
+      "Typically 25–30 professionally edited interior and exterior photographs",
+    description:
+      "Best for standard residential listings that need professional photography, aerial coverage and a measured floor plan.",
     features: [
-      "25 edited ground photographs",
-      "5–8 drone stills",
-      "2D measured floor plan",
+      "Typically 25–30 professionally edited interior and exterior photographs",
+      "5–8 edited drone stills",
+      "Measured 2D floor plan",
       "Full-resolution delivery",
       "Next-business-day delivery",
       "Commercial marketing licence",
     ],
-    text: `25 professionally edited interior and exterior ground photographs, 5-8 aerial drone stills in addition to the ground photographs, measured 2D floor plan, full-resolution delivery, ${REAL_ESTATE_TURNAROUNDS.starter.label.toLowerCase()}, and listing marketing licence.`,
+    text: `Typically 25–30 professionally edited interior and exterior photographs, 5–8 edited drone stills, measured 2D floor plan, full-resolution delivery, ${REAL_ESTATE_TURNAROUNDS.starter.label.toLowerCase()}, and commercial marketing licence.`,
+    galleryQualifier: REAL_ESTATE_GALLERY_QUALIFIER,
     turnaround: REAL_ESTATE_TURNAROUNDS.starter,
   },
   {
@@ -117,22 +98,24 @@ export const REAL_ESTATE_PACKAGES = [
     price: "\u20AC419 total",
     priceAmount: 419,
     includedPhotographs: 30,
+    includedPhotographsMax: 35,
     includedPhotographsLabel:
-      "30 professionally edited interior and exterior ground photographs",
+      "Typically 30–35 professionally edited interior and exterior photographs",
     badge: "Recommended",
     description:
-      "Best for detached homes, larger listings and standout marketing.",
+      "For listings that benefit from a complete photography and video package.",
     features: [
-      "30 edited ground photographs",
-      "5–8 drone stills",
-      "2D measured floor plan",
+      "Typically 30–35 professionally edited interior and exterior photographs",
+      "5–8 edited drone stills",
+      "Measured 2D floor plan",
       REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
-      "Vertical 9:16 social video",
+      "One separate vertical 9:16 social-media edit",
       "Full-resolution delivery",
       "Two-business-day delivery",
       "Commercial marketing licence",
     ],
-    text: `30 professionally edited interior and exterior ground photographs, 5-8 aerial drone stills in addition to the ground photographs, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, one separate vertical 9:16 social-media video, ${REAL_ESTATE_TURNAROUNDS.pro.label.toLowerCase()}, and listing marketing licence.`,
+    text: `Typically 30–35 professionally edited interior and exterior photographs, 5–8 edited drone stills, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, one separate vertical 9:16 social-media edit, ${REAL_ESTATE_TURNAROUNDS.pro.label.toLowerCase()}, and commercial marketing licence.`,
+    galleryQualifier: REAL_ESTATE_GALLERY_QUALIFIER,
     turnaround: REAL_ESTATE_TURNAROUNDS.pro,
   },
   {
@@ -141,41 +124,43 @@ export const REAL_ESTATE_PACKAGES = [
     price: "\u20AC549 total",
     priceAmount: 549,
     includedPhotographs: 35,
+    includedPhotographsMax: 40,
     includedPhotographsLabel:
-      "35 professionally edited interior and exterior ground photographs",
+      "Typically 35–40 professionally edited interior and exterior photographs",
     description:
-      "Best for premium, rural, waterfront and high-impact listings.",
+      "For listings that need the fullest standard residential media package.",
     features: [
-      "35 edited ground photographs",
-      "5–8 drone stills",
-      "2D measured floor plan",
+      "Typically 35–40 professionally edited interior and exterior photographs",
+      "5–8 edited drone stills",
+      "Measured 2D floor plan",
       REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE,
-      "Vertical 9:16 social video",
-      "Hosted 3D virtual tour",
+      "One separate vertical 9:16 social-media edit",
+      "Hosted 3D virtual tour for a suitable standard-sized property",
+      "Full-resolution delivery",
       "Two-business-day delivery",
       "Commercial marketing licence",
     ],
-    text: `35 professionally edited interior and exterior ground photographs, 5-8 aerial drone stills in addition to the ground photographs, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, one separate vertical 9:16 social-media video, hosted 3D virtual tour, ${REAL_ESTATE_TURNAROUNDS.premium.label.toLowerCase()}, and listing marketing licence.`,
+    text: `Typically 35–40 professionally edited interior and exterior photographs, 5–8 edited drone stills, measured 2D floor plan, ${REAL_ESTATE_COMBINED_VIDEO_DELIVERABLE}, one separate vertical 9:16 social-media edit, hosted 3D virtual tour for a suitable standard-sized property, full-resolution delivery, ${REAL_ESTATE_TURNAROUNDS.premium.label.toLowerCase()}, and commercial marketing licence.`,
+    galleryQualifier: REAL_ESTATE_GALLERY_QUALIFIER,
+    virtualTourQualifier:
+      "The included 3D tour applies to a suitable standard-sized property. Larger, scan-heavy or unusually complex properties require a scope review and may be quoted separately.",
     turnaround: REAL_ESTATE_TURNAROUNDS.premium,
   },
   {
     id: "custom",
-    name: "Custom",
-    price: "POA",
+    name: "Custom / POA",
+    price: "Custom / POA",
     priceAmount: null,
     includedPhotographs: null,
     includedPhotographsLabel: "Included photographs as specifically agreed",
     description:
-      "Best for multi-property, commercial, agricultural and bespoke shoots. Suitable for developments, active construction sites and multi-property projects, subject to site access and safety requirements.",
+      "Recommended for substantial grounds, multiple buildings or accommodation units, land-heavy coverage, unusually large properties, extensive twilight requirements, presenter-led production, bespoke film requirements or luxury/architectural work materially beyond the standard residential packages.",
     features: [
-      "Scope agreed per project",
-      "Multi-property bookings",
-      "Drone photography and video",
-      "Measured floor plans",
-      "Developer packages",
-      "Agreed turnaround",
+      "Scope and price reviewed before booking",
+      "Deliverables agreed per project",
+      "Turnaround as specifically agreed",
     ],
-    text: `For multi-property shoots, large developments, commercial properties, agricultural properties, and bespoke bundles. ${REAL_ESTATE_TURNAROUNDS.custom.label}.`,
+    text: `Recommended for substantial grounds, multiple buildings or accommodation units, land-heavy coverage, unusually large properties, extensive twilight requirements, presenter-led production, bespoke film requirements or luxury/architectural work materially beyond the standard residential packages. ${REAL_ESTATE_TURNAROUNDS.custom.label}.`,
     turnaround: REAL_ESTATE_TURNAROUNDS.custom,
   },
 ] as const;

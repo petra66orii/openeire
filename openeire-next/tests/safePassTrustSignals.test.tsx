@@ -5,7 +5,7 @@ import RealEstatePage from "@/app/real-estate/page";
 import { HomeCertsSection } from "@/components/home/HomeSections";
 
 vi.mock("@/components/real-estate/RealEstateEnquiryForm", () => ({
-  RealEstateEnquiryForm: () => <section id="enquiry">Enquiry form</section>,
+  RealEstateEnquiryForm: () => <section id="enquire">Enquiry form</section>,
 }));
 
 describe("drone qualification trust signals", () => {
@@ -85,7 +85,7 @@ describe("drone qualification trust signals", () => {
     ).toBeTruthy();
     expect(
       screen.getByText(
-        /Suitable for developments, active construction sites and multi-property projects, subject to site access and safety requirements\./,
+        /Recommended for substantial grounds, multiple buildings or accommodation units, land-heavy coverage/,
       ),
     ).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/IAA certified|Specific Category/i);

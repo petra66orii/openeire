@@ -19,7 +19,6 @@ export type ClientType =
   | "other";
 
 export type PackageType =
-  | "essential"
   | "starter"
   | "pro"
   | "premium"
@@ -42,9 +41,23 @@ export type AddOnKey =
   | "floor_plan"
   | "virtual_tour_3d"
   | "rush_delivery"
-  | "extended_drone_video"
+  | "extended_property_film"
   | "additional_social_cuts"
+  | "luxury_architectural"
+  | "twilight_dusk"
   | "travel_supplement";
+
+export type CustomReviewReason =
+  | "substantial_grounds"
+  | "multiple_buildings"
+  | "multiple_units"
+  | "land_heavy"
+  | "unusually_large"
+  | "luxury_architectural"
+  | "extensive_twilight"
+  | "substantial_presenter"
+  | "bespoke_film"
+  | "unsure";
 
 export type PropertyCategory =
   | "house"
@@ -58,7 +71,7 @@ export type PropertyCategory =
 export type YesNoNotSure = "yes" | "no" | "not_sure";
 
 export interface RealEstateEnquiryPayload {
-  form_schema_version: 2;
+  form_schema_version: 3;
   name: string;
   email: string;
   phone: string;
@@ -125,5 +138,7 @@ export interface RealEstateEnquiryPayload {
   audio_requirements?: string;
   how_heard?: HowHeard;
   message?: string;
+  custom_review_reasons?: CustomReviewReason[];
+  custom_review_notes?: string;
   consent_to_contact: boolean;
 }

@@ -82,7 +82,7 @@ describe("real-estate shoot scoping form", () => {
   it("shows package-aware turnaround without fabricating a custom deadline", () => {
     render(<RealEstateEnquiryForm />);
 
-    select("preferred_package", "essential");
+    select("preferred_package", "starter");
     expect(screen.getByText("Next-business-day delivery.")).toBeTruthy();
 
     select("preferred_package", "pro");
@@ -159,23 +159,20 @@ describe("real-estate shoot scoping form", () => {
     select("preferred_package", "premium");
     expect(screen.queryByLabelText(/Hosted 3D virtual tour/)).toBeNull();
     expect(screen.getByText(/already included in the new package/)).toBeTruthy();
-    expect(screen.queryByLabelText(/2D measured floor plan/)).toBeNull();
-    expect(screen.getByLabelText(/Additional social formats/)).toBeTruthy();
+    expect(screen.queryByLabelText(/Measured 2D floor plan/)).toBeNull();
+    expect(screen.getByLabelText(/Additional social cut \/ format/)).toBeTruthy();
   });
 
   it("offers a floor plan only where it is not already included", () => {
     render(<RealEstateEnquiryForm />);
 
-    select("preferred_package", "essential");
-    expect(screen.getByLabelText(/2D measured floor plan/)).toBeTruthy();
-
     for (const packageId of ["starter", "pro", "premium"]) {
       select("preferred_package", packageId);
-      expect(screen.queryByLabelText(/2D measured floor plan/)).toBeNull();
+      expect(screen.queryByLabelText(/Measured 2D floor plan/)).toBeNull();
     }
 
-    select("preferred_package", "custom");
-    expect(screen.getByLabelText(/2D measured floor plan/)).toBeTruthy();
+    select("preferred_package", "not_sure");
+    expect(screen.getByLabelText(/Measured 2D floor plan/)).toBeTruthy();
   });
 
   it("shows catalogue-driven included-photograph guidance for the selected package", () => {
@@ -183,13 +180,26 @@ describe("real-estate shoot scoping form", () => {
 
     select("preferred_package", "starter");
     expect(
-      screen.getByText(/25 professionally edited interior and exterior ground photographs/),
+      screen.getByText(/Typically 25–30 professionally edited interior and exterior photographs/),
     ).toBeTruthy();
 
     select("preferred_package", "premium");
     expect(
-      screen.getByText(/35 professionally edited interior and exterior ground photographs/),
+      screen.getByText(/Typically 35–40 professionally edited interior and exterior photographs/),
     ).toBeTruthy();
+  });
+
+  it("routes an explicitly complex property to Custom / POA review", () => {
+    render(<RealEstateEnquiryForm />);
+    select("preferred_package", "premium");
+
+    fireEvent.click(screen.getByLabelText("Multiple buildings"));
+
+    expect(
+      (document.querySelector('[name="preferred_package"]') as HTMLSelectElement).value,
+    ).toBe("custom");
+    expect(screen.getByText(/route this enquiry to Custom \/ POA review/)).toBeTruthy();
+    expect(screen.getByLabelText(/Scope review details/)).toBeTruthy();
   });
 
   it("requires a bounded additional-stills quantity", () => {
@@ -199,7 +209,7 @@ describe("real-estate shoot scoping form", () => {
     expect(quantity.min).toBe("1");
     expect(quantity.max).toBe("50");
     expect(quantity.step).toBe("1");
-    expect(screen.getAllByText(/€10 per photograph/)).toHaveLength(2);
+    expect(screen.getAllByText(/€10 each/)).toHaveLength(2);
   });
 
   it("makes clear that rush delivery does not cover video or premium outputs", () => {
@@ -207,7 +217,7 @@ describe("real-estate shoot scoping form", () => {
 
     fireEvent.click(screen.getByLabelText(/Rush same-day delivery/));
 
-    expect(screen.getByText(/does not rush drone video, ground video/)).toBeTruthy();
+    expect(screen.getByText(/does not rush property films/)).toBeTruthy();
     expect(screen.getByText(/3D virtual tours, floor plans/)).toBeTruthy();
   });
 
@@ -218,7 +228,7 @@ describe("real-estate shoot scoping form", () => {
 
     await waitFor(() => expect(mocks.submit).toHaveBeenCalledTimes(1));
     expect(mocks.submit.mock.calls[0][0]).toMatchObject({
-      form_schema_version: 2,
+      form_schema_version: 3,
       client_type: "estate_agent",
       company_name: "Example Agency",
       preferred_package: "starter",
