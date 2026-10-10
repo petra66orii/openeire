@@ -137,6 +137,7 @@ export interface RealEstateEnquiryPayload {
   on_camera_people?: string;
   audio_requirements?: string;
   how_heard?: HowHeard;
+  print_source?: "flyer" | "portfolio-card" | "office-drop" | "qr-sticker";
   message?: string;
   custom_review_reasons?: CustomReviewReason[];
   custom_review_notes?: string;

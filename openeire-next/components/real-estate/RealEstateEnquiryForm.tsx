@@ -488,6 +488,7 @@ export function RealEstateEnquiryForm() {
     on_camera_people: formData.on_camera === "yes" ? optional(formData.on_camera_people) : undefined,
     audio_requirements: formData.on_camera === "yes" ? optional(formData.audio_requirements) : undefined,
     how_heard: formData.how_heard || undefined,
+    print_source: getPrintSource(window.location.search) || undefined,
     message: optional(formData.message),
     custom_review_reasons: formData.custom_review_reasons,
     custom_review_notes: optional(formData.custom_review_notes),
