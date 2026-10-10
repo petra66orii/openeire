@@ -9,6 +9,8 @@ import {
 } from "react";
 import { FaCalendarAlt, FaCheckCircle, FaMapMarkerAlt, FaPaperPlane } from "react-icons/fa";
 import { useToast } from "@/components/ui/ToastProvider";
+import { trackEvent } from "@/lib/analytics";
+import { getPrintSource, printParameters } from "@/lib/printAttribution";
 import {
   getApiErrorMessage,
   getApiFieldErrors,
@@ -504,6 +506,11 @@ export function RealEstateEnquiryForm() {
     setErrors({});
     try {
       await submitRealEstateEnquiry(buildPayload());
+      const printSource = getPrintSource(window.location.search);
+      trackEvent("generate_lead", {
+        form: "real_estate_enquiry",
+        ...(printSource ? printParameters(printSource) : {}),
+      });
       submitIubendaConsentForm(FORM_ID);
       setStatus("success");
       setFormData(initialFormData);

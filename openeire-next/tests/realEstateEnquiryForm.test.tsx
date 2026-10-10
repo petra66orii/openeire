@@ -6,7 +6,10 @@ import { RealEstateEnquiryForm } from "@/components/real-estate/RealEstateEnquir
 const mocks = vi.hoisted(() => ({
   submit: vi.fn(),
   consent: vi.fn(),
+  track: vi.fn(),
 }));
+
+vi.mock("@/lib/analytics", () => ({ trackEvent: mocks.track }));
 
 vi.mock("@/components/ui/ToastProvider", () => ({
   useToast: () => ({ showToast: vi.fn() }),
@@ -61,6 +64,7 @@ describe("real-estate shoot scoping form", () => {
   beforeEach(() => {
     mocks.submit.mockReset().mockResolvedValue({ id: 1 });
     mocks.consent.mockReset();
+    mocks.track.mockReset();
     window.history.replaceState({}, "", "/real-estate");
   });
 
@@ -250,5 +254,16 @@ describe("real-estate shoot scoping form", () => {
     fireEvent.submit(document.getElementById("real-estate-enquiry-form")!);
     expect(await screen.findByText("Backend Eircode error.")).toBeTruthy();
     expect(document.querySelector('[name="eircode"]')?.getAttribute("aria-invalid")).toBe("true");
+    expect(mocks.track).not.toHaveBeenCalled();
+  });
+
+  it("records the print source only after a successful enquiry, without personal information", async () => {
+    window.history.replaceState({}, "", "/real-estate?utm_source=qr-sticker&utm_medium=print&utm_campaign=property_media&email=private");
+    render(<RealEstateEnquiryForm />);
+    completeRequiredForm();
+    fireEvent.submit(document.getElementById("real-estate-enquiry-form")!);
+    await waitFor(() => expect(mocks.track).toHaveBeenCalledWith("generate_lead", {
+      form: "real_estate_enquiry", utm_source: "qr-sticker", utm_medium: "print", utm_campaign: "property_media",
+    }));
   });
 });
