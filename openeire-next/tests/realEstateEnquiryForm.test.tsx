@@ -265,5 +265,6 @@ describe("real-estate shoot scoping form", () => {
     await waitFor(() => expect(mocks.track).toHaveBeenCalledWith("generate_lead", {
       form: "real_estate_enquiry", utm_source: "qr-sticker", utm_medium: "print", utm_campaign: "property_media",
     }));
+    expect(mocks.submit.mock.calls[0][0].print_source).toBe("qr-sticker");
   });
 });
