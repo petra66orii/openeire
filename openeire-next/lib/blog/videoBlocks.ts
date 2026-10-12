@@ -33,7 +33,8 @@ export function getBlogContentBlocks(content: string): BlogContentBlock[] {
     // local renderer restricted to the existing media origins as well.
     try {
       const poster = new URL(src, "https://openeire.ie");
-      const localPath = src.startsWith("/") && !src.startsWith("//");
+      const localPath = src.startsWith("/") && !src.startsWith("//") &&
+        !src.includes("\\") && poster.origin === "https://openeire.ie";
       const approvedRemote = ["media.openeire.ie", "api.openeire.ie"].includes(poster.hostname);
       if (poster.protocol !== "https:" || poster.username || poster.password || poster.port || (!localPath && !approvedRemote)) continue;
     } catch { continue; }

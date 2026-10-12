@@ -26,7 +26,7 @@ describe("editor-authored blog video blocks", () => {
   it.each(["/poster.webp", "https://api.openeire.ie/media/poster.webp"])("accepts configured poster source %s", src => {
     expect(getBlogContentBlocks(marker("https://youtu.be/JAQxl0l3Spo", "landscape", src)).some(b => b.kind === "video")).toBe(true);
   });
-  it.each(["https://user@media.openeire.ie/poster.webp", "https://media.openeire.ie:444/poster.webp", "//evil.test/poster.webp"])("rejects unsupported poster source %s", src => {
+  it.each(["https://user@media.openeire.ie/poster.webp", "https://media.openeire.ie:444/poster.webp", "//evil.test/poster.webp", "/\\evil.test/poster.webp"])("rejects unsupported poster source %s", src => {
     expect(getBlogContentBlocks(marker("https://youtu.be/JAQxl0l3Spo", "landscape", src)).some(b => b.kind === "video")).toBe(false);
   });
 });
