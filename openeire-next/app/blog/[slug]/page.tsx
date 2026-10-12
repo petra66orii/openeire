@@ -4,13 +4,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogComments } from "@/components/blog/BlogComments";
 import { BlogLikeButton } from "@/components/blog/BlogLikeButton";
+import { BlogArticleContent } from "@/components/blog/BlogArticleContent";
 import { JsonLd } from "@/components/JsonLd";
 import { getCachedPublishedBlogPostBySlug } from "@/lib/api/serverDetails";
 import { formatBlogDisplayDate } from "@/lib/blog/dates";
 import { resolveMediaUrl } from "@/lib/media";
 import { buildBreadcrumbJsonLd } from "@/lib/seo/jsonLd";
 import { buildAbsoluteUrl, getSiteUrl, SITE_NAME } from "@/lib/site";
-import { sanitizeRichHtml } from "@/lib/sanitizeRichHtml";
 import {
   FaArrowLeft,
   FaCalendar,
@@ -135,7 +135,6 @@ export default async function BlogDetailPage({
   const absoluteFeaturedImage = featuredImage
     ? buildAbsoluteUrl(featuredImage)
     : undefined;
-  const sanitizedContent = sanitizeRichHtml(post.content ?? "");
   const visiblePublishedDate = formatBlogDisplayDate(
     post.created_at,
     "Date unavailable",
@@ -214,9 +213,7 @@ export default async function BlogDetailPage({
           </div>
         ) : null}
 
-        <article className="blog-content">
-          <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
-        </article>
+        <BlogArticleContent content={post.content ?? ""} slug={post.slug} />
 
         <div className="mt-16 flex flex-col items-center border-t border-white/10 pt-8">
           <BlogLikeButton
